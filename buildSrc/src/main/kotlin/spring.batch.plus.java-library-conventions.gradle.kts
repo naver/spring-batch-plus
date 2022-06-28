@@ -65,6 +65,7 @@ dependencies {
         testRuntimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2")
     }
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    testImplementation("org.assertj:assertj-core:3.23.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.+")
+    testImplementation("org.assertj:assertj-core:3.+")
+    testImplementation("org.mockito:mockito-core:3.+")
 }

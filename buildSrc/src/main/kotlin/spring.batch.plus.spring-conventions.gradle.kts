@@ -10,7 +10,8 @@ dependencies {
         compileOnly("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
         compileOnly("org.springframework.batch:spring-batch-core:$springBatchVersion")
 
-        testRuntimeOnly("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
+        testImplementation("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
         testImplementation("org.springframework.boot:spring-boot-test:$springBootVersion")
+        testImplementation("org.springframework.batch:spring-batch-core:$springBatchVersion")
     }
 }
