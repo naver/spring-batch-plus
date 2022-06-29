@@ -46,6 +46,7 @@ tasks.withType<Checkstyle>().configureEach {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
     finalizedBy(tasks.jacocoTestReport) // report is always generate
 }
 
