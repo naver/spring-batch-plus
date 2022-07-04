@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.CompositeConfigurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.step.builder.FlowStepBuilder
@@ -34,7 +35,10 @@ class FlowStepBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val flowStepBuilder: FlowStepBuilder
 ) {
+    private val compositeConfigurer = CompositeConfigurer<FlowStepBuilder>()
+
     internal fun build(): Step {
-        return this.flowStepBuilder.build()
+        return this.flowStepBuilder.apply(this.compositeConfigurer)
+            .build()
     }
 }

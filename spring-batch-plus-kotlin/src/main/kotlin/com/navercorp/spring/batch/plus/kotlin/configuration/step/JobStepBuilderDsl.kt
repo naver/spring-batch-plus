@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.CompositeConfigurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.launch.JobLauncher
@@ -36,21 +37,28 @@ class JobStepBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val jobStepBuilder: JobStepBuilder
 ) {
+    private val compositeConfigurer = CompositeConfigurer<JobStepBuilder>()
+
     /**
      * Set for [JobStepBuilder.jobLauncher][org.springframework.batch.core.step.builder.JobStepBuilder.jobLauncher].
      */
     fun launcher(jobLauncher: JobLauncher) {
-        this.jobStepBuilder.launcher(jobLauncher)
+        this.compositeConfigurer.add {
+            it.launcher(jobLauncher)
+        }
     }
 
     /**
      * Set for [JobStepBuilder.parametersExtractor][org.springframework.batch.core.step.builder.JobStepBuilder.parametersExtractor].
      */
     fun parametersExtractor(jobParametersExtractor: JobParametersExtractor) {
-        this.jobStepBuilder.parametersExtractor(jobParametersExtractor)
+        this.compositeConfigurer.add {
+            it.parametersExtractor(jobParametersExtractor)
+        }
     }
 
     internal fun build(): Step {
-        return this.jobStepBuilder.build()
+        return this.jobStepBuilder.apply(this.compositeConfigurer)
+            .build()
     }
 }

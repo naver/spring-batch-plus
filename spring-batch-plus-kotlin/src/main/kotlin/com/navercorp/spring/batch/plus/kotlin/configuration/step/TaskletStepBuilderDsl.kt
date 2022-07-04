@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.CompositeConfigurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import org.springframework.batch.core.ChunkListener
 import org.springframework.batch.core.Step
@@ -40,6 +41,8 @@ class TaskletStepBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val taskletStepBuilder: TaskletStepBuilder
 ) {
+    private val compositeConfigurer = CompositeConfigurer<TaskletStepBuilder>()
+
     private var taskExecutorSet = false
     private var exceptionHandlerSet = false
     private var stepOperationsSet = false
@@ -48,7 +51,9 @@ class TaskletStepBuilderDsl internal constructor(
      * Set for [TaskletStepBuilder.listener][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.listener].
      */
     fun listener(chunkListener: ChunkListener) {
-        this.taskletStepBuilder.listener(chunkListener)
+        this.compositeConfigurer.add {
+            it.listener(chunkListener)
+        }
     }
 
     /**
@@ -59,14 +64,18 @@ class TaskletStepBuilderDsl internal constructor(
      * - [org.springframework.batch.core.annotation.AfterChunkError]
      */
     fun listener(listener: Any) {
-        this.taskletStepBuilder.listener(listener)
+        this.compositeConfigurer.add {
+            it.listener(listener)
+        }
     }
 
     /**
      * Set for [TaskletStepBuilder.stream][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.stream].
      */
     fun stream(stream: ItemStream) {
-        this.taskletStepBuilder.stream(stream)
+        this.compositeConfigurer.add {
+            it.stream(stream)
+        }
     }
 
     /**
@@ -74,8 +83,10 @@ class TaskletStepBuilderDsl internal constructor(
      * It can't be used when [stepOperations] is set.
      */
     fun taskExecutor(taskExecutor: TaskExecutor) {
+        this.compositeConfigurer.add {
+            it.taskExecutor(taskExecutor)
+        }
         this.taskExecutorSet = true
-        this.taskletStepBuilder.taskExecutor(taskExecutor)
     }
 
     // Maybe throttleLimit can be here. But throttleLimit is redundant in a tasklet step.
@@ -85,23 +96,29 @@ class TaskletStepBuilderDsl internal constructor(
      * It can't be used when [stepOperations] is set.
      */
     fun exceptionHandler(exceptionHandler: ExceptionHandler) {
+        this.compositeConfigurer.add {
+            it.exceptionHandler(exceptionHandler)
+        }
         this.exceptionHandlerSet = true
-        this.taskletStepBuilder.exceptionHandler(exceptionHandler)
     }
 
     /**
      * Set for [TaskletStepBuilder.stepOperations][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.stepOperations].
      */
     fun stepOperations(repeatOperations: RepeatOperations) {
+        this.compositeConfigurer.add {
+            it.stepOperations(repeatOperations)
+        }
         this.stepOperationsSet = true
-        this.taskletStepBuilder.stepOperations(repeatOperations)
     }
 
     /**
      * Set for [TaskletStepBuilder.transactionAttribute][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.transactionAttribute].
      */
     fun transactionAttribute(transactionAttribute: TransactionAttribute) {
-        this.taskletStepBuilder.transactionAttribute(transactionAttribute)
+        this.compositeConfigurer.add {
+            it.transactionAttribute(transactionAttribute)
+        }
     }
 
     internal fun build(): Step {
@@ -115,6 +132,7 @@ class TaskletStepBuilderDsl internal constructor(
             }
         }
 
-        return this.taskletStepBuilder.build()
+        return this.taskletStepBuilder.apply(this.compositeConfigurer)
+            .build()
     }
 }

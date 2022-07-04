@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.CompositeConfigurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import org.springframework.batch.core.ChunkListener
 import org.springframework.batch.core.ItemProcessListener
@@ -45,6 +46,8 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
     private val dslContext: DslContext,
     private var simpleStepBuilder: SimpleStepBuilder<I, O>
 ) {
+    private val compositeConfigurer = CompositeConfigurer<SimpleStepBuilder<I, O>>()
+
     private var taskExecutorSet = false
     private var throttleLimitSet = false
     private var exceptionHandlerSet = false
@@ -54,28 +57,36 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * Set for [SimpleStepBuilder.reader][org.springframework.batch.core.step.builder.SimpleStepBuilder.reader].
      */
     fun reader(reader: ItemReader<out I>) {
-        this.simpleStepBuilder.reader(reader)
+        this.compositeConfigurer.add {
+            it.reader(reader)
+        }
     }
 
     /**
      * Set for [SimpleStepBuilder.writer][org.springframework.batch.core.step.builder.SimpleStepBuilder.writer].
      */
     fun writer(writer: ItemWriter<in O>) {
-        this.simpleStepBuilder.writer(writer)
+        this.compositeConfigurer.add {
+            it.writer(writer)
+        }
     }
 
     /**
      * Set for [SimpleStepBuilder.processor][org.springframework.batch.core.step.builder.SimpleStepBuilder.processor].
      */
     fun processor(processor: ItemProcessor<in I, out O>) {
-        this.simpleStepBuilder.processor(processor)
+        this.compositeConfigurer.add {
+            it.processor(processor)
+        }
     }
 
     /**
      * Set for [SimpleStepBuilder.readerIsTransactionalQueue][org.springframework.batch.core.step.builder.SimpleStepBuilder.readerIsTransactionalQueue].
      */
     fun readerIsTransactionalQueue() {
-        this.simpleStepBuilder.readerIsTransactionalQueue()
+        this.compositeConfigurer.add {
+            it.readerIsTransactionalQueue()
+        }
     }
 
     /**
@@ -95,28 +106,36 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * - [org.springframework.batch.core.annotation.OnWriteError]
      */
     fun listener(listener: Any) {
-        this.simpleStepBuilder.listener(listener)
+        this.compositeConfigurer.add {
+            it.listener(listener)
+        }
     }
 
     /**
      * Set item read listener.
      */
     fun listener(listener: ItemReadListener<in I>) {
-        this.simpleStepBuilder.listener(listener)
+        this.compositeConfigurer.add {
+            it.listener(listener)
+        }
     }
 
     /**
      * Set item write listener.
      */
     fun listener(listener: ItemWriteListener<in O>) {
-        this.simpleStepBuilder.listener(listener)
+        this.compositeConfigurer.add {
+            it.listener(listener)
+        }
     }
 
     /**
      * Set item process listener.
      */
     fun listener(listener: ItemProcessListener<in I, in O>) {
-        this.simpleStepBuilder.listener(listener)
+        this.compositeConfigurer.add {
+            it.listener(listener)
+        }
     }
 
     // from AbstractTaskletStepBuilder.xxx
@@ -125,14 +144,18 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * Set for [SimpleStepBuilder.listener][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.listener].
      */
     fun listener(chunkListener: ChunkListener) {
-        this.simpleStepBuilder.listener(chunkListener)
+        this.compositeConfigurer.add {
+            it.listener(chunkListener)
+        }
     }
 
     /**
      * Set for [SimpleStepBuilder.stream][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.stream].
      */
     fun stream(stream: ItemStream) {
-        this.simpleStepBuilder.stream(stream)
+        this.compositeConfigurer.add {
+            it.stream(stream)
+        }
     }
 
     /**
@@ -140,8 +163,10 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * It can't be used when [stepOperations] is set.
      */
     fun taskExecutor(taskExecutor: TaskExecutor) {
+        this.compositeConfigurer.add {
+            it.taskExecutor(taskExecutor)
+        }
         this.taskExecutorSet = true
-        this.simpleStepBuilder.taskExecutor(taskExecutor)
     }
 
     /**
@@ -150,8 +175,10 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * It can't be used when no [taskExecutor] is set.
      */
     fun throttleLimit(throttleLimit: Int) {
+        this.compositeConfigurer.add {
+            it.throttleLimit(throttleLimit)
+        }
         this.throttleLimitSet = true
-        this.simpleStepBuilder.throttleLimit(throttleLimit)
     }
 
     /**
@@ -159,23 +186,29 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * It can't be used when [stepOperations] is set.
      */
     fun exceptionHandler(exceptionHandler: ExceptionHandler) {
+        this.compositeConfigurer.add {
+            it.exceptionHandler(exceptionHandler)
+        }
         this.exceptionHandlerSet = true
-        this.simpleStepBuilder.exceptionHandler(exceptionHandler)
     }
 
     /**
      * Set for [SimpleStepBuilder.stepOperations][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.stepOperations].
      */
     fun stepOperations(repeatOperations: RepeatOperations) {
+        this.compositeConfigurer.add {
+            it.stepOperations(repeatOperations)
+        }
         this.stepOperationsSet = true
-        this.simpleStepBuilder.stepOperations(repeatOperations)
     }
 
     /**
      * Set for [SimpleStepBuilder.transactionAttribute][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.transactionAttribute].
      */
     fun transactionAttribute(transactionAttribute: TransactionAttribute) {
-        this.simpleStepBuilder.transactionAttribute(transactionAttribute)
+        this.compositeConfigurer.add {
+            it.transactionAttribute(transactionAttribute)
+        }
     }
 
     // see org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.build
@@ -195,6 +228,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
             }
         }
 
-        return this.simpleStepBuilder.build()
+        return this.simpleStepBuilder.apply(this.compositeConfigurer)
+            .build()
     }
 }
