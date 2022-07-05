@@ -120,7 +120,8 @@ internal class SimpleStepBuilderDslTest {
             repository(mock())
             transactionManager(ResourcelessTransactionManager())
         }
-        val simpleStepBuilder = SimpleStepBuilder<I, O>(stepBuilder).chunkOperations(repeatOperations)
+        val simpleStepBuilder =
+            SimpleStepBuilder<I, O>(stepBuilder).chunkOperations(repeatOperations)
 
         return SimpleStepBuilderDsl(dslContext, simpleStepBuilder).apply(init).build()
     }
@@ -283,6 +284,52 @@ internal class SimpleStepBuilderDslTest {
         assertThat(readCallCount).isEqualTo(readLimit)
         assertThat(processCallCount).isEqualTo(readLimit)
         assertThat(writeCallCount).isEqualTo(calculateWriteSize(readLimit, chunkSize))
+    }
+
+    @Test
+    fun testReaderIsTransactionalQueue() {
+        // given
+        val chunkSize = 5
+        val readLimit = 3
+        val retryLimit = 2
+        var readCallCount = 0
+        var readCounter = 0
+        var tryCount = 1
+
+        // when
+        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
+            reader {
+                if (readCounter < readLimit) {
+                    ++readCallCount
+                    ++readCounter
+                    1
+                } else {
+                    null
+                }
+            }
+            writer {
+                println("$tryCount")
+                if (tryCount < retryLimit) {
+                    ++tryCount
+                    readCounter = 0
+                    throw IllegalStateException("Error")
+                }
+                println("no error")
+            }
+            readerIsTransactionalQueue()
+            faultTolerant {
+                retryLimit(retryLimit)
+                retry<IllegalStateException>()
+            }
+        }
+        val jobExecution = JobExecution(jobInstance, jobParameters)
+        val stepExecution = jobExecution.createStepExecution(step.name)
+        step.execute(stepExecution)
+
+        // then
+        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        // without readerIsTransactionalQueue, it would be same as readLimit since read result is cached.
+        assertThat(readCallCount).isEqualTo(readLimit * tryCount)
     }
 
     @Test
@@ -462,7 +509,7 @@ internal class SimpleStepBuilderDslTest {
                         ++afterWriteCallCount
                     }
 
-                    override fun onWriteError(exception: java.lang.Exception, items: MutableList<out Number>) {
+                    override fun onWriteError(ex: Exception, items: MutableList<out Number>) {
                         // no need to test. we are just testing if listener is invoked
                     }
                 }
@@ -509,7 +556,7 @@ internal class SimpleStepBuilderDslTest {
                         ++afterProcessCallCount
                     }
 
-                    override fun onProcessError(item: Number, e: java.lang.Exception) {
+                    override fun onProcessError(item: Number, ex: Exception) {
                         // no need to test. we are just testing if listener is invoked
                     }
                 }
