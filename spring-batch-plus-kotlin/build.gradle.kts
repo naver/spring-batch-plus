@@ -12,5 +12,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api")
 
     testImplementation("org.springframework.batch:spring-batch-core")
+    testImplementation("org.springframework:spring-jdbc")
+    testRuntimeOnly("com.h2database:h2")
     testRuntimeOnly("org.apache.logging.log4j:log4j-slf4j-impl")
 }
