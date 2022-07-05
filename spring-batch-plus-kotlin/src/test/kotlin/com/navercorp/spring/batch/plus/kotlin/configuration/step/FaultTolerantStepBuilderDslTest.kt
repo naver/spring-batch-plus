@@ -49,7 +49,7 @@ import org.springframework.retry.policy.SimpleRetryPolicy
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 
 /**
- * Seperated from SimpleStepBuilderDslTest since it's too big.
+ * Separated from SimpleStepBuilderDslTest since it's too big.
  */
 class FaultTolerantStepBuilderDslTest {
 
