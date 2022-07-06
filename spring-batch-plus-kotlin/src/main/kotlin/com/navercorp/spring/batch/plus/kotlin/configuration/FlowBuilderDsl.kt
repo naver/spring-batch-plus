@@ -669,7 +669,7 @@ open class FlowBuilderDsl<T : Any> internal constructor(
     }
 
     /**
-     * A dsl for [FlowBuilderDsl.SplitBuilderDsl][org.springframework.batch.extensions.kotlindsl.flow.FlowBuilderDsl.SplitBuilderDsl].
+     * A dsl for [FlowBuilder.SplitBuilder][org.springframework.batch.core.job.builder.FlowBuilder.SplitBuilder].
      *
      * @since 0.1.0
      */
