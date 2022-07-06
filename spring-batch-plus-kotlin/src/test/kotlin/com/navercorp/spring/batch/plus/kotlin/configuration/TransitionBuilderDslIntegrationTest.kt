@@ -44,7 +44,7 @@ import javax.sql.DataSource
 /**
  * Separated from FlowJobBuilderDslIntegrationTest since it's too big.
  */
-class TransitionBuilderDslIntegrationTest {
+internal class TransitionBuilderDslIntegrationTest {
 
     @Test
     fun testTransitionToStepBean() {

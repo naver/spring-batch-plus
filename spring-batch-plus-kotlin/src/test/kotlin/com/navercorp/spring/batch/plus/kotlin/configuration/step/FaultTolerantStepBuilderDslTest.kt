@@ -51,7 +51,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 /**
  * Separated from SimpleStepBuilderDslTest since it's too big.
  */
-class FaultTolerantStepBuilderDslTest {
+internal class FaultTolerantStepBuilderDslTest {
 
     private val jobInstance = JobInstance(0L, "testJob")
 
