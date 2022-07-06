@@ -229,8 +229,11 @@ class TransitionBuilderDslIntegrationTest {
                                     on("COMPLETED") {
                                         fail()
                                     }
-                                    on("*") {
+                                    on("FAILED") {
                                         end("TEST")
+                                    }
+                                    on("*") {
+                                        end()
                                     }
                                 }
                             }
@@ -284,8 +287,11 @@ class TransitionBuilderDslIntegrationTest {
                                     on("COMPLETED") {
                                         fail()
                                     }
-                                    on("*") {
+                                    on("FAILED") {
                                         end("TEST")
+                                    }
+                                    on("*") {
+                                        end()
                                     }
                                 }
                             }
@@ -339,8 +345,11 @@ class TransitionBuilderDslIntegrationTest {
                                     on("COMPLETED") {
                                         fail()
                                     }
-                                    on("*") {
+                                    on("FAILED") {
                                         end("TEST")
+                                    }
+                                    on("*") {
+                                        end()
                                     }
                                 }
                             }
@@ -529,7 +538,7 @@ class TransitionBuilderDslIntegrationTest {
                 step("transitionStep") {
                     tasklet { _, _ ->
                         ++transitionStepCallCount
-                        throw RuntimeException("Error")
+                        RepeatStatus.FINISHED
                     }
                 }
             }
@@ -547,10 +556,10 @@ class TransitionBuilderDslIntegrationTest {
                             on("COMPLETED") {
                                 flowBean("transitionFlow") {
                                     on("COMPLETED") {
-                                        fail()
+                                        end("TEST")
                                     }
                                     on("*") {
-                                        end("TEST")
+                                        stop()
                                     }
                                 }
                             }
@@ -598,16 +607,16 @@ class TransitionBuilderDslIntegrationTest {
                                         step("transitionStep") {
                                             tasklet { _, _ ->
                                                 ++transitionStepCallCount
-                                                throw RuntimeException("Error")
+                                                RepeatStatus.FINISHED
                                             }
                                         }
                                     }
                                 ) {
                                     on("COMPLETED") {
-                                        fail()
+                                        end("TEST")
                                     }
                                     on("*") {
-                                        end("TEST")
+                                        stop()
                                     }
                                 }
                             }
@@ -646,7 +655,7 @@ class TransitionBuilderDslIntegrationTest {
                 step("transitionStep") {
                     tasklet { _, _ ->
                         ++transitionStepCallCount
-                        throw RuntimeException("Error")
+                        RepeatStatus.FINISHED
                     }
                 }
             }
@@ -661,10 +670,10 @@ class TransitionBuilderDslIntegrationTest {
                             on("COMPLETED") {
                                 flow(transitionFlow) {
                                     on("COMPLETED") {
-                                        fail()
+                                        end("TEST")
                                     }
                                     on("*") {
-                                        end("TEST")
+                                        stop()
                                     }
                                 }
                             }
@@ -700,7 +709,7 @@ class TransitionBuilderDslIntegrationTest {
         }
         val testDecider = JobExecutionDecider { _, _ ->
             ++testDeciderCallCount
-            FlowExecutionStatus("TEST")
+            FlowExecutionStatus("SKIPPED")
         }
         context.registerBean("testDecider") {
             testDecider
@@ -717,8 +726,11 @@ class TransitionBuilderDslIntegrationTest {
                                     on("COMPLETED") {
                                         fail()
                                     }
-                                    on("*") {
+                                    on("SKIPPED") {
                                         end("TEST")
+                                    }
+                                    on("*") {
+                                        end()
                                     }
                                 }
                             }
@@ -754,7 +766,7 @@ class TransitionBuilderDslIntegrationTest {
         }
         val testDecider = JobExecutionDecider { _, _ ->
             ++testDeciderCallCount
-            FlowExecutionStatus("TEST")
+            FlowExecutionStatus("SKIPPED")
         }
 
         // when
@@ -768,8 +780,11 @@ class TransitionBuilderDslIntegrationTest {
                                     on("COMPLETED") {
                                         fail()
                                     }
-                                    on("*") {
+                                    on("SKIPPED") {
                                         end("TEST")
+                                    }
+                                    on("*") {
+                                        end()
                                     }
                                 }
                             }
@@ -989,6 +1004,195 @@ class TransitionBuilderDslIntegrationTest {
         assertThat(secondJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
         assertThat(thirdJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(thirdJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.NOOP.exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(transitionStepCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testTransitionToStopAndRestartToFlowBeanWithTransition() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var transitionStepCallCount = 0
+        val testStep1 = batch {
+            step("testStep1") {
+                tasklet { _, _ ->
+                    ++testStep1CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+        val transitionFlow = batch {
+            flow("transitionFlow") {
+                step("transitionStep") {
+                    tasklet { _, _ ->
+                        ++transitionStepCallCount
+                        RepeatStatus.FINISHED
+                    }
+                }
+            }
+        }
+        context.registerBean("transitionFlow") {
+            transitionFlow
+        }
+
+        // when
+        val job = batch {
+            job("testJob") {
+                flows {
+                    flow("testFlow") {
+                        step(testStep1) {
+                            on("COMPLETED") {
+                                stopAndRestartToFlowBean("transitionFlow") {
+                                    on("COMPLETED") {
+                                        end("TEST")
+                                    }
+                                    on("*") {
+                                        stop()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val firstJobExecution = jobLauncher.run(job, JobParameters())
+        val secondJobExecution = jobLauncher.run(job, JobParameters())
+        val thirdJobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(firstJobExecution.status).isEqualTo(BatchStatus.STOPPED)
+        assertThat(firstJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.STOPPED.exitCode)
+        assertThat(secondJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(secondJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(thirdJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(thirdJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(transitionStepCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testTransitionToStopAndRestartToFlowWithInitAndTransition() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var transitionStepCallCount = 0
+        val testStep1 = batch {
+            step("testStep1") {
+                tasklet { _, _ ->
+                    ++testStep1CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+
+        // when
+        val job = batch {
+            job("testJob") {
+                flows {
+                    flow("testFlow") {
+                        step(testStep1) {
+                            on("COMPLETED") {
+                                stopAndRestartToFlow("transitionFlow", {
+                                    step("transitionStep") {
+                                        tasklet { _, _ ->
+                                            ++transitionStepCallCount
+                                            RepeatStatus.FINISHED
+                                        }
+                                    }
+                                }) {
+                                    on("COMPLETED") {
+                                        end("TEST")
+                                    }
+                                    on("*") {
+                                        stop()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val firstJobExecution = jobLauncher.run(job, JobParameters())
+        val secondJobExecution = jobLauncher.run(job, JobParameters())
+        val thirdJobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(firstJobExecution.status).isEqualTo(BatchStatus.STOPPED)
+        assertThat(firstJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.STOPPED.exitCode)
+        assertThat(secondJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(secondJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(thirdJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(thirdJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(transitionStepCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testTransitionToStopAndRestartToFlowVariableWithTransition() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var transitionStepCallCount = 0
+        val testStep1 = batch {
+            step("testStep1") {
+                tasklet { _, _ ->
+                    ++testStep1CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+        val transitionFlow = batch {
+            flow("transitionFlow") {
+                step("transitionStep") {
+                    tasklet { _, _ ->
+                        ++transitionStepCallCount
+                        RepeatStatus.FINISHED
+                    }
+                }
+            }
+        }
+
+        // when
+        val job = batch {
+            job("testJob") {
+                flows {
+                    flow("testFlow") {
+                        step(testStep1) {
+                            on("COMPLETED") {
+                                stopAndRestartToFlow(transitionFlow) {
+                                    on("COMPLETED") {
+                                        end("TEST")
+                                    }
+                                    on("*") {
+                                        stop()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val firstJobExecution = jobLauncher.run(job, JobParameters())
+        val secondJobExecution = jobLauncher.run(job, JobParameters())
+        val thirdJobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(firstJobExecution.status).isEqualTo(BatchStatus.STOPPED)
+        assertThat(firstJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.STOPPED.exitCode)
+        assertThat(secondJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(secondJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(thirdJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(thirdJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
         assertThat(testStep1CallCount).isEqualTo(1)
         assertThat(transitionStepCallCount).isEqualTo(1)
     }
@@ -1288,6 +1492,189 @@ class TransitionBuilderDslIntegrationTest {
     }
 
     @Test
+    fun testTransitionToStopAndRestartToStepBeanWithTransition() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var transitionStepCallCount = 0
+        val testStep1 = batch {
+            step("testStep1") {
+                tasklet { _, _ ->
+                    ++testStep1CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+        val transitionStep = batch {
+            step("transitionStep") {
+                tasklet { _, _ ->
+                    ++transitionStepCallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+        context.registerBean("transitionStep") {
+            transitionStep
+        }
+
+        // when
+        val job = batch {
+            job("testJob") {
+                flows {
+                    flow("testFlow") {
+                        step(testStep1) {
+                            on("COMPLETED") {
+                                stopAndRestartToStepBean("transitionStep") {
+                                    on("COMPLETED") {
+                                        end("TEST")
+                                    }
+                                    on("*") {
+                                        stop()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val firstJobExecution = jobLauncher.run(job, JobParameters())
+        val secondJobExecution = jobLauncher.run(job, JobParameters())
+        val thirdJobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(firstJobExecution.status).isEqualTo(BatchStatus.STOPPED)
+        assertThat(firstJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.STOPPED.exitCode)
+        assertThat(secondJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(secondJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(thirdJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(thirdJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(transitionStepCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testTransitionToStopAndRestartToStepWithInitAndTransition() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var transitionStepCallCount = 0
+        val testStep1 = batch {
+            step("testStep1") {
+                tasklet { _, _ ->
+                    ++testStep1CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+
+        // when
+        val job = batch {
+            job("testJob") {
+                flows {
+                    flow("testFlow") {
+                        step(testStep1) {
+                            on("COMPLETED") {
+                                stopAndRestartToStep("transitionStep", {
+                                    tasklet { _, _ ->
+                                        ++transitionStepCallCount
+                                        RepeatStatus.FINISHED
+                                    }
+                                }) {
+                                    on("COMPLETED") {
+                                        end("TEST")
+                                    }
+                                    on("*") {
+                                        stop()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val firstJobExecution = jobLauncher.run(job, JobParameters())
+        val secondJobExecution = jobLauncher.run(job, JobParameters())
+        val thirdJobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(firstJobExecution.status).isEqualTo(BatchStatus.STOPPED)
+        assertThat(firstJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.STOPPED.exitCode)
+        assertThat(secondJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(secondJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(thirdJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(thirdJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(transitionStepCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testTransitionToStopAndRestartToStepVariableWithTransition() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var transitionStepCallCount = 0
+        val testStep1 = batch {
+            step("testStep1") {
+                tasklet { _, _ ->
+                    ++testStep1CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+        val transitionStep = batch {
+            step("transitionStep") {
+                tasklet { _, _ ->
+                    ++transitionStepCallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+
+        // when
+        val job = batch {
+            job("testJob") {
+                flows {
+                    flow("testFlow") {
+                        step(testStep1) {
+                            on("COMPLETED") {
+                                stopAndRestartToStep(transitionStep) {
+                                    on("COMPLETED") {
+                                        end("TEST")
+                                    }
+                                    on("*") {
+                                        stop()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val firstJobExecution = jobLauncher.run(job, JobParameters())
+        val secondJobExecution = jobLauncher.run(job, JobParameters())
+        val thirdJobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(firstJobExecution.status).isEqualTo(BatchStatus.STOPPED)
+        assertThat(firstJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.STOPPED.exitCode)
+        assertThat(secondJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(secondJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(thirdJobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(thirdJobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(transitionStepCallCount).isEqualTo(1)
+    }
+
+    @Test
     fun testTransitionToEnd() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
@@ -1351,6 +1738,9 @@ class TransitionBuilderDslIntegrationTest {
                         step(testStep1) {
                             on("UNKNOWN") {
                                 end("TEST")
+                            }
+                            on("*") {
+                                end()
                             }
                         }
                     }

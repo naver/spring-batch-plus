@@ -526,6 +526,40 @@ open class FlowBuilderDsl<T : Any> internal constructor(
         }
 
         /**
+         * Transition to stop and restart with flow if the flow is restarted.
+         */
+        fun stopAndRestartToFlowBean(name: String, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
+            val flow = this.dslContext.beanFactory.getBean<Flow>(name)
+            stopAndRestartToFlow(flow, flowTransitionInit)
+        }
+
+        /**
+         * Transition to stop and restart with flow if the flow is restarted.
+         */
+        fun stopAndRestartToFlow(
+            name: String,
+            flowInit: FlowBuilderDsl<Flow>.() -> Unit,
+            flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit
+        ) {
+            val flowBuilder = FlowBuilder<Flow>(name)
+            val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
+                .build()
+            stopAndRestartToFlow(flow, flowTransitionInit)
+        }
+
+        /**
+         * Transition to stop and restart with flow if the flow is restarted.
+         */
+        fun stopAndRestartToFlow(flow: Flow, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
+            val baseFlowBuilder = this.baseTransitionBuilder.stopAndRestart(flow)
+                .from(flow)
+
+            this.flowBuilder = FlowTransitionBuilderDsl<T>(this.dslContext, flow, baseFlowBuilder)
+                .apply(flowTransitionInit)
+                .build()
+        }
+
+        /**
          * Transition to stop and restart with decider by bean name if the flow is restarted.
          */
         fun stopAndRestartToDeciderBean(
@@ -571,6 +605,39 @@ open class FlowBuilderDsl<T : Any> internal constructor(
          */
         fun stopAndRestartToStep(step: Step) {
             this.flowBuilder = this.baseTransitionBuilder.stopAndRestart(step)
+        }
+
+        /**
+         * Transition to stop and restart with step if the flow is restarted.
+         */
+        fun stopAndRestartToStepBean(name: String, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
+            val step = this.dslContext.beanFactory.getBean<Step>(name)
+            stopAndRestartToStep(step, stepTransitionInit)
+        }
+
+        /**
+         * Transition to stop and restart with flow if the flow is restarted.
+         */
+        fun stopAndRestartToStep(
+            name: String,
+            stepInit: StepBuilderDsl.() -> Step,
+            stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
+        ) {
+            val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
+            val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
+            stopAndRestartToStep(step, stepTransitionInit)
+        }
+
+        /**
+         * Transition to stop and restart with step if the flow is restarted.
+         */
+        fun stopAndRestartToStep(step: Step, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
+            val baseFlowBuilder = this.baseTransitionBuilder.stopAndRestart(step)
+                .from(step)
+
+            this.flowBuilder = StepTransitionBuilderDsl<T>(this.dslContext, step, baseFlowBuilder)
+                .apply(stepTransitionInit)
+                .build()
         }
 
         /**
