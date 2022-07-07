@@ -26,7 +26,8 @@ import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
 
 /**
- * An adaptor factory for {@link ItemStreamReaderDelegate}, {@link ItemProcessorDelegate}, {@link ItemStreamWriterDelegate}.
+ * An adaptor factory for {@link ItemStreamReaderDelegate}, {@link ItemProcessorDelegate},
+ * {@link ItemStreamWriterDelegate}.
  *
  * @since 0.1.0
  */
@@ -37,6 +38,7 @@ public final class AdaptorFactory {
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
+	 * @param <T> a read item type
 	 */
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
@@ -48,6 +50,8 @@ public final class AdaptorFactory {
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemProcessor
+	 * @param <I> an item type to process
+	 * @param <O> a processed item type
 	 */
 	public static <I, O> ItemProcessor<I, O> itemProcessor(@NonNull ItemProcessorDelegate<I, O> delegate) {
 		Objects.requireNonNull(delegate, "ItemProcessor delegate is null");
@@ -59,6 +63,7 @@ public final class AdaptorFactory {
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamWriter
+	 * @param <T> an item type to write
 	 */
 	public static <T> ItemStreamWriter<T> itemStreamWriter(@NonNull ItemStreamWriterDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamWriter delegate is null");
