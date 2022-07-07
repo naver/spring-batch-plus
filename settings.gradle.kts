@@ -23,6 +23,10 @@ dependencyResolutionManagement {
                 "slf4j",
                 "org.slf4j:slf4j-api:1.7.36"
             )
+            library(
+                "reactor-core",
+                "io.projectreactor:reactor-core:3.4.19"
+            )
 
             // test only
             library(
@@ -44,6 +48,10 @@ dependencyResolutionManagement {
             library(
                 "spring-boot-test",
                 "org.springframework.boot:spring-boot-test:$springBootVersion"
+            )
+            library(
+                "spring-batch-test",
+                "org.springframework.batch:spring-batch-test:$springBatchVersion"
             )
             library(
                 "spring-jdbc",
