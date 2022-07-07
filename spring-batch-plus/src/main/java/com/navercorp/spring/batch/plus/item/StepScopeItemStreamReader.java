@@ -32,7 +32,7 @@ import org.springframework.batch.item.ItemStreamReader;
 
 class StepScopeItemStreamReader<I> implements ItemStreamReader<I> {
 
-	static <I> ItemStreamReader<I> with(Supplier<ItemStreamReader<I>> delegateSupplier) {
+	static <I> ItemStreamReader<I> withDelegate(Supplier<ItemStreamReader<I>> delegateSupplier) {
 		return new StepScopeItemStreamReader<>(delegateSupplier);
 	}
 

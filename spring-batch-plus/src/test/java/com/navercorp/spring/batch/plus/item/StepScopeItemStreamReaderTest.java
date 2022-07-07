@@ -59,7 +59,7 @@ class StepScopeItemStreamReaderTest {
 				throw new UnsupportedOperationException();
 			}
 		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.with(() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.withDelegate(() -> delegate);
 
 		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -97,7 +97,7 @@ class StepScopeItemStreamReaderTest {
 				throw new UnsupportedOperationException();
 			}
 		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.with(() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.withDelegate(() -> delegate);
 
 		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -133,7 +133,7 @@ class StepScopeItemStreamReaderTest {
 				throw new UnsupportedOperationException();
 			}
 		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.with(() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.withDelegate(() -> delegate);
 
 		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -172,7 +172,7 @@ class StepScopeItemStreamReaderTest {
 				closeCallCount.incrementAndGet();
 			}
 		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.with(() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.withDelegate(() -> delegate);
 
 		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -211,7 +211,7 @@ class StepScopeItemStreamReaderTest {
 				throw new UnsupportedOperationException();
 			}
 		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.with(() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.withDelegate(() -> delegate);
 
 		// when
 		assertThatThrownBy(
