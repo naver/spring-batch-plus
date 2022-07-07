@@ -11,7 +11,3 @@ tasks.withType<KotlinCompile> {
         jvmTarget = "1.8"
     }
 }
-
-dependencies {
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.+")
-}
