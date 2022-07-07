@@ -51,18 +51,27 @@ class BatchDsl internal constructor(
 
     operator fun <T : Any> invoke(init: BatchDsl.() -> T): T = init()
 
+    /**
+     * Make a new job.
+     */
     fun job(name: String, init: JobBuilderDsl.() -> Job): Job {
         val jobBuilderFactory = this.dslContext.jobBuilderFactory
         val jobBuilder = jobBuilderFactory.get(name)
         return JobBuilderDsl(this.dslContext, jobBuilder).let(init)
     }
 
+    /**
+     * Make a new step.
+     */
     fun step(name: String, init: StepBuilderDsl.() -> Step): Step {
         val stepBuilderFactory = this.dslContext.stepBuilderFactory
         val stepBuilder = stepBuilderFactory.get(name)
         return StepBuilderDsl(this.dslContext, stepBuilder).let(init)
     }
 
+    /**
+     * Make a new flow.
+     */
     fun flow(name: String, init: FlowBuilderDsl<Flow>.() -> Unit): Flow {
         val flowBuilder = FlowBuilder<Flow>(name)
         return FlowBuilderDsl(this.dslContext, flowBuilder).apply(init).build()
