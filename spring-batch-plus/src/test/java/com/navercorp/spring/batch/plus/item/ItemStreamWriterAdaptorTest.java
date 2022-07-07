@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStreamWriter;
 
 class ItemStreamWriterAdaptorTest {
 
@@ -33,7 +34,7 @@ class ItemStreamWriterAdaptorTest {
 	void testOpen() {
 		// given
 		AtomicInteger onOpenWriteCallCount = new AtomicInteger();
-		ItemStreamWriterAdaptor<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(ExecutionContext executionContext) {
@@ -64,10 +65,10 @@ class ItemStreamWriterAdaptorTest {
 	}
 
 	@Test
-	void testWrite() {
+	void testWrite() throws Exception {
 		// given
 		AtomicInteger writeCallCount = new AtomicInteger();
-		ItemStreamWriterAdaptor<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(ExecutionContext executionContext) {
@@ -101,7 +102,7 @@ class ItemStreamWriterAdaptorTest {
 	void testUpdate() {
 		// given
 		AtomicInteger onUpdateWriteCallCount = new AtomicInteger();
-		ItemStreamWriterAdaptor<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(ExecutionContext executionContext) {
@@ -135,7 +136,7 @@ class ItemStreamWriterAdaptorTest {
 	void testClose() {
 		// given
 		AtomicInteger onCloseCallCount = new AtomicInteger();
-		ItemStreamWriterAdaptor<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(ExecutionContext executionContext) {

@@ -21,14 +21,14 @@ package com.navercorp.spring.batch.plus.item;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.item.ItemProcessor;
 
 class ItemProcessorAdaptorTest {
 
 	@Test
-	void testProcess() {
+	void testProcess() throws Exception {
 		// when
-		ItemProcessorAdaptor<Integer, String> itemProcessorAdaptor = ItemProcessorAdaptor.withDelegate(
-			Object::toString);
+		ItemProcessor<Integer, String> itemProcessorAdaptor = ItemProcessorAdaptor.withDelegate(Object::toString);
 		String actual = itemProcessorAdaptor.process(1234);
 
 		// then

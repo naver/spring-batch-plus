@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStreamReader;
 
 import reactor.core.publisher.Flux;
 
@@ -38,7 +39,7 @@ class ItemStreamReaderAdaptorTest {
 		// given
 		AtomicInteger onOpenReadCallCount = new AtomicInteger();
 		AtomicInteger readFluxCallCount = new AtomicInteger();
-		ItemStreamReaderAdaptor<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
@@ -73,9 +74,9 @@ class ItemStreamReaderAdaptorTest {
 	}
 
 	@Test
-	void testRead() {
+	void testRead() throws Exception {
 		// given
-		ItemStreamReaderAdaptor<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
 			new ItemStreamReaderDelegate<Integer>() {
 				private int count = 0;
 
@@ -123,7 +124,7 @@ class ItemStreamReaderAdaptorTest {
 	@Test
 	void testReadWithOpenShouldThrowsException() {
 		// given
-		ItemStreamReaderAdaptor<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
 			new ItemStreamReaderDelegate<Integer>() {
 				private int count = 0;
 
@@ -166,7 +167,7 @@ class ItemStreamReaderAdaptorTest {
 	void testUpdate() {
 		// given
 		AtomicInteger onUpdateCallCount = new AtomicInteger();
-		ItemStreamReaderAdaptor<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
@@ -202,7 +203,7 @@ class ItemStreamReaderAdaptorTest {
 	void testClose() {
 		// given
 		AtomicInteger onCloseReadCallCount = new AtomicInteger();
-		ItemStreamReaderAdaptor<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override

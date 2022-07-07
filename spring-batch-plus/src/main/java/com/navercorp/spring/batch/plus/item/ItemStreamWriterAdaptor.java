@@ -25,7 +25,7 @@ import org.springframework.batch.item.ItemStreamWriter;
 
 class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
 
-	static <T> ItemStreamWriterAdaptor<T> withDelegate(ItemStreamWriterDelegate<T> delegate) {
+	static <T> ItemStreamWriter<T> withDelegate(ItemStreamWriterDelegate<T> delegate) {
 		return new ItemStreamWriterAdaptor<>(delegate);
 	}
 

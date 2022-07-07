@@ -22,7 +22,7 @@ import org.springframework.batch.item.ItemProcessor;
 
 class ItemProcessorAdaptor<I, O> implements ItemProcessor<I, O> {
 
-	static <I, O> ItemProcessorAdaptor<I, O> withDelegate(ItemProcessorDelegate<I, O> delegate) {
+	static <I, O> ItemProcessor<I, O> withDelegate(ItemProcessorDelegate<I, O> delegate) {
 		return new ItemProcessorAdaptor<>(delegate);
 	}
 

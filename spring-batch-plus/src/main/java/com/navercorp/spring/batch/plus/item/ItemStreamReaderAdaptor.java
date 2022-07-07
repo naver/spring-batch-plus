@@ -28,7 +28,7 @@ import reactor.core.publisher.Flux;
 
 class ItemStreamReaderAdaptor<I> implements ItemStreamReader<I> {
 
-	static <I> ItemStreamReaderAdaptor<I> withDelegate(ItemStreamReaderDelegate<I> delegate) {
+	static <I> ItemStreamReader<I> withDelegate(ItemStreamReaderDelegate<I> delegate) {
 		return new ItemStreamReaderAdaptor<>(delegate);
 	}
 
