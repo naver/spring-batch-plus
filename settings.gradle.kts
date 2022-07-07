@@ -6,7 +6,7 @@ include("spring-boot-autoconfigure-batch-plus")
 include("spring-boot-starter-batch-plus")
 
 include("spring-batch-plus-sample:spring-batch-plus-kotlin-dsl-sample")
-include("spring-batch-plus-sample:spring-batch-plus-stream-delegate-sample")
+include("spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer")
 
 dependencyResolutionManagement {
     versionCatalogs {

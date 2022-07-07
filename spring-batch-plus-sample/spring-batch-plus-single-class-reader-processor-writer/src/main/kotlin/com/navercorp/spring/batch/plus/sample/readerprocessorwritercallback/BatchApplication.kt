@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.readerprocessorwriter
+package com.navercorp.spring.batch.plus.sample.readerprocessorwritercallback
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import com.navercorp.spring.batch.plus.kotlin.item.asItemProcessor
@@ -24,8 +24,6 @@ import com.navercorp.spring.batch.plus.kotlin.item.asItemStreamReader
 import com.navercorp.spring.batch.plus.kotlin.item.asItemStreamWriter
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -36,8 +34,6 @@ class BatchApplication {
 
     @Bean
     fun testJob(
-        jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
         sampleTasklet: SampleTasklet,
         batch: BatchDsl,
     ): Job = batch {
