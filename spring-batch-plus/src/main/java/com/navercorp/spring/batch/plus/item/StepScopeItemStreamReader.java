@@ -24,15 +24,29 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
+import org.springframework.batch.core.scope.StepScope;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 
-class StepScopeItemStreamReader<I> implements ItemStreamReader<I> {
+/**
+ * A {@link StepScope} bound proxy implementation.
+ *
+ * @since 0.1.0
+ */
+public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 
-	static <I> ItemStreamReader<I> withDelegate(Supplier<ItemStreamReader<I>> delegateSupplier) {
+	/**
+	 * Create an {@link ItemStreamReader} instance bound to {@link StepScope}.
+	 * It creates new instance for every {@link StepScope}.
+	 *
+	 * @param delegateSupplier a concrete instance supplier
+	 * @return an adapted ItemStreamReader
+	 * @param <T> a read item type
+	 */
+	public static <T> ItemStreamReader<T> withDelegate(Supplier<ItemStreamReader<T>> delegateSupplier) {
 		return new StepScopeItemStreamReader<>(delegateSupplier);
 	}
 
@@ -40,9 +54,9 @@ class StepScopeItemStreamReader<I> implements ItemStreamReader<I> {
 
 	private final Logger logger = getLogger(StepScopeItemStreamReader.class);
 
-	private final Supplier<ItemStreamReader<I>> delegateSupplier;
+	private final Supplier<ItemStreamReader<T>> delegateSupplier;
 
-	private StepScopeItemStreamReader(Supplier<ItemStreamReader<I>> readerGenerator) {
+	private StepScopeItemStreamReader(Supplier<ItemStreamReader<T>> readerGenerator) {
 		this.delegateSupplier = readerGenerator;
 	}
 
@@ -53,7 +67,7 @@ class StepScopeItemStreamReader<I> implements ItemStreamReader<I> {
 	}
 
 	@Override
-	public I read() throws Exception {
+	public T read() throws Exception {
 		return getDelegate().read();
 	}
 
@@ -69,7 +83,7 @@ class StepScopeItemStreamReader<I> implements ItemStreamReader<I> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private ItemStreamReader<I> getDelegate() {
+	private ItemStreamReader<T> getDelegate() {
 		StepContext context = Objects.requireNonNull(StepSynchronizationManager.getContext(),
 			"No step context is set. Make sure if it's invoked in a stepScope.");
 
@@ -79,6 +93,6 @@ class StepScopeItemStreamReader<I> implements ItemStreamReader<I> {
 			context.setAttribute(SCOPE_KEY, delegateSupplier.get());
 		}
 
-		return (ItemStreamReader<I>)context.getAttribute(SCOPE_KEY);
+		return (ItemStreamReader<T>)context.getAttribute(SCOPE_KEY);
 	}
 }

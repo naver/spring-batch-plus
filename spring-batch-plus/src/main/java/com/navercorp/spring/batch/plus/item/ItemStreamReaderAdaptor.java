@@ -26,21 +26,33 @@ import org.springframework.batch.item.ItemStreamReader;
 
 import reactor.core.publisher.Flux;
 
-class ItemStreamReaderAdaptor<I> implements ItemStreamReader<I> {
+/**
+ * An adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
+ *
+ * @since 0.1.0
+ */
+public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
 
-	static <I> ItemStreamReader<I> withDelegate(ItemStreamReaderDelegate<I> delegate) {
+	/**
+	 * Create an adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
+	 *
+	 * @param delegate a delegate
+	 * @return an adapted ItemStreamReader
+	 * @param <T> a read item type
+	 */
+	public static <T> ItemStreamReader<T> withDelegate(ItemStreamReaderDelegate<T> delegate) {
 		return new ItemStreamReaderAdaptor<>(delegate);
 	}
 
 	private static final int DEFAULT_BATCH_SIZE = 1;
 
-	private final ItemStreamReaderDelegate<I> delegate;
+	private final ItemStreamReaderDelegate<T> delegate;
 
-	private Flux<I> flux = null;
+	private Flux<T> flux = null;
 
-	private Iterator<I> iterator = null;
+	private Iterator<T> iterator = null;
 
-	private ItemStreamReaderAdaptor(ItemStreamReaderDelegate<I> delegate) {
+	private ItemStreamReaderAdaptor(ItemStreamReaderDelegate<T> delegate) {
 		this.delegate = delegate;
 	}
 
@@ -52,7 +64,7 @@ class ItemStreamReaderAdaptor<I> implements ItemStreamReader<I> {
 	}
 
 	@Override
-	public I read() {
+	public T read() {
 		if (this.iterator == null) {
 			Objects.requireNonNull(this.flux, "Flux isn't set. Call 'open' first.");
 			this.iterator = this.flux.toIterable(DEFAULT_BATCH_SIZE).iterator();

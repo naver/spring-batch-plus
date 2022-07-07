@@ -20,6 +20,7 @@ package com.navercorp.spring.batch.plus.item;
 
 import java.util.Objects;
 
+import org.springframework.batch.core.scope.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
@@ -34,7 +35,8 @@ import org.springframework.lang.NonNull;
 public final class AdaptorFactory {
 
 	/**
-	 * Create an adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
+	 * Create an adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}
+	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader

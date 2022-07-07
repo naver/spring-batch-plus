@@ -20,9 +20,22 @@ package com.navercorp.spring.batch.plus.item;
 
 import org.springframework.batch.item.ItemProcessor;
 
-class ItemProcessorAdaptor<I, O> implements ItemProcessor<I, O> {
+/**
+ * An adaptor which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
+ *
+ * @since 0.1.0
+ */
+public class ItemProcessorAdaptor<I, O> implements ItemProcessor<I, O> {
 
-	static <I, O> ItemProcessor<I, O> withDelegate(ItemProcessorDelegate<I, O> delegate) {
+	/**
+	 * Create an adaptor which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
+	 *
+	 * @param delegate a delegate
+	 * @return an adapted ItemProcessor
+	 * @param <I> an item type to process
+	 * @param <O> a processed item type
+	 */
+	public static <I, O> ItemProcessor<I, O> withDelegate(ItemProcessorDelegate<I, O> delegate) {
 		return new ItemProcessorAdaptor<>(delegate);
 	}
 

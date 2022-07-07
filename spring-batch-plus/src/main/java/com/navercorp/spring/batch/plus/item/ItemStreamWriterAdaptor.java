@@ -23,9 +23,21 @@ import java.util.List;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
 
-class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
+/**
+ * An adaptor which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
+ *
+ * @since 0.1.0
+ */
+public class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
 
-	static <T> ItemStreamWriter<T> withDelegate(ItemStreamWriterDelegate<T> delegate) {
+	/**
+	 * Create an adaptor which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
+	 *
+	 * @param delegate a delegate
+	 * @return an adapted ItemStreamWriter
+	 * @param <T> an item type to write
+	 */
+	public static <T> ItemStreamWriter<T> withDelegate(ItemStreamWriterDelegate<T> delegate) {
 		return new ItemStreamWriterAdaptor<>(delegate);
 	}
 
