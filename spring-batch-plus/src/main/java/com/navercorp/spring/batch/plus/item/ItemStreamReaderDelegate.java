@@ -36,7 +36,7 @@ public interface ItemStreamReaderDelegate<T> {
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onOpenRead(ExecutionContext executionContext) {
+	default void onOpenRead(@NonNull ExecutionContext executionContext) {
 	}
 
 	/**
@@ -46,14 +46,14 @@ public interface ItemStreamReaderDelegate<T> {
 	 * @return a flux to read item.
 	 */
 	@NonNull
-	Flux<T> readFlux(ExecutionContext executionContext);
+	Flux<T> readFlux(@NonNull ExecutionContext executionContext);
 
 	/**
 	 * A delegate method for {@link ItemStreamReader#update(ExecutionContext)}.
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onUpdateRead(ExecutionContext executionContext) {
+	default void onUpdateRead(@NonNull ExecutionContext executionContext) {
 	}
 
 	/**

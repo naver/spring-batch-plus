@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.item;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 /**
@@ -35,5 +36,5 @@ public interface ItemProcessorDelegate<I, O> {
 	 * @return processed item
 	 */
 	@Nullable
-	O process(I item);
+	O process(@NonNull I item);
 }

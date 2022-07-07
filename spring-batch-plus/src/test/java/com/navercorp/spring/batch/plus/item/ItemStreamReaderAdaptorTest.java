@@ -43,19 +43,19 @@ class ItemStreamReaderAdaptorTest {
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
-				public void onOpenRead(ExecutionContext executionContext) {
+				public void onOpenRead(@NotNull ExecutionContext executionContext) {
 					onOpenReadCallCount.incrementAndGet();
 				}
 
 				@NotNull
 				@Override
-				public Flux<Integer> readFlux(ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
 					readFluxCallCount.incrementAndGet();
 					return Flux.empty();
 				}
 
 				@Override
-				public void onUpdateRead(ExecutionContext executionContext) {
+				public void onUpdateRead(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
@@ -81,13 +81,13 @@ class ItemStreamReaderAdaptorTest {
 				private int count = 0;
 
 				@Override
-				public void onOpenRead(ExecutionContext executionContext) {
+				public void onOpenRead(@NotNull ExecutionContext executionContext) {
 					// do nothing
 				}
 
 				@NotNull
 				@Override
-				public Flux<Integer> readFlux(ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
 					return Flux.generate(sink -> {
 						if (count < 10) {
 							sink.next(count);
@@ -99,7 +99,7 @@ class ItemStreamReaderAdaptorTest {
 				}
 
 				@Override
-				public void onUpdateRead(ExecutionContext executionContext) {
+				public void onUpdateRead(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
@@ -129,13 +129,13 @@ class ItemStreamReaderAdaptorTest {
 				private int count = 0;
 
 				@Override
-				public void onOpenRead(ExecutionContext executionContext) {
+				public void onOpenRead(@NotNull ExecutionContext executionContext) {
 					// do nothing
 				}
 
 				@NotNull
 				@Override
-				public Flux<Integer> readFlux(ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
 					return Flux.generate(sink -> {
 						if (count < 10) {
 							sink.next(count);
@@ -147,7 +147,7 @@ class ItemStreamReaderAdaptorTest {
 				}
 
 				@Override
-				public void onUpdateRead(ExecutionContext executionContext) {
+				public void onUpdateRead(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
@@ -171,18 +171,18 @@ class ItemStreamReaderAdaptorTest {
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
-				public void onOpenRead(ExecutionContext executionContext) {
+				public void onOpenRead(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
 				@NotNull
 				@Override
-				public Flux<Integer> readFlux(ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void onUpdateRead(ExecutionContext executionContext) {
+				public void onUpdateRead(@NotNull ExecutionContext executionContext) {
 					onUpdateCallCount.incrementAndGet();
 				}
 
@@ -207,18 +207,18 @@ class ItemStreamReaderAdaptorTest {
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
-				public void onOpenRead(ExecutionContext executionContext) {
+				public void onOpenRead(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
 				@NotNull
 				@Override
-				public Flux<Integer> readFlux(ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void onUpdateRead(ExecutionContext executionContext) {
+				public void onUpdateRead(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 

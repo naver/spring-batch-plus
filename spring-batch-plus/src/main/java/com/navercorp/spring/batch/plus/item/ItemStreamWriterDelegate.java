@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.lang.NonNull;
 
 /**
  * A delegate for {@link ItemStreamWriter}.
@@ -34,20 +35,20 @@ public interface ItemStreamWriterDelegate<T> {
 	 * A delegate method for {@link ItemStreamWriter#open(ExecutionContext)}.
 	 * @param executionContext an execution context
 	 */
-	default void onOpenWrite(ExecutionContext executionContext) {
+	default void onOpenWrite(@NonNull ExecutionContext executionContext) {
 	}
 
 	/**
 	 * A delegate method for {@link ItemStreamWriter#write(List)}.
 	 * @param items items to write
 	 */
-	void write(List<? extends T> items);
+	void write(@NonNull List<? extends T> items);
 
 	/**
 	 * A delegate method for {@link ItemStreamWriter#update(ExecutionContext)}.
 	 * @param executionContext an execution context
 	 */
-	default void onUpdateWrite(ExecutionContext executionContext) {
+	default void onUpdateWrite(@NonNull ExecutionContext executionContext) {
 	}
 
 	/**

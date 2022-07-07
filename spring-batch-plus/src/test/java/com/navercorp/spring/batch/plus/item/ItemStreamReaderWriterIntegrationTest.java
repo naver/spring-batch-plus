@@ -218,13 +218,13 @@ class ItemStreamReaderWriterIntegrationTest {
 				private int count = 0;
 
 				@Override
-				public void onOpenRead(ExecutionContext executionContext) {
+				public void onOpenRead(@NotNull ExecutionContext executionContext) {
 					++onOpenReadCallCount;
 				}
 
 				@NotNull
 				@Override
-				public Flux<Integer> readFlux(ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
 					++readFluxCallCount;
 					return Flux.generate(sink -> {
 						if (count < 20) {
@@ -237,7 +237,7 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void onUpdateRead(ExecutionContext executionContext) {
+				public void onUpdateRead(@NotNull ExecutionContext executionContext) {
 					++onUpdateReadCallCount;
 				}
 
@@ -247,17 +247,17 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void onOpenWrite(ExecutionContext executionContext) {
+				public void onOpenWrite(@NotNull ExecutionContext executionContext) {
 					++onOpenWriteCallCount;
 				}
 
 				@Override
-				public void write(List<? extends Integer> items) {
+				public void write(@NotNull List<? extends Integer> items) {
 					++writeCallCount;
 				}
 
 				@Override
-				public void onUpdateWrite(ExecutionContext executionContext) {
+				public void onUpdateWrite(@NotNull ExecutionContext executionContext) {
 					++onUpdateWriteCallCount;
 				}
 
@@ -276,13 +276,13 @@ class ItemStreamReaderWriterIntegrationTest {
 				private int count = 0;
 
 				@Override
-				public void onOpenRead(ExecutionContext executionContext) {
+				public void onOpenRead(@NotNull ExecutionContext executionContext) {
 					++onOpenReadCallCount;
 				}
 
 				@NotNull
 				@Override
-				public Flux<Integer> readFlux(ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
 					++readFluxCallCount;
 					return Flux.generate(sink -> {
 						if (count < 20) {
@@ -295,7 +295,7 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void onUpdateRead(ExecutionContext executionContext) {
+				public void onUpdateRead(@NotNull ExecutionContext executionContext) {
 					++onUpdateReadCallCount;
 				}
 
@@ -305,17 +305,17 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void onOpenWrite(ExecutionContext executionContext) {
+				public void onOpenWrite(@NotNull ExecutionContext executionContext) {
 					++onOpenWriteCallCount;
 				}
 
 				@Override
-				public void write(List<? extends Integer> items) {
+				public void write(@NotNull List<? extends Integer> items) {
 					++writeCallCount;
 				}
 
 				@Override
-				public void onUpdateWrite(ExecutionContext executionContext) {
+				public void onUpdateWrite(@NotNull ExecutionContext executionContext) {
 					++onUpdateWriteCallCount;
 				}
 
@@ -334,7 +334,7 @@ class ItemStreamReaderWriterIntegrationTest {
 
 				@NotNull
 				@Override
-				public Flux<Integer> readFlux(ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
 					++readFluxCallCount;
 					return Flux.generate(sink -> {
 						if (count < 20) {
@@ -347,7 +347,7 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void write(List<? extends Integer> items) {
+				public void write(@NotNull List<? extends Integer> items) {
 					++writeCallCount;
 				}
 			};

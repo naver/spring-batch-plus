@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
@@ -37,17 +38,17 @@ class ItemStreamWriterAdaptorTest {
 		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
-				public void onOpenWrite(ExecutionContext executionContext) {
+				public void onOpenWrite(@NotNull ExecutionContext executionContext) {
 					onOpenWriteCallCount.incrementAndGet();
 				}
 
 				@Override
-				public void write(List<? extends Integer> items) {
+				public void write(@NotNull List<? extends Integer> items) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void onUpdateWrite(ExecutionContext executionContext) {
+				public void onUpdateWrite(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
@@ -71,17 +72,17 @@ class ItemStreamWriterAdaptorTest {
 		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
-				public void onOpenWrite(ExecutionContext executionContext) {
+				public void onOpenWrite(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void write(List<? extends Integer> items) {
+				public void write(@NotNull List<? extends Integer> items) {
 					writeCallCount.incrementAndGet();
 				}
 
 				@Override
-				public void onUpdateWrite(ExecutionContext executionContext) {
+				public void onUpdateWrite(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
@@ -105,17 +106,17 @@ class ItemStreamWriterAdaptorTest {
 		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
-				public void onOpenWrite(ExecutionContext executionContext) {
+				public void onOpenWrite(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void write(List<? extends Integer> items) {
+				public void write(@NotNull List<? extends Integer> items) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void onUpdateWrite(ExecutionContext executionContext) {
+				public void onUpdateWrite(@NotNull ExecutionContext executionContext) {
 					onUpdateWriteCallCount.incrementAndGet();
 				}
 
@@ -139,17 +140,17 @@ class ItemStreamWriterAdaptorTest {
 		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
-				public void onOpenWrite(ExecutionContext executionContext) {
+				public void onOpenWrite(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void write(List<? extends Integer> items) {
+				public void write(@NotNull List<? extends Integer> items) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void onUpdateWrite(ExecutionContext executionContext) {
+				public void onUpdateWrite(@NotNull ExecutionContext executionContext) {
 					throw new UnsupportedOperationException();
 				}
 
