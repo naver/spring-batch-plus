@@ -16,6 +16,7 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.spring.batch.core)
     testImplementation(libs.spring.jdbc)
+    testImplementation(libs.reactor.core)
     testRuntimeOnly(libs.h2)
     testRuntimeOnly(libs.log4j)
 }
