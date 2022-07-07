@@ -2,17 +2,19 @@ plugins {
     id("spring.batch.plus.java-library-conventions")
     id("spring.batch.plus.kotlin-conventions")
     id("spring.batch.plus.maven-publish-conventions")
-    id("spring.batch.plus.spring-conventions")
 }
 
 dependencies {
     implementation(project(":spring-batch-plus"))
     implementation(project(":spring-batch-plus-kotlin"))
 
-    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
-    compileOnly("org.springframework.batch:spring-batch-core")
+    compileOnly(libs.spring.boot.autoconfigure)
+    compileOnly(libs.spring.batch.core)
 
-    testImplementation("org.springframework.boot:spring-boot-autoconfigure")
-    testImplementation("org.springframework.boot:spring-boot-test")
-    testImplementation("org.springframework.batch:spring-batch-core")
+    testImplementation(libs.junit)
+    testImplementation(libs.assertj)
+    testImplementation(libs.mockito)
+    testImplementation(libs.spring.boot.autoconfigure)
+    testImplementation(libs.spring.boot.test)
+    testImplementation(libs.spring.batch.core)
 }

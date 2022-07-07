@@ -2,13 +2,15 @@ plugins {
     id("spring.batch.plus.java-library-conventions")
     id("spring.batch.plus.kotlin-conventions")
     id("spring.batch.plus.maven-publish-conventions")
-    id("spring.batch.plus.spring-conventions")
 }
 
 dependencies {
-    compileOnly("org.springframework.batch:spring-batch-core")
-    implementation("org.slf4j:slf4j-api")
+    compileOnly(libs.spring.batch.core)
+    implementation(libs.slf4j)
 
-    testImplementation("org.springframework.batch:spring-batch-core")
-    testRuntimeOnly("org.apache.logging.log4j:log4j-slf4j-impl")
+    testImplementation(libs.junit)
+    testImplementation(libs.assertj)
+    testImplementation(libs.mockito)
+    testImplementation(libs.spring.batch.core)
+    testRuntimeOnly(libs.log4j)
 }
