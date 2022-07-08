@@ -20,9 +20,9 @@ package com.navecorp.spring.batch.plus.sample.readerwriter;
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Flux;
@@ -34,9 +34,9 @@ import com.navercorp.spring.batch.plus.item.ItemStreamReaderWriter;
 class SampleTasklet implements ItemStreamReaderWriter<Integer> {
 	private int count = 0;
 
-	@NotNull
+	@NonNull
 	@Override
-	public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
+	public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
 		return Flux.generate(sink -> {
 			if (count < 20) {
 				sink.next(count);
@@ -48,7 +48,7 @@ class SampleTasklet implements ItemStreamReaderWriter<Integer> {
 	}
 
 	@Override
-	public void write(@NotNull List<? extends Integer> items) {
+	public void write(@NonNull List<? extends Integer> items) {
 		System.out.println(items);
 	}
 }

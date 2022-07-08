@@ -20,9 +20,9 @@ package com.navecorp.spring.batch.plus.sample.readerprocessorwritecallback;
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Flux;
@@ -35,13 +35,13 @@ class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> 
 	private int count = 0;
 
 	@Override
-	public void onOpenRead(@NotNull ExecutionContext executionContext) {
+	public void onOpenRead(@NonNull ExecutionContext executionContext) {
 		System.out.println("onOpenRead");
 	}
 
-	@NotNull
+	@NonNull
 	@Override
-	public Flux<Integer> readFlux(@NotNull ExecutionContext executionContext) {
+	public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
 		return Flux.generate(sink -> {
 			if (count < 20) {
 				sink.next(count);
@@ -53,7 +53,7 @@ class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> 
 	}
 
 	@Override
-	public void onUpdateRead(@NotNull ExecutionContext executionContext) {
+	public void onUpdateRead(@NonNull ExecutionContext executionContext) {
 		System.out.println("onUpdateRead");
 	}
 
@@ -63,17 +63,17 @@ class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> 
 	}
 
 	@Override
-	public String process(@NotNull Integer item) {
+	public String process(@NonNull Integer item) {
 		return "'" + item.toString() + "'";
 	}
 
 	@Override
-	public void onOpenWrite(@NotNull ExecutionContext executionContext) {
+	public void onOpenWrite(@NonNull ExecutionContext executionContext) {
 		System.out.println("onOpenWrite");
 	}
 
 	@Override
-	public void write(@NotNull List<? extends String> items) {
+	public void write(@NonNull List<? extends String> items) {
 		System.out.println(items);
 	}
 
