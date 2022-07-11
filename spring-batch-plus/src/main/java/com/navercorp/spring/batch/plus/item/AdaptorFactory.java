@@ -44,7 +44,7 @@ public final class AdaptorFactory {
 	 */
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
-		return StepScopeItemStreamReader.withDelegate(() -> ItemStreamReaderAdaptor.of(delegate));
+		return StepScopeItemStreamReader.of(() -> ItemStreamReaderAdaptor.of(delegate));
 	}
 
 	/**

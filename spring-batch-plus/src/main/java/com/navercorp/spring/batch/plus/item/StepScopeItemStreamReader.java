@@ -46,7 +46,7 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 	 * @return an adapted ItemStreamReader
 	 * @param <T> a read item type
 	 */
-	public static <T> ItemStreamReader<T> withDelegate(Supplier<ItemStreamReader<T>> delegateSupplier) {
+	public static <T> ItemStreamReader<T> of(Supplier<ItemStreamReader<T>> delegateSupplier) {
 		return new StepScopeItemStreamReader<>(delegateSupplier);
 	}
 
