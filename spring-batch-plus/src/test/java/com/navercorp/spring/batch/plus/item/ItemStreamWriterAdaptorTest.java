@@ -35,7 +35,7 @@ class ItemStreamWriterAdaptorTest {
 	void testOpen() {
 		// given
 		AtomicInteger onOpenWriteCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.of(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
@@ -69,7 +69,7 @@ class ItemStreamWriterAdaptorTest {
 	void testWrite() throws Exception {
 		// given
 		AtomicInteger writeCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.of(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
@@ -103,7 +103,7 @@ class ItemStreamWriterAdaptorTest {
 	void testUpdate() {
 		// given
 		AtomicInteger onUpdateWriteCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.of(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
@@ -137,7 +137,7 @@ class ItemStreamWriterAdaptorTest {
 	void testClose() {
 		// given
 		AtomicInteger onCloseCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.withDelegate(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.of(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {

@@ -40,7 +40,7 @@ public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
 	 * @return an adapted ItemStreamReader
 	 * @param <T> a read item type
 	 */
-	public static <T> ItemStreamReader<T> withDelegate(ItemStreamReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> of(ItemStreamReaderDelegate<T> delegate) {
 		return new ItemStreamReaderAdaptor<>(delegate);
 	}
 

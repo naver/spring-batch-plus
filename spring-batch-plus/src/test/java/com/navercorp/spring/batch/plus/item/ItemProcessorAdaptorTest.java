@@ -28,7 +28,7 @@ class ItemProcessorAdaptorTest {
 	@Test
 	void testProcess() throws Exception {
 		// when
-		ItemProcessor<Integer, String> itemProcessorAdaptor = ItemProcessorAdaptor.withDelegate(Object::toString);
+		ItemProcessor<Integer, String> itemProcessorAdaptor = ItemProcessorAdaptor.of(Object::toString);
 		String actual = itemProcessorAdaptor.process(1234);
 
 		// then

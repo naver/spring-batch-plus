@@ -35,7 +35,7 @@ public class ItemProcessorAdaptor<I, O> implements ItemProcessor<I, O> {
 	 * @param <I> an item type to process
 	 * @param <O> a processed item type
 	 */
-	public static <I, O> ItemProcessor<I, O> withDelegate(ItemProcessorDelegate<I, O> delegate) {
+	public static <I, O> ItemProcessor<I, O> of(ItemProcessorDelegate<I, O> delegate) {
 		return new ItemProcessorAdaptor<>(delegate);
 	}
 

@@ -39,7 +39,7 @@ class ItemStreamReaderAdaptorTest {
 		// given
 		AtomicInteger onOpenReadCallCount = new AtomicInteger();
 		AtomicInteger readFluxCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
@@ -76,7 +76,7 @@ class ItemStreamReaderAdaptorTest {
 	@Test
 	void testRead() throws Exception {
 		// given
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
 			new ItemStreamReaderDelegate<Integer>() {
 				private int count = 0;
 
@@ -124,7 +124,7 @@ class ItemStreamReaderAdaptorTest {
 	@Test
 	void testReadWithOpenShouldThrowsException() {
 		// given
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
 			new ItemStreamReaderDelegate<Integer>() {
 				private int count = 0;
 
@@ -167,7 +167,7 @@ class ItemStreamReaderAdaptorTest {
 	void testUpdate() {
 		// given
 		AtomicInteger onUpdateCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
@@ -203,7 +203,7 @@ class ItemStreamReaderAdaptorTest {
 	void testClose() {
 		// given
 		AtomicInteger onCloseReadCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.withDelegate(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override

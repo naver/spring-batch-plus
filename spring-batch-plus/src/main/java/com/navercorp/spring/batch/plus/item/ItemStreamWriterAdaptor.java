@@ -37,7 +37,7 @@ public class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
 	 * @return an adapted ItemStreamWriter
 	 * @param <T> an item type to write
 	 */
-	public static <T> ItemStreamWriter<T> withDelegate(ItemStreamWriterDelegate<T> delegate) {
+	public static <T> ItemStreamWriter<T> of(ItemStreamWriterDelegate<T> delegate) {
 		return new ItemStreamWriterAdaptor<>(delegate);
 	}
 

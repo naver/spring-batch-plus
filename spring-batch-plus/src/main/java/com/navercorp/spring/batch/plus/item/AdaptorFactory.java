@@ -44,7 +44,7 @@ public final class AdaptorFactory {
 	 */
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
-		return StepScopeItemStreamReader.withDelegate(() -> ItemStreamReaderAdaptor.withDelegate(delegate));
+		return StepScopeItemStreamReader.withDelegate(() -> ItemStreamReaderAdaptor.of(delegate));
 	}
 
 	/**
@@ -57,7 +57,7 @@ public final class AdaptorFactory {
 	 */
 	public static <I, O> ItemProcessor<I, O> itemProcessor(@NonNull ItemProcessorDelegate<I, O> delegate) {
 		Objects.requireNonNull(delegate, "ItemProcessor delegate is null");
-		return ItemProcessorAdaptor.withDelegate(delegate);
+		return ItemProcessorAdaptor.of(delegate);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public final class AdaptorFactory {
 	 */
 	public static <T> ItemStreamWriter<T> itemStreamWriter(@NonNull ItemStreamWriterDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamWriter delegate is null");
-		return ItemStreamWriterAdaptor.withDelegate(delegate);
+		return ItemStreamWriterAdaptor.of(delegate);
 	}
 
 	private AdaptorFactory() {
