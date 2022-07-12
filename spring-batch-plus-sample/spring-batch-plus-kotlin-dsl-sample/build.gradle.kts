@@ -1,16 +1,12 @@
 buildscript {
     repositories {
-        maven("https://plugins.gradle.org/m2/")
-    }
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
-        classpath("org.jlleitschuh.gradle:ktlint-gradle:10.3.0")
+        gradlePluginPortal() // give accees to gradle community plugins
     }
 }
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring") version "1.7.0"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.7.10"
     id("org.jlleitschuh.gradle.ktlint")
 }
 

@@ -72,7 +72,7 @@ class BatchApplication {
         job("afterJob") {
             steps {
                 step("testStep") {
-                    chunk(SimpleCompletionPolicy(3)) {
+                    chunk<Int, Int>(SimpleCompletionPolicy(3)) {
                         reader(
                             object : ItemReader<Int> {
                                 private var count = 0

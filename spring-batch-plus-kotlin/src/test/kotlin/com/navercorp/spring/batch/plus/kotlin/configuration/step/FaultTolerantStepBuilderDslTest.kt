@@ -86,7 +86,7 @@ internal class FaultTolerantStepBuilderDslTest {
         var onSkipInReadCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl(chunkSize) {
+        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
             reader {
                 if (tryCount < skipLimit) {
                     ++tryCount
@@ -696,7 +696,7 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl(chunkSize) {
+        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
             reader {
                 if (readCallCount < readLimit) {
                     ++readCallCount
@@ -985,8 +985,8 @@ internal class FaultTolerantStepBuilderDslTest {
 
             // then
             assertThat(stepExecution.status).isEqualTo(BatchStatus.FAILED)
-            assertThat(stepExecution.failureExceptions).anySatisfy {
-                assertThat(it is FatalStepExecutionException)
+            assertThat(stepExecution.failureExceptions).anyMatch {
+                it is FatalStepExecutionException
             }
         }
 
@@ -1020,8 +1020,8 @@ internal class FaultTolerantStepBuilderDslTest {
 
             // then
             assertThat(stepExecution.status).isEqualTo(BatchStatus.FAILED)
-            assertThat(stepExecution.failureExceptions).anySatisfy {
-                assertThat(it is FatalStepExecutionException)
+            assertThat(stepExecution.failureExceptions).anyMatch {
+                it is FatalStepExecutionException
             }
         }
 
@@ -1055,8 +1055,8 @@ internal class FaultTolerantStepBuilderDslTest {
 
             // then
             assertThat(stepExecution.status).isEqualTo(BatchStatus.FAILED)
-            assertThat(stepExecution.failureExceptions).anySatisfy {
-                assertThat(it is FatalStepExecutionException)
+            assertThat(stepExecution.failureExceptions).anyMatch {
+                it is FatalStepExecutionException
             }
         }
 

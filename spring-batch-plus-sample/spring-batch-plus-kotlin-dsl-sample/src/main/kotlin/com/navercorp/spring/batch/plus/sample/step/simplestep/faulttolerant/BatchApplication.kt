@@ -87,7 +87,7 @@ class BatchApplication {
         job("afterJob") {
             steps {
                 step("testStep") {
-                    chunk(3) {
+                    chunk<Int, Int>(3) {
                         reader(
                             object : ItemReader<Int> {
                                 private var count = 0

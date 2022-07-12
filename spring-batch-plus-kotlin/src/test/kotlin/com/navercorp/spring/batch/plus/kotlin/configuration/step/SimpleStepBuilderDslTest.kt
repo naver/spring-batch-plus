@@ -139,7 +139,7 @@ internal class SimpleStepBuilderDslTest {
         var writeCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl(chunkSize) {
+        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
             reader {
                 if (readCallCount < readLimit) {
                     ++readCallCount
@@ -177,7 +177,7 @@ internal class SimpleStepBuilderDslTest {
         var writeCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl(SimpleCompletionPolicy(chunkSize)) {
+        val step = simpleStepBuilderDsl<Int, Int>(SimpleCompletionPolicy(chunkSize)) {
             reader {
                 if (readCallCount < readLimit) {
                     ++readCallCount
@@ -215,7 +215,7 @@ internal class SimpleStepBuilderDslTest {
         var writeCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl(
+        val step = simpleStepBuilderDsl<Int, Int>(
             RepeatTemplate().apply {
                 setCompletionPolicy(SimpleCompletionPolicy(chunkSize))
             }
@@ -257,7 +257,7 @@ internal class SimpleStepBuilderDslTest {
         var writeCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl(chunkSize) {
+        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
             reader {
                 if (readCallCount < readLimit) {
                     ++readCallCount
@@ -411,7 +411,7 @@ internal class SimpleStepBuilderDslTest {
         }
 
         // when
-        val step = simpleStepBuilderDsl(chunkSize) {
+        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
             listener(TestListener())
             reader {
                 if (readCallCount < readLimit) {
@@ -545,7 +545,7 @@ internal class SimpleStepBuilderDslTest {
         var afterProcessCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl(chunkSize) {
+        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
             listener(
                 object : ItemProcessListener<Number, Number> {
                     override fun beforeProcess(item: Number) {
@@ -694,7 +694,7 @@ internal class SimpleStepBuilderDslTest {
         }
 
         // when
-        val step = simpleStepBuilderDsl(chunkSize) {
+        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
             taskExecutor(taskExecutor)
             throttleLimit(1)
             reader {

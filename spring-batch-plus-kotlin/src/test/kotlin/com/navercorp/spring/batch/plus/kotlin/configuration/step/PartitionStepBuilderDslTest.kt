@@ -153,8 +153,8 @@ internal class PartitionStepBuilderDslTest {
             // then
             assertThat(partitionHandlerCallCount).isEqualTo(1)
             assertThat(jobExecution.stepExecutions).hasSize(gridSize + 1)
-            assertThat(jobExecution.stepExecutions).allSatisfy {
-                assertThat(it.status).isEqualTo(BatchStatus.COMPLETED)
+            assertThat(jobExecution.stepExecutions).allMatch {
+                it.status == BatchStatus.COMPLETED
             }
             assertThat(jobExecution.stepExecutions.find { it.stepName == "testStep" }).isNotNull
             (0 until gridSize).forEach { gridNumber ->
@@ -223,8 +223,8 @@ internal class PartitionStepBuilderDslTest {
             assertThat(stepExecuteCallCount).isEqualTo(gridSize)
             assertThat(taskExecutorCallCount).isEqualTo(gridSize)
             assertThat(jobExecution.stepExecutions).hasSize(gridSize + 1)
-            assertThat(jobExecution.stepExecutions).allSatisfy {
-                assertThat(it.status).isEqualTo(BatchStatus.COMPLETED)
+            assertThat(jobExecution.stepExecutions).allMatch {
+                it.status == BatchStatus.COMPLETED
             }
             assertThat(jobExecution.stepExecutions.find { it.stepName == "testStep" }).isNotNull
             (0 until gridSize).forEach { gridNumber ->
@@ -287,8 +287,8 @@ internal class PartitionStepBuilderDslTest {
             // then
             assertThat(stepExecuteCallCount).isEqualTo(gridSize)
             assertThat(jobExecution.stepExecutions).hasSize(gridSize + 1)
-            assertThat(jobExecution.stepExecutions).allSatisfy {
-                assertThat(it.status).isEqualTo(BatchStatus.COMPLETED)
+            assertThat(jobExecution.stepExecutions).allMatch {
+                it.status == BatchStatus.COMPLETED
             }
             assertThat(jobExecution.stepExecutions.find { it.stepName == "testStep" }).isNotNull
             (0 until gridSize).forEach { gridNumber ->
@@ -357,8 +357,8 @@ internal class PartitionStepBuilderDslTest {
             assertThat(stepExecuteCallCount).isEqualTo(defaultGridSize)
             assertThat(taskExecutorCallCount).isEqualTo(defaultGridSize)
             assertThat(jobExecution.stepExecutions).hasSize(defaultGridSize + 1)
-            assertThat(jobExecution.stepExecutions).allSatisfy {
-                assertThat(it.status).isEqualTo(BatchStatus.COMPLETED)
+            assertThat(jobExecution.stepExecutions).allMatch {
+                it.status == BatchStatus.COMPLETED
             }
             assertThat(jobExecution.stepExecutions.find { it.stepName == "testStep" }).isNotNull
             (0 until defaultGridSize).forEach { gridNumber ->
@@ -512,8 +512,8 @@ internal class PartitionStepBuilderDslTest {
             // then
             assertThat(splitterCallCount).isEqualTo(1)
             assertThat(jobExecution.stepExecutions).hasSize(gridSize + 1)
-            assertThat(jobExecution.stepExecutions).allSatisfy {
-                assertThat(it.status).isEqualTo(BatchStatus.COMPLETED)
+            assertThat(jobExecution.stepExecutions).allMatch {
+                it.status == BatchStatus.COMPLETED
             }
             assertThat(jobExecution.stepExecutions.find { it.stepName == "testStep" }).isNotNull
             (0 until gridSize).forEach { gridNumber ->
@@ -553,8 +553,8 @@ internal class PartitionStepBuilderDslTest {
             // then
             assertThat(partitionerCallCount).isEqualTo(1)
             assertThat(jobExecution.stepExecutions).hasSize(gridSize + 1)
-            assertThat(jobExecution.stepExecutions).allSatisfy {
-                assertThat(it.status).isEqualTo(BatchStatus.COMPLETED)
+            assertThat(jobExecution.stepExecutions).allMatch {
+                it.status == BatchStatus.COMPLETED
             }
             assertThat(jobExecution.stepExecutions.find { it.stepName == "testStep" }).isNotNull
             (0 until gridSize).forEach { gridNumber ->
