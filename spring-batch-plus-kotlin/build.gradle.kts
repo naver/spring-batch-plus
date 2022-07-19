@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":spring-batch-plus"))
+    api(project(":spring-batch-plus"))
 
     compileOnly(libs.spring.batch.core)
     implementation(libs.slf4j)

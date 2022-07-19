@@ -5,8 +5,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":spring-batch-plus"))
-    implementation(project(":spring-batch-plus-kotlin"))
+    compileOnly(project(":spring-batch-plus"))
+    compileOnly(project(":spring-batch-plus-kotlin"))
 
     compileOnly(libs.spring.boot.autoconfigure)
     compileOnly(libs.spring.batch.core)
