@@ -78,7 +78,7 @@ class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> 
 	}
 
 	@Override
-	public void onUpdateWrite(ExecutionContext executionContext) {
+	public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
 		System.out.println("onUpdateWrite");
 		executionContext.putString("samplekey", "samplevlaue");
 	}
