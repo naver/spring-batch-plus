@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.boot.autoconfiguer.batch.plus
+package com.navercorp.spring.boot.autoconfigure.batch.plus.kotlin
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import com.navercorp.spring.boot.autoconfigure.batch.plus.BatchPlusAutoConfiguration
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
