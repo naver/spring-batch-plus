@@ -103,7 +103,7 @@ We provide sample project for some use cases.
 
 - [Kotlin Dsl Sample](./spring-batch-plus-sample/spring-batch-plus-kotlin-dsl-sample/src/main/kotlin)
 - Single class reader-processor-writer sample
-    - [Kotlin version](./spring-batch-plus-sample/spring-batch-plus-single-class-reader-processor-writer/src/main/kotlin)
+    - [Kotlin version](./spring-batch-plus-sample/spring-batch-plus-single-class-reader-processor-writer-kotlin/src/main/kotlin)
     - [Java version](./spring-batch-plus-sample/spring-batch-plus-single-class-reader-processor-writer/src/main/java)
 
 ## Compatibility

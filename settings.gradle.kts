@@ -9,6 +9,7 @@ include("spring-boot-starter-batch-plus-kotlin")
 
 include("spring-batch-plus-sample:spring-batch-plus-kotlin-dsl-sample")
 include("spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer")
+include("spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer-kotlin")
 
 dependencyResolutionManagement {
     versionCatalogs {
