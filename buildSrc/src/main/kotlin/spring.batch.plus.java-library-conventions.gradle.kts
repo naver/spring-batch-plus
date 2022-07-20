@@ -35,9 +35,9 @@ tasks.compileJava {
 
 tasks.withType<Checkstyle>().configureEach {
     reports {
-        configFile = file("${project.rootDir}/src/checkstyle/naver-checkstyle-rules.xml")
+        configFile = file("${project.rootDir}/buildSrc/config/naver-checkstyle-rules.xml")
         configProperties = mapOf(
-            "suppressionFile" to file("${project.rootDir}/src/checkstyle/naver-checkstyle-suppressions.xml")
+            "suppressionFile" to file("${project.rootDir}/buildSrc/config/naver-checkstyle-suppressions.xml")
         )
         xml.required.set(false)
         html.required.set(true)
