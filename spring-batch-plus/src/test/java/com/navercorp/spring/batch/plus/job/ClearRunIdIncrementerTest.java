@@ -33,7 +33,7 @@ class ClearRunIdIncrementerTest {
 	@Test
 	void testGetNextReturnsOneWhenNoPreviousOne() {
 		// given
-		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.of();
+		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
 
 		// when
 		JobParameters jobParameters = clearRunIdIncrementer.getNext(new JobParameters());
@@ -45,7 +45,7 @@ class ClearRunIdIncrementerTest {
 	@Test
 	void testGetNextReturnsNextValue() {
 		// given
-		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.of();
+		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
 
 		// when
 		long previousId = ThreadLocalRandom.current().nextLong();
@@ -62,7 +62,7 @@ class ClearRunIdIncrementerTest {
 	void testCustomRunId() {
 		// given
 		String runId = UUID.randomUUID().toString();
-		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.of(runId);
+		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create(runId);
 
 		// when
 		long previousId = ThreadLocalRandom.current().nextLong();

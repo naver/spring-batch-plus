@@ -41,8 +41,8 @@ public class ClearRunIdIncrementer implements JobParametersIncrementer {
 	 * Create a new ClearRunIdIncrementer with {{@link #DEFAULT_RUN_ID}}.
 	 * @return a new ClearRunIdIncrementer instance
 	 */
-	public static ClearRunIdIncrementer of() {
-		return of(DEFAULT_RUN_ID);
+	public static ClearRunIdIncrementer create() {
+		return create(DEFAULT_RUN_ID);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class ClearRunIdIncrementer implements JobParametersIncrementer {
 	 * @param runId a run id
 	 * @return a new ClearRunIdIncrementer instance
 	 */
-	public static ClearRunIdIncrementer of(String runId) {
+	public static ClearRunIdIncrementer create(String runId) {
 		return new ClearRunIdIncrementer(runId);
 	}
 
