@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.navercorp.spring"
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 
 publishing {
     publications {
