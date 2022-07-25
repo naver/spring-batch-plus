@@ -114,11 +114,20 @@ We've tested following versions only. Other versions may not work.
 |----------------------|-------------------------|
 | 4.3.x                | 0.1.x                   |
 
-## Install
+## Download
 
-Since it provides extension features to spring batch, need to used with spring batch itself.
+Since it provides extension features to spring batch, need to used with [spring batch](https://github.com/spring-projects/spring-batch).
 
 ### Gradle
+
+Kotlin
+
+```kotlin
+implementation("org.springframework.batch:spring-batch-core:${springBatchVersion}") // need spring batch
+implementation("com.navercorp.spring:spring-boot-starter-batch-plus-kotlin:${springBatchPlusVersion}")
+```
+
+Java
 
 ```kotlin
 implementation("org.springframework.batch:spring-batch-core:${springBatchVersion}") // need spring batch
@@ -127,7 +136,26 @@ implementation("com.navercorp.spring:spring-boot-starter-batch-plus:${springBatc
 
 ### Maven
 
+Kotlin
+
 ```xml
+<!-- need spring batch -->
+<dependency>
+    <groupId>org.springframework.batch</groupId>
+    <artifactId>spring-batch-core</artifactId>
+    <version>{springBatchVersion}</version>
+</dependency>
+<dependency>
+    <groupId>com.navercorp.spring</groupId>
+    <artifactId>spring-boot-starter-batch-plus-kotlin</artifactId>
+    <version>{springBatchPlusVersion}</version>
+</dependency>
+```
+
+Java
+
+```xml
+<!-- need spring batch -->
 <dependency>
     <groupId>org.springframework.batch</groupId>
     <artifactId>spring-batch-core</artifactId>
