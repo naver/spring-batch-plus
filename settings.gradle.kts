@@ -33,6 +33,10 @@ dependencyResolutionManagement {
                 "reactor-core",
                 "io.projectreactor:reactor-core:3.4.19"
             )
+            library(
+                "findbugs-jsr305",
+                "com.google.code.findbugs:jsr305:3.0.2"
+            )
 
             // test only
             library(
