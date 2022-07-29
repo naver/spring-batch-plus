@@ -27,13 +27,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.JobParametersIncrementer;
 
 class ClearRunIdIncrementerTest {
 
 	@Test
 	void testGetNextReturnsOneWhenNoPreviousOne() {
 		// given
-		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
+		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
 
 		// when
 		JobParameters jobParameters = clearRunIdIncrementer.getNext(new JobParameters());
@@ -45,7 +46,7 @@ class ClearRunIdIncrementerTest {
 	@Test
 	void testGetNextReturnsNextValue() {
 		// given
-		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
+		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
 
 		// when
 		long previousId = ThreadLocalRandom.current().nextLong();
@@ -62,7 +63,7 @@ class ClearRunIdIncrementerTest {
 	void testCustomRunId() {
 		// given
 		String runId = UUID.randomUUID().toString();
-		ClearRunIdIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create(runId);
+		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create(runId);
 
 		// when
 		long previousId = ThreadLocalRandom.current().nextLong();
