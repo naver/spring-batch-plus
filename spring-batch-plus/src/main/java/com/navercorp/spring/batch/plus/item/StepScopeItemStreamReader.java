@@ -88,7 +88,7 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 			"No step context is set. Make sure if it's invoked in a stepScope.");
 
 		if (!context.hasAttribute(SCOPE_KEY)) {
-			logger.info("No reader in a stepScope. Add new one (stepExecutionId: {})",
+			logger.info("No reader in a stepScope. Add a new one (stepExecutionId: {})",
 				context.getStepExecution().getId());
 			context.setAttribute(SCOPE_KEY, delegateSupplier.get());
 		}
