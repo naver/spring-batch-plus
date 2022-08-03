@@ -44,15 +44,15 @@ public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
 		return new ItemStreamReaderAdaptor<>(delegate);
 	}
 
-	private static final int DEFAULT_BATCH_SIZE = 1;
+	protected static final int DEFAULT_BATCH_SIZE = 1;
 
-	private final ItemStreamReaderDelegate<T> delegate;
+	protected final ItemStreamReaderDelegate<T> delegate;
 
-	private Flux<T> flux = null;
+	protected Flux<T> flux = null;
 
-	private Iterator<T> iterator = null;
+	protected Iterator<T> iterator = null;
 
-	private ItemStreamReaderAdaptor(ItemStreamReaderDelegate<T> delegate) {
+	protected ItemStreamReaderAdaptor(ItemStreamReaderDelegate<T> delegate) {
 		this.delegate = delegate;
 	}
 

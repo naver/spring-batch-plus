@@ -41,9 +41,9 @@ public class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
 		return new ItemStreamWriterAdaptor<>(delegate);
 	}
 
-	private final ItemStreamWriterDelegate<T> delegate;
+	protected final ItemStreamWriterDelegate<T> delegate;
 
-	private ItemStreamWriterAdaptor(ItemStreamWriterDelegate<T> delegate) {
+	protected ItemStreamWriterAdaptor(ItemStreamWriterDelegate<T> delegate) {
 		this.delegate = delegate;
 	}
 

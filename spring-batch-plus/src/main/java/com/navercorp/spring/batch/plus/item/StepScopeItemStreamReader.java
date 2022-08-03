@@ -50,13 +50,13 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 		return new StepScopeItemStreamReader<>(delegateSupplier);
 	}
 
-	private static final String SCOPE_KEY = "StepScopeItemStreamReader@delegate";
+	protected static final String SCOPE_KEY = "StepScopeItemStreamReader@delegate";
 
-	private final Logger logger = getLogger(StepScopeItemStreamReader.class);
+	protected final Logger logger = getLogger(StepScopeItemStreamReader.class);
 
-	private final Supplier<ItemStreamReader<T>> delegateSupplier;
+	protected final Supplier<ItemStreamReader<T>> delegateSupplier;
 
-	private StepScopeItemStreamReader(Supplier<ItemStreamReader<T>> readerGenerator) {
+	protected StepScopeItemStreamReader(Supplier<ItemStreamReader<T>> readerGenerator) {
 		this.delegateSupplier = readerGenerator;
 	}
 
@@ -83,7 +83,7 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private ItemStreamReader<T> getDelegate() {
+	protected ItemStreamReader<T> getDelegate() {
 		StepContext context = Objects.requireNonNull(StepSynchronizationManager.getContext(),
 			"No step context is set. Make sure if it's invoked in a stepScope.");
 

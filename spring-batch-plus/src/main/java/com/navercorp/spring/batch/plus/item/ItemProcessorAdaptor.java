@@ -39,9 +39,9 @@ public class ItemProcessorAdaptor<I, O> implements ItemProcessor<I, O> {
 		return new ItemProcessorAdaptor<>(delegate);
 	}
 
-	private final ItemProcessorDelegate<I, O> delegate;
+	protected final ItemProcessorDelegate<I, O> delegate;
 
-	private ItemProcessorAdaptor(ItemProcessorDelegate<I, O> delegate) {
+	protected ItemProcessorAdaptor(ItemProcessorDelegate<I, O> delegate) {
 		this.delegate = delegate;
 	}
 

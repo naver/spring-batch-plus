@@ -35,7 +35,7 @@ import org.springframework.lang.NonNull;
  */
 public class ClearRunIdIncrementer implements JobParametersIncrementer {
 
-	static final String DEFAULT_RUN_ID = "run.id";
+	protected static final String DEFAULT_RUN_ID = "run.id";
 
 	/**
 	 * Create a new ClearRunIdIncrementer with {{@link #DEFAULT_RUN_ID}}.
@@ -55,9 +55,9 @@ public class ClearRunIdIncrementer implements JobParametersIncrementer {
 		return new ClearRunIdIncrementer(runId);
 	}
 
-	private final String runId;
+	protected final String runId;
 
-	private ClearRunIdIncrementer(String runId) {
+	protected ClearRunIdIncrementer(String runId) {
 		this.runId = runId;
 	}
 
