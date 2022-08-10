@@ -10,6 +10,8 @@ include("spring-boot-starter-batch-plus-kotlin")
 include("spring-batch-plus-sample:spring-batch-plus-kotlin-dsl-sample")
 include("spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer")
 include("spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer-kotlin")
+include("spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer")
+include("spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer-kotlin")
 
 dependencyResolutionManagement {
     versionCatalogs {
