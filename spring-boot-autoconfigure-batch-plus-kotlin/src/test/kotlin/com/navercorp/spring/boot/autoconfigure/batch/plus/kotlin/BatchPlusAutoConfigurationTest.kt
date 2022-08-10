@@ -68,14 +68,14 @@ internal class BatchPlusAutoConfigurationTest {
     class BatchDslConfiguration {
         @Bean
         fun batchDsl(
-            beanFactory: BeanFactory?,
-            jobBuilderFactory: JobBuilderFactory?,
-            stepBuilderFactory: StepBuilderFactory?
+            beanFactory: BeanFactory,
+            jobBuilderFactory: JobBuilderFactory,
+            stepBuilderFactory: StepBuilderFactory
         ): BatchDsl {
             return BatchDsl(
-                beanFactory!!,
-                jobBuilderFactory!!,
-                stepBuilderFactory!!
+                beanFactory,
+                jobBuilderFactory,
+                stepBuilderFactory
             )
         }
     }
