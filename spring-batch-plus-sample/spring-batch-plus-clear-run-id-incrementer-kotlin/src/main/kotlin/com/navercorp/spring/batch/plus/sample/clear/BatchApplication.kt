@@ -18,37 +18,18 @@
 
 package com.navercorp.spring.batch.plus.sample.clear
 
-import com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer
-import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.explore.JobExplorer
 import org.springframework.batch.core.launch.JobLauncher
-import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
 
 @EnableBatchProcessing
 @SpringBootApplication
-class BatchApplication {
-
-    @Bean
-    fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
-        job("testJob") {
-            incrementer(ClearRunIdIncrementer.create())
-            steps {
-                step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
-                }
-            }
-        }
-    }
-}
+class BatchApplication
 
 fun main() {
     val applicationContext = runApplication<BatchApplication>()

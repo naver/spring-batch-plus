@@ -23,36 +23,15 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-
-import com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer;
 
 @EnableBatchProcessing
 @SpringBootApplication
 public class BatchApplication {
-
-	@Bean
-	Job testJob(
-		JobBuilderFactory jobBuilderFactory,
-		StepBuilderFactory stepBuilderFactory
-	) {
-		return jobBuilderFactory.get("testJob")
-			.incrementer(ClearRunIdIncrementer.create("testId"))
-			.start(
-				stepBuilderFactory.get("testStep")
-					.tasklet((contribution, chunkContext) -> RepeatStatus.FINISHED)
-					.build()
-			)
-			.build();
-	}
 
 	public static void main(String[] args) throws Exception {
 		ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
