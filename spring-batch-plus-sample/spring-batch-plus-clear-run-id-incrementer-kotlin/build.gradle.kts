@@ -6,7 +6,6 @@ buildscript {
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring") version "1.7.10"
     id("org.jlleitschuh.gradle.ktlint")
 }
 

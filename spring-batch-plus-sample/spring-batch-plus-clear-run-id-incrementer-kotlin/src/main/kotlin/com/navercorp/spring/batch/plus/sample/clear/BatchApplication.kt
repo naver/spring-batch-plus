@@ -29,7 +29,7 @@ import org.springframework.boot.runApplication
 
 @EnableBatchProcessing
 @SpringBootApplication
-class BatchApplication
+open class BatchApplication
 
 fun main() {
     val applicationContext = runApplication<BatchApplication>()

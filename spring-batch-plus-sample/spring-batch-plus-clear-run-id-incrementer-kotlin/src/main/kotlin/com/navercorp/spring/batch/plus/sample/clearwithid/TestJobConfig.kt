@@ -26,10 +26,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class TestJobConfig {
+open class TestJobConfig {
 
     @Bean
-    fun testJob(
+    open fun testJob(
         batch: BatchDsl
     ): Job = batch {
         job("testJob") {
