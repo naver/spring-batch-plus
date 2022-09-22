@@ -16,26 +16,22 @@
  * limitations under the License.
  */
 
-package com.navecorp.spring.batch.plus.sample.readerprocessorwritecallback;
+package com.navecorp.spring.batch.plus.sample.readerwriter;
 
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemProcessor;
 import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
 import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@EnableBatchProcessing
-@SpringBootApplication
-public class BatchApplication {
+@Configuration
+public class TestJobConfig {
 
 	@Bean
-	Job testJob(
+	public Job testJob(
 		JobBuilderFactory jobBuilderFactory,
 		StepBuilderFactory stepBuilderFactory,
 		SampleTasklet sampleTasklet
@@ -43,16 +39,11 @@ public class BatchApplication {
 		return jobBuilderFactory.get("testJob")
 			.start(
 				stepBuilderFactory.get("testStep")
-					.<Integer, String>chunk(3)
+					.<Integer, Integer>chunk(3)
 					.reader(itemStreamReader(sampleTasklet))
-					.processor(itemProcessor(sampleTasklet))
 					.writer(itemStreamWriter(sampleTasklet))
 					.build()
 			)
 			.build();
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(BatchApplication.class);
 	}
 }

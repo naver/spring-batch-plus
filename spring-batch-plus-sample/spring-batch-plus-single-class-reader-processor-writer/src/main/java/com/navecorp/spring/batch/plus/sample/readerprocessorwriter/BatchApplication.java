@@ -18,41 +18,27 @@
 
 package com.navecorp.spring.batch.plus.sample.readerprocessorwriter;
 
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemProcessor;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
-
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.ApplicationContext;
 
 @EnableBatchProcessing
 @SpringBootApplication
 public class BatchApplication {
 
-	@Bean
-	Job testJob(
-		JobBuilderFactory jobBuilderFactory,
-		StepBuilderFactory stepBuilderFactory,
-		SampleTasklet sampleTasklet
-	) {
-		return jobBuilderFactory.get("testJob")
-			.start(
-				stepBuilderFactory.get("testStep")
-					.<Integer, String>chunk(3)
-					.reader(itemStreamReader(sampleTasklet))
-					.processor(itemProcessor(sampleTasklet))
-					.writer(itemStreamWriter(sampleTasklet))
-					.build()
-			)
-			.build();
-	}
+	public static void main(String[] args) throws Exception {
+		ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
+		JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+		Job job = applicationContext.getBean("testJob", Job.class);
 
-	public static void main(String[] args) {
-		SpringApplication.run(BatchApplication.class);
+		JobParameters jobParameter = new JobParametersBuilder()
+			.addLong("totalCount", 20L)
+			.toJobParameters();
+		jobLauncher.run(job, jobParameter);
 	}
 }

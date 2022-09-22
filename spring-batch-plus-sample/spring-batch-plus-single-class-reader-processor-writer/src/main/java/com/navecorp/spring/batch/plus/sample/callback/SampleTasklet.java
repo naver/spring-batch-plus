@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-package com.navecorp.spring.batch.plus.sample.readerprocessorwritecallback;
+package com.navecorp.spring.batch.plus.sample.callback;
 
 import java.util.List;
 
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,11 @@ import com.navercorp.spring.batch.plus.item.ItemStreamReaderProcessorWriter;
 
 @Component
 @StepScope
-class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> {
+public class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> {
+
+	@Value("#{jobParameters['totalCount']}")
+	private long totalCount;
+
 	private int count = 0;
 
 	@Override
@@ -42,8 +47,9 @@ class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> 
 	@NonNull
 	@Override
 	public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
+		System.out.println("totalCount: " + totalCount);
 		return Flux.generate(sink -> {
-			if (count < 20) {
+			if (count < totalCount) {
 				sink.next(count);
 				++count;
 			} else {
@@ -87,5 +93,4 @@ class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> 
 	public void onCloseWrite() {
 		System.out.println("onCloseWrite");
 	}
-
 }

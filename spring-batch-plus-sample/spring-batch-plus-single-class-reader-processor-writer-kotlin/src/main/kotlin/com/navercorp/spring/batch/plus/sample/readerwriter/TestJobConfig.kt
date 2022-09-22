@@ -16,41 +16,32 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.readerprocessorwritercallback
+package com.navercorp.spring.batch.plus.sample.readerwriter
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import com.navercorp.spring.batch.plus.kotlin.item.asItemProcessor
 import com.navercorp.spring.batch.plus.kotlin.item.asItemStreamReader
 import com.navercorp.spring.batch.plus.kotlin.item.asItemStreamWriter
 import org.springframework.batch.core.Job
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
-@EnableBatchProcessing
-@SpringBootApplication
-class BatchApplication {
+@Configuration
+open class TestJobConfig {
 
     @Bean
-    fun testJob(
+    open fun testJob(
         sampleTasklet: SampleTasklet,
-        batch: BatchDsl,
+        batch: BatchDsl
     ): Job = batch {
         job("testJob") {
             steps {
                 step("testStep") {
-                    chunk<Int, String>(3) {
+                    chunk<Int, Int>(3) {
                         reader(sampleTasklet.asItemStreamReader())
-                        processor(sampleTasklet.asItemProcessor())
                         writer(sampleTasklet.asItemStreamWriter())
                     }
                 }
             }
         }
     }
-}
-
-fun main() {
-    runApplication<BatchApplication>()
 }

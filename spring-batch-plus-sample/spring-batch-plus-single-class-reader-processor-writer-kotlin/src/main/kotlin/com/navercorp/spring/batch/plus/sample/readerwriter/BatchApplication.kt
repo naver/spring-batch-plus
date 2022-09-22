@@ -18,37 +18,25 @@
 
 package com.navercorp.spring.batch.plus.sample.readerwriter
 
-import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import com.navercorp.spring.batch.plus.kotlin.item.asItemStreamReader
-import com.navercorp.spring.batch.plus.kotlin.item.asItemStreamWriter
 import org.springframework.batch.core.Job
+import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
+import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
 
 @EnableBatchProcessing
 @SpringBootApplication
-class BatchApplication {
-
-    @Bean
-    fun testJob(
-        sampleTasklet: SampleTasklet,
-        batch: BatchDsl,
-    ): Job = batch {
-        job("testJob") {
-            steps {
-                step("testStep") {
-                    chunk<Int, Int>(3) {
-                        reader(sampleTasklet.asItemStreamReader())
-                        writer(sampleTasklet.asItemStreamWriter())
-                    }
-                }
-            }
-        }
-    }
-}
+open class BatchApplication
 
 fun main() {
-    runApplication<BatchApplication>()
+    val applicationContext = runApplication<BatchApplication>()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val job = applicationContext.getBean<Job>("testJob")
+
+    val jobParameter = JobParametersBuilder()
+        .addLong("totalCount", 20L)
+        .toJobParameters()
+    jobLauncher.run(job, jobParameter)
 }

@@ -21,17 +21,21 @@ package com.navercorp.spring.batch.plus.sample.readerprocessorwriter
 import com.navercorp.spring.batch.plus.item.ItemStreamReaderProcessorWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.item.ExecutionContext
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 
 @Component
 @StepScope
-class SampleTasklet : ItemStreamReaderProcessorWriter<Int, String> {
+open class SampleTasklet(
+    @Value("#{jobParameters['totalCount']}") private var totalCount: Long
+) : ItemStreamReaderProcessorWriter<Int, String> {
     private var count = 0
 
     override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
+        println("totalCount: $totalCount")
         return Flux.generate { sink ->
-            if (count < 20) {
+            if (count < totalCount) {
                 sink.next(count)
                 ++count
             } else {

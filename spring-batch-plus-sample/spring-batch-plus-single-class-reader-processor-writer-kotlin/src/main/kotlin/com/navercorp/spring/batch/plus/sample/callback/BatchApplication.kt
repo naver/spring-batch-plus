@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.readerprocessorwriter
+package com.navercorp.spring.batch.plus.sample.callback
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
