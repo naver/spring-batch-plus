@@ -21,7 +21,7 @@ package com.navercorp.spring.batch.plus.kotlin.configuration.support
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-internal class CompositeConfigurerTest {
+internal class LazyConfigurerTest {
 
     @Test
     fun testAdd() {
@@ -29,11 +29,11 @@ internal class CompositeConfigurerTest {
         var configurerCallCount = 0
 
         // when
-        val compositeConfigurer = CompositeConfigurer<String>()
-        compositeConfigurer.add {
+        val lazyConfigurer = LazyConfigurer<String>()
+        lazyConfigurer.add {
             ++configurerCallCount
         }
-        "test".apply(compositeConfigurer)
+        "test".apply(lazyConfigurer)
 
         // then
         assertThat(configurerCallCount).isEqualTo(1)
@@ -46,9 +46,9 @@ internal class CompositeConfigurerTest {
         var configurer2CallCount = 0
 
         // when
-        val compositeConfigurer = CompositeConfigurer<String>()
-        compositeConfigurer.add(
-            CompositeConfigurer<String>().apply {
+        val lazyConfigurer = LazyConfigurer<String>()
+        lazyConfigurer.add(
+            LazyConfigurer<String>().apply {
                 add {
                     ++configurer1CallCount
                 }
@@ -57,7 +57,7 @@ internal class CompositeConfigurerTest {
                 }
             }
         )
-        "test".apply(compositeConfigurer)
+        "test".apply(lazyConfigurer)
 
         // then
         assertThat(configurer1CallCount).isEqualTo(1)

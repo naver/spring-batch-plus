@@ -19,8 +19,8 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
-import com.navercorp.spring.batch.plus.kotlin.configuration.support.CompositeConfigurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.step.builder.JobStepBuilder
@@ -37,13 +37,13 @@ class JobStepBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val jobStepBuilder: JobStepBuilder
 ) {
-    private val compositeConfigurer = CompositeConfigurer<JobStepBuilder>()
+    private val lazyConfigurer = LazyConfigurer<JobStepBuilder>()
 
     /**
      * Set for [JobStepBuilder.jobLauncher][org.springframework.batch.core.step.builder.JobStepBuilder.jobLauncher].
      */
     fun launcher(jobLauncher: JobLauncher) {
-        this.compositeConfigurer.add {
+        this.lazyConfigurer.add {
             it.launcher(jobLauncher)
         }
     }
@@ -52,13 +52,13 @@ class JobStepBuilderDsl internal constructor(
      * Set for [JobStepBuilder.parametersExtractor][org.springframework.batch.core.step.builder.JobStepBuilder.parametersExtractor].
      */
     fun parametersExtractor(jobParametersExtractor: JobParametersExtractor) {
-        this.compositeConfigurer.add {
+        this.lazyConfigurer.add {
             it.parametersExtractor(jobParametersExtractor)
         }
     }
 
     internal fun build(): Step {
-        return this.jobStepBuilder.apply(this.compositeConfigurer)
+        return this.jobStepBuilder.apply(this.lazyConfigurer)
             .build()
     }
 }

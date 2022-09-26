@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
-import com.navercorp.spring.batch.plus.kotlin.configuration.support.CompositeConfigurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.Configurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.partition.PartitionHandler
 import org.springframework.batch.core.partition.StepExecutionSplitter
@@ -40,7 +40,7 @@ class PartitionStepBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val partitionStepBuilder: PartitionStepBuilder,
 ) {
-    private val compositeConfigurer = CompositeConfigurer<PartitionStepBuilder>()
+    private val lazyConfigurer = LazyConfigurer<PartitionStepBuilder>()
 
     private var partitionHandlerSet = false
     private var splitterSet = false
@@ -49,7 +49,7 @@ class PartitionStepBuilderDsl internal constructor(
      * Set for [PartitionStepBuilder.partitionHandler][org.springframework.batch.core.step.builder.PartitionStepBuilder.partitionHandler].
      */
     fun partitionHandler(partitionHandler: PartitionHandler) {
-        this.compositeConfigurer.add {
+        this.lazyConfigurer.add {
             it.partitionHandler(partitionHandler)
         }
         this.partitionHandlerSet = true
@@ -63,7 +63,7 @@ class PartitionStepBuilderDsl internal constructor(
         val taskExecutorPartitionHandlerConfigurers = TaskExecutorPartitionHandlerBuilderDsl(this.dslContext)
             .apply(init)
             .build()
-        this.compositeConfigurer.add(taskExecutorPartitionHandlerConfigurers)
+        this.lazyConfigurer.add(taskExecutorPartitionHandlerConfigurers)
         this.partitionHandlerSet = true
     }
 
@@ -71,7 +71,7 @@ class PartitionStepBuilderDsl internal constructor(
      * Set for [PartitionStepBuilder.splitter][org.springframework.batch.core.step.builder.PartitionStepBuilder.splitter].
      */
     fun splitter(splitter: StepExecutionSplitter) {
-        this.compositeConfigurer.add {
+        this.lazyConfigurer.add {
             it.splitter(splitter)
         }
         this.splitterSet = true
@@ -84,7 +84,7 @@ class PartitionStepBuilderDsl internal constructor(
      * @see [PartitionStepBuilder.partitioner][org.springframework.batch.core.step.builder.PartitionStepBuilder.partitioner]
      */
     fun splitter(stepName: String, partitioner: Partitioner) {
-        this.compositeConfigurer.add {
+        this.lazyConfigurer.add {
             it.partitioner(stepName, partitioner)
         }
         this.splitterSet = true
@@ -94,7 +94,7 @@ class PartitionStepBuilderDsl internal constructor(
      * Set for [PartitionStepBuilder.aggregator][org.springframework.batch.core.step.builder.PartitionStepBuilder.aggregator].
      */
     fun aggregator(aggregator: StepExecutionAggregator) {
-        this.compositeConfigurer.add {
+        this.lazyConfigurer.add {
             it.aggregator(aggregator)
         }
     }
@@ -108,7 +108,7 @@ class PartitionStepBuilderDsl internal constructor(
             "splitter is not set."
         }
 
-        return this.partitionStepBuilder.apply(this.compositeConfigurer)
+        return this.partitionStepBuilder.apply(this.lazyConfigurer)
             .build()
     }
 
@@ -122,7 +122,7 @@ class PartitionStepBuilderDsl internal constructor(
         @Suppress("unused")
         private val dslContext: DslContext,
     ) {
-        private val compositeConfigurer = CompositeConfigurer<PartitionStepBuilder>()
+        private val lazyConfigurer = LazyConfigurer<PartitionStepBuilder>()
 
         private var stepSet = false
 
@@ -133,7 +133,7 @@ class PartitionStepBuilderDsl internal constructor(
          * @see [org.springframework.batch.core.step.builder.PartitionStepBuilder.step]
          */
         fun step(step: Step) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.step(step)
             }
             this.stepSet = true
@@ -146,7 +146,7 @@ class PartitionStepBuilderDsl internal constructor(
          * @see [org.springframework.batch.core.step.builder.PartitionStepBuilder.taskExecutor]
          */
         fun taskExecutor(taskExecutor: TaskExecutor) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.taskExecutor(taskExecutor)
             }
         }
@@ -158,7 +158,7 @@ class PartitionStepBuilderDsl internal constructor(
          * @see [org.springframework.batch.core.step.builder.PartitionStepBuilder.gridSize]
          */
         fun gridSize(gridSize: Int) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.gridSize(gridSize)
             }
         }
@@ -167,7 +167,7 @@ class PartitionStepBuilderDsl internal constructor(
         internal fun build(): Configurer<PartitionStepBuilder> {
             check(this.stepSet) { "step is not set." }
 
-            return this.compositeConfigurer
+            return this.lazyConfigurer
         }
     }
 }

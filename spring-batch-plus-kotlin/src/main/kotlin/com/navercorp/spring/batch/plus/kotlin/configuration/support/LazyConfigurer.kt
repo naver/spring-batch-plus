@@ -18,9 +18,12 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration.support
 
-internal fun interface Configurer<T> : (T) -> Unit
+internal fun interface Configurer<T : Any> : (T) -> Unit
 
-internal class CompositeConfigurer<T : Any> : Configurer<T> {
+/**
+ * A class to configure builder lazily.
+ */
+internal class LazyConfigurer<T : Any> : Configurer<T> {
     private val configurers = mutableListOf<Configurer<T>>()
 
     fun add(configurer: Configurer<T>) {

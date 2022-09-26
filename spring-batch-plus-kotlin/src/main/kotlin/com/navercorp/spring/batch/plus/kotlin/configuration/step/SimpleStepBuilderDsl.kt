@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
-import com.navercorp.spring.batch.plus.kotlin.configuration.support.CompositeConfigurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.Configurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
 import org.springframework.batch.core.ChunkListener
 import org.springframework.batch.core.ItemProcessListener
 import org.springframework.batch.core.ItemReadListener
@@ -56,7 +56,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
     private val dslContext: DslContext,
     private val simpleStepBuilder: SimpleStepBuilder<I, O>
 ) {
-    private val simpleStepConfigurer = CompositeConfigurer<SimpleStepBuilder<I, O>>()
+    private val simpleStepConfigurer = LazyConfigurer<SimpleStepBuilder<I, O>>()
     private var faultTolerantStepConfigurer: Configurer<FaultTolerantStepBuilder<I, O>>? = null
 
     private var taskExecutorSet = false
@@ -279,13 +279,13 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
         @Suppress("unused")
         private val dslContext: DslContext,
     ) {
-        private val compositeConfigurer = CompositeConfigurer<FaultTolerantStepBuilder<I, O>>()
+        private val lazyConfigurer = LazyConfigurer<FaultTolerantStepBuilder<I, O>>()
 
         /**
          * Set skip listener.
          */
         fun listener(listener: SkipListener<in I, in O>) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.listener(listener)
             }
         }
@@ -294,7 +294,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set retry listener.
          */
         fun listener(listener: RetryListener) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.listener(listener)
             }
         }
@@ -303,7 +303,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.keyGenerator][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.keyGenerator].
          */
         fun keyGenerator(keyGenerator: KeyGenerator) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.keyGenerator(keyGenerator)
             }
         }
@@ -312,7 +312,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.retryLimit][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.retryLimit].
          */
         fun retryLimit(retryLimit: Int) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.retryLimit(retryLimit)
             }
         }
@@ -328,7 +328,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.noRetry][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.noRetry].
          */
         fun noRetry(type: KClass<out Throwable>) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.noRetry(type.java)
             }
         }
@@ -344,7 +344,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.retry][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.retry].
          */
         fun retry(type: KClass<out Throwable>) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.retry(type.java)
             }
         }
@@ -353,7 +353,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.retryPolicy][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.retryPolicy].
          */
         fun retryPolicy(retryPolicy: RetryPolicy) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.retryPolicy(retryPolicy)
             }
         }
@@ -362,7 +362,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.backOffPolicy][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.backOffPolicy].
          */
         fun backOffPolicy(backOffPolicy: BackOffPolicy) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.backOffPolicy(backOffPolicy)
             }
         }
@@ -371,7 +371,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.retryContextCache][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.retryContextCache].
          */
         fun retryContextCache(retryContextCache: RetryContextCache) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.retryContextCache(retryContextCache)
             }
         }
@@ -380,7 +380,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.skipLimit][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.skipLimit].
          */
         fun skipLimit(skipLimit: Int) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.skipLimit(skipLimit)
             }
         }
@@ -396,7 +396,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.noSkip][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.noSkip].
          */
         fun noSkip(type: KClass<out Throwable>) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.noSkip(type.java)
             }
         }
@@ -412,7 +412,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.skip][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.skip].
          */
         fun skip(type: KClass<out Throwable>) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.skip(type.java)
             }
         }
@@ -421,7 +421,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.skipPolicy][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.skipPolicy].
          */
         fun skipPolicy(skipPolicy: SkipPolicy) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.skipPolicy(skipPolicy)
             }
         }
@@ -437,7 +437,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * Set for [FaultTolerantStepBuilder.noRollback][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.noRollback].
          */
         fun noRollback(type: KClass<out Throwable>) {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.noRollback(type.java)
             }
         }
@@ -448,13 +448,13 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
          * @see [FaultTolerantStepBuilder.processorNonTransactional][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder.processorNonTransactional].
          */
         fun processorNonTransactional() {
-            this.compositeConfigurer.add {
+            this.lazyConfigurer.add {
                 it.processorNonTransactional()
             }
         }
 
         internal fun build(): Configurer<FaultTolerantStepBuilder<I, O>> {
-            return this.compositeConfigurer
+            return this.lazyConfigurer
         }
     }
 }
