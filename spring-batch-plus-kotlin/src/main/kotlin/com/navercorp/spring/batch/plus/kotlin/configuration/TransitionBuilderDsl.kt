@@ -66,7 +66,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     /**
      * Transition to step by bean name and set another transition.
      */
-    fun stepBean(name: String, stepTransitionInit: FlowBuilderDsl.StepTransitionBuilderDsl<T>.() -> Unit) {
+    fun stepBean(name: String, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
         val step = this.dslContext.beanFactory.getBean<Step>(name)
         step(step, stepTransitionInit)
     }
@@ -77,7 +77,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     fun step(
         name: String,
         stepInit: StepBuilderDsl.() -> Step,
-        stepTransitionInit: FlowBuilderDsl.StepTransitionBuilderDsl<T>.() -> Unit
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
     ) {
         val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
@@ -87,9 +87,9 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     /**
      * Transition to step and set another transition.
      */
-    fun step(step: Step, stepTransitionInit: FlowBuilderDsl.StepTransitionBuilderDsl<T>.() -> Unit) {
+    fun step(step: Step, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
         val baseFlowBuilder = this.baseTransitionBuilder.to(step).from(step)
-        this.flowBuilder = FlowBuilderDsl.StepTransitionBuilderDsl<T>(this.dslContext, step, baseFlowBuilder)
+        this.flowBuilder = StepTransitionBuilderDsl<T>(this.dslContext, step, baseFlowBuilder)
             .apply(stepTransitionInit)
             .build()
     }
@@ -123,7 +123,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     /**
      * Transition to flow by bean name and set another transition.
      */
-    fun flowBean(name: String, flowTransitionInit: FlowBuilderDsl.FlowTransitionBuilderDsl<T>.() -> Unit) {
+    fun flowBean(name: String, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
         val flow = this.dslContext.beanFactory.getBean<Flow>(name)
         flow(flow, flowTransitionInit)
     }
@@ -134,7 +134,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     fun flow(
         name: String,
         flowInit: FlowBuilderDsl<Flow>.() -> Unit,
-        flowTransitionInit: FlowBuilderDsl.FlowTransitionBuilderDsl<T>.() -> Unit
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit
     ) {
         val flowBuilder = FlowBuilder<Flow>(name)
         val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
@@ -145,10 +145,10 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     /**
      * Transition to flow and set another transition.
      */
-    fun flow(flow: Flow, flowTransitionInit: FlowBuilderDsl.FlowTransitionBuilderDsl<T>.() -> Unit) {
+    fun flow(flow: Flow, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
         val baseFlowBuilder = this.baseTransitionBuilder.to(flow)
             .from(flow)
-        this.flowBuilder = FlowBuilderDsl.FlowTransitionBuilderDsl<T>(this.dslContext, flow, baseFlowBuilder)
+        this.flowBuilder = FlowTransitionBuilderDsl<T>(this.dslContext, flow, baseFlowBuilder)
             .apply(flowTransitionInit)
             .build()
     }
@@ -158,7 +158,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      */
     fun deciderBean(
         name: String,
-        deciderTransitionInit: FlowBuilderDsl.DeciderTransitionBuilderDsl<T>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
     ) {
         val decider = this.dslContext.beanFactory.getBean<JobExecutionDecider>(name)
         decider(decider, deciderTransitionInit)
@@ -169,11 +169,11 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      */
     fun decider(
         decider: JobExecutionDecider,
-        deciderTransitionInit: FlowBuilderDsl.DeciderTransitionBuilderDsl<T>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
     ) {
         val baseUnterminatedFlowBuilder = this.baseTransitionBuilder.to(decider)
             .from(decider)
-        this.flowBuilder = FlowBuilderDsl.DeciderTransitionBuilderDsl<T>(
+        this.flowBuilder = DeciderTransitionBuilderDsl<T>(
             this.dslContext,
             decider,
             baseUnterminatedFlowBuilder
@@ -219,7 +219,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      */
     fun stopAndRestartToFlowBean(
         name: String,
-        flowTransitionInit: FlowBuilderDsl.FlowTransitionBuilderDsl<T>.() -> Unit
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit
     ) {
         val flow = this.dslContext.beanFactory.getBean<Flow>(name)
         stopAndRestartToFlow(flow, flowTransitionInit)
@@ -231,7 +231,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     fun stopAndRestartToFlow(
         name: String,
         flowInit: FlowBuilderDsl<Flow>.() -> Unit,
-        flowTransitionInit: FlowBuilderDsl.FlowTransitionBuilderDsl<T>.() -> Unit
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit
     ) {
         val flowBuilder = FlowBuilder<Flow>(name)
         val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
@@ -242,11 +242,11 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     /**
      * Transition to stop and restart with flow if the flow is restarted.
      */
-    fun stopAndRestartToFlow(flow: Flow, flowTransitionInit: FlowBuilderDsl.FlowTransitionBuilderDsl<T>.() -> Unit) {
+    fun stopAndRestartToFlow(flow: Flow, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
         val baseFlowBuilder = this.baseTransitionBuilder.stopAndRestart(flow)
             .from(flow)
 
-        this.flowBuilder = FlowBuilderDsl.FlowTransitionBuilderDsl<T>(this.dslContext, flow, baseFlowBuilder)
+        this.flowBuilder = FlowTransitionBuilderDsl<T>(this.dslContext, flow, baseFlowBuilder)
             .apply(flowTransitionInit)
             .build()
     }
@@ -256,7 +256,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      */
     fun stopAndRestartToDeciderBean(
         name: String,
-        deciderTransitionInit: FlowBuilderDsl.DeciderTransitionBuilderDsl<T>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
     ) {
         val decider = this.dslContext.beanFactory.getBean<JobExecutionDecider>(name)
         stopAndRestartToDecider(decider, deciderTransitionInit)
@@ -267,10 +267,10 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      */
     fun stopAndRestartToDecider(
         decider: JobExecutionDecider,
-        deciderTransitionInit: FlowBuilderDsl.DeciderTransitionBuilderDsl<T>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
     ) {
         val baseFlowBuilder = this.baseTransitionBuilder.stopAndRestart(decider).from(decider)
-        this.flowBuilder = FlowBuilderDsl.DeciderTransitionBuilderDsl(this.dslContext, decider, baseFlowBuilder)
+        this.flowBuilder = DeciderTransitionBuilderDsl(this.dslContext, decider, baseFlowBuilder)
             .apply(deciderTransitionInit)
             .build()
     }
@@ -304,7 +304,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      */
     fun stopAndRestartToStepBean(
         name: String,
-        stepTransitionInit: FlowBuilderDsl.StepTransitionBuilderDsl<T>.() -> Unit
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
     ) {
         val step = this.dslContext.beanFactory.getBean<Step>(name)
         stopAndRestartToStep(step, stepTransitionInit)
@@ -316,7 +316,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     fun stopAndRestartToStep(
         name: String,
         stepInit: StepBuilderDsl.() -> Step,
-        stepTransitionInit: FlowBuilderDsl.StepTransitionBuilderDsl<T>.() -> Unit
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
     ) {
         val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
@@ -326,11 +326,11 @@ class TransitionBuilderDsl<T : Any> internal constructor(
     /**
      * Transition to stop and restart with step if the flow is restarted.
      */
-    fun stopAndRestartToStep(step: Step, stepTransitionInit: FlowBuilderDsl.StepTransitionBuilderDsl<T>.() -> Unit) {
+    fun stopAndRestartToStep(step: Step, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
         val baseFlowBuilder = this.baseTransitionBuilder.stopAndRestart(step)
             .from(step)
 
-        this.flowBuilder = FlowBuilderDsl.StepTransitionBuilderDsl<T>(this.dslContext, step, baseFlowBuilder)
+        this.flowBuilder = StepTransitionBuilderDsl<T>(this.dslContext, step, baseFlowBuilder)
             .apply(stepTransitionInit)
             .build()
     }
