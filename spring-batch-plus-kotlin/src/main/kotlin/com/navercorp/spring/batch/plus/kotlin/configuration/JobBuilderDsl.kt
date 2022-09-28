@@ -20,12 +20,14 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobExecutionListener
 import org.springframework.batch.core.JobParametersIncrementer
 import org.springframework.batch.core.JobParametersValidator
 import org.springframework.batch.core.job.builder.FlowJobBuilder
 import org.springframework.batch.core.job.builder.JobBuilder
+import org.springframework.batch.core.job.builder.JobBuilderHelper
 import org.springframework.batch.core.job.builder.SimpleJobBuilder
 import org.springframework.batch.core.repository.JobRepository
 
@@ -39,25 +41,34 @@ class JobBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val jobBuilder: JobBuilder
 ) {
+
+    private var lazyConfigurer = LazyConfigurer<JobBuilderHelper<*>>()
+
     /**
      * Set for [JobBuilder.validator][org.springframework.batch.core.job.builder.JobBuilderHelper.validator].
      */
     fun validator(jobParametersValidator: JobParametersValidator) {
-        this.jobBuilder.validator(jobParametersValidator)
+        lazyConfigurer.add {
+            it.validator(jobParametersValidator)
+        }
     }
 
     /**
      * Set for [JobBuilder.incrementer][org.springframework.batch.core.job.builder.JobBuilderHelper.incrementer].
      */
     fun incrementer(jobParametersIncrementer: JobParametersIncrementer) {
-        this.jobBuilder.incrementer(jobParametersIncrementer)
+        lazyConfigurer.add {
+            it.incrementer(jobParametersIncrementer)
+        }
     }
 
     /**
      * Set for [JobBuilder.repository][org.springframework.batch.core.job.builder.JobBuilderHelper.repository].
      */
     fun repository(jobRepository: JobRepository) {
-        this.jobBuilder.repository(jobRepository)
+        lazyConfigurer.add {
+            it.repository(jobRepository)
+        }
     }
 
     /**
@@ -67,27 +78,34 @@ class JobBuilderDsl internal constructor(
      * - [org.springframework.batch.core.annotation.AfterJob]
      */
     fun listener(listener: Any) {
-        this.jobBuilder.listener(listener)
+        lazyConfigurer.add {
+            it.listener(listener)
+        }
     }
 
     /**
      * Set job execution listener.
      */
     fun listener(listener: JobExecutionListener) {
-        this.jobBuilder.listener(listener)
+        lazyConfigurer.add {
+            it.listener(listener)
+        }
     }
 
     /**
      * Set for [JobBuilder.preventRestart][org.springframework.batch.core.job.builder.JobBuilderHelper.preventRestart].
      */
     fun preventRestart() {
-        this.jobBuilder.preventRestart()
+        lazyConfigurer.add {
+            it.preventRestart()
+        }
     }
 
     /**
      * Build [SimpleJobBuilder][org.springframework.batch.core.job.builder.SimpleJobBuilder] for job.
      */
     fun steps(init: SimpleJobBuilderDsl.() -> Unit): Job {
+        this.jobBuilder.apply(this.lazyConfigurer)
         val simpleJobBuilder = SimpleJobBuilder(this.jobBuilder)
         return SimpleJobBuilderDsl(this.dslContext, simpleJobBuilder).apply(init)
             .build()
@@ -97,8 +115,14 @@ class JobBuilderDsl internal constructor(
      * Build [FlowJobBuilder][org.springframework.batch.core.job.builder.FlowJobBuilder] for job.
      */
     fun flows(init: FlowJobBuilderDsl.() -> Unit): Job {
+        this.jobBuilder.apply(this.lazyConfigurer)
         val flowJobBuilder = FlowJobBuilder(this.jobBuilder)
         return FlowJobBuilderDsl(this.dslContext, flowJobBuilder).apply(init).build()
             .build()
+    }
+
+    internal fun build(): Job {
+        this.jobBuilder.apply(this.lazyConfigurer)
+        TODO()
     }
 }
