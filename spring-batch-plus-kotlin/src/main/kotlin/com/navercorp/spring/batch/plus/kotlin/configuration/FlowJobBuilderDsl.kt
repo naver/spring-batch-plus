@@ -25,11 +25,9 @@ import org.springframework.batch.core.job.builder.FlowJobBuilder
 
 /**
  * A dsl for [FlowJobBuilder][org.springframework.batch.core.job.builder.FlowJobBuilder].
- *
- * @since 0.1.0
  */
 @BatchDslMarker
-class FlowJobBuilderDsl internal constructor(
+internal class FlowJobBuilderDsl internal constructor(
     @Suppress("unused")
     private val dslContext: DslContext,
     private val delegate: ConcreteFlowBuilderDsl<FlowJobBuilder>

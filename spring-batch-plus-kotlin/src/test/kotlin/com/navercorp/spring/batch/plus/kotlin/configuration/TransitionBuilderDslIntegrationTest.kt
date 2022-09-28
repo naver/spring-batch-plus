@@ -77,12 +77,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stepBean("transitionStep")
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stepBean("transitionStep")
                         }
                     }
                 }
@@ -117,15 +115,13 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                step("transitionStep") {
-                                    tasklet { _, _ ->
-                                        ++transitionStepCallCount
-                                        RepeatStatus.FINISHED
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            step("transitionStep") {
+                                tasklet { _, _ ->
+                                    ++transitionStepCallCount
+                                    RepeatStatus.FINISHED
                                 }
                             }
                         }
@@ -170,12 +166,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                step(transitionStep)
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            step(transitionStep)
                         }
                     }
                 }
@@ -221,20 +215,18 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stepBean("transitionStep") {
-                                    on("COMPLETED") {
-                                        fail()
-                                    }
-                                    on("FAILED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        end()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stepBean("transitionStep") {
+                                on("COMPLETED") {
+                                    fail()
+                                }
+                                on("FAILED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    end()
                                 }
                             }
                         }
@@ -271,28 +263,26 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                step(
-                                    "transitionStep",
-                                    {
-                                        tasklet { _, _ ->
-                                            ++transitionStepCallCount
-                                            throw RuntimeException("Error")
-                                        }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            step(
+                                "transitionStep",
+                                {
+                                    tasklet { _, _ ->
+                                        ++transitionStepCallCount
+                                        throw RuntimeException("Error")
                                     }
-                                ) {
-                                    on("COMPLETED") {
-                                        fail()
-                                    }
-                                    on("FAILED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        end()
-                                    }
+                                }
+                            ) {
+                                on("COMPLETED") {
+                                    fail()
+                                }
+                                on("FAILED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    end()
                                 }
                             }
                         }
@@ -337,20 +327,18 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                step(transitionStep) {
-                                    on("COMPLETED") {
-                                        fail()
-                                    }
-                                    on("FAILED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        end()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            step(transitionStep) {
+                                on("COMPLETED") {
+                                    fail()
+                                }
+                                on("FAILED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    end()
                                 }
                             }
                         }
@@ -400,12 +388,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                flowBean("transitionFlow")
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            flowBean("transitionFlow")
                         }
                     }
                 }
@@ -440,16 +426,14 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                flow("transitionFlow") {
-                                    step("transitionStep") {
-                                        tasklet { _, _ ->
-                                            ++transitionStepCallCount
-                                            RepeatStatus.FINISHED
-                                        }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            flow("transitionFlow") {
+                                step("transitionStep") {
+                                    tasklet { _, _ ->
+                                        ++transitionStepCallCount
+                                        RepeatStatus.FINISHED
                                     }
                                 }
                             }
@@ -497,12 +481,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                flow(transitionFlow)
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            flow(transitionFlow)
                         }
                     }
                 }
@@ -550,17 +532,15 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                flowBean("transitionFlow") {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            flowBean("transitionFlow") {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -597,27 +577,25 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                flow(
-                                    "transitionFlow",
-                                    {
-                                        step("transitionStep") {
-                                            tasklet { _, _ ->
-                                                ++transitionStepCallCount
-                                                RepeatStatus.FINISHED
-                                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            flow(
+                                "transitionFlow",
+                                {
+                                    step("transitionStep") {
+                                        tasklet { _, _ ->
+                                            ++transitionStepCallCount
+                                            RepeatStatus.FINISHED
                                         }
                                     }
-                                ) {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                                }
+                            ) {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -664,17 +642,15 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                flow(transitionFlow) {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            flow(transitionFlow) {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -718,20 +694,18 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                deciderBean("testDecider") {
-                                    on("COMPLETED") {
-                                        fail()
-                                    }
-                                    on("SKIPPED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        end()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            deciderBean("testDecider") {
+                                on("COMPLETED") {
+                                    fail()
+                                }
+                                on("SKIPPED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    end()
                                 }
                             }
                         }
@@ -772,20 +746,18 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                decider(testDecider) {
-                                    on("COMPLETED") {
-                                        fail()
-                                    }
-                                    on("SKIPPED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        end()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            decider(testDecider) {
+                                on("COMPLETED") {
+                                    fail()
+                                }
+                                on("SKIPPED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    end()
                                 }
                             }
                         }
@@ -821,12 +793,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stop()
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stop()
                         }
                     }
                 }
@@ -873,12 +843,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToFlowBean("transitionFlow")
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToFlowBean("transitionFlow")
                         }
                     }
                 }
@@ -919,16 +887,14 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToFlow("transitionFlow") {
-                                    step("transitionStep") {
-                                        tasklet { _, _ ->
-                                            ++transitionStepCallCount
-                                            RepeatStatus.FINISHED
-                                        }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToFlow("transitionFlow") {
+                                step("transitionStep") {
+                                    tasklet { _, _ ->
+                                        ++transitionStepCallCount
+                                        RepeatStatus.FINISHED
                                     }
                                 }
                             }
@@ -982,12 +948,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToFlow(transitionFlow)
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToFlow(transitionFlow)
                         }
                     }
                 }
@@ -1041,17 +1005,15 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToFlowBean("transitionFlow") {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToFlowBean("transitionFlow") {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -1094,24 +1056,22 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToFlow("transitionFlow", {
-                                    step("transitionStep") {
-                                        tasklet { _, _ ->
-                                            ++transitionStepCallCount
-                                            RepeatStatus.FINISHED
-                                        }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToFlow("transitionFlow", {
+                                step("transitionStep") {
+                                    tasklet { _, _ ->
+                                        ++transitionStepCallCount
+                                        RepeatStatus.FINISHED
                                     }
-                                }) {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                                }
+                            }) {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -1164,17 +1124,15 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToFlow(transitionFlow) {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToFlow(transitionFlow) {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -1225,22 +1183,20 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToDeciderBean("testDecider") {
-                                    on("UNKNOWN") {
-                                        step("transitionStep") {
-                                            tasklet { _, _ ->
-                                                ++transitionStepCallCount
-                                                RepeatStatus.FINISHED
-                                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToDeciderBean("testDecider") {
+                                on("UNKNOWN") {
+                                    step("transitionStep") {
+                                        tasklet { _, _ ->
+                                            ++transitionStepCallCount
+                                            RepeatStatus.FINISHED
                                         }
                                     }
-                                    on("*") {
-                                        fail()
-                                    }
+                                }
+                                on("*") {
+                                    fail()
                                 }
                             }
                         }
@@ -1285,27 +1241,25 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToDecider(
-                                    { _, _ ->
-                                        ++testDeciderCallCount
-                                        FlowExecutionStatus.UNKNOWN
-                                    }
-                                ) {
-                                    on("UNKNOWN") {
-                                        step("transitionStep") {
-                                            tasklet { _, _ ->
-                                                ++transitionStepCallCount
-                                                RepeatStatus.FINISHED
-                                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToDecider(
+                                { _, _ ->
+                                    ++testDeciderCallCount
+                                    FlowExecutionStatus.UNKNOWN
+                                }
+                            ) {
+                                on("UNKNOWN") {
+                                    step("transitionStep") {
+                                        tasklet { _, _ ->
+                                            ++transitionStepCallCount
+                                            RepeatStatus.FINISHED
                                         }
                                     }
-                                    on("*") {
-                                        fail()
-                                    }
+                                }
+                                on("*") {
+                                    fail()
                                 }
                             }
                         }
@@ -1360,12 +1314,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToStepBean("transitionStep")
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToStepBean("transitionStep")
                         }
                     }
                 }
@@ -1406,15 +1358,13 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToStep("transitionStep") {
-                                    tasklet { _, _ ->
-                                        ++transitionStepCallCount
-                                        RepeatStatus.FINISHED
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToStep("transitionStep") {
+                                tasklet { _, _ ->
+                                    ++transitionStepCallCount
+                                    RepeatStatus.FINISHED
                                 }
                             }
                         }
@@ -1465,12 +1415,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToStep(transitionStep)
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToStep(transitionStep)
                         }
                     }
                 }
@@ -1522,17 +1470,15 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToStepBean("transitionStep") {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToStepBean("transitionStep") {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -1575,22 +1521,20 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToStep("transitionStep", {
-                                    tasklet { _, _ ->
-                                        ++transitionStepCallCount
-                                        RepeatStatus.FINISHED
-                                    }
-                                }) {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToStep("transitionStep", {
+                                tasklet { _, _ ->
+                                    ++transitionStepCallCount
+                                    RepeatStatus.FINISHED
+                                }
+                            }) {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -1641,17 +1585,15 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                stopAndRestartToStep(transitionStep) {
-                                    on("COMPLETED") {
-                                        end("TEST")
-                                    }
-                                    on("*") {
-                                        stop()
-                                    }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            stopAndRestartToStep(transitionStep) {
+                                on("COMPLETED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    stop()
                                 }
                             }
                         }
@@ -1694,12 +1636,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("UNKNOWN") {
-                                end()
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("UNKNOWN") {
+                            end()
                         }
                     }
                 }
@@ -1733,15 +1673,13 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("UNKNOWN") {
-                                end("TEST")
-                            }
-                            on("*") {
-                                end()
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("UNKNOWN") {
+                            end("TEST")
+                        }
+                        on("*") {
+                            end()
                         }
                     }
                 }
@@ -1774,12 +1712,10 @@ internal class TransitionBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    flow("testFlow") {
-                        step(testStep1) {
-                            on("COMPLETED") {
-                                fail()
-                            }
+                flow("testFlow") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            fail()
                         }
                     }
                 }
@@ -1810,11 +1746,9 @@ internal class TransitionBuilderDslIntegrationTest {
         assertThatThrownBy {
             batch {
                 job("testJob") {
-                    flows {
-                        flow("testFlow") {
-                            step(testStep1) {
-                                on("COMPLETED") {
-                                }
+                    flow("testFlow") {
+                        step(testStep1) {
+                            on("COMPLETED") {
                             }
                         }
                     }

@@ -77,10 +77,8 @@ internal class SimpleJobBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                steps {
-                    stepBean("testStep1")
-                    stepBean("testStep2")
-                }
+                stepBean("testStep1")
+                stepBean("testStep2")
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -103,18 +101,16 @@ internal class SimpleJobBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                steps {
-                    step("testStep1") {
-                        tasklet { _, _ ->
-                            ++testStep1CallCount
-                            RepeatStatus.FINISHED
-                        }
+                step("testStep1") {
+                    tasklet { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
                     }
-                    step("testStep2") {
-                        tasklet { _, _ ->
-                            ++testStep2CallCount
-                            RepeatStatus.FINISHED
-                        }
+                }
+                step("testStep2") {
+                    tasklet { _, _ ->
+                        ++testStep2CallCount
+                        RepeatStatus.FINISHED
                     }
                 }
             }
@@ -155,10 +151,8 @@ internal class SimpleJobBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                steps {
-                    step(testStep1)
-                    step(testStep2)
-                }
+                step(testStep1)
+                step(testStep2)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())

@@ -51,6 +51,8 @@ class JobBuilderDsl internal constructor(
 
     private var lazyFlowConfigurer = LazyConfigurer<FlowBuilderDsl<FlowJobBuilder>>()
 
+    private var isFlowJob = false
+
     /**
      * Set for [JobBuilder.validator][org.springframework.batch.core.job.builder.JobBuilderHelper.validator].
      */
@@ -108,28 +110,6 @@ class JobBuilderDsl internal constructor(
         }
     }
 
-    /**
-     * Build [SimpleJobBuilder][org.springframework.batch.core.job.builder.SimpleJobBuilder] for job.
-     */
-    fun steps(init: SimpleJobBuilderDsl.() -> Unit): Job {
-        this.jobBuilder.apply(this.lazyConfigurer)
-        val simpleJobBuilder = SimpleJobBuilder(this.jobBuilder)
-        return SimpleJobBuilderDsl(this.dslContext, simpleJobBuilder).apply(init)
-            .build()
-    }
-
-    /**
-     * Build [FlowJobBuilder][org.springframework.batch.core.job.builder.FlowJobBuilder] for job.
-     */
-    fun flows(init: FlowBuilderDsl<FlowJobBuilder>.() -> Unit): Job {
-        this.jobBuilder.apply(this.lazyConfigurer)
-        val flowJobBuilder = FlowJobBuilder(this.jobBuilder)
-        val jobFlowBuilder = JobFlowBuilder(flowJobBuilder)
-        val delegate = ConcreteFlowBuilderDsl(this.dslContext, jobFlowBuilder)
-        return FlowJobBuilderDsl(this.dslContext, delegate).apply(init)
-            .build()
-    }
-
     override fun stepBean(name: String) {
         this.lazyFlowConfigurer.add {
             it.stepBean(name)
@@ -152,6 +132,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.stepBean(name, stepTransitionInit)
         }
+        this.isFlowJob = true
     }
 
     override fun step(
@@ -162,36 +143,42 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.step(name, stepInit, stepTransitionInit)
         }
+        this.isFlowJob = true
     }
 
     override fun step(step: Step, stepTransitionInit: StepTransitionBuilderDsl<FlowJobBuilder>.() -> Unit) {
         this.lazyFlowConfigurer.add {
             it.step(step, stepTransitionInit)
         }
+        this.isFlowJob = true
     }
 
     override fun flowBean(name: String) {
         this.lazyFlowConfigurer.add {
             it.flowBean(name)
         }
+        this.isFlowJob = true
     }
 
     override fun flow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit) {
         this.lazyFlowConfigurer.add {
             it.flow(name, flowInit)
         }
+        this.isFlowJob = true
     }
 
     override fun flow(flow: Flow) {
         this.lazyFlowConfigurer.add {
             it.flow(flow)
         }
+        this.isFlowJob = true
     }
 
     override fun flowBean(name: String, flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit) {
         this.lazyFlowConfigurer.add {
             it.flowBean(name, flowTransitionInit)
         }
+        this.isFlowJob = true
     }
 
     override fun flow(
@@ -202,12 +189,14 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.flow(name, flowInit, flowTransitionInit)
         }
+        this.isFlowJob = true
     }
 
     override fun flow(flow: Flow, flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit) {
         this.lazyFlowConfigurer.add {
             it.flow(flow, flowTransitionInit)
         }
+        this.isFlowJob = true
     }
 
     override fun deciderBean(
@@ -217,6 +206,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.deciderBean(name, deciderTransitionInit)
         }
+        this.isFlowJob = true
     }
 
     override fun decider(
@@ -226,20 +216,29 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.decider(decider, deciderTransitionInit)
         }
+        this.isFlowJob = true
     }
 
     override fun split(taskExecutor: TaskExecutor, splitInit: SplitBuilderDsl<FlowJobBuilder>.() -> Unit) {
         this.lazyFlowConfigurer.add {
             it.split(taskExecutor, splitInit)
         }
+        this.isFlowJob = true
     }
 
     internal fun build(): Job {
         this.jobBuilder.apply(this.lazyConfigurer)
-        val flowJobBuilder = FlowJobBuilder(this.jobBuilder)
-        val jobFlowBuilder = JobFlowBuilder(flowJobBuilder)
-        val delegate = ConcreteFlowBuilderDsl(this.dslContext, jobFlowBuilder)
-        return FlowJobBuilderDsl(this.dslContext, delegate).apply(this.lazyFlowConfigurer)
-            .build()
+
+        return if (!isFlowJob) {
+            val simpleJobBuilder = SimpleJobBuilder(this.jobBuilder)
+            return SimpleJobBuilderDsl(this.dslContext, simpleJobBuilder).apply(lazyFlowConfigurer)
+                .build()
+        } else {
+            val flowJobBuilder = FlowJobBuilder(this.jobBuilder)
+            val jobFlowBuilder = JobFlowBuilder(flowJobBuilder)
+            val delegate = ConcreteFlowBuilderDsl(this.dslContext, jobFlowBuilder)
+            FlowJobBuilderDsl(this.dslContext, delegate).apply(this.lazyFlowConfigurer)
+                .build()
+        }
     }
 }

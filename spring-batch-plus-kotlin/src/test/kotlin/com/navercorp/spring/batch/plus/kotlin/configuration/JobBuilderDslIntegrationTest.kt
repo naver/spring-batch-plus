@@ -60,10 +60,8 @@ internal class JobBuilderDslIntegrationTest {
                 validator {
                     ++validatorCallCount
                 }
-                steps {
-                    step("testStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
-                    }
+                step("testStep") {
+                    tasklet { _, _ -> RepeatStatus.FINISHED }
                 }
             }
         }
@@ -90,10 +88,8 @@ internal class JobBuilderDslIntegrationTest {
                     ++incrementerCallCount
                     it!!
                 }
-                steps {
-                    step("testStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
-                    }
+                step("testStep") {
+                    tasklet { _, _ -> RepeatStatus.FINISHED }
                 }
             }
         }
@@ -127,10 +123,8 @@ internal class JobBuilderDslIntegrationTest {
                         }
                     }
                 )
-                steps {
-                    step("testStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
-                    }
+                step("testStep") {
+                    tasklet { _, _ -> RepeatStatus.FINISHED }
                 }
             }
         }
@@ -167,10 +161,8 @@ internal class JobBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 listener(TestListener())
-                steps {
-                    step("testStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
-                    }
+                step("testStep") {
+                    tasklet { _, _ -> RepeatStatus.FINISHED }
                 }
             }
         }
@@ -205,10 +197,8 @@ internal class JobBuilderDslIntegrationTest {
                         }
                     }
                 )
-                steps {
-                    step("testStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
-                    }
+                step("testStep") {
+                    tasklet { _, _ -> RepeatStatus.FINISHED }
                 }
             }
         }
@@ -232,15 +222,13 @@ internal class JobBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 preventRestart()
-                steps {
-                    step("testStep") {
-                        tasklet { _, _ ->
-                            if (tryCount == 0) {
-                                ++tryCount
-                                throw RuntimeException()
-                            }
-                            RepeatStatus.FINISHED
+                step("testStep") {
+                    tasklet { _, _ ->
+                        if (tryCount == 0) {
+                            ++tryCount
+                            throw RuntimeException()
                         }
+                        RepeatStatus.FINISHED
                     }
                 }
             }
@@ -267,18 +255,16 @@ internal class JobBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                steps {
-                    step("testStep1") {
-                        tasklet { _, _ ->
-                            ++step1CallCount
-                            RepeatStatus.FINISHED
-                        }
+                step("testStep1") {
+                    tasklet { _, _ ->
+                        ++step1CallCount
+                        RepeatStatus.FINISHED
                     }
-                    step("testStep2") {
-                        tasklet { _, _ ->
-                            ++step2CallCount
-                            RepeatStatus.FINISHED
-                        }
+                }
+                step("testStep2") {
+                    tasklet { _, _ ->
+                        ++step2CallCount
+                        RepeatStatus.FINISHED
                     }
                 }
             }
@@ -303,18 +289,16 @@ internal class JobBuilderDslIntegrationTest {
         // when
         val job = batch {
             job("testJob") {
-                flows {
-                    step("testStep1") {
-                        tasklet { _, _ ->
-                            ++step1CallCount
-                            RepeatStatus.FINISHED
-                        }
+                step("testStep1") {
+                    tasklet { _, _ ->
+                        ++step1CallCount
+                        RepeatStatus.FINISHED
                     }
-                    step("testStep2") {
-                        tasklet { _, _ ->
-                            ++step2CallCount
-                            RepeatStatus.FINISHED
-                        }
+                }
+                step("testStep2") {
+                    tasklet { _, _ ->
+                        ++step2CallCount
+                        RepeatStatus.FINISHED
                     }
                 }
             }

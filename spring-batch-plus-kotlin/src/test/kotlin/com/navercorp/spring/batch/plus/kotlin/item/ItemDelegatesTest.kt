@@ -55,13 +55,11 @@ internal class ItemDelegatesTest {
         // when
         val job = batch {
             job("testJob") {
-                steps {
-                    step("testStep") {
-                        chunk<Int, String>(3) {
-                            reader(testTasklet.asItemStreamReader())
-                            processor(testTasklet.asItemProcessor())
-                            writer(testTasklet.asItemStreamWriter())
-                        }
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testTasklet.asItemStreamReader())
+                        processor(testTasklet.asItemProcessor())
+                        writer(testTasklet.asItemStreamWriter())
                     }
                 }
             }
