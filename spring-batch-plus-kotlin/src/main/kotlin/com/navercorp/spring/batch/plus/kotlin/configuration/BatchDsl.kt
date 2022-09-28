@@ -54,10 +54,10 @@ class BatchDsl internal constructor(
     /**
      * Make a new job.
      */
-    fun job(name: String, init: JobBuilderDsl.() -> Job): Job {
+    fun job(name: String, init: JobBuilderDsl.() -> Unit): Job {
         val jobBuilderFactory = this.dslContext.jobBuilderFactory
         val jobBuilder = jobBuilderFactory.get(name)
-        return JobBuilderDsl(this.dslContext, jobBuilder).let(init)
+        return JobBuilderDsl(this.dslContext, jobBuilder).apply(init).build()
     }
 
     /**
