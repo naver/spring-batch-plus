@@ -213,7 +213,7 @@ class StepBuilderDsl internal constructor(
      */
     fun flow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit): Step {
         val flowBuilder = FlowBuilder<Flow>(name)
-        val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
+        val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
             .build()
         return flow(flow)
     }

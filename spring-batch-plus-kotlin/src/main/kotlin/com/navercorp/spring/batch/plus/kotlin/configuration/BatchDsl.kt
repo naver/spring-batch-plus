@@ -74,6 +74,6 @@ class BatchDsl internal constructor(
      */
     fun flow(name: String, init: FlowBuilderDsl<Flow>.() -> Unit): Flow {
         val flowBuilder = FlowBuilder<Flow>(name)
-        return FlowBuilderDsl(this.dslContext, flowBuilder).apply(init).build()
+        return ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(init).build()
     }
 }

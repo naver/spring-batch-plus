@@ -28,6 +28,7 @@ import org.springframework.batch.core.JobParametersValidator
 import org.springframework.batch.core.job.builder.FlowJobBuilder
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.builder.JobBuilderHelper
+import org.springframework.batch.core.job.builder.JobFlowBuilder
 import org.springframework.batch.core.job.builder.SimpleJobBuilder
 import org.springframework.batch.core.repository.JobRepository
 
@@ -114,10 +115,12 @@ class JobBuilderDsl internal constructor(
     /**
      * Build [FlowJobBuilder][org.springframework.batch.core.job.builder.FlowJobBuilder] for job.
      */
-    fun flows(init: FlowJobBuilderDsl.() -> Unit): Job {
+    fun flows(init: FlowBuilderDsl<FlowJobBuilder>.() -> Unit): Job {
         this.jobBuilder.apply(this.lazyConfigurer)
         val flowJobBuilder = FlowJobBuilder(this.jobBuilder)
-        return FlowJobBuilderDsl(this.dslContext, flowJobBuilder).apply(init).build()
+        val jobFlowBuilder = JobFlowBuilder(flowJobBuilder)
+        val delegate = ConcreteFlowBuilderDsl(this.dslContext, jobFlowBuilder)
+        return FlowJobBuilderDsl(this.dslContext, delegate).apply(init)
             .build()
     }
 

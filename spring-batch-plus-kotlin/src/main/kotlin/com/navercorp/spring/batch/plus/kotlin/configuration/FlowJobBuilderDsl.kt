@@ -20,8 +20,8 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import org.springframework.batch.core.Job
 import org.springframework.batch.core.job.builder.FlowJobBuilder
-import org.springframework.batch.core.job.builder.JobFlowBuilder
 
 /**
  * A dsl for [FlowJobBuilder][org.springframework.batch.core.job.builder.FlowJobBuilder].
@@ -30,6 +30,11 @@ import org.springframework.batch.core.job.builder.JobFlowBuilder
  */
 @BatchDslMarker
 class FlowJobBuilderDsl internal constructor(
-    dslContext: DslContext,
-    flowJobBuilder: FlowJobBuilder
-) : FlowBuilderDsl<FlowJobBuilder>(dslContext, JobFlowBuilder(flowJobBuilder))
+    @Suppress("unused")
+    private val dslContext: DslContext,
+    private val delegate: ConcreteFlowBuilderDsl<FlowJobBuilder>
+) : FlowBuilderDsl<FlowJobBuilder> by delegate {
+
+    internal fun build(): Job = this.delegate.build()
+        .build()
+}

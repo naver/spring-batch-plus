@@ -107,7 +107,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      */
     fun flow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit) {
         val flowBuilder = FlowBuilder<Flow>(name)
-        val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
+        val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
             .build()
         flow(flow)
     }
@@ -137,7 +137,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
         flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit
     ) {
         val flowBuilder = FlowBuilder<Flow>(name)
-        val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
+        val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
             .build()
         flow(flow, flowTransitionInit)
     }
@@ -202,7 +202,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      */
     fun stopAndRestartToFlow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit) {
         val flowBuilder = FlowBuilder<Flow>(name)
-        val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
+        val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
             .build()
         stopAndRestartToFlow(flow)
     }
@@ -234,7 +234,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
         flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit
     ) {
         val flowBuilder = FlowBuilder<Flow>(name)
-        val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
+        val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
             .build()
         stopAndRestartToFlow(flow, flowTransitionInit)
     }

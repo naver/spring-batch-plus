@@ -49,7 +49,7 @@ class SplitBuilderDsl<T : Any> internal constructor(
      */
     fun flow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit) {
         val flowBuilder = FlowBuilder<Flow>(name)
-        val flow = FlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
+        val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
             .build()
         flow(flow)
     }
