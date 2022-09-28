@@ -6,6 +6,7 @@ plugins {
 dependencies {
     compileOnly(libs.findbugs.jsr305)
     compileOnly(libs.spring.batch.core)
+    compileOnly(libs.spring.jdbc)
     compileOnly(libs.reactor.core)
     implementation(libs.slf4j)
 
