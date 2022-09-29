@@ -36,7 +36,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             .start(
@@ -74,33 +74,31 @@ class BatchApplication {
     @Bean
     fun afterJob(batch: BatchDsl): Job = batch {
         job("afterJob") {
-            steps {
-                step("testStep") {
-                    chunk<Int, Int>(3) {
-                        reader(
-                            object : ItemReader<Int> {
-                                private var count = 0
+            step("testStep") {
+                chunk<Int, Int>(3) {
+                    reader(
+                        object : ItemReader<Int> {
+                            private var count = 0
 
-                                override fun read(): Int? {
-                                    return if (count < 5) {
-                                        count++
-                                    } else {
-                                        null
-                                    }
+                            override fun read(): Int? {
+                                return if (count < 5) {
+                                    count++
+                                } else {
+                                    null
                                 }
                             }
-                        )
-                        processor { item -> item }
-                        writer {
-                            println("write $it")
                         }
-                        exceptionHandler { _, _ ->
-                            // do something
-                        }
-                        faultTolerant {
-                            retry(RuntimeException::class)
-                            retryLimit(2)
-                        }
+                    )
+                    processor { item -> item }
+                    writer {
+                        println("write $it")
+                    }
+                    exceptionHandler { _, _ ->
+                        // do something
+                    }
+                    faultTolerant {
+                        retry(RuntimeException::class)
+                        retryLimit(2)
                     }
                 }
             }

@@ -35,7 +35,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         val testStep = stepBuilderFactory.get("testStep")
             .tasklet { _, _ ->
@@ -80,17 +80,15 @@ class BatchApplication {
         }
 
         job("afterJob") {
-            flows {
-                step(testStep) {
-                    on("COMPLETED") {
-                        end()
-                    }
-                    on("FAILED") {
-                        step(transitionStep)
-                    }
-                    on("*") {
-                        stop()
-                    }
+            step(testStep) {
+                on("COMPLETED") {
+                    end()
+                }
+                on("FAILED") {
+                    step(transitionStep)
+                }
+                on("*") {
+                    stop()
                 }
             }
         }

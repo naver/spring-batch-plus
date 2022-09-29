@@ -37,7 +37,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         val testFlow = FlowBuilder<Flow>("testFlow")
             .start(
@@ -88,17 +88,15 @@ class BatchApplication {
         }
 
         job("afterJob") {
-            flows {
-                flow(testFlow) {
-                    on("COMPLETED") {
-                        end()
-                    }
-                    on("FAILED") {
-                        step(transitionStep)
-                    }
-                    on("*") {
-                        stop()
-                    }
+            flow(testFlow) {
+                on("COMPLETED") {
+                    end()
+                }
+                on("FAILED") {
+                    step(transitionStep)
+                }
+                on("*") {
+                    stop()
                 }
             }
         }

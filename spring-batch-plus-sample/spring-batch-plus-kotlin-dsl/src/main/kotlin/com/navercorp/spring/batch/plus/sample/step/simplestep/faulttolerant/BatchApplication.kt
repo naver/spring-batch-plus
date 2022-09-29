@@ -37,7 +37,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             .start(
@@ -85,43 +85,41 @@ class BatchApplication {
     @Bean
     fun afterJob(batch: BatchDsl): Job = batch {
         job("afterJob") {
-            steps {
-                step("testStep") {
-                    chunk<Int, Int>(3) {
-                        reader(
-                            object : ItemReader<Int> {
-                                private var count = 0
+            step("testStep") {
+                chunk<Int, Int>(3) {
+                    reader(
+                        object : ItemReader<Int> {
+                            private var count = 0
 
-                                override fun read(): Int? {
-                                    return if (count < 5) {
-                                        count++
-                                    } else {
-                                        null
-                                    }
+                            override fun read(): Int? {
+                                return if (count < 5) {
+                                    count++
+                                } else {
+                                    null
                                 }
                             }
-                        )
-                        processor { item -> item }
-                        writer(
-                            object : ItemWriter<Int> {
-                                private var tryCount = 0
-
-                                override fun write(items: MutableList<out Int>) {
-                                    if (tryCount == 0) {
-                                        ++tryCount
-                                        println("throw error")
-                                        throw RuntimeException("Error")
-                                    }
-
-                                    println("write $items")
-                                }
-                            }
-                        )
-                        // fault tolerant config
-                        faultTolerant {
-                            retry<RuntimeException>()
-                            retryLimit(3)
                         }
+                    )
+                    processor { item -> item }
+                    writer(
+                        object : ItemWriter<Int> {
+                            private var tryCount = 0
+
+                            override fun write(items: MutableList<out Int>) {
+                                if (tryCount == 0) {
+                                    ++tryCount
+                                    println("throw error")
+                                    throw RuntimeException("Error")
+                                }
+
+                                println("write $items")
+                            }
+                        }
+                    )
+                    // fault tolerant config
+                    faultTolerant {
+                        retry<RuntimeException>()
+                        retryLimit(3)
                     }
                 }
             }

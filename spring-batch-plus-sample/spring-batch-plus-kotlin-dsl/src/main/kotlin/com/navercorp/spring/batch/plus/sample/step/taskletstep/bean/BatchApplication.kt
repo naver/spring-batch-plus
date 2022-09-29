@@ -45,7 +45,7 @@ class BatchApplication {
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
         stepBuilderFactory: StepBuilderFactory,
-        @Qualifier("testTasklet") testTasklet: Tasklet,
+        @Qualifier("testTasklet") testTasklet: Tasklet
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             .start(
@@ -60,10 +60,8 @@ class BatchApplication {
     @Bean
     fun afterJob(batch: BatchDsl): Job = batch {
         job("afterJob") {
-            steps {
-                step("testStep") {
-                    taskletBean("testTasklet")
-                }
+            step("testStep") {
+                taskletBean("testTasklet")
             }
         }
     }

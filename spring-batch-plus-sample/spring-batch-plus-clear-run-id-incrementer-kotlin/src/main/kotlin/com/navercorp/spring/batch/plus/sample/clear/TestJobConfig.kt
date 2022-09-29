@@ -34,10 +34,8 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             incrementer(ClearRunIdIncrementer.create())
-            steps {
-                step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
-                }
+            step("testStep") {
+                tasklet { _, _ -> RepeatStatus.FINISHED }
             }
         }
     }

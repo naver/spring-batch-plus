@@ -35,13 +35,11 @@ open class TestJobConfig {
         batch: BatchDsl
     ): Job = batch {
         job("testJob") {
-            steps {
-                step("testStep") {
-                    chunk<Int, String>(3) {
-                        reader(sampleTasklet.asItemStreamReader())
-                        processor(sampleTasklet.asItemProcessor())
-                        writer(sampleTasklet.asItemStreamWriter())
-                    }
+            step("testStep") {
+                chunk<Int, String>(3) {
+                    reader(sampleTasklet.asItemStreamReader())
+                    processor(sampleTasklet.asItemProcessor())
+                    writer(sampleTasklet.asItemStreamWriter())
                 }
             }
         }

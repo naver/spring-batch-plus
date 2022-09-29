@@ -37,7 +37,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         val testDecider = JobExecutionDecider { _, _ ->
             println("run testDecider")
@@ -82,20 +82,18 @@ class BatchApplication {
         }
 
         job("afterJob") {
-            flows {
-                step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+            step("testStep") {
+                tasklet { _, _ -> RepeatStatus.FINISHED }
+            }
+            decider(testDecider) {
+                on("COMPLETED") {
+                    end()
                 }
-                decider(testDecider) {
-                    on("COMPLETED") {
-                        end()
-                    }
-                    on("FAILED") {
-                        step(transitionStep)
-                    }
-                    on("*") {
-                        stop()
-                    }
+                on("FAILED") {
+                    step(transitionStep)
+                }
+                on("*") {
+                    stop()
                 }
             }
         }

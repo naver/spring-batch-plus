@@ -58,7 +58,7 @@ class BatchApplication {
         jobBuilderFactory: JobBuilderFactory,
         stepBuilderFactory: StepBuilderFactory,
         @Qualifier("testDecider") testDecider: JobExecutionDecider,
-        @Qualifier("transitionStep") transitionStep: Step,
+        @Qualifier("transitionStep") transitionStep: Step
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             .start(
@@ -79,20 +79,18 @@ class BatchApplication {
     @Bean
     fun afterJob(batch: BatchDsl): Job = batch {
         job("afterJob") {
-            flows {
-                step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+            step("testStep") {
+                tasklet { _, _ -> RepeatStatus.FINISHED }
+            }
+            deciderBean("testDecider") {
+                on("COMPLETED") {
+                    end()
                 }
-                deciderBean("testDecider") {
-                    on("COMPLETED") {
-                        end()
-                    }
-                    on("FAILED") {
-                        stepBean("transitionStep")
-                    }
-                    on("*") {
-                        stop()
-                    }
+                on("FAILED") {
+                    stepBean("transitionStep")
+                }
+                on("*") {
+                    stop()
                 }
             }
         }

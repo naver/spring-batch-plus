@@ -65,7 +65,7 @@ class BatchApplication {
         jobBuilderFactory: JobBuilderFactory,
         stepBuilderFactory: StepBuilderFactory,
         @Qualifier("testFlow1") testFlow1: Flow,
-        @Qualifier("testFlow2") testFlow2: Flow,
+        @Qualifier("testFlow2") testFlow2: Flow
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             .start(
@@ -87,11 +87,9 @@ class BatchApplication {
     @Bean
     fun afterJob(batch: BatchDsl): Job = batch {
         job("afterJob") {
-            flows {
-                split(SimpleAsyncTaskExecutor()) {
-                    flowBean("testFlow1")
-                    flowBean("testFlow2")
-                }
+            split(SimpleAsyncTaskExecutor()) {
+                flowBean("testFlow1")
+                flowBean("testFlow2")
             }
         }
     }

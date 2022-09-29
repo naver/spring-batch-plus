@@ -60,7 +60,7 @@ class BatchApplication {
         jobBuilderFactory: JobBuilderFactory,
         stepBuilderFactory: StepBuilderFactory,
         @Qualifier("testStep") testStep: Step,
-        @Qualifier("transitionStep") transitionStep: Step,
+        @Qualifier("transitionStep") transitionStep: Step
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             .start(testStep)
@@ -75,17 +75,15 @@ class BatchApplication {
     @Bean
     fun afterJob(batch: BatchDsl): Job = batch {
         job("afterJob") {
-            flows {
-                stepBean("testStep") {
-                    on("COMPLETED") {
-                        end()
-                    }
-                    on("FAILED") {
-                        stepBean("transitionStep")
-                    }
-                    on("*") {
-                        stop()
-                    }
+            stepBean("testStep") {
+                on("COMPLETED") {
+                    end()
+                }
+                on("FAILED") {
+                    stepBean("transitionStep")
+                }
+                on("*") {
+                    stop()
                 }
             }
         }

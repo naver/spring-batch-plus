@@ -36,13 +36,11 @@ class BatchApplication {
     @Bean
     fun testJob1(batch: BatchDsl): Job = batch {
         job("testJob1") {
-            steps {
-                step("testStep1") {
-                    allowStartIfComplete(true)
-                    tasklet { _, _ ->
-                        println("run testStep1Tasklet")
-                        RepeatStatus.FINISHED
-                    }
+            step("testStep1") {
+                allowStartIfComplete(true)
+                tasklet { _, _ ->
+                    println("run testStep1Tasklet")
+                    RepeatStatus.FINISHED
                 }
             }
         }
@@ -51,13 +49,11 @@ class BatchApplication {
     @Bean
     fun testJob2(batch: BatchDsl): Job = batch {
         job("testJob2") {
-            steps {
-                step("testStep2") {
-                    allowStartIfComplete(true)
-                    tasklet { _, _ ->
-                        println("run testStep2Tasklet")
-                        RepeatStatus.FINISHED
-                    }
+            step("testStep2") {
+                allowStartIfComplete(true)
+                tasklet { _, _ ->
+                    println("run testStep2Tasklet")
+                    RepeatStatus.FINISHED
                 }
             }
         }
@@ -66,13 +62,11 @@ class BatchApplication {
     @Bean
     fun testJob3(batch: BatchDsl): Job = batch {
         job("testJob3") {
-            steps {
-                step("testStep3") {
-                    allowStartIfComplete(true)
-                    tasklet { _, _ ->
-                        println("run testStep3Tasklet")
-                        RepeatStatus.FINISHED
-                    }
+            step("testStep3") {
+                allowStartIfComplete(true)
+                tasklet { _, _ ->
+                    println("run testStep3Tasklet")
+                    RepeatStatus.FINISHED
                 }
             }
         }
@@ -81,13 +75,11 @@ class BatchApplication {
     @Bean
     fun testJob4(batch: BatchDsl): Job = batch {
         job("testJob4") {
-            steps {
-                step("testStep4") {
-                    allowStartIfComplete(true)
-                    tasklet { _, _ ->
-                        println("run testStep4Tasklet")
-                        RepeatStatus.FINISHED
-                    }
+            step("testStep4") {
+                allowStartIfComplete(true)
+                tasklet { _, _ ->
+                    println("run testStep4Tasklet")
+                    RepeatStatus.FINISHED
                 }
             }
         }
@@ -101,7 +93,7 @@ class BatchApplication {
         @Qualifier("testJob1") testJob1: Job,
         @Qualifier("testJob2") testJob2: Job,
         @Qualifier("testJob3") testJob3: Job,
-        @Qualifier("testJob4") testJob4: Job,
+        @Qualifier("testJob4") testJob4: Job
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             .start(
@@ -131,19 +123,17 @@ class BatchApplication {
     @Bean
     fun afterJob(batch: BatchDsl): Job = batch {
         job("afterJob") {
-            steps {
-                step("jobStep1") {
-                    jobBean("testJob1")
-                }
-                step("jobStep2") {
-                    jobBean("testJob2")
-                }
-                step("jobStep3") {
-                    jobBean("testJob3")
-                }
-                step("jobStep4") {
-                    jobBean("testJob4")
-                }
+            step("jobStep1") {
+                jobBean("testJob1")
+            }
+            step("jobStep2") {
+                jobBean("testJob2")
+            }
+            step("jobStep3") {
+                jobBean("testJob3")
+            }
+            step("jobStep4") {
+                jobBean("testJob4")
             }
         }
     }

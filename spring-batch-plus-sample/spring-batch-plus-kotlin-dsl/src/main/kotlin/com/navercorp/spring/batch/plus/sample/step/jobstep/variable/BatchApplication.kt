@@ -35,7 +35,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         val anotherJob = jobBuilderFactory.get("anotherJob")
             .start(
@@ -63,23 +63,19 @@ class BatchApplication {
     fun afterJob(batch: BatchDsl): Job = batch {
         val anotherJob = batch {
             job("anotherJob") {
-                steps {
-                    step("anotherStep") {
-                        allowStartIfComplete(true)
-                        tasklet { _, _ ->
-                            println("run anotherTasklet")
-                            RepeatStatus.FINISHED
-                        }
+                step("anotherStep") {
+                    allowStartIfComplete(true)
+                    tasklet { _, _ ->
+                        println("run anotherTasklet")
+                        RepeatStatus.FINISHED
                     }
                 }
             }
         }
 
         job("afterJob") {
-            steps {
-                step("testStep") {
-                    job(anotherJob)
-                }
+            step("testStep") {
+                job(anotherJob)
             }
         }
     }

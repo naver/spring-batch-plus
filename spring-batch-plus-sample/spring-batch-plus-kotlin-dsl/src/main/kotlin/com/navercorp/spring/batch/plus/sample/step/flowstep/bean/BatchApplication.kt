@@ -62,7 +62,7 @@ class BatchApplication {
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
         stepBuilderFactory: StepBuilderFactory,
-        @Qualifier("testFlow") testFlow: Flow,
+        @Qualifier("testFlow") testFlow: Flow
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             .start(
@@ -77,10 +77,8 @@ class BatchApplication {
     @Bean
     fun afterJob(batch: BatchDsl): Job = batch {
         job("afterJob") {
-            steps {
-                step("innerStep") {
-                    flowBean("testFlow")
-                }
+            step("innerStep") {
+                flowBean("testFlow")
             }
         }
     }

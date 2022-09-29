@@ -36,7 +36,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         val taskStep = stepBuilderFactory.get("partitionStep")
             .tasklet { _, chunkContext ->
@@ -71,16 +71,14 @@ class BatchApplication {
         }
 
         job("afterJob") {
-            steps {
-                step("testStep") {
-                    partitioner {
-                        splitter("partitionStep") { gridSize ->
-                            (1..gridSize).associate { it.toString() to ExecutionContext() }
-                        }
-                        partitionHandler {
-                            step(partitionStep)
-                            gridSize(2)
-                        }
+            step("testStep") {
+                partitioner {
+                    splitter("partitionStep") { gridSize ->
+                        (1..gridSize).associate { it.toString() to ExecutionContext() }
+                    }
+                    partitionHandler {
+                        step(partitionStep)
+                        gridSize(2)
                     }
                 }
             }

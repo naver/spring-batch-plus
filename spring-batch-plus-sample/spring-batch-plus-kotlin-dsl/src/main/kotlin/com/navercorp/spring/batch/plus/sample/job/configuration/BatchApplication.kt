@@ -35,7 +35,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         return jobBuilderFactory.get("beforeJob")
             // configuration
@@ -60,12 +60,10 @@ class BatchApplication {
             preventRestart()
             validator { /* do something */ }
 
-            steps {
-                step("testStep") {
-                    tasklet { _, _ ->
-                        println("run testTasklet")
-                        RepeatStatus.FINISHED
-                    }
+            step("testStep") {
+                tasklet { _, _ ->
+                    println("run testTasklet")
+                    RepeatStatus.FINISHED
                 }
             }
         }

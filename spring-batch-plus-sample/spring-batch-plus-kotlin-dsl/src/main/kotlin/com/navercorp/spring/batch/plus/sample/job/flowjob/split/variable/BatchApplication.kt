@@ -38,7 +38,7 @@ class BatchApplication {
     @Bean
     fun beforeJob(
         jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
+        stepBuilderFactory: StepBuilderFactory
     ): Job {
         val testFlow1 = FlowBuilder<Flow>("testFlow1")
             .start(
@@ -92,15 +92,13 @@ class BatchApplication {
         }
 
         job("afterJob") {
-            flows {
-                split(SimpleAsyncTaskExecutor()) {
-                    flow(testFlow1)
-                    flow("testFlow2") {
-                        step("flowStep2") {
-                            tasklet { _, _ ->
-                                println("run tasklet2")
-                                RepeatStatus.FINISHED
-                            }
+            split(SimpleAsyncTaskExecutor()) {
+                flow(testFlow1)
+                flow("testFlow2") {
+                    step("flowStep2") {
+                        tasklet { _, _ ->
+                            println("run tasklet2")
+                            RepeatStatus.FINISHED
                         }
                     }
                 }
