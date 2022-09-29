@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
@@ -29,6 +30,7 @@ import org.springframework.core.task.TaskExecutor
  *
  * @since 0.1.0
  */
+@BatchDslMarker
 interface FlowBuilderDsl<T : Any> {
 
     /**
