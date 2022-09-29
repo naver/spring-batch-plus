@@ -21,11 +21,7 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.JobExecution
-import org.springframework.batch.core.JobExecutionListener
-import org.springframework.batch.core.JobParameters
-import org.springframework.batch.core.JobParametersBuilder
+import org.springframework.batch.core.*
 import org.springframework.batch.core.annotation.AfterJob
 import org.springframework.batch.core.annotation.BeforeJob
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
@@ -244,11 +240,12 @@ internal class JobBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testSteps() {
+    fun testConfigurationAfterStep() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobLauncher = context.getBean<JobLauncher>()
         val batch = context.getBean<BatchDsl>()
+        var validatorCallCount = 0
         var step1CallCount = 0
         var step2CallCount = 0
 
@@ -267,39 +264,8 @@ internal class JobBuilderDslIntegrationTest {
                         RepeatStatus.FINISHED
                     }
                 }
-            }
-        }
-        val jobExecution = jobLauncher.run(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(step1CallCount).isEqualTo(1)
-        assertThat(step2CallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testFlows() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
-        val batch = context.getBean<BatchDsl>()
-        var step1CallCount = 0
-        var step2CallCount = 0
-
-        // when
-        val job = batch {
-            job("testJob") {
-                step("testStep1") {
-                    tasklet { _, _ ->
-                        ++step1CallCount
-                        RepeatStatus.FINISHED
-                    }
-                }
-                step("testStep2") {
-                    tasklet { _, _ ->
-                        ++step2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                validator {
+                    ++validatorCallCount
                 }
             }
         }
@@ -309,6 +275,7 @@ internal class JobBuilderDslIntegrationTest {
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(step1CallCount).isEqualTo(1)
         assertThat(step2CallCount).isEqualTo(1)
+        assertThat(validatorCallCount).isGreaterThanOrEqualTo(1)
     }
 
     @Configuration

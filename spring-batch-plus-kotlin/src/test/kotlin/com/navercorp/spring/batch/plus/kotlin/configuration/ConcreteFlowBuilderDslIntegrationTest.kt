@@ -41,7 +41,147 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import javax.sql.DataSource
 
-internal class FlowJobBuilderDslIntegrationTest {
+internal class ConcreteFlowBuilderDslIntegrationTest {
+
+    @Test
+    fun testStepBean() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var testStep2CallCount = 0
+        val testStep1 = batch {
+            step("testStep1") {
+                tasklet { _, _ ->
+                    ++testStep1CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+        val testStep2 = batch {
+            step("testStep2") {
+                tasklet { _, _ ->
+                    ++testStep2CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+        context.apply {
+            registerBean("testStep1") {
+                testStep1
+            }
+            registerBean("testStep2") {
+                testStep2
+            }
+        }
+
+        // when
+        val testFlow = batch {
+            flow("testFlow") {
+                stepBean("testStep1")
+                stepBean("testStep2")
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
+            }
+        }
+        val jobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(testStep2CallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testStepWithInit() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var testStep2CallCount = 0
+
+        // when
+        val testFlow = batch {
+            flow("testFlow") {
+                step("testStep1") {
+                    tasklet { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    }
+                }
+                step("testStep2") {
+                    tasklet { _, _ ->
+                        ++testStep2CallCount
+                        RepeatStatus.FINISHED
+                    }
+                }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
+            }
+        }
+        val jobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(testStep2CallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testStepWithVariable() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var testStep1CallCount = 0
+        var testStep2CallCount = 0
+        val testStep1 = batch {
+            step("testStep1") {
+                tasklet { _, _ ->
+                    ++testStep1CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+        val testStep2 = batch {
+            step("testStep2") {
+                tasklet { _, _ ->
+                    ++testStep2CallCount
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+
+        // when
+        val testFlow = batch {
+            flow("testFlow") {
+                step(testStep1)
+                step(testStep2)
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
+            }
+        }
+        val jobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(testStep2CallCount).isEqualTo(1)
+    }
 
     @Test
     fun testStepBeanWithTransition() {
@@ -79,8 +219,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 stepBean("testStep1") {
                     on("COMPLETED") {
                         step("transitionStep1") {
@@ -106,6 +246,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                 }
             }
         }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
+            }
+        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -129,8 +274,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         var testStep2CallCount = 0
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 step(
                     "testStep1",
                     {
@@ -172,6 +317,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                 }
             }
         }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
+            }
+        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -211,8 +361,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 step(testStep1) {
                     on("COMPLETED") {
                         step("transitionStep1") {
@@ -236,6 +386,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                         end("TEST")
                     }
                 }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -287,10 +442,15 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 flowBean("testFlow1")
                 flowBean("testFlow2")
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -312,8 +472,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         var testStep2CallCount = 0
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 flow("testFlow1") {
                     step("testStep1") {
                         tasklet { _, _ ->
@@ -330,6 +490,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                         }
                     }
                 }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -371,10 +536,15 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 flow(testFlow1)
                 flow(testFlow2)
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -426,8 +596,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 flowBean("testFlow1") {
                     on("COMPLETED") {
                         step("transitionStep1") {
@@ -453,6 +623,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                 }
             }
         }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
+            }
+        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -476,8 +651,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         var testStep2CallCount = 0
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 flow(
                     "testFlow1",
                     {
@@ -523,6 +698,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                 }
             }
         }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
+            }
+        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -566,8 +746,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 flow(testFlow1) {
                     on("COMPLETED") {
                         step("transitionStep1") {
@@ -591,6 +771,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                         end("TEST")
                     }
                 }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -620,13 +805,18 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 deciderBean("testDecider") {
                     on("COMPLETED") {
                         end("TEST")
                     }
                 }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -654,8 +844,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 step("testStep1") {
                     tasklet { _, _ ->
                         ++testStep1CallCount
@@ -667,6 +857,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                         end("TEST")
                     }
                 }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -691,13 +886,18 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 decider(decider) {
                     on("COMPLETED") {
                         end("TEST")
                     }
                 }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -722,8 +922,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 step("testStep1") {
                     tasklet { _, _ ->
                         ++testStep1CallCount
@@ -735,6 +935,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                         end("TEST")
                     }
                 }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -764,8 +969,8 @@ internal class FlowJobBuilderDslIntegrationTest {
         }.apply { initialize() }
 
         // when
-        val job = batch {
-            job("testJob") {
+        val testFlow = batch {
+            flow("testFlow") {
                 split(taskExecutor) {
                     flow("testFlow1") {
                         step("testStep1") {
@@ -786,6 +991,11 @@ internal class FlowJobBuilderDslIntegrationTest {
                         }
                     }
                 }
+            }
+        }
+        val job = batch {
+            job("testJob") {
+                flow(testFlow)
             }
         }
         val jobExecution = jobLauncher.run(job, JobParameters())
@@ -810,7 +1020,7 @@ internal class FlowJobBuilderDslIntegrationTest {
         ): BatchDsl = BatchDsl(
             beanFactory,
             jobBuilderFactory,
-            stepBuilderFactory,
+            stepBuilderFactory
         )
 
         @Bean
