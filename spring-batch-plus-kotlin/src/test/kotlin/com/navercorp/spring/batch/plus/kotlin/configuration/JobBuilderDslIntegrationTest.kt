@@ -21,7 +21,11 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.*
+import org.springframework.batch.core.BatchStatus
+import org.springframework.batch.core.JobExecution
+import org.springframework.batch.core.JobExecutionListener
+import org.springframework.batch.core.JobParameters
+import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.annotation.AfterJob
 import org.springframework.batch.core.annotation.BeforeJob
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
