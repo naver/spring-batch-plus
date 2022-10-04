@@ -10,39 +10,33 @@ Spring Batch Plus provides extension features to [Spring Batch](https://github.c
 @Bean
 fun subJob1(batch: BatchDsl): Job = batch {
     job("subJob1") {
-      steps {
         step("testStep1") {
-          tasklet { _, _ ->
-            RepeatStatus.FINISHED
-          }
+            tasklet { _, _ ->
+                RepeatStatus.FINISHED
+            }
         }
-      }
     }
-  }
+}
 
 @Bean
 fun subJob2(batch: BatchDsl): Job = batch {
-  job("subJob2") {
-    steps {
-      step("testStep2") {
-        tasklet { _, _ ->
-          RepeatStatus.FINISHED
+    job("subJob2") {
+        step("testStep2") {
+            tasklet { _, _ ->
+                RepeatStatus.FINISHED
+            }
         }
-      }
     }
-  }
 }
 
 @Bean
 fun testJob(batch: BatchDsl): Job = batch {
     job("testJob") {
-        steps {
-            step("jobStep1") {
-                jobBean("subJob1")
-            }
-            step("jobStep2") {
-                jobBean("subJob2")
-            }
+        step("jobStep1") {
+            jobBean("subJob1")
+        }
+        step("jobStep2") {
+            jobBean("subJob2")
         }
     }
 }
@@ -84,13 +78,11 @@ fun testJob(
     batch: BatchDsl,
 ): Job = batch {
     job("testJob") {
-        steps {
-            step("testStep") {
-                chunk<Int, String>(3) {
-                    reader(sampleTasklet.asItemStreamReader())
-                    processor(sampleTasklet.asItemProcessor())
-                    writer(sampleTasklet.asItemStreamWriter())
-                }
+        step("testStep") {
+            chunk<Int, String>(3) {
+                reader(sampleTasklet.asItemStreamReader())
+                processor(sampleTasklet.asItemProcessor())
+                writer(sampleTasklet.asItemStreamWriter())
             }
         }
     }
@@ -101,7 +93,7 @@ fun testJob(
 
 We provide sample project for some use cases.
 
-- [Kotlin Dsl Sample](./spring-batch-plus-sample/spring-batch-plus-kotlin-dsl-sample/src/main/kotlin)
+- [Kotlin Dsl Sample](./spring-batch-plus-sample/spring-batch-plus-kotlin-dsl/src/main/kotlin)
 - Single class reader-processor-writer sample
     - [Kotlin version](./spring-batch-plus-sample/spring-batch-plus-single-class-reader-processor-writer-kotlin/src/main/kotlin)
     - [Java version](./spring-batch-plus-sample/spring-batch-plus-single-class-reader-processor-writer/src/main/java)
