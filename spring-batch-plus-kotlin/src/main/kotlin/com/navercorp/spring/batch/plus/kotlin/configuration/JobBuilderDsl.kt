@@ -231,7 +231,8 @@ class JobBuilderDsl internal constructor(
 
         return if (!isFlowJob) {
             val simpleJobBuilder = SimpleJobBuilder(this.jobBuilder)
-            return SimpleJobBuilderDsl(this.dslContext, simpleJobBuilder).apply(lazyFlowConfigurer)
+            val simpleJobBuilderDsl = SimpleJobBuilderDsl(this.dslContext, simpleJobBuilder)
+            SimpleJobBuilderDslAdapter(simpleJobBuilderDsl).apply(this.lazyFlowConfigurer)
                 .build()
         } else {
             val flowJobBuilder = FlowJobBuilder(this.jobBuilder)

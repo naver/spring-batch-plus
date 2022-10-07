@@ -22,12 +22,8 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMark
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
-import org.springframework.batch.core.job.builder.FlowJobBuilder
 import org.springframework.batch.core.job.builder.SimpleJobBuilder
-import org.springframework.batch.core.job.flow.Flow
-import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.beans.factory.getBean
-import org.springframework.core.task.TaskExecutor
 
 /**
  * A dsl for [SimpleJobBuilder][org.springframework.batch.core.job.builder.SimpleJobBuilder].
@@ -36,83 +32,21 @@ import org.springframework.core.task.TaskExecutor
 internal class SimpleJobBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val simpleJobBuilder: SimpleJobBuilder
-) : FlowBuilderDsl<FlowJobBuilder> {
+) {
 
-    override fun stepBean(name: String) {
+    fun stepBean(name: String) {
         val step = this.dslContext.beanFactory.getBean<Step>(name)
         step(step)
     }
 
-    override fun step(name: String, stepInit: StepBuilderDsl.() -> Step) {
+    fun step(name: String, stepInit: StepBuilderDsl.() -> Step) {
         val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         step(step)
     }
 
-    override fun step(step: Step) {
+    fun step(step: Step) {
         this.simpleJobBuilder.next(step)
-    }
-
-    override fun stepBean(name: String, stepTransitionInit: StepTransitionBuilderDsl<FlowJobBuilder>.() -> Unit) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun step(
-        name: String,
-        stepInit: StepBuilderDsl.() -> Step,
-        stepTransitionInit: StepTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
-    ) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun step(step: Step, stepTransitionInit: StepTransitionBuilderDsl<FlowJobBuilder>.() -> Unit) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun flowBean(name: String) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun flow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun flow(flow: Flow) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun flowBean(name: String, flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun flow(
-        name: String,
-        flowInit: FlowBuilderDsl<Flow>.() -> Unit,
-        flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
-    ) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun flow(flow: Flow, flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun deciderBean(
-        name: String,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
-    ) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun decider(
-        decider: JobExecutionDecider,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
-    ) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
-    }
-
-    override fun split(taskExecutor: TaskExecutor, splitInit: SplitBuilderDsl<FlowJobBuilder>.() -> Unit) {
-        throw UnsupportedOperationException("SimpleJob can't process flow.")
     }
 
     internal fun build(): Job = this.simpleJobBuilder.build()

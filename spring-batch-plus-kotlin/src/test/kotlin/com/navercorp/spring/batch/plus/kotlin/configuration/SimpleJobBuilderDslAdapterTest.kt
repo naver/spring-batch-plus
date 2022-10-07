@@ -26,62 +26,63 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.repeat.RepeatStatus
 
-internal class SimpleJobBuilderDslTest {
+internal class SimpleJobBuilderDslAdapterTest {
 
     @Test
     fun testUnsupportedCall() {
         // given
         val simpleJobBuilderDsl = SimpleJobBuilderDsl(DslContext(mock(), mock(), mock()), mock())
+        val simpleJobBuilderDslAdapter = SimpleJobBuilderDslAdapter(simpleJobBuilderDsl)
 
         // when, then
         assertThatThrownBy {
-            simpleJobBuilderDsl.stepBean("testStep") {
+            simpleJobBuilderDslAdapter.stepBean("testStep") {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
-            simpleJobBuilderDsl.step("testStep", { tasklet { _, _ -> RepeatStatus.FINISHED } }) {
+            simpleJobBuilderDslAdapter.step("testStep", { tasklet { _, _ -> RepeatStatus.FINISHED } }) {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
-            simpleJobBuilderDsl.step(mock<Step>()) {
-            }
-        }.isInstanceOf(UnsupportedOperationException::class.java)
-
-        assertThatThrownBy {
-            simpleJobBuilderDsl.flowBean("testFlow")
-        }.isInstanceOf(UnsupportedOperationException::class.java)
-        assertThatThrownBy {
-            simpleJobBuilderDsl.flow("testFlow") {
-            }
-        }.isInstanceOf(UnsupportedOperationException::class.java)
-        assertThatThrownBy {
-            simpleJobBuilderDsl.flow(mock())
-        }.isInstanceOf(UnsupportedOperationException::class.java)
-
-        assertThatThrownBy {
-            simpleJobBuilderDsl.flowBean("testFlow") {
-            }
-        }.isInstanceOf(UnsupportedOperationException::class.java)
-        assertThatThrownBy {
-            simpleJobBuilderDsl.flow("testFlow", {}) {
-            }
-        }.isInstanceOf(UnsupportedOperationException::class.java)
-        assertThatThrownBy {
-            simpleJobBuilderDsl.flow(mock<Flow>()) {
+            simpleJobBuilderDslAdapter.step(mock<Step>()) {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
 
         assertThatThrownBy {
-            simpleJobBuilderDsl.deciderBean("testDecider") {
+            simpleJobBuilderDslAdapter.flowBean("testFlow")
+        }.isInstanceOf(UnsupportedOperationException::class.java)
+        assertThatThrownBy {
+            simpleJobBuilderDslAdapter.flow("testFlow") {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
-            simpleJobBuilderDsl.decider(mock()) {
+            simpleJobBuilderDslAdapter.flow(mock())
+        }.isInstanceOf(UnsupportedOperationException::class.java)
+
+        assertThatThrownBy {
+            simpleJobBuilderDslAdapter.flowBean("testFlow") {
+            }
+        }.isInstanceOf(UnsupportedOperationException::class.java)
+        assertThatThrownBy {
+            simpleJobBuilderDslAdapter.flow("testFlow", {}) {
+            }
+        }.isInstanceOf(UnsupportedOperationException::class.java)
+        assertThatThrownBy {
+            simpleJobBuilderDslAdapter.flow(mock<Flow>()) {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
 
         assertThatThrownBy {
-            simpleJobBuilderDsl.split(mock()) {
+            simpleJobBuilderDslAdapter.deciderBean("testDecider") {
+            }
+        }.isInstanceOf(UnsupportedOperationException::class.java)
+        assertThatThrownBy {
+            simpleJobBuilderDslAdapter.decider(mock()) {
+            }
+        }.isInstanceOf(UnsupportedOperationException::class.java)
+
+        assertThatThrownBy {
+            simpleJobBuilderDslAdapter.split(mock()) {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
     }
