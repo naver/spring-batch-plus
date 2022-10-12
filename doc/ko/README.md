@@ -6,9 +6,9 @@ Spring Batch Plus는 [Spring Batch](https://github.com/spring-projects/spring-ba
 
 Kotlin DSL은 `JobBuilderFactory`, `StepBuilderFactory`, `FlowBuilder`를 이용하지 않고 Kotlin의 [Type-safe builder](https://kotlinlang.org/docs/type-safe-builders.html)를 이용하여 선언적으로 `Job`, `Step`, `Flow`를 선언할 수 있는 기능을 제공합니다. `ClearRunIdIncrementer`는 Spring Batch에서 제공하는 `RunIdIncrementer`를 대신하는 class로 이전의 JobExecution에 있는 JobParameter를 재사용하는 문제를 해결한 class 입니다. `ItemStreamReaderProcessorWriter`는 `ItemStreamReader`, `ItemProcessor`, `ItemStreamWriter`를 단일 class에서 정의할 수 있습니다.
 
-- [Kotlin DSL](./configuration/kotlin-dsl)
+- [Kotlin DSL](./configuration/kotlin-dsl/README.md)
 - [ClearRunIdIncrementer](./job/clear-run-id-incrementer.md)
-- [ItemStreamReaderProcessorWriter](./item/item-stream-reader-processor-writer.md)
+- [ItemStreamReaderProcessorWriter](./step/item-stream-reader-processor-writer.md)
 
 ## 예제 코드
 
