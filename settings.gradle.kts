@@ -14,6 +14,11 @@ include("spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer")
 include("spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer-kotlin")
 
 dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
     versionCatalogs {
         create("libs") {
             val springBootVersion = "2.7.1"

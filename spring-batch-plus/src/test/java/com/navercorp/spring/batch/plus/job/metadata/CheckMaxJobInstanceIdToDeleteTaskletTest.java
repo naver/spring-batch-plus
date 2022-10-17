@@ -53,7 +53,7 @@ class CheckMaxJobInstanceIdToDeleteTaskletTest {
 	@BeforeEach
 	void setUp(@Autowired JobMetadataDao dao, @Autowired JobRepositoryTestUtils testUtils) {
 		DateTimeFormatter baseDateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-		this.tasklet = new CheckMaxJobInstanceIdToDeleteTasklet(dao,"baseDate", baseDateFormatter);
+		this.tasklet = new CheckMaxJobInstanceIdToDeleteTasklet(dao, "baseDate", baseDateFormatter);
 		testUtils.removeJobExecutions();
 	}
 

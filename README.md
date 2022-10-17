@@ -173,8 +173,9 @@ Java
 ### Build
 
 - Clean: `./gradlew clean`
-- Check: `./gradlew check`
-- Assemble: `./gradlew build`
+- Check: `./gradlew check --parallel`
+  - Coverage report : `${buildDir}/kover/html/index.html`
+- Assemble: `./gradlew build --parallel`
 - Install to local: `./gradlew install`
 - Publish: `./gradlew publish`
 

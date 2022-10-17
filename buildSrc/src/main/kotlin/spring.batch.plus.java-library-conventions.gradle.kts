@@ -1,12 +1,6 @@
 plugins {
     `java-library`
-    jacoco
     checkstyle
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
 }
 
 java {
@@ -47,15 +41,4 @@ tasks.withType<Checkstyle>().configureEach {
 tasks.named<Test>("test") {
     useJUnitPlatform()
     maxParallelForks = Runtime.getRuntime().availableProcessors()
-    finalizedBy(tasks.jacocoTestReport) // report is always generate
-}
-
-tasks.jacocoTestReport {
-    dependsOn(tasks.named<Test>("test")) // tests are required to run before generating the report
-
-    reports {
-        xml.required.set(false)
-        csv.required.set(false)
-        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
-    }
 }
