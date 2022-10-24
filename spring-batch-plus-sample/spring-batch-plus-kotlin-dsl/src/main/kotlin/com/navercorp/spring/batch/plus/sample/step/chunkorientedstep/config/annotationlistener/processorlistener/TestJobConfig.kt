@@ -45,6 +45,7 @@ open class TestJobConfig {
 
         @OnProcessError
         fun onProcessError(item: Any, e: Exception) {
+            println("onProcessError: $item, exception: $e")
         }
     }
 

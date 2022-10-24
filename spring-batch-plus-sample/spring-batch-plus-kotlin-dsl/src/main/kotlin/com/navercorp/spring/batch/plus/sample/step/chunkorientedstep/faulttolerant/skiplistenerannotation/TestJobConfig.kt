@@ -41,10 +41,12 @@ open class TestJobConfig {
 
         @OnSkipInProcess
         fun onSkipInProcess(item: Any, t: Throwable) {
+            println("Ignore exception of process (item: $item, exception: ${t.message})")
         }
 
         @OnSkipInWrite
         fun onSkipInWrite(item: Any, t: Throwable) {
+            println("Ignore exception of write (item: $item, exception: ${t.message})")
         }
     }
 

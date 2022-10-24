@@ -45,6 +45,7 @@ open class TestJobConfig {
 
         @OnReadError
         fun onReadError(ex: Exception) {
+            println("onReadError (exception: $ex)")
         }
     }
 

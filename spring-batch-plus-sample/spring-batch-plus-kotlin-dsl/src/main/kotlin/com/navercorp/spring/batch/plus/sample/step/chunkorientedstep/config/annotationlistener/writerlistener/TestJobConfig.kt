@@ -45,6 +45,7 @@ open class TestJobConfig {
 
         @OnWriteError
         fun onWriteError(exception: Exception, items: List<String>) {
+            println("afterWrite: $items, exception: $exception")
         }
     }
 
