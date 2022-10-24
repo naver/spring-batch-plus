@@ -5,3 +5,6 @@ spring:
     console:
       enabled: true
       path: /h2-console # enable h2 console
+  batch:
+    job:
+      enabled: false

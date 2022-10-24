@@ -1,0 +1,69 @@
+/*
+ * Spring Batch Plus
+ *
+ * Copyright 2022-present NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.listenerannotation
+
+import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
+import org.springframework.batch.core.Job
+import org.springframework.batch.core.annotation.AfterChunk
+import org.springframework.batch.core.annotation.AfterChunkError
+import org.springframework.batch.core.annotation.BeforeChunk
+import org.springframework.batch.core.scope.context.ChunkContext
+import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+
+@Configuration
+open class TestJobConfig {
+
+    class TestListener {
+        @BeforeChunk
+        fun beforeChunk(context: ChunkContext) {
+            println("beforeChunk: $context")
+        }
+
+        @AfterChunk
+        fun afterChunk(context: ChunkContext) {
+            println("afterChunk: $context")
+        }
+
+        @AfterChunkError
+        fun afterChunkError() {
+        }
+    }
+
+    @Bean
+    open fun testJob(
+        batch: BatchDsl
+    ): Job = batch {
+        job("testJob") {
+            step("testStep") {
+                tasklet(testTasklet()) {
+                    listener(TestListener())
+                }
+            }
+        }
+    }
+
+    @Bean
+    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
+        println("run testTasklet")
+        RepeatStatus.FINISHED
+    }
+}

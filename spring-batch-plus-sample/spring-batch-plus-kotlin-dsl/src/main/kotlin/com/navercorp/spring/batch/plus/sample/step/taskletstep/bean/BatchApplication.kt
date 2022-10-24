@@ -18,55 +18,25 @@
 
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.bean
 
-import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
+import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
-import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
 
-@SpringBootApplication
 @EnableBatchProcessing
-class BatchApplication {
-    // common
-    @Bean
-    fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
-
-    // before
-    @Bean
-    fun beforeJob(
-        jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory,
-        @Qualifier("testTasklet") testTasklet: Tasklet
-    ): Job {
-        return jobBuilderFactory.get("beforeJob")
-            .start(
-                stepBuilderFactory.get("testStep")
-                    .tasklet(testTasklet)
-                    .build()
-            )
-            .build()
-    }
-
-    // after
-    @Bean
-    fun afterJob(batch: BatchDsl): Job = batch {
-        job("afterJob") {
-            step("testStep") {
-                taskletBean("testTasklet")
-            }
-        }
-    }
-}
+@SpringBootApplication
+open class BatchApplication
 
 fun main() {
-    runApplication<BatchApplication>()
+    val applicationContext = runApplication<BatchApplication>()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val job = applicationContext.getBean<Job>()
+
+    val jobParameter = JobParametersBuilder()
+        .addString("param", "I am test")
+        .toJobParameters()
+    jobLauncher.run(job, jobParameter)
 }
