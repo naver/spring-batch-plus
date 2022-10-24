@@ -89,15 +89,6 @@ fun testJob(
 }
 ```
 
-## Samples
-
-We provide sample project for some use cases.
-
-- [Kotlin Dsl Sample](./spring-batch-plus-sample/spring-batch-plus-kotlin-dsl/src/main/kotlin)
-- Single class reader-processor-writer sample
-    - [Kotlin version](./spring-batch-plus-sample/spring-batch-plus-single-class-reader-processor-writer-kotlin/src/main/kotlin)
-    - [Java version](./spring-batch-plus-sample/spring-batch-plus-single-class-reader-processor-writer/src/main/java)
-
 ## Compatibility
 
 We've tested following versions only. Other versions may not work.
@@ -169,6 +160,7 @@ Java
 ### Prerequisites
 
 - Jdk8 or higher
+- Kotlin 1.5 or higher
 
 ### Build
 
