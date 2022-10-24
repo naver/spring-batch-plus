@@ -2,9 +2,6 @@ plugins {
     `maven-publish`
 }
 
-group = "com.navercorp.spring"
-version = "0.2.0-SNAPSHOT"
-
 publishing {
     publications {
         create<MavenPublication>("maven") {
