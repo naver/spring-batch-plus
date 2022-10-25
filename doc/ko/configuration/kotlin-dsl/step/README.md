@@ -66,10 +66,10 @@ open class TestJobConfig(
 
 ## Step 종류별 생성 방법
 
-Spring Batch에서는 5가지 종류의 `Step`이 있습니다. `TaskletStep`은 단일 `Tasklet`으로 구성된 `Step` 입니다. `SimpleStep`은 `ItemReader`, `ItemProcessor`, `ItemWriter`로 구성된 `Step`입니다. `PartitionStep`은 한 `Step`을 여러 task로 나누어서 수행할 수 있는 `Step`입니다. `JobStep`, `FlowStep`은 각각 단일 `Job`, 단일 `Flow`로 구성되어 있는 `Step`입니다. 각 `Step`에 대한 상세한 생성 방법은 다음을 참고 바랍니다.
+Spring Batch에는 5가지 종류의 `Step`이 있습니다. `TaskletStep`은 단일 `Tasklet`으로 구성된 `Step` 입니다. `ChunkOrientedStep`은 `ItemReader`, `ItemProcessor`, `ItemWriter`로 구성된 `Step`입니다. `PartitionStep`은 한 `Step`을 여러 task로 나누어서 수행하는 `Step`입니다. `JobStep`, `FlowStep`은 각각 단일 `Job`, 단일 `Flow`로 구성된 `Step`입니다. 각 `Step`에 대한 상세한 생성 방법은 다음을 참고 바랍니다.
 
 - [TaskletStep](./tasklet-step.md)
-- [SimpleStep](./simple-step.md)
+- [ChunkOrientedStep](./chunk-oriented-step.md)
 - [PartitionStep](./partition-step.md)
 - [JobStep](./job-step.md)
 - [FlowStep](./flow-step.md)
