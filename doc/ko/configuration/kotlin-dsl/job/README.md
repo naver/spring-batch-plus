@@ -37,6 +37,7 @@ open class TestJobConfig(
 - [Step 사용](./job-flow-step.md)
 - [다른 Flow 사용](./job-flow-flow.md)
 - [JobExecutionDecider 사용](./job-flow-decider.md)
+- [Flow에서 Transition 하는 방법](./job-flow-transition.md)
 - [Flow 병렬처리](./job-flow-split.md)
 
 ## Job 설정 방법
