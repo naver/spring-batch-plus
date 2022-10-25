@@ -144,6 +144,6 @@ class TestJobConfig(
 
 `BatchDsl`을 활용하여 `Job`, `Step`, `Flow` 객체를 생성할 수 있습니다. 상세한 방법은 다음 문서들을 참고 바랍니다.
 
-- [Job](./job)
-- [Step](./step)
-- [Flow](./flow)
+- [Job](./job/README.md)
+- [Step](./step/README.md)
+- [Flow](./flow/README.md)
