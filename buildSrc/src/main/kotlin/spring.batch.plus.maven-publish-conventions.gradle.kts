@@ -1,5 +1,6 @@
 plugins {
     `maven-publish`
+    signing
 }
 
 group = "com.navercorp.spring"
@@ -13,6 +14,7 @@ publishing {
             pom {
                 name.set(project.name)
                 description.set("Add useful features to spring batch")
+                url.set("https://github.com/naver/spring-batch-plus")
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
@@ -23,7 +25,7 @@ publishing {
                     developer {
                         id.set("acktsap")
                         name.set("Taeik Lim")
-                        email.set("taeik.lim@navercorp.com")
+                        email.set("sibera21@gmail.com")
                     }
                 }
                 scm {
@@ -57,6 +59,11 @@ publishing {
             )
         }
     }
+}
+
+signing {
+    // signing.keyId, signing.password, signing.secretKeyRingFile in ~/.gradle/gradle.properties
+    sign(publishing.publications["maven"])
 }
 
 tasks.create("install") {
