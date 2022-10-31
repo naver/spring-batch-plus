@@ -1,5 +1,9 @@
 # Spring Batch Plus
 
+[![build](https://github.com/naver/spring-batch-plus/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/naver/spring-batch-plus/actions/workflows/build.yml?query=branch%3Amain)
+[![coverage](https://codecov.io/github/naver/spring-batch-plus/branch/main/graph/badge.svg)](https://codecov.io/github/naver/spring-batch-plus)
+[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/naver/spring-batch-plus/blob/main/LICENSE)
+
 Spring Batch Plus provides extension features to [Spring Batch](https://github.com/spring-projects/spring-batch).
 
 ## Features
@@ -165,9 +169,11 @@ Java
 ### Build
 
 - Clean: `./gradlew clean`
-- Check: `./gradlew check --parallel`
-  - Coverage report : `${buildDir}/kover/html/index.html`
-- Assemble: `./gradlew build --parallel`
+- Check: `./gradlew check`
+  - Check coverage: `./gradlew koverMergedVerify`
+  - Make a merged coverage report: `./gradlew koverMergedReport`
+    - Coverage report will be generated in `${projectRoot]/build/kover/html/index.html`
+- Assemble: `./gradlew build`
 - Install to local: `./gradlew install`
 - Publish: `./gradlew publish`
 
