@@ -17,12 +17,17 @@
    export MAVEN_USER=...
    export MAVEN_PASSWORD=...
    ```
-5. Install to local and test it with example projects.
-6. Publish by `./gradlew publish`
+5. Install to local by `./gradlew clean build install --no-build-cache`. Test it with example projects.
+6. Publish by `./gradlew publish --no-parallel`
 7. Check Staging Repositories in a [sonatype](https://oss.sonatype.org/).
-7. Start a new version
-   - Update version of `gradle.properties` to `x.x.x-SHAPSHOT`.
-   - Add `## x.x.x-SHAPSHOT` to `CHANGELOG.md`.
+   - Click Close.
+   - Click Release.
+8. After publishing complete, make a tag `vx.x.x`.
+   - Make a tag by `git tag vx.x.x`.
+   - Push the tag by `git push origin vx.x.x`.
+9. Start a new version
+   - Update version of `gradle.properties` to `x.y.x-SHAPSHOT`.
+   - Add `## x.y.x-SHAPSHOT` to `CHANGELOG.md`.
    - Commit message: `Start next iteration`
 
 ## See also

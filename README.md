@@ -183,7 +183,7 @@ Java
     - Coverage report will be generated in `${projectRoot]/build/kover/html/index.html`
 - Assemble: `./gradlew build`
 - Install to local: `./gradlew install`
-- Publish: `./gradlew publish`
+- Publish: `./gradlew publish --no-parallel`
 
 ## License
 
