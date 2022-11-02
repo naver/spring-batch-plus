@@ -9,7 +9,7 @@ Spring Batch Plus provides extension features to [Spring Batch](https://github.c
 
 ## Features
 
-### Kotlin Dsl for builders
+### Kotlin DSL
 
 ```kotlin
 @Bean
@@ -94,13 +94,19 @@ fun testJob(
 }
 ```
 
+### Other Useful Classes
+
+- ClearRunIdIncrementer
+- DeleteMetadataJob
+
 ## Compatibility
 
 We've tested following versions only. Other versions may not work.
 
-| Spring Batch Version | Compatible Plus Version |
-|----------------------|-------------------------|
-| 4.3.x                | 0.1.x                   |
+| Spring Batch Plus Version | Spring Batch Version | Kotlin Version | Java Version |
+|---------------------------|----------------------|----------------|--------------|
+| 0.2.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher|
+| 0.1.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher|
 
 ## Download
 
@@ -159,6 +165,7 @@ Java
 ## User Guide
 
 - [Korean](./doc/ko/README.md)
+- English: to be released
 
 ## Build from source
 
