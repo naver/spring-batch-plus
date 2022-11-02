@@ -16,11 +16,11 @@
   - [Java](#java-4)
   - [Kotlin](#kotlin-4)
 
-Spring Batch의 모든 `Job` 수행은 metadata에 저장됩니다. Job DB를 오랜 기간 운영하면 데이터가 계속 쌓이게 되므로 오래된 데이터를 삭제할 필요가 있습니다. `DeleteMetadataJob`은 날짜를 기준으로 해당 날짜 이전에 수행된 모든 `Job`, `Step`의 metadata를 삭제하는 `Job`입니다.
+Spring Batch의 모든 `Job` 수행은 metadata에 저장됩니다. Job DB를 오랜 기간 운영하면 데이터가 계속 쌓이게 되므로 오래된 데이터를 삭제해야 할 수도 있습니다. `DeleteMetadataJob`은 날짜를 기준으로 해당 날짜 이전에 수행된 모든 `Job`, `Step`의 metadata를 삭제하는 `Job`입니다.
 
 ## DeleteMetadataJob 생성하기
 
-`DeleteMetadataJobBuilder`를 사용하여 DeleteMetadataJob을 생성할 수 있습니다. `JobRepository`와 metadata의 `DataSource`를 인자로 넘겨서 생성 가능합니다. 기본으로 설정할 경우 `Job` 이름은 deleteMetadataJob, `JobParameter`이름은 baseDate, 날짜 패턴은 yyyy/MM/dd 입니다.
+`DeleteMetadataJobBuilder`에 `JobRepository`와 metadata의 `DataSource`를 인자로 넘겨서 `DeleteMetadataJob`을 생성합니다. 별다른 처리를 하지 않을 경우 `Job` 이름은 deleteMetadataJob, `JobParameter`이름은 baseDate, 날짜 패턴은 yyyy/MM/dd, table prefix 는 `BATCH_` 입니다.
 
 ### Java
 
@@ -142,7 +142,7 @@ jobLauncher.run(removeJob, jobParameter)
 
 ## Metatable Prefix 지정하기
 
-`DeleteMetadataJobBuilder`의 `tablePrefix` 호출로 table prefix를 지정할 수 있습니다. 다음의 예시는 meta table의 prefix가 `CUSTOM_` (CUSTOM_JOB_INSTANCE, CUSTOM_JOB_EXECUTION, ...)인 경우입니다.
+`DeleteMetadataJobBuilder`의 `tablePrefix` 호출로 table prefix를 지정할 수 있습니다. 다음은 meta table의 prefix를 `CUSTOM_` (CUSTOM_JOB_INSTANCE, CUSTOM_JOB_EXECUTION, ...)로 지정하는 예 입니다.
 
 ### Java
 
@@ -174,6 +174,31 @@ JobParameters jobParameter = new JobParametersBuilder()
 jobLauncher.run(removeJob, jobParameter);
 ```
 
+Spring Boot를 쓰면서 `spring.batch.jdbc.table-prefix`의 값을 가져오고 싶으면 다음과 같이 설정할 수도 있습니다.
+
+```java
+import org.springframework.boot.autoconfigure.batch.BatchProperties;
+
+...
+
+@Configuration
+public class TestJobConfig {
+
+    @Bean
+    public Job removeJob(
+        @BatchDataSource DataSource dataSource,
+        JobRepository jobRepository,
+        BatchProperties properties
+    ) {
+        String tablePrefix = properties.getJdbc().getTablePrefix();
+        return new DeleteMetadataJobBuilder(jobRepository, dataSource)
+            .name("removeJob")
+            .tablePrefix(tablePrefix)
+            .build();
+    }
+}
+```
+
 ### Kotlin
 
 ```kotlin
@@ -202,6 +227,31 @@ val jobParameter = JobParametersBuilder()
     .addString("baseDate", now.format(formatter))
     .toJobParameters()
 jobLauncher.run(removeJob, jobParameter)
+```
+
+Spring Boot를 쓰면서 `spring.batch.jdbc.table-prefix`의 값을 가져오고 싶으면 다음과 같이 설정할 수도 있습니다.
+
+```kotlin
+import org.springframework.boot.autoconfigure.batch.BatchProperties
+
+...
+
+@Configuration
+open class TestJobConfig {
+
+    @Bean
+    open fun removeJob(
+        @BatchDataSource dataSource: DataSource,
+        jobRepository: JobRepository,
+        properties: BatchProperties
+    ): Job {
+        val tablePrefix = properties.jdbc.tablePrefix
+        return DeleteMetadataJobBuilder(jobRepository, dataSource)
+            .name("removeJob")
+            .tablePrefix("CUSTOM_")
+            .build()
+    }
+}
 ```
 
 ## 날짜 JobParameter 이름 지정하기
