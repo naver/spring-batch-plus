@@ -1,5 +1,19 @@
 # ChangeLog
 
+## 0.3.0-SNAPSHOT
+
+New Features
+
+- None
+
+Changes
+
+- None
+
+Bug fixes & Improvements
+
+- None
+
 ## 0.2.0
 
 New Features
