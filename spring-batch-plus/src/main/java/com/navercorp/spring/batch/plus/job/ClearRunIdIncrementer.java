@@ -38,7 +38,7 @@ public class ClearRunIdIncrementer implements JobParametersIncrementer {
 	protected static final String DEFAULT_RUN_ID = "run.id";
 
 	/**
-	 * Create a new ClearRunIdIncrementer with {{@link #DEFAULT_RUN_ID}}.
+	 * Create a new ClearRunIdIncrementer with {@link #DEFAULT_RUN_ID}.
 	 * @return a new ClearRunIdIncrementer instance
 	 */
 	public static JobParametersIncrementer create() {
