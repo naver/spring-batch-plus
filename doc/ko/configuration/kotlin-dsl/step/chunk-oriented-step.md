@@ -336,7 +336,7 @@ open class TestJobConfig {
 }
 ```
 
-임의의 객체에 `@BeforeProcess`, `@AfterProcess`, `@OnProcessError` Annotation을 붙여서 Item Writer Listener 를 설정할 수 있습니다.
+임의의 객체에 `@BeforeProcess`, `@AfterProcess`, `@OnProcessError` Annotation을 붙여서 Item Process Listener 를 설정할 수 있습니다.
 
 ```kotlin
 @Configuration
