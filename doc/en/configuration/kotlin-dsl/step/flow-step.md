@@ -6,7 +6,7 @@
 
 A flow step consists of another single `Flow`.
 
-### Pass a flow as a variable
+## Pass a flow as a variable
 
 You can pass a predefined `Flow` as a variable to define a `Step`.
 

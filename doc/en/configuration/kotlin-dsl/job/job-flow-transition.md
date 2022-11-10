@@ -28,7 +28,7 @@ A transition is deciding what to run based on `ExitStatus` after Spring Batch ru
 
 You can run a different `Step` based on `ExitStatus`, by declaring it as a variable and passing it, directly initializing it, or selecting it with the bean name.
 
-### Pass steps as variables
+### Pass a step as a variable
 
 You can define a `Step` in advance and pass it for a transition.
 

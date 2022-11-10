@@ -165,7 +165,7 @@ Java
 ## User Guide
 
 - [Korean](./doc/ko/README.md)
-- English: to be released
+- [English](./doc/en/README.md)
 
 ## Build from source
 
