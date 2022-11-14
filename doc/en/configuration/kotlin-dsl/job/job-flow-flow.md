@@ -1,4 +1,3 @@
-ko\configuration\kotlin-dsl\job\job-flow-flow
 # Job Flow - Using Other Flows
 
 - [Sequential execution of flows](#sequential-execution-of-flows)
@@ -6,7 +5,7 @@ ko\configuration\kotlin-dsl\job\job-flow-flow
   - [Initialize a flow when defining a job](#initialize-a-flow-when-defining-a-job)
   - [Get a flow using the bean name](#get-a-flow-using-the-bean-name)
 - [Conditional execution of flows](#conditional-execution-of-flows)
-  - [Pass a flow as a variable](#pass-a-flow-as-a-variable)
+  - [Pass a flow as a variable](#pass-a-flow-as-a-variable-2)
   - [Initialize a flow when defining a job](#initialize-a-flow-when-defining-a-job-1)
   - [Get a flow using the bean name](#get-a-flow-using-the-bean-name-1)
 
@@ -146,7 +145,7 @@ open class TestJobConfig {
 
 The Kotlin DSL helps you run `Flows` conditionally based on the result of the previous flow. As in the sequential execution of flows, you can add a `Flow` using a method and pass it as a variable, initialize it or get it using the bean name when you define a `Job`. A `Flow` stops or another `Step` or `Flow` is run based on the result of the previous `Flow`. For more information about how to decide what to run based on the result of a `Flow`, see [Job Flow - Transition from a Flow](./job-flow-transition.md).
  
-### Pass a flow as a variable
+### <a id='pass-a-flow-as-a-variable-2'>Pass a flow as a variable</a>
 
 You can pass a predefined `Flow` as a variable when defining a `Job`. You can use a trailing lambda to define a `Flow` of the `Job`.
 

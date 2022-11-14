@@ -254,7 +254,7 @@ open class TestJobConfig {
 }
 ```
 
-## Specify a date job parameter
+## Specify a date job parameter name
 
 You can call the `baseDateParameterName` of `DeleteMetadataJobBuilder` to specify a date `JobParameter` name.
 
