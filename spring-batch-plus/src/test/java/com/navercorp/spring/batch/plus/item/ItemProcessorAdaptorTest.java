@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.item;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ItemProcessor;
@@ -35,4 +36,9 @@ class ItemProcessorAdaptorTest {
 		assertThat(actual).isEqualTo("1234");
 	}
 
+	@Test
+	void testPassingNull() {
+		// when, then
+		assertThatThrownBy(() -> ItemProcessorAdaptor.of(null));
+	}
 }

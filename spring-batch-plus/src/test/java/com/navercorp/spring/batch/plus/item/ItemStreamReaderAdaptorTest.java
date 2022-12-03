@@ -234,4 +234,10 @@ class ItemStreamReaderAdaptorTest {
 		// then
 		assertThat(onCloseReadCallCount.get()).isEqualTo(1);
 	}
+
+	@Test
+	void testPassingNull() {
+		// when, then
+		assertThatThrownBy(() -> ItemStreamReaderAdaptor.of(null));
+	}
 }

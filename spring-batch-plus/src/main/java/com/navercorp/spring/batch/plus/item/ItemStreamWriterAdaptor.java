@@ -19,9 +19,11 @@
 package com.navercorp.spring.batch.plus.item;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.lang.NonNull;
 
 /**
  * An adaptor which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
@@ -37,14 +39,14 @@ public class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
 	 * @return an adapted ItemStreamWriter
 	 * @param <T> an item type to write
 	 */
-	public static <T> ItemStreamWriter<T> of(ItemStreamWriterDelegate<T> delegate) {
+	public static <T> ItemStreamWriter<T> of(@NonNull ItemStreamWriterDelegate<T> delegate) {
 		return new ItemStreamWriterAdaptor<>(delegate);
 	}
 
 	protected final ItemStreamWriterDelegate<T> delegate;
 
 	protected ItemStreamWriterAdaptor(ItemStreamWriterDelegate<T> delegate) {
-		this.delegate = delegate;
+		this.delegate = Objects.requireNonNull(delegate, "Delegate writer must not be null");
 	}
 
 	@SuppressWarnings("NullableProblems")

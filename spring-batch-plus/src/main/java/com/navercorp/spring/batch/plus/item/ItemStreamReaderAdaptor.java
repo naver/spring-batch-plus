@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
@@ -40,7 +41,7 @@ public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
 	 * @return an adapted ItemStreamReader
 	 * @param <T> a read item type
 	 */
-	public static <T> ItemStreamReader<T> of(ItemStreamReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> of(@NonNull ItemStreamReaderDelegate<T> delegate) {
 		return new ItemStreamReaderAdaptor<>(delegate);
 	}
 
@@ -53,7 +54,7 @@ public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
 	protected Iterator<T> iterator = null;
 
 	protected ItemStreamReaderAdaptor(ItemStreamReaderDelegate<T> delegate) {
-		this.delegate = delegate;
+		this.delegate = Objects.requireNonNull(delegate, "Delegate reader must not be null");
 	}
 
 	@SuppressWarnings("NullableProblems")

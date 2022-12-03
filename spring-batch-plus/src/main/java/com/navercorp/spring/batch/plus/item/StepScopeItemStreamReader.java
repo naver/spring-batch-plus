@@ -57,7 +57,7 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 	protected final Supplier<ItemStreamReader<T>> delegateSupplier;
 
 	protected StepScopeItemStreamReader(Supplier<ItemStreamReader<T>> readerGenerator) {
-		this.delegateSupplier = readerGenerator;
+		this.delegateSupplier = Objects.requireNonNull(readerGenerator, "Reader generator must not be null");
 	}
 
 	@SuppressWarnings("NullableProblems")
