@@ -40,14 +40,6 @@ class AdaptorFactoryTest {
 		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
 	}
 
-	@SuppressWarnings("ConstantConditions")
-	@Test
-	void testItemReaderThrowExceptionWhenPassNull() {
-		assertThatThrownBy(
-			() -> AdaptorFactory.itemStreamReader(null)
-		).hasMessageContaining("ItemStreamReader delegate is null");
-	}
-
 	@Test
 	void testItemProcessor() {
 		// when
@@ -56,14 +48,6 @@ class AdaptorFactoryTest {
 
 		// then
 		assertThat(actual).isInstanceOf(ItemProcessorAdaptor.class);
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	@Test
-	void testItemProcessorThrowExceptionWhenPassNull() {
-		assertThatThrownBy(
-			() -> AdaptorFactory.itemProcessor(null)
-		).hasMessageContaining("ItemProcessor delegate is null");
 	}
 
 	@Test
@@ -77,11 +61,10 @@ class AdaptorFactoryTest {
 		assertThat(actual).isInstanceOf(ItemStreamWriterAdaptor.class);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Test
-	void testItemWriterThrowExceptionWhenPassNull() {
-		assertThatThrownBy(
-			() -> AdaptorFactory.itemStreamWriter(null)
-		).hasMessageContaining("ItemStreamWriter delegate is null");
+	void testPassingNull() {
+		assertThatThrownBy(() -> AdaptorFactory.itemStreamReader(null));
+		assertThatThrownBy(() -> AdaptorFactory.itemProcessor(null));
+		assertThatThrownBy(() -> AdaptorFactory.itemStreamWriter(null));
 	}
 }

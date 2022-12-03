@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.item;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Collections;
 import java.util.List;
@@ -165,5 +166,11 @@ class ItemStreamWriterAdaptorTest {
 
 		// then
 		assertThat(onCloseCallCount.get()).isEqualTo(1);
+	}
+
+	@Test
+	void testPassingNull() {
+		// when, then
+		assertThatThrownBy(() -> ItemStreamWriterAdaptor.of(null));
 	}
 }

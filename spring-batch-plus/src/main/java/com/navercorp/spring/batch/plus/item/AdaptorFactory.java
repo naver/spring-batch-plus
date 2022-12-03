@@ -56,7 +56,6 @@ public final class AdaptorFactory {
 	 * @param <O> a processed item type
 	 */
 	public static <I, O> ItemProcessor<I, O> itemProcessor(@NonNull ItemProcessorDelegate<I, O> delegate) {
-		Objects.requireNonNull(delegate, "ItemProcessor delegate is null");
 		return ItemProcessorAdaptor.of(delegate);
 	}
 
@@ -68,7 +67,6 @@ public final class AdaptorFactory {
 	 * @param <T> an item type to write
 	 */
 	public static <T> ItemStreamWriter<T> itemStreamWriter(@NonNull ItemStreamWriterDelegate<T> delegate) {
-		Objects.requireNonNull(delegate, "ItemStreamWriter delegate is null");
 		return ItemStreamWriterAdaptor.of(delegate);
 	}
 

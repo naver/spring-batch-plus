@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.job;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.batch.core.JobParameters;
@@ -51,14 +52,14 @@ public class ClearRunIdIncrementer implements JobParametersIncrementer {
 	 * @param runId a run id
 	 * @return a new ClearRunIdIncrementer instance
 	 */
-	public static JobParametersIncrementer create(String runId) {
+	public static JobParametersIncrementer create(@NonNull String runId) {
 		return new ClearRunIdIncrementer(runId);
 	}
 
 	protected final String runId;
 
 	protected ClearRunIdIncrementer(String runId) {
-		this.runId = runId;
+		this.runId = Objects.requireNonNull(runId, "Run id must not be null");
 	}
 
 	@NonNull

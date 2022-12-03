@@ -20,6 +20,7 @@ package com.navercorp.spring.batch.plus.job;
 
 import static com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer.DEFAULT_RUN_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -75,5 +76,11 @@ class ClearRunIdIncrementerTest {
 		// then
 		assertThat(jobParameters.getLong(runId)).isEqualTo(previousId + 1);
 		assertThat(jobParameters.getLong(DEFAULT_RUN_ID)).isNull();
+	}
+
+	@Test
+	void testPassingNull() {
+		// when, then
+		assertThatThrownBy(() -> ClearRunIdIncrementer.create(null));
 	}
 }

@@ -218,4 +218,10 @@ class StepScopeItemStreamReaderTest {
 			() -> itemStreamReader.open(new ExecutionContext())
 		).hasMessageContaining("No step context is set. Make sure if it's invoked in a stepScope.");
 	}
+
+	@Test
+	void testPassingNull() {
+		// when, then
+		assertThatThrownBy(() -> StepScopeItemStreamReader.of(null));
+	}
 }
