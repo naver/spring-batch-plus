@@ -130,11 +130,6 @@ class DeleteMetadataJobBuilderTest {
 		);
 		assertThatThrownBy(() ->
 			new DeleteMetadataJobBuilder(jobRepository, dataSource)
-				.name(null)
-				.build()
-		);
-		assertThatThrownBy(() ->
-			new DeleteMetadataJobBuilder(jobRepository, dataSource)
 				.tablePrefix(null)
 				.build()
 		);
