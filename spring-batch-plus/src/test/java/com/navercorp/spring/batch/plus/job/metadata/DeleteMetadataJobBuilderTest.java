@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.job.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.format.DateTimeFormatter;
 
@@ -109,6 +110,38 @@ class DeleteMetadataJobBuilderTest {
 		assertThat(exception).isInstanceOf(BadSqlGrammarException.class);
 		assertThat(exception.getMessage()).contains(
 			"bad SQL grammar [SELECT MAX(JOB_INSTANCE_ID) FROM WRONG_JOB_EXECUTION"
+		);
+	}
+
+	@Test
+	void testNullCheck() throws Exception {
+		// given
+		String tablePrefix = "RIGHT_";
+		DataSource dataSource = config.dataSource(tablePrefix);
+		JobRepository jobRepository = config.jobRepository(dataSource, tablePrefix);
+
+		// when, then
+		assertThatThrownBy(() -> new DeleteMetadataJobBuilder(null, dataSource));
+		assertThatThrownBy(() -> new DeleteMetadataJobBuilder(jobRepository, null));
+		assertThatThrownBy(() ->
+			new DeleteMetadataJobBuilder(jobRepository, dataSource)
+				.name(null)
+				.build()
+		);
+		assertThatThrownBy(() ->
+			new DeleteMetadataJobBuilder(jobRepository, dataSource)
+				.tablePrefix(null)
+				.build()
+		);
+		assertThatThrownBy(() ->
+			new DeleteMetadataJobBuilder(jobRepository, dataSource)
+				.baseDateParameterName(null)
+				.build()
+		);
+		assertThatThrownBy(() ->
+			new DeleteMetadataJobBuilder(jobRepository, dataSource)
+				.baseDateFormatter(null)
+				.build()
 		);
 	}
 }

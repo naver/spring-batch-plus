@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.job.metadata;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
@@ -30,6 +31,7 @@ import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.dao.AbstractJdbcBatchMetadataDao;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.lang.NonNull;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
@@ -56,11 +58,13 @@ public class DeleteMetadataJobBuilder {
 	private DateTimeFormatter baseDateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
 	/**
-	 *
 	 * @param jobRepository the target job repository to delete old metadata.
-	 * @param dataSource the data source of the job repository
+	 * @param dataSource    the data source of the job repository
 	 */
-	public DeleteMetadataJobBuilder(JobRepository jobRepository, DataSource dataSource) {
+	public DeleteMetadataJobBuilder(@NonNull JobRepository jobRepository, @NonNull DataSource dataSource) {
+		Objects.requireNonNull(jobRepository, "JobRepository must not be null");
+		Objects.requireNonNull(dataSource, "DataSource must not be null");
+
 		this.dataSource = dataSource;
 		this.jobBuilderFactory = new JobBuilderFactory(jobRepository);
 		PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
@@ -68,50 +72,45 @@ public class DeleteMetadataJobBuilder {
 	}
 
 	/**
-	 *
 	 * @param name the name of the job to delete metadata. The default value is 'deleteMetaDataJob'.
 	 * @return The current instance of the builder for method chaining
 	 */
-	public DeleteMetadataJobBuilder name(String name) {
-		this.name = name;
+	public DeleteMetadataJobBuilder name(@NonNull String name) {
+		this.name = Objects.requireNonNull(name, "Job name must not be null");
 		return this;
 	}
 
 	/**
-	 *
 	 * @param tablePrefix The prefix of tables for metadata. The default value is 'BATCH_'.
 	 * @return The current instance of the builder for method chaining
 	 */
-	public DeleteMetadataJobBuilder tablePrefix(String tablePrefix) {
-		this.tablePrefix = tablePrefix;
+	public DeleteMetadataJobBuilder tablePrefix(@NonNull String tablePrefix) {
+		this.tablePrefix = Objects.requireNonNull(tablePrefix, "Metadata table prefix must not be null");
 		return this;
 	}
 
 	/**
-	 *
 	 * @param baseDateParameterName the name of the job parameter for base date of not deleting metadata.
 	 *                              The default value is "baseDate"
-	 *
 	 * @return The current instance of the builder for method chaining
 	 */
-	public DeleteMetadataJobBuilder baseDateParameterName(String baseDateParameterName) {
-		this.baseDateParameterName = baseDateParameterName;
+	public DeleteMetadataJobBuilder baseDateParameterName(@NonNull String baseDateParameterName) {
+		this.baseDateParameterName = Objects.requireNonNull(baseDateParameterName,
+			"BaseDate parameter name must not be null");
 		return this;
 	}
 
 	/**
-	 *
 	 * @param baseDateFormatter the pattern of for the parameter of LocalDate type.
 	 *                          The default value is DateTimeFormatter.ofPattern("yyyy/MM/dd")
 	 * @return The current instance of the builder for method chaining
 	 */
-	public DeleteMetadataJobBuilder baseDateFormatter(DateTimeFormatter baseDateFormatter) {
-		this.baseDateFormatter = baseDateFormatter;
+	public DeleteMetadataJobBuilder baseDateFormatter(@NonNull DateTimeFormatter baseDateFormatter) {
+		this.baseDateFormatter = Objects.requireNonNull(baseDateFormatter, "BaseDate formatter must not be null");
 		return this;
 	}
 
 	/**
-	 *
 	 * @return a job to delete old metadata.
 	 */
 	public Job build() {
