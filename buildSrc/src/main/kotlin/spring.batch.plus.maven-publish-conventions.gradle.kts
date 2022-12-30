@@ -59,7 +59,14 @@ publishing {
 }
 
 signing {
-    // signing.keyId, signing.password, signing.secretKeyRingFile in ~/.gradle/gradle.properties
+    // in '.envrc'
+    // export ORG_GRADLE_PROJECT_signingKeyId=xxx
+    // export ORG_GRADLE_PROJECT_signingKey=xxx
+    // export ORG_GRADLE_PROJECT_signingPassword=xxx
+    val signingKeyId: String? by project
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign(publishing.publications["maven"])
 }
 
