@@ -18,7 +18,10 @@
 
 package com.navercorp.spring.batch.plus.job.metadata;
 
+import static com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataTasklet.DELETION_RANGE_LENGTH;
+import static com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataTasklet.LOW_ID_KEY;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.randomBetween;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +41,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(TestJobRepositoryConfig.class)
 class DeleteMetadataTaskletTest {
-	private static final int DELETION_RANGE_LENGTH = 100;
+
 	@Autowired
 	JobRepository jobRepository;
 
@@ -56,8 +59,8 @@ class DeleteMetadataTaskletTest {
 	@Test
 	void testExecuteWhen1stStart() throws Exception {
 		// given
-		int countToCreate = 330;
-		int countToDelete = 303;
+		int countToCreate = randomBetween(10, 300);
+		int countToDelete = countToCreate - randomBetween(1, countToCreate - 1);
 		long lastJobInstanceId = 0;
 		for (int i = 0; i < countToCreate; i++) {
 			JobExecution jobExecution = jobRepository.createJobExecution("testJob" + i, buildJobParams());
@@ -71,7 +74,7 @@ class DeleteMetadataTaskletTest {
 
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		int countRemains = countToCreate - countToDelete;
-		jobExecutionContext.putLong("maxJobInstanceId", lastJobInstanceId - countRemains);
+		jobExecutionContext.putLong(CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY, lastJobInstanceId - countRemains);
 
 		// when
 		tasklet.beforeStep(stepExecution);
@@ -85,7 +88,8 @@ class DeleteMetadataTaskletTest {
 
 		// then
 		assertThat(stepContribution.getWriteCount()).isEqualTo(countToDelete);
-		assertThat(repeatCount).isEqualTo(countToDelete / DELETION_RANGE_LENGTH + 1);
+		int expectedChunkCount = Double.valueOf(Math.ceil((double)countToDelete / DELETION_RANGE_LENGTH)).intValue();
+		assertThat(repeatCount).isEqualByComparingTo(expectedChunkCount);
 
 		assertThat(countDao.countJobInstances()).isEqualTo(countRemains);
 		assertThat(countDao.countJobExecutions()).isEqualTo(countRemains);
@@ -96,9 +100,47 @@ class DeleteMetadataTaskletTest {
 	}
 
 	@Test
+	void testExecuteWhenNothingToDelete() throws Exception {
+		// given
+		int countToCreate = randomBetween(10, 300);
+		for (int i = 0; i < countToCreate; i++) {
+			JobExecution jobExecution = jobRepository.createJobExecution("testJob" + i, buildJobParams());
+			jobRepository.add(new StepExecution("testStep", jobExecution));
+		}
+
+		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
+		StepContribution stepContribution = new StepContribution(stepExecution);
+		ChunkContext chunkContext = new ChunkContext(new StepContext(stepExecution));
+
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		jobExecutionContext.putLong(CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY, 0);
+
+		// when
+		tasklet.beforeStep(stepExecution);
+
+		int repeatCount = 0;
+		RepeatStatus repeatStatus = RepeatStatus.CONTINUABLE;
+		while (repeatStatus != RepeatStatus.FINISHED) {
+			repeatStatus = tasklet.execute(stepContribution, chunkContext);
+			repeatCount++;
+		}
+
+		// then
+		assertThat(stepContribution.getWriteCount()).isEqualTo(0);
+		assertThat(repeatCount).isEqualByComparingTo(1);
+
+		assertThat(countDao.countJobInstances()).isEqualTo(countToCreate);
+		assertThat(countDao.countJobExecutions()).isEqualTo(countToCreate);
+		assertThat(countDao.countJobExecutionContexts()).isEqualTo(countToCreate);
+		assertThat(countDao.countJobExecutionParams()).isEqualTo(countToCreate);
+		assertThat(countDao.countStepExecutions()).isEqualTo(countToCreate);
+		assertThat(countDao.countStepExecutionContext()).isEqualTo(countToCreate);
+	}
+
+	@Test
 	void testExecuteWhenRestart() throws Exception {
 		// given
-		int countToCreate = 330;
+		int countToCreate = randomBetween(10, 300);
 		long lastJobInstanceId = 0;
 		for (int i = 0; i < countToCreate; i++) {
 			JobExecution jobExecution = jobRepository.createJobExecution("testJob" + i, buildJobParams());
@@ -111,10 +153,10 @@ class DeleteMetadataTaskletTest {
 		ChunkContext chunkContext = new ChunkContext(new StepContext(stepExecution));
 
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		jobExecutionContext.putLong("maxJobInstanceId", lastJobInstanceId);
+		jobExecutionContext.putLong(CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY, lastJobInstanceId);
 
-		long lowJobInstanceIdLastExecution = lastJobInstanceId - 120;
-		stepExecution.getExecutionContext().putLong("lowJobInstanceId", lowJobInstanceIdLastExecution);
+		long lowJobInstanceIdLastExecution = lastJobInstanceId - randomBetween(1L, countToCreate - 1);
+		stepExecution.getExecutionContext().putLong(LOW_ID_KEY, lowJobInstanceIdLastExecution);
 
 		// when
 		tasklet.beforeStep(stepExecution);
@@ -129,6 +171,7 @@ class DeleteMetadataTaskletTest {
 		// then
 		long countToDelete = lastJobInstanceId - lowJobInstanceIdLastExecution + 1;
 		assertThat(stepContribution.getWriteCount()).isEqualTo(countToDelete);
-		assertThat(repeatCount).isEqualTo(countToDelete / DELETION_RANGE_LENGTH + 1);
+		int expectedChunkCount = Double.valueOf(Math.ceil((double)countToDelete / DELETION_RANGE_LENGTH)).intValue();
+		assertThat(repeatCount).isEqualByComparingTo(expectedChunkCount);
 	}
 }

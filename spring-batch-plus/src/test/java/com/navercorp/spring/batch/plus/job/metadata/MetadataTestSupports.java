@@ -23,13 +23,30 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 
 class MetadataTestSupports {
-	static Date getDate(int year, int month, int day) {
-		ZonedDateTime dateTime = LocalDate.of(year, month, day).atStartOfDay(ZoneId.systemDefault());
+
+	static Date dateTo(int year, int month, int day) {
+		LocalDate to = LocalDate.of(year, month, day);
+		LocalDate from = to.minusDays(10);
+		return dateBetween(from, to);
+	}
+
+	static Date dateFrom(int year, int month, int day) {
+		LocalDate from = LocalDate.of(year, month, day);
+		LocalDate to = from.plusDays(10);
+		return dateBetween(from, to);
+	}
+
+	static Date dateBetween(LocalDate from, LocalDate to) {
+		assert from.isBefore(to);
+		long gap = to.toEpochDay() - from.toEpochDay();
+		LocalDate randomDay = from.plusDays(randomBetween(0L, gap));
+		ZonedDateTime dateTime = randomDay.atStartOfDay(ZoneId.systemDefault());
 		return Date.from(dateTime.toInstant());
 	}
 
@@ -37,5 +54,13 @@ class MetadataTestSupports {
 		return new JobParametersBuilder()
 			.addLong("timestamp", Instant.now().toEpochMilli())
 			.toJobParameters();
+	}
+
+	static int randomBetween(int lowerInclusive, int higherInclusive) {
+		return ThreadLocalRandom.current().nextInt(lowerInclusive, higherInclusive + 1);
+	}
+
+	static long randomBetween(long lowerInclusive, long higherInclusive) {
+		return ThreadLocalRandom.current().nextLong(lowerInclusive, higherInclusive + 1L);
 	}
 }

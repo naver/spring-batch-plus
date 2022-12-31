@@ -19,7 +19,8 @@
 package com.navercorp.spring.batch.plus.job.metadata;
 
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.getDate;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateFrom;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -53,7 +54,7 @@ class JobMetadataDaoTest {
 	void selectMaxJobInstanceIdLessThanCreateTimeWhenEmpty() throws Exception {
 		// given
 		JobExecution execution = jobRepository.createJobExecution("testJob1", buildJobParams());
-		execution.setCreateTime(getDate(2022, 3, 14));
+		execution.setCreateTime(dateFrom(2022, 3, 14));
 		jobRepository.update(execution);
 
 		// when
@@ -67,11 +68,11 @@ class JobMetadataDaoTest {
 	void selectMaxJobInstanceIdLessThanCreateTimeWhenExists() throws Exception {
 		// given
 		JobExecution execution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
-		execution1.setCreateTime(getDate(2022, 3, 14));
+		execution1.setCreateTime(dateTo(2022, 3, 14));
 		jobRepository.update(execution1);
 
 		JobExecution execution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
-		execution2.setCreateTime(getDate(2022, 3, 15));
+		execution2.setCreateTime(dateFrom(2022, 3, 15));
 		jobRepository.update(execution2);
 
 		// when
@@ -83,7 +84,7 @@ class JobMetadataDaoTest {
 	}
 
 	@Test
-	void testSelectMinJobInstanceId() throws Exception {
+	void testSelectMinJobInstanceId() {
 		// given
 		JobInstance jobInstance1 = jobRepository.createJobInstance("testJob1", buildJobParams());
 		jobRepository.createJobInstance("testJob2", buildJobParams());

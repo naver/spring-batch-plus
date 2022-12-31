@@ -18,8 +18,10 @@
 
 package com.navercorp.spring.batch.plus.job.metadata;
 
+import static com.navercorp.spring.batch.plus.job.metadata.CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.getDate;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateFrom;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.format.DateTimeFormatter;
@@ -58,14 +60,33 @@ class CheckMaxJobInstanceIdToDeleteTaskletTest {
 	}
 
 	@Test
+	void testExecuteWhenNoMetadata() {
+		// when
+		JobParameters jobParameters = new JobParametersBuilder()
+			.addString("baseDate", "2022/03/15")
+			.toJobParameters();
+		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution(jobParameters);
+		StepContribution stepContribution = new StepContribution(stepExecution);
+		ChunkContext chunkContext = new ChunkContext(new StepContext(stepExecution));
+		RepeatStatus repeatStatus = tasklet.execute(stepContribution, chunkContext);
+		ExitStatus exitStatus = tasklet.afterStep(stepExecution);
+
+		// then
+		assertThat(repeatStatus).isEqualTo(RepeatStatus.FINISHED);
+		assertThat(exitStatus).isEqualTo(CheckMaxJobInstanceIdToDeleteTasklet.EMPTY);
+		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+		assertThat(jobExecutionContext.containsKey(MAX_ID_KEY)).isFalse();
+	}
+
+	@Test
 	void testExecuteWhenNeedToDelete() throws Exception {
 		// given
 		JobExecution execution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
-		execution1.setCreateTime(getDate(2022, 3, 14));
+		execution1.setCreateTime(dateTo(2022, 3, 14));
 		jobRepository.update(execution1);
 
 		JobExecution execution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
-		execution2.setCreateTime(getDate(2022, 3, 15));
+		execution2.setCreateTime(dateFrom(2022, 3, 15));
 		jobRepository.update(execution2);
 
 		JobParameters jobParameters = new JobParametersBuilder()
@@ -83,7 +104,7 @@ class CheckMaxJobInstanceIdToDeleteTaskletTest {
 		assertThat(repeatStatus).isEqualTo(RepeatStatus.FINISHED);
 		assertThat(exitStatus).isEqualTo(ExitStatus.COMPLETED);
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		long maxJobInstanceId = jobExecutionContext.getLong("maxJobInstanceId");
+		long maxJobInstanceId = jobExecutionContext.getLong(MAX_ID_KEY);
 		assertThat(maxJobInstanceId).isEqualTo(execution1.getJobId());
 	}
 
@@ -91,7 +112,7 @@ class CheckMaxJobInstanceIdToDeleteTaskletTest {
 	void testExecuteWhenNoNeedToDelete() throws Exception {
 		// given
 		JobExecution execution = jobRepository.createJobExecution("testJob2", buildJobParams());
-		execution.setCreateTime(getDate(2022, 2, 15));
+		execution.setCreateTime(dateFrom(2022, 2, 15));
 		jobRepository.update(execution);
 
 		JobParameters jobParameters = new JobParametersBuilder()
@@ -109,6 +130,6 @@ class CheckMaxJobInstanceIdToDeleteTaskletTest {
 		assertThat(repeatStatus).isEqualTo(RepeatStatus.FINISHED);
 		assertThat(exitStatus).isEqualTo(CheckMaxJobInstanceIdToDeleteTasklet.EMPTY);
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		assertThat(jobExecutionContext.containsKey("maxJobInstanceId")).isFalse();
+		assertThat(jobExecutionContext.containsKey(MAX_ID_KEY)).isFalse();
 	}
 }
