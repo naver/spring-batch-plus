@@ -34,11 +34,14 @@ import org.springframework.batch.repeat.RepeatStatus;
  */
 class DeleteMetadataTasklet extends StepExecutionListenerSupport implements Tasklet {
 
+	static final String LOW_ID_KEY = "lowJobInstanceId";
+
+	static final int DELETION_RANGE_LENGTH = 100;
+
 	private final Logger logger = LoggerFactory.getLogger(DeleteMetadataTasklet.class);
 
-	private static final String LOW_ID_KEY = "lowJobInstanceId";
 	private final JobMetadataDao dao;
-	private static final int RANGE_LENGTH = 100;
+
 	private long maxJobInstanceId;
 
 	DeleteMetadataTasklet(JobMetadataDao dao) {
@@ -64,7 +67,7 @@ class DeleteMetadataTasklet extends StepExecutionListenerSupport implements Task
 		StepExecution stepExecution = contribution.getStepExecution();
 
 		long lowJobInstanceId = getLowJobInstanceId(stepExecution);
-		long highJobInstanceId = Math.min(lowJobInstanceId + RANGE_LENGTH - 1, maxJobInstanceId);
+		long highJobInstanceId = Math.min(lowJobInstanceId + DELETION_RANGE_LENGTH - 1, maxJobInstanceId);
 		logger.info("Deleting job instances by ID from [{}] to [{}]", lowJobInstanceId, highJobInstanceId);
 
 		int deletedJobInstances = deleteJobMetadata(lowJobInstanceId, highJobInstanceId);

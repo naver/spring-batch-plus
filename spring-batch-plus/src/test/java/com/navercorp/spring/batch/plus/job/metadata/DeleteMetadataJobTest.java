@@ -19,7 +19,9 @@
 package com.navercorp.spring.batch.plus.job.metadata;
 
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.getDate;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateFrom;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateTo;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.randomBetween;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -74,7 +76,7 @@ class DeleteMetadataJobTest {
 	}
 
 	@Test
-	void testRunFailWithInvalidParameter() throws Exception {
+	void testRunFailWithInvalidParameter() {
 		// given
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString("baseLine", "2022/03/15") // "baseDate" is correct.
@@ -91,13 +93,13 @@ class DeleteMetadataJobTest {
 	@Test
 	void testRunWhenNeedNotToDelete() throws Exception {
 		// given
-		JobExecution jobExecution = jobRepository.createJobExecution("testJob1", buildJobParams());
-		jobExecution.setCreateTime(getDate(2022, 3, 16));
-		jobRepository.update(jobExecution);
-		jobRepository.add(new StepExecution("testStep", jobExecution));
-
-		jobRepository.createJobExecution("testJob2", buildJobParams());
-
+		int countToCreate = randomBetween(10, 50);
+		for (int i = 0; i < countToCreate; ++i) {
+			JobExecution jobExecution = jobRepository.createJobExecution("testJobToRemove" + i, buildJobParams());
+			jobExecution.setCreateTime(dateFrom(2022, 3, 15));
+			jobRepository.update(jobExecution);
+			jobRepository.add(new StepExecution("testStep", jobExecution));
+		}
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString("baseDate", "2022/03/15")
 			.toJobParameters();
@@ -108,34 +110,54 @@ class DeleteMetadataJobTest {
 		// then
 		assertThat(actualExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
 		assertThat(actualExecution.getStepExecutions()).hasSize(1);
-		// The step for deleting is not executed.
+
+		int expectedJobMetadataCount = countToCreate + 1; // includes deleteMetadataJob itself
+		assertThat(countDao.countJobInstances()).isEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutions()).isEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutionContexts()).isEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutionParams()).isEqualTo(expectedJobMetadataCount);
+
+		int expectedStepMetadataCount = countToCreate + 1; // deleteMetadataJob executes one step
+		assertThat(countDao.countStepExecutions()).isEqualTo(expectedStepMetadataCount);
+		assertThat(countDao.countStepExecutionContext()).isEqualTo(expectedStepMetadataCount);
 	}
 
 	@Test
 	void testRunWhenNeedToDelete() throws Exception {
 		// given
-		JobExecution jobExecution = jobRepository.createJobExecution("testJob1", buildJobParams());
-		jobExecution.setCreateTime(getDate(2022, 3, 13));
-		jobRepository.update(jobExecution);
-		jobRepository.add(new StepExecution("testStep", jobExecution));
+		int countToCreateBeforeBaseDate = randomBetween(10, 50);
+		for (int i = 0; i < countToCreateBeforeBaseDate; ++i) {
+			JobExecution jobExecution = jobRepository.createJobExecution("testJobToRemove" + i, buildJobParams());
+			jobExecution.setCreateTime(dateTo(2022, 3, 14));
+			jobRepository.update(jobExecution);
+			jobRepository.add(new StepExecution("testStep", jobExecution));
+		}
+		int countToCreateAfterBaseDate = randomBetween(10, 50);
+		for (int i = 0; i < countToCreateAfterBaseDate; ++i) {
+			JobExecution jobExecution = jobRepository.createJobExecution("testJobToRemains" + i, buildJobParams());
+			jobExecution.setCreateTime(dateFrom(2022, 3, 15));
+			jobRepository.update(jobExecution);
+			jobRepository.add(new StepExecution("testStep", jobExecution));
+		}
 
-		jobRepository.createJobExecution("testJob2", buildJobParams());
-
+		// when
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString("baseDate", "2022/03/15")
 			.toJobParameters();
-
-		// when
 		JobExecution actualExecution = jobLauncher.run(job, jobParameters);
 
 		// then
 		assertThat(actualExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
 		assertThat(actualExecution.getStepExecutions()).hasSize(2);
-		assertThat(countDao.countJobInstances()).isEqualTo(2);
-		assertThat(countDao.countJobExecutions()).isEqualTo(2);
-		assertThat(countDao.countJobExecutionContexts()).isEqualTo(2);
-		assertThat(countDao.countJobExecutionParams()).isEqualTo(2);
-		assertThat(countDao.countStepExecutions()).isEqualTo(2);
-		assertThat(countDao.countStepExecutionContext()).isEqualTo(2);
+
+		int expectedJobMetadataCount = countToCreateAfterBaseDate + 1; // includes deleteMetadataJob itself
+		assertThat(countDao.countJobInstances()).isEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutions()).isEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutionContexts()).isEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutionParams()).isEqualTo(expectedJobMetadataCount);
+
+		int expectedStepMetadataCount = countToCreateAfterBaseDate + 2; // deleteMetadataJob has 2 steps
+		assertThat(countDao.countStepExecutions()).isEqualTo(expectedStepMetadataCount);
+		assertThat(countDao.countStepExecutionContext()).isEqualTo(expectedStepMetadataCount);
 	}
 }
