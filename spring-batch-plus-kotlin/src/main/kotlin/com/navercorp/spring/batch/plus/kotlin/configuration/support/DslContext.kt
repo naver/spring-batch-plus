@@ -18,12 +18,10 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration.support
 
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
+import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.BeanFactory
 
 internal data class DslContext(
     val beanFactory: BeanFactory,
-    val jobBuilderFactory: JobBuilderFactory,
-    val stepBuilderFactory: StepBuilderFactory
+    val jobRepository: JobRepository,
 )

@@ -22,10 +22,11 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMark
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.job.builder.FlowBuilder
+import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.flow.Flow
+import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.BeanFactory
 
 /**
@@ -39,13 +40,11 @@ class BatchDsl internal constructor(
 ) {
     constructor(
         beanFactory: BeanFactory,
-        jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory
+        jobRepository: JobRepository,
     ) : this(
         DslContext(
             beanFactory,
-            jobBuilderFactory,
-            stepBuilderFactory
+            jobRepository,
         )
     )
 
@@ -55,8 +54,8 @@ class BatchDsl internal constructor(
      * Make a new job.
      */
     fun job(name: String, init: JobBuilderDsl.() -> Unit): Job {
-        val jobBuilderFactory = this.dslContext.jobBuilderFactory
-        val jobBuilder = jobBuilderFactory.get(name)
+        val jobRepository = this.dslContext.jobRepository
+        val jobBuilder = JobBuilder(name, jobRepository)
         return JobBuilderDsl(this.dslContext, jobBuilder).apply(init).build()
     }
 
@@ -64,8 +63,8 @@ class BatchDsl internal constructor(
      * Make a new step.
      */
     fun step(name: String, init: StepBuilderDsl.() -> Step): Step {
-        val stepBuilderFactory = this.dslContext.stepBuilderFactory
-        val stepBuilder = stepBuilderFactory.get(name)
+        val jobRepository = this.dslContext.jobRepository
+        val stepBuilder = StepBuilder(name, jobRepository)
         return StepBuilderDsl(this.dslContext, stepBuilder).let(init)
     }
 
