@@ -5,6 +5,11 @@ on:
     branches: [ main, '[0-9]+.[0-9]+.x' ]
   pull_request:
     branches: [ main, '[0-9]+.[0-9]+.x' ]
+  workflow_dispatch:
+    inputs:
+      commit_id:
+        description: 'Git commit id'
+        required: true
 
 jobs:
   build:
@@ -15,7 +20,19 @@ jobs:
         java-version: [ '8', '11', '17' ]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Setup Commit ID
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "COMMIT_ID=${{ github.event.inputs.commit_id }}" >> ${GITHUB_ENV}
+          else
+            echo "COMMIT_ID=${{ github.sha }}" >> ${GITHUB_ENV}
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.COMMIT_ID }}
+          fetch-depth: 0
 
       - name: Setup JDK
         uses: actions/setup-java@v3
