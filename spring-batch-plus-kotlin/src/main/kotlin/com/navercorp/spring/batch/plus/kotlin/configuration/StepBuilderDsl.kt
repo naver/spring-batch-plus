@@ -25,6 +25,8 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.step.SimpleStepBuild
 import com.navercorp.spring.batch.plus.kotlin.configuration.step.TaskletStepBuilderDsl
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.observation.ObservationRegistry
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.StepExecutionListener
@@ -59,10 +61,17 @@ class StepBuilderDsl internal constructor(
     }
 
     /**
-     * Set for [StepBuilder.transactionManager][org.springframework.batch.core.step.builder.StepBuilderHelper.transactionManager].
+     * Set for [StepBuilder.observationRegistry][org.springframework.batch.core.step.builder.StepBuilderHelper.observationRegistry].
      */
-    fun transactionManager(transactionManager: PlatformTransactionManager) {
-        this.stepBuilder.transactionManager(transactionManager)
+    fun observationRegistry(observationRegistry: ObservationRegistry) {
+        this.stepBuilder.observationRegistry(observationRegistry)
+    }
+
+    /**
+     * Set for [StepBuilder.meterRegistry][org.springframework.batch.core.step.builder.StepBuilderHelper.meterRegistry].
+     */
+    fun meterRegistry(meterRegistry: MeterRegistry) {
+        this.stepBuilder.meterRegistry(meterRegistry)
     }
 
     /**
@@ -99,6 +108,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step by bean name.
      */
+    @Deprecated(
+        message = "spring batch 5.0.0 deprecates this",
+        replaceWith = ReplaceWith("taskletBean(name, transactionManager)")
+    )
     fun taskletBean(name: String): Step {
         return taskletBean(name) {}
     }
@@ -106,6 +119,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step by bean name.
      */
+    @Deprecated(
+        message = "spring batch 5.0.0 deprecates this",
+        replaceWith = ReplaceWith("taskletBean(name, transactionManager, taskletStepInit)")
+    )
     fun taskletBean(name: String, taskletStepInit: TaskletStepBuilderDsl.() -> Unit): Step {
         val tasklet = this.dslContext.beanFactory.getBean<Tasklet>(name)
         return tasklet(tasklet, taskletStepInit)
@@ -114,6 +131,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step.
      */
+    @Deprecated(
+        message = "spring batch 5.0.0 deprecates this",
+        replaceWith = ReplaceWith("tasklet(tasklet, transactionManager)")
+    )
     fun tasklet(tasklet: Tasklet): Step {
         return tasklet(tasklet) {}
     }
@@ -121,6 +142,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step.
      */
+    @Deprecated(
+        message = "spring batch 5.0.0 deprecates this",
+        replaceWith = ReplaceWith("tasklet(tasklet, transactionManager, taskletStepInit)")
+    )
     fun tasklet(tasklet: Tasklet, taskletStepInit: TaskletStepBuilderDsl.() -> Unit): Step {
         val taskletStepBuilder = this.stepBuilder.tasklet(tasklet)
         return TaskletStepBuilderDsl(this.dslContext, taskletStepBuilder).apply(taskletStepInit)
@@ -130,6 +155,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a chunk size.
      */
+    @Deprecated(
+        message = "spring batch 5.0.0 deprecates this",
+        replaceWith = ReplaceWith("chunk(chunkSize, transactionManager, simpleStepInit)")
+    )
     fun <I : Any, O : Any> chunk(chunkSize: Int, simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit): Step {
         val simpleStepBuilder = this.stepBuilder.chunk<I, O>(chunkSize)
         return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder).apply(simpleStepInit)
@@ -139,6 +168,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a completion policy.
      */
+    @Deprecated(
+        message = "spring batch 5.0.0 deprecates this",
+        replaceWith = ReplaceWith("chunk(completionPolicy, transactionManager, simpleStepInit)")
+    )
     fun <I : Any, O : Any> chunk(
         completionPolicy: CompletionPolicy,
         simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit
@@ -151,11 +184,102 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a repeat operations.
      */
+    @Deprecated(
+        message = "spring batch 5.0.0 deprecates this",
+        replaceWith = ReplaceWith("chunk(repeatOperations, transactionManager, simpleStepInit)")
+    )
     fun <I : Any, O : Any> chunk(
         repeatOperations: RepeatOperations,
         simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit
     ): Step {
         val simpleStepBuilder = SimpleStepBuilder<I, O>(this.stepBuilder).chunkOperations(repeatOperations)
+        return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder).apply(simpleStepInit)
+            .build()
+    }
+
+    /**
+     * Set tasklet step by bean name.
+     */
+    fun taskletBean(
+        name: String,
+        transactionManager: PlatformTransactionManager,
+    ): Step {
+        return taskletBean(name, transactionManager) {}
+    }
+
+    /**
+     * Set tasklet step by bean name.
+     */
+    fun taskletBean(
+        name: String,
+        transactionManager: PlatformTransactionManager,
+        taskletStepInit: TaskletStepBuilderDsl.() -> Unit
+    ): Step {
+        val tasklet = this.dslContext.beanFactory.getBean<Tasklet>(name)
+        return tasklet(tasklet, transactionManager, taskletStepInit)
+    }
+
+    /**
+     * Set tasklet step.
+     */
+    fun tasklet(
+        tasklet: Tasklet,
+        transactionManager: PlatformTransactionManager,
+    ): Step {
+        return tasklet(tasklet, transactionManager) {}
+    }
+
+    /**
+     * Set tasklet step.
+     */
+    fun tasklet(
+        tasklet: Tasklet,
+        transactionManager: PlatformTransactionManager,
+        taskletStepInit: TaskletStepBuilderDsl.() -> Unit
+    ): Step {
+        val taskletStepBuilder = this.stepBuilder.tasklet(tasklet, transactionManager)
+        return TaskletStepBuilderDsl(this.dslContext, taskletStepBuilder).apply(taskletStepInit)
+            .build()
+    }
+
+    /**
+     * Set chunk-based step with a chunk size.
+     */
+    fun <I : Any, O : Any> chunk(
+        chunkSize: Int,
+        transactionManager: PlatformTransactionManager,
+        simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit
+    ): Step {
+        val simpleStepBuilder = this.stepBuilder.chunk<I, O>(chunkSize, transactionManager)
+        return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder).apply(simpleStepInit)
+            .build()
+    }
+
+    /**
+     * Set chunk-based step with a completion policy.
+     */
+    fun <I : Any, O : Any> chunk(
+        completionPolicy: CompletionPolicy,
+        transactionManager: PlatformTransactionManager,
+        simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit
+    ): Step {
+        val simpleStepBuilder = this.stepBuilder.chunk<I, O>(completionPolicy, transactionManager)
+        return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder).apply(simpleStepInit)
+            .build()
+    }
+
+    /**
+     * Set chunk-based step with a repeat operations.
+     */
+    fun <I : Any, O : Any> chunk(
+        repeatOperations: RepeatOperations,
+        transactionManager: PlatformTransactionManager,
+        simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit
+    ): Step {
+        val simpleStepBuilder = SimpleStepBuilder<I, O>(this.stepBuilder).apply {
+            transactionManager(transactionManager)
+            chunkOperations(repeatOperations)
+        }
         return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder).apply(simpleStepInit)
             .build()
     }
