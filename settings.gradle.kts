@@ -23,8 +23,8 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("libs") {
-            val springBootVersion = "2.7.1"
-            val springBatchVersion = "4.3.6"
+            val springBootVersion = "3.0.0"
+            val springBatchVersion = "5.0.0"
 
             library(
                 "spring-boot-autoconfigure",
@@ -40,7 +40,7 @@ dependencyResolutionManagement {
             )
             library(
                 "reactor-core",
-                "io.projectreactor:reactor-core:3.4.19"
+                "io.projectreactor:reactor-core:3.5.0"
             )
             library(
                 "findbugs-jsr305",
