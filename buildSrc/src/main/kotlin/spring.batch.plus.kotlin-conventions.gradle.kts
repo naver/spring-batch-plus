@@ -10,7 +10,7 @@ tasks.withType<KotlinCompile> {
         freeCompilerArgs = listOf(
             "-Xjsr305=strict", // enable jsr305 null-safety in kotlin
         )
-        jvmTarget = "1.8"
+        jvmTarget = "17"
         languageVersion = "1.5"
         apiVersion = "1.5"
     }

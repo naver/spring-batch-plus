@@ -17,12 +17,12 @@ repositories {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict") // enable jsr305 null-safety in kotlin
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-batch:2.7.1")
+    implementation("org.springframework.boot:spring-boot-starter-batch:3.0.0")
     implementation(project(":spring-boot-starter-batch-plus-kotlin"))
     runtimeOnly("com.h2database:h2:2.1.214")
 }
