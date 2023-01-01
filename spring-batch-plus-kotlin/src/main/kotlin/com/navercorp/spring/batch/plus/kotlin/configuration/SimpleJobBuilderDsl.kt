@@ -23,6 +23,7 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.SimpleJobBuilder
+import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.getBean
 
 /**
@@ -40,7 +41,7 @@ internal class SimpleJobBuilderDsl internal constructor(
     }
 
     fun step(name: String, stepInit: StepBuilderDsl.() -> Step) {
-        val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
+        val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         step(step)
     }

@@ -21,6 +21,8 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.observation.ObservationRegistry
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobExecutionListener
 import org.springframework.batch.core.JobParametersIncrementer
@@ -68,6 +70,24 @@ class JobBuilderDsl internal constructor(
     fun incrementer(jobParametersIncrementer: JobParametersIncrementer) {
         lazyConfigurer.add {
             it.incrementer(jobParametersIncrementer)
+        }
+    }
+
+    /**
+     * Set for [JobBuilder.observationRegistry][org.springframework.batch.core.job.builder.JobBuilderHelper.observationRegistry].
+     */
+    fun observationRegistry(observationRegistry: ObservationRegistry) {
+        lazyConfigurer.add {
+            it.observationRegistry(observationRegistry)
+        }
+    }
+
+    /**
+     * Set for [JobBuilder.meterRegistry][org.springframework.batch.core.job.builder.JobBuilderHelper.meterRegistry].
+     */
+    fun meterRegistry(meterRegistry: MeterRegistry) {
+        lazyConfigurer.add {
+            it.meterRegistry(meterRegistry)
         }
     }
 

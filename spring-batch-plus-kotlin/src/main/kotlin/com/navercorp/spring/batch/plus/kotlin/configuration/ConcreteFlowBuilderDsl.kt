@@ -25,6 +25,7 @@ import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.job.flow.support.SimpleFlow
+import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.getBean
 import org.springframework.core.task.TaskExecutor
 
@@ -50,7 +51,7 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
      * Add step.
      */
     override fun step(name: String, stepInit: StepBuilderDsl.() -> Step) {
-        val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
+        val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         step(step)
     }
@@ -85,7 +86,7 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
         stepInit: StepBuilderDsl.() -> Step,
         stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
     ) {
-        val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
+        val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         step(step, stepTransitionInit)
     }
