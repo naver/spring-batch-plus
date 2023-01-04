@@ -11,7 +11,9 @@ on:
         required: true
 
 jobs:
-  build:
+  deploy:
+    runs-on: ubuntu-latest
+
     steps:
       - name: Setup Commit ID
         run: |
@@ -31,7 +33,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '8'
 
       - name: Run check
         run: ./gradlew clean build
@@ -39,8 +41,8 @@ jobs:
       - name: Publish
         run: ./gradlew publish --no-parallel
         env:
-          MAVEN_USER: ${{ secrets.MAVEN_USER } }
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD } }
-          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_signingKeyId } }
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey } }
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword } }
+          MAVEN_USER: ${{ secrets.MAVEN_USER }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_signingKeyId }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
