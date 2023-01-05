@@ -18,8 +18,11 @@
 
 package com.navercorp.spring.batch.plus.job.metadata;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
@@ -42,10 +45,12 @@ class DeleteMetadataTasklet extends StepExecutionListenerSupport implements Task
 
 	private final JobMetadataDao dao;
 
+	private final String dryRunParameterName;
 	private long maxJobInstanceId;
 
-	DeleteMetadataTasklet(JobMetadataDao dao) {
+	DeleteMetadataTasklet(JobMetadataDao dao, String dryRunParameterName) {
 		this.dao = dao;
+		this.dryRunParameterName = dryRunParameterName;
 	}
 
 	@Override
@@ -70,8 +75,12 @@ class DeleteMetadataTasklet extends StepExecutionListenerSupport implements Task
 		long highJobInstanceId = Math.min(lowJobInstanceId + DELETION_RANGE_LENGTH - 1, maxJobInstanceId);
 		logger.info("Deleting job instances by ID from [{}] to [{}]", lowJobInstanceId, highJobInstanceId);
 
-		int deletedJobInstances = deleteJobMetadata(lowJobInstanceId, highJobInstanceId);
-		contribution.incrementWriteCount(deletedJobInstances);
+		boolean dryRun = getDryRunParameter(stepExecution);
+		int deletedJobInstances = 0;
+		if (!dryRun) {
+			deletedJobInstances = deleteJobMetadata(lowJobInstanceId, highJobInstanceId);
+			contribution.incrementWriteCount(deletedJobInstances);
+		}
 
 		long nextLowJobInstanceId = highJobInstanceId + 1;
 		if (nextLowJobInstanceId > this.maxJobInstanceId) {
@@ -90,6 +99,13 @@ class DeleteMetadataTasklet extends StepExecutionListenerSupport implements Task
 	private long getLowJobInstanceId(StepExecution stepExecution) {
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		return stepExecutionContext.getLong(LOW_ID_KEY);
+	}
+
+	private boolean getDryRunParameter(StepExecution stepExecution) {
+		JobParameters jobParameters = stepExecution.getJobParameters();
+		return Optional.ofNullable(jobParameters.getString(this.dryRunParameterName))
+			.map(Boolean::parseBoolean)
+			.orElse(false);
 	}
 
 	private int deleteJobMetadata(long lowJobInstanceId, long highJobInstanceId) {

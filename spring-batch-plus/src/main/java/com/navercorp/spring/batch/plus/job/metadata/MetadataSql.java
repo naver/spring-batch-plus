@@ -21,7 +21,7 @@ package com.navercorp.spring.batch.plus.job.metadata;
 /**
  * The class to provide SQL statements for {@link JobMetadataDao}
  */
-class MetadataSql {
+final class MetadataSql {
 
 	static final String SELECT_MAX_JOB_INSTANCE_ID =
 		"SELECT MAX(JOB_INSTANCE_ID) FROM %PREFIX%JOB_EXECUTION\n"
@@ -63,4 +63,7 @@ class MetadataSql {
 		+ "\t\tJOIN %PREFIX%JOB_EXECUTION jobExec ON jobExec.JOB_EXECUTION_ID = stepExec.JOB_EXECUTION_ID\n"
 		+ "\tWHERE jobExec.JOB_INSTANCE_ID BETWEEN ? AND ?"
 		+ ")";
+
+	private MetadataSql() {
+	}
 }

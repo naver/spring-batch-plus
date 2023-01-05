@@ -57,6 +57,8 @@ public class DeleteMetadataJobBuilder {
 
 	private DateTimeFormatter baseDateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
+	private String dryRunParameterName = "dryRun";
+
 	/**
 	 * @param jobRepository the target job repository to delete old metadata.
 	 * @param dataSource    the data source of the job repository
@@ -111,6 +113,17 @@ public class DeleteMetadataJobBuilder {
 	}
 
 	/**
+	 * @param dryRunParameterName the name of the job parameter to trigger dry-run.
+	 *                            The default value is "dryRun"
+	 * @return The current instance of the builder for method chaining
+	 */
+	public DeleteMetadataJobBuilder dryRunParameterName(@NonNull String dryRunParameterName) {
+		this.dryRunParameterName = Objects.requireNonNull(dryRunParameterName,
+			"DryRun parameter name must not be null");
+		return this;
+	}
+
+	/**
 	 * @return a job to delete old metadata.
 	 */
 	public Job build() {
@@ -150,7 +163,10 @@ public class DeleteMetadataJobBuilder {
 	}
 
 	private Step buildDeleteStep(JobMetadataDao dao) {
-		DeleteMetadataTasklet tasklet = new DeleteMetadataTasklet(dao);
+		DeleteMetadataTasklet tasklet = new DeleteMetadataTasklet(
+			dao,
+			this.dryRunParameterName
+		);
 		return stepBuilderFactory.get("deleteMetadata")
 			.tasklet(tasklet)
 			.listener(tasklet)

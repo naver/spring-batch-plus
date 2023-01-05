@@ -160,4 +160,37 @@ class DeleteMetadataJobTest {
 		assertThat(countDao.countStepExecutions()).isEqualTo(expectedStepMetadataCount);
 		assertThat(countDao.countStepExecutionContext()).isEqualTo(expectedStepMetadataCount);
 	}
+
+	@Test
+	void testRunShouldNotRemoveWhenDryRun() throws Exception {
+		// given
+		int countToCreate = randomBetween(10, 50);
+		for (int i = 0; i < countToCreate; ++i) {
+			JobExecution jobExecution = jobRepository.createJobExecution("testJobToRemove" + i, buildJobParams());
+			jobExecution.setCreateTime(dateTo(2022, 3, 14));
+			jobRepository.update(jobExecution);
+			jobRepository.add(new StepExecution("testStep", jobExecution));
+		}
+
+		// when
+		JobParameters jobParameters = new JobParametersBuilder()
+			.addString("baseDate", "2022/03/15")
+			.addString("dryRun", "true")
+			.toJobParameters();
+		JobExecution actualExecution = jobLauncher.run(job, jobParameters);
+
+		// then
+		assertThat(actualExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
+		assertThat(actualExecution.getStepExecutions()).hasSize(2);
+
+		int expectedJobMetadataCount = countToCreate + 1; // includes deleteMetadataJob itself
+		assertThat(countDao.countJobInstances()).isGreaterThanOrEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutions()).isGreaterThanOrEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutionContexts()).isGreaterThanOrEqualTo(expectedJobMetadataCount);
+		assertThat(countDao.countJobExecutionParams()).isGreaterThanOrEqualTo(expectedJobMetadataCount);
+
+		int expectedStepMetadataCount = countToCreate + 2; // deleteMetadataJob has 2 steps
+		assertThat(countDao.countStepExecutions()).isGreaterThanOrEqualTo(expectedStepMetadataCount);
+		assertThat(countDao.countStepExecutionContext()).isGreaterThanOrEqualTo(expectedStepMetadataCount);
+	}
 }
