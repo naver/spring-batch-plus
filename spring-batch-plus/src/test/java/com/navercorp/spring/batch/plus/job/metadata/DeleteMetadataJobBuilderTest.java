@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -44,11 +45,11 @@ class DeleteMetadataJobBuilderTest {
 		DataSource dataSource = config.dataSource(tablePrefix);
 		JobRepository jobRepository = config.jobRepository(dataSource, tablePrefix);
 
+		// when
 		JobParameters jobParams = new JobParametersBuilder()
 			.addString("baseDate", "2022/03/14")
 			.toJobParameters();
 
-		// when
 		Job job = new DeleteMetadataJobBuilder(jobRepository, dataSource).build();
 		JobExecution jobExecution = jobRepository.createJobExecution("deleteMetadataJob", jobParams);
 		job.execute(jobExecution);
@@ -59,23 +60,100 @@ class DeleteMetadataJobBuilderTest {
 	}
 
 	@Test
-	void testBuildAndExecuteJobWithCustomConfigs() throws Exception {
+	void testBuildAndExecuteJobWithCustomTablePrefix() throws Exception {
 		// given
 		String tablePrefix = "BAT_";
 		DataSource dataSource = config.dataSource(tablePrefix);
 		JobRepository jobRepository = config.jobRepository(dataSource, tablePrefix);
 
-		JobParameters jobParams = new JobParametersBuilder()
-			.addString("keepingBaseDate", "2022-03-14")
-			.toJobParameters();
-
 		// when
 		Job job = new DeleteMetadataJobBuilder(jobRepository, dataSource)
 			.name("testJob")
 			.tablePrefix(tablePrefix)
-			.baseDateParameterName("keepingBaseDate")
-			.baseDateFormatter(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 			.build();
+
+		JobParameters jobParams = new JobParametersBuilder()
+			.addString("baseDate", "2022/03/14")
+			.toJobParameters();
+
+		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
+		job.execute(jobExecution);
+
+		// then
+		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+		assertThat(job.getName()).isEqualTo("testJob");
+	}
+
+	@Test
+	void testBuildAndExecuteJobWithCustomBaseDateParameterName() throws Exception {
+		// given
+		String tablePrefix = "BATCH_";
+		DataSource dataSource = config.dataSource(tablePrefix);
+		JobRepository jobRepository = config.jobRepository(dataSource, tablePrefix);
+
+		// when
+		String baseDateParameterName = UUID.randomUUID().toString();
+		Job job = new DeleteMetadataJobBuilder(jobRepository, dataSource)
+			.name("testJob")
+			.baseDateParameterName(baseDateParameterName)
+			.build();
+
+		JobParameters jobParams = new JobParametersBuilder()
+			.addString(baseDateParameterName, "2022/03/14")
+			.toJobParameters();
+
+		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
+		job.execute(jobExecution);
+
+		// then
+		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+		assertThat(job.getName()).isEqualTo("testJob");
+	}
+
+	@Test
+	void testBuildAndExecuteJobWithCustomFormatter() throws Exception {
+		// given
+		String tablePrefix = "BATCH_";
+		DataSource dataSource = config.dataSource(tablePrefix);
+		JobRepository jobRepository = config.jobRepository(dataSource, tablePrefix);
+
+		// when
+		DateTimeFormatter baseDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		Job job = new DeleteMetadataJobBuilder(jobRepository, dataSource)
+			.name("testJob")
+			.baseDateFormatter(baseDateFormatter)
+			.build();
+
+		JobParameters jobParams = new JobParametersBuilder()
+			.addString("baseDate", "2022-03-14")
+			.toJobParameters();
+
+		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
+		job.execute(jobExecution);
+
+		// then
+		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+		assertThat(job.getName()).isEqualTo("testJob");
+	}
+
+	@Test
+	void testBuildAndExecuteJobWithCustomDryRun() throws Exception {
+		// given
+		String tablePrefix = "BATCH_";
+		DataSource dataSource = config.dataSource(tablePrefix);
+		JobRepository jobRepository = config.jobRepository(dataSource, tablePrefix);
+
+		// when
+		String dryRunParameterName = "myDryRun";
+		Job job = new DeleteMetadataJobBuilder(jobRepository, dataSource)
+			.name("testJob")
+			.dryRunParameterName(dryRunParameterName)
+			.build();
+
+		JobParameters jobParams = new JobParametersBuilder()
+			.addString("baseDate", "2022/03/14")
+			.addString(dryRunParameterName, "true")
+			.toJobParameters();
 
 		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
 		job.execute(jobExecution);
@@ -141,6 +219,11 @@ class DeleteMetadataJobBuilderTest {
 		assertThatThrownBy(() ->
 			new DeleteMetadataJobBuilder(jobRepository, dataSource)
 				.baseDateFormatter(null)
+				.build()
+		);
+		assertThatThrownBy(() ->
+			new DeleteMetadataJobBuilder(jobRepository, dataSource)
+				.dryRunParameterName(null)
 				.build()
 		);
 	}
