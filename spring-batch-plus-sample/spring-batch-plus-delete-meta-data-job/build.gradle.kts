@@ -15,13 +15,13 @@ repositories {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-batch:2.7.1")
-    implementation("org.springframework.boot:spring-boot-starter-web:2.7.1")
+    implementation("org.springframework.boot:spring-boot-starter-batch:3.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-web:3.0.0")
     implementation(project(":spring-boot-starter-batch-plus"))
     runtimeOnly("com.h2database:h2:2.1.214")
 }

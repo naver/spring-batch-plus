@@ -24,6 +24,7 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.JobExecutionDecider
+import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.getBean
 
 /**
@@ -50,7 +51,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      * Transition to step.
      */
     fun step(name: String, stepInit: StepBuilderDsl.() -> Step) {
-        val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
+        val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         step(step)
     }
@@ -79,7 +80,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
         stepInit: StepBuilderDsl.() -> Step,
         stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
     ) {
-        val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
+        val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         step(step, stepTransitionInit)
     }
@@ -287,7 +288,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
      * Transition to stop and restart with step if the flow is restarted.
      */
     fun stopAndRestartToStep(name: String, stepInit: StepBuilderDsl.() -> Step) {
-        val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
+        val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         stopAndRestartToStep(step)
     }
@@ -318,7 +319,7 @@ class TransitionBuilderDsl<T : Any> internal constructor(
         stepInit: StepBuilderDsl.() -> Step,
         stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
     ) {
-        val stepBuilder = this.dslContext.stepBuilderFactory.get(name)
+        val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         stopAndRestartToStep(step, stepTransitionInit)
     }
