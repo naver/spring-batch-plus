@@ -16,18 +16,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
-import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 /**
- * A simple adaptor for stream reader, writer. It can represent
- * {@link ItemStreamReader}, {@link ItemStreamWriter} in a single class.
+ * A delegate for {@link ItemProcessor}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemStreamReaderWriter} instead.
  * @since 0.1.0
  */
-@Deprecated
-public interface ItemStreamReaderWriter<T> extends ItemStreamReaderDelegate<T>, ItemStreamWriterDelegate<T> {
+public interface ItemProcessorDelegate<I, O> {
+
+	/**
+	 * A delegate method for {@link ItemProcessor#process(Object)}.
+	 *
+	 * @param item an item to process
+	 * @return processed item
+	 */
+	@Nullable
+	O process(@NonNull I item);
 }

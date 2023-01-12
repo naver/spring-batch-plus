@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,10 +28,8 @@ import org.springframework.lang.NonNull;
 /**
  * An adaptor which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemStreamWriterAdaptor} instead.
  * @since 0.1.0
  */
-@Deprecated
 public class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
 
 	/**

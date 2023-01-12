@@ -16,27 +16,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
-/**
- * A delegate for {@link ItemProcessor}.
- *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemProcessorDelegate} instead.
- * @since 0.1.0
- */
-@Deprecated
-public interface ItemProcessorDelegate<I, O> {
+class ItemProcessorAdaptorTest {
 
-	/**
-	 * A delegate method for {@link ItemProcessor#process(Object)}.
-	 *
-	 * @param item an item to process
-	 * @return processed item
-	 */
-	@Nullable
-	O process(@NonNull I item);
+	@Test
+	void testProcess() throws Exception {
+		// when
+		ItemProcessor<Integer, String> itemProcessorAdaptor = ItemProcessorAdaptor.of(
+			Object::toString);
+		String actual = itemProcessorAdaptor.process(1234);
+
+		// then
+		assertThat(actual).isEqualTo("1234");
+	}
+
+	@Test
+	void testPassingNull() {
+		// when, then
+		assertThatThrownBy(() -> ItemProcessorAdaptor.of(null));
+	}
 }

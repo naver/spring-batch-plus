@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -34,10 +34,8 @@ import org.springframework.batch.item.ItemStreamReader;
 /**
  * A {@link StepScope} bound proxy implementation.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.StepScopeItemStreamReader} instead.
  * @since 0.1.0
  */
-@Deprecated
 public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 
 	/**
