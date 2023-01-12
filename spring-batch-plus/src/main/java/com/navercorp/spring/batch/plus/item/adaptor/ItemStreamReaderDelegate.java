@@ -16,46 +16,49 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
-
-import java.util.List;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.lang.NonNull;
 
+import reactor.core.publisher.Flux;
+
 /**
- * A delegate for {@link ItemStreamWriter}.
+ * A delegate for {@link ItemStreamReader}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemStreamWriterDelegate} instead.
  * @since 0.1.0
  */
-@Deprecated
-public interface ItemStreamWriterDelegate<T> {
+public interface ItemStreamReaderDelegate<T> {
 
 	/**
-	 * A delegate method for {@link ItemStreamWriter#open(ExecutionContext)}.
+	 * A delegate method for {@link ItemStreamReader#open(ExecutionContext)}.
+	 *
 	 * @param executionContext an execution context
 	 */
-	default void onOpenWrite(@NonNull ExecutionContext executionContext) {
+	default void onOpenRead(@NonNull ExecutionContext executionContext) {
 	}
 
 	/**
-	 * A delegate method for {@link ItemStreamWriter#write(List)}.
-	 * @param items items to write
+	 * Read items by reactor flux. Invoked in {@link ItemStreamReader#open(ExecutionContext)}.
+	 *
+	 * @param executionContext an execution context
+	 * @return a flux to read item.
 	 */
-	void write(@NonNull List<? extends T> items);
+	@NonNull
+	Flux<T> readFlux(@NonNull ExecutionContext executionContext);
 
 	/**
-	 * A delegate method for {@link ItemStreamWriter#update(ExecutionContext)}.
+	 * A delegate method for {@link ItemStreamReader#update(ExecutionContext)}.
+	 *
 	 * @param executionContext an execution context
 	 */
-	default void onUpdateWrite(@NonNull ExecutionContext executionContext) {
+	default void onUpdateRead(@NonNull ExecutionContext executionContext) {
 	}
 
 	/**
-	 * A delegate method for {@link ItemStreamWriter#close()}.
+	 * A delegate method for {@link ItemStreamReader#close()}.
 	 */
-	default void onCloseWrite() {
+	default void onCloseRead() {
 	}
 }

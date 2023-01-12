@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
 
 /**
- * A simple adaptor for stream reader, writer. It can represent
- * {@link ItemStreamReader}, {@link ItemStreamWriter} in a single class.
+ * A simple adaptor for stream reader, processor, writer. It can represent
+ * {@link ItemStreamReader}, {@link ItemProcessor}, {@link ItemStreamWriter} in a single class.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemStreamReaderWriter} instead.
  * @since 0.1.0
  */
-@Deprecated
-public interface ItemStreamReaderWriter<T> extends ItemStreamReaderDelegate<T>, ItemStreamWriterDelegate<T> {
+public interface ItemStreamReaderProcessorWriter<I, O>
+	extends ItemStreamReaderDelegate<I>, ItemProcessorDelegate<I, O>, ItemStreamWriterDelegate<O> {
 }

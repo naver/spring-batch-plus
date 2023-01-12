@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -30,10 +30,8 @@ import reactor.core.publisher.Flux;
 /**
  * An adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemStreamReaderAdaptor} instead.
  * @since 0.1.0
  */
-@Deprecated
 public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
 
 	/**

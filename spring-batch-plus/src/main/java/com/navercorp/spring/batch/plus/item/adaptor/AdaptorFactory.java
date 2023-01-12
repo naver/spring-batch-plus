@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
 import java.util.Objects;
 
@@ -30,10 +30,8 @@ import org.springframework.lang.NonNull;
  * An adaptor factory for {@link ItemStreamReaderDelegate}, {@link ItemProcessorDelegate},
  * {@link ItemStreamWriterDelegate}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.AdaptorFactory} instead.
  * @since 0.1.0
  */
-@Deprecated
 public final class AdaptorFactory {
 
 	/**

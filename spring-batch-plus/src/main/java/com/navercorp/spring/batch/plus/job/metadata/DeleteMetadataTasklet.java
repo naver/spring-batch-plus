@@ -73,9 +73,10 @@ class DeleteMetadataTasklet extends StepExecutionListenerSupport implements Task
 
 		long lowJobInstanceId = getLowJobInstanceId(stepExecution);
 		long highJobInstanceId = Math.min(lowJobInstanceId + DELETION_RANGE_LENGTH - 1, maxJobInstanceId);
-		logger.info("Deleting job instances by ID from [{}] to [{}]", lowJobInstanceId, highJobInstanceId);
-
 		boolean dryRun = getDryRunParameter(stepExecution);
+
+		logger.info("Deleting job instances by ID from [{}] to [{}] (dryRun: {})",
+			lowJobInstanceId, highJobInstanceId, dryRun);
 		int deletedJobInstances = 0;
 		if (!dryRun) {
 			deletedJobInstances = deleteJobMetadata(lowJobInstanceId, highJobInstanceId);

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item;
+package com.navercorp.spring.batch.plus.item.adaptor;
 
 import java.util.Objects;
 
@@ -26,10 +26,8 @@ import org.springframework.lang.NonNull;
 /**
  * An adaptor which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemProcessorAdaptor} instead.
  * @since 0.1.0
  */
-@Deprecated
 public class ItemProcessorAdaptor<I, O> implements ItemProcessor<I, O> {
 
 	/**
