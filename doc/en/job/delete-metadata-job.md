@@ -15,6 +15,12 @@
 - [Specify a date format](#specify-a-date-format)
   - [Java](#java-4)
   - [Kotlin](#kotlin-4)
+- [Execute as a dryRun mode](#execute-as-a-dryrun-mode)
+  - [Java](#java-5)
+  - [Kotlin](#kotlin-5)
+- [Specify dryRun parameter name](#specify-dryrun-parameter-name)
+  - [Java](#java-6)
+  - [Kotlin](#kotlin-6)
 
 Execution of all `Jobs` in Spring Batch is stored in metadata. The longer you keep your job DB, the larger the data becomes, which may require you to delete old data. A `deleteMetadataJob` deletes the metadata of all the `Jobs` and `Steps` that have run before the specified date.
 
@@ -380,6 +386,137 @@ val now = LocalDate.now()
 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 val jobParameter = JobParametersBuilder()
     .addString("baseDate", now.format(formatter))
+    .toJobParameters()
+jobLauncher.run(removeJob, jobParameter)
+```
+
+## Execute as a dryRun mode
+
+You can launch job as dryRun mode by setting `dryRun` parameter to `true`.
+
+### Java
+
+```java
+// config
+@Configuration
+public class TestJobConfig {
+
+    @Bean
+    public Job removeJob(
+        @BatchDataSource DataSource dataSource,
+        JobRepository jobRepository
+    ) {
+        return new DeleteMetadataJobBuilder(jobRepository, dataSource)
+            .name("removeJob")
+            .build();
+    }
+}
+
+// run
+JobLauncher jobLauncher = ...
+Job removeJob = applicationContext.getBean("removeJob", Job.class);
+LocalDate now = LocalDate.now();
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+JobParameters jobParameter = new JobParametersBuilder()
+    .addString("baseDate", now.format(formatter))
+    .addString("dryRun", "true") // set dryRun to 'true'
+    .toJobParameters();
+jobLauncher.run(removeJob, jobParameter);
+```
+
+### Kotlin
+
+```kotlin
+// config
+@Configuration
+open class TestJobConfig {
+
+    @Bean
+    open fun removeJob(
+        @BatchDataSource dataSource: DataSource,
+        jobRepository: JobRepository
+    ): Job {
+        return DeleteMetadataJobBuilder(jobRepository, dataSource)
+            .name("removeJob")
+            .dryRunParameterName("customDryRun")
+            .build()
+    }
+}
+
+// run
+val jobLauncher = ...
+val removeJob = applicationContext.getBean<Job>("removeJob")
+val now = LocalDate.now()
+val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+val jobParameter = JobParametersBuilder()
+    .addString("baseDate", now.format(formatter))
+    .addString("dryRun", "true") // set dryRun to 'true'
+    .toJobParameters()
+jobLauncher.run(removeJob, jobParameter)
+```
+
+## Specify dryRun parameter name
+
+You can call the `dryRunParameterName` of `DeleteMetadataJobBuilder` to specify a `dryRun` parameter name.
+
+### Java
+
+```java
+// config
+@Configuration
+public class TestJobConfig {
+
+    @Bean
+    public Job removeJob(
+        @BatchDataSource DataSource dataSource,
+        JobRepository jobRepository
+    ) {
+        return new DeleteMetadataJobBuilder(jobRepository, dataSource)
+            .name("removeJob")
+            .dryRunParameterName("customDryRunParam")
+            .build();
+    }
+}
+
+// run
+JobLauncher jobLauncher = ...
+Job removeJob = applicationContext.getBean("removeJob", Job.class);
+LocalDate now = LocalDate.now();
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+JobParameters jobParameter = new JobParametersBuilder()
+    .addString("baseDate", now.format(formatter))
+    .addString("customDryRunParam", "true") // set dryRun to 'true'
+    .toJobParameters();
+jobLauncher.run(removeJob, jobParameter);
+```
+
+### Kotlin
+
+```kotlin
+// config
+@Configuration
+open class TestJobConfig {
+
+    @Bean
+    open fun removeJob(
+        @BatchDataSource dataSource: DataSource,
+        jobRepository: JobRepository
+    ): Job {
+        return DeleteMetadataJobBuilder(jobRepository, dataSource)
+            .name("removeJob")
+            .dryRunParameterName("customDryRunParam")
+            .build()
+    }
+}
+
+// run
+val jobLauncher = ...
+val removeJob = applicationContext.getBean<Job>("removeJob")
+val now = LocalDate.now()
+val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+val jobParameter = JobParametersBuilder()
+    .addString("baseDate", now.format(formatter))
+    .addString("customDryRunParam", "true") // set dryRun to 'true'
     .toJobParameters()
 jobLauncher.run(removeJob, jobParameter)
 ```
