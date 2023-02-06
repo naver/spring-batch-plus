@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -32,7 +32,7 @@ import reactor.core.publisher.Flux;
  *
  * @since 0.1.0
  */
-public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
+public class ItemStreamReaderAdapter<T> implements ItemStreamReader<T> {
 
 	/**
 	 * Create an adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
@@ -42,7 +42,7 @@ public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
 	 * @param <T> a read item type
 	 */
 	public static <T> ItemStreamReader<T> of(@NonNull ItemStreamReaderDelegate<T> delegate) {
-		return new ItemStreamReaderAdaptor<>(delegate);
+		return new ItemStreamReaderAdapter<>(delegate);
 	}
 
 	protected static final int DEFAULT_BATCH_SIZE = 1;
@@ -53,7 +53,7 @@ public class ItemStreamReaderAdaptor<T> implements ItemStreamReader<T> {
 
 	protected Iterator<T> iterator = null;
 
-	protected ItemStreamReaderAdaptor(ItemStreamReaderDelegate<T> delegate) {
+	protected ItemStreamReaderAdapter(ItemStreamReaderDelegate<T> delegate) {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate reader must not be null");
 	}
 

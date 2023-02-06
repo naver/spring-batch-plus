@@ -27,7 +27,7 @@ import reactor.core.publisher.Flux;
 /**
  * A delegate for {@link ItemStreamReader}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemStreamReaderDelegate} instead.
+ * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderDelegate} instead.
  * @since 0.1.0
  */
 @Deprecated

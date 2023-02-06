@@ -26,7 +26,7 @@ import org.springframework.lang.NonNull;
 /**
  * An adaptor which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemProcessorAdaptor} instead.
+ * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adapter.ItemProcessorAdapter} instead.
  * @since 0.1.0
  */
 @Deprecated

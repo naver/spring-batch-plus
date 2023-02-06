@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +30,7 @@ import org.springframework.lang.NonNull;
  *
  * @since 0.1.0
  */
-public class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
+public class ItemStreamWriterAdapter<T> implements ItemStreamWriter<T> {
 
 	/**
 	 * Create an adaptor which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
@@ -40,12 +40,12 @@ public class ItemStreamWriterAdaptor<T> implements ItemStreamWriter<T> {
 	 * @param <T> an item type to write
 	 */
 	public static <T> ItemStreamWriter<T> of(@NonNull ItemStreamWriterDelegate<T> delegate) {
-		return new ItemStreamWriterAdaptor<>(delegate);
+		return new ItemStreamWriterAdapter<>(delegate);
 	}
 
 	protected final ItemStreamWriterDelegate<T> delegate;
 
-	protected ItemStreamWriterAdaptor(ItemStreamWriterDelegate<T> delegate) {
+	protected ItemStreamWriterAdapter(ItemStreamWriterDelegate<T> delegate) {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate writer must not be null");
 	}
 

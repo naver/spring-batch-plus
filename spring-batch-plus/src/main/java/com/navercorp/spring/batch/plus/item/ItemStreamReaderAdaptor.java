@@ -30,7 +30,7 @@ import reactor.core.publisher.Flux;
 /**
  * An adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemStreamReaderAdaptor} instead.
+ * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderAdapter} instead.
  * @since 0.1.0
  */
 @Deprecated

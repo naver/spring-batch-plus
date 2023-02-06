@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

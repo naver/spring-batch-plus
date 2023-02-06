@@ -16,7 +16,25 @@
  * limitations under the License.
  */
 
+package com.navercorp.spring.batch.plus.item.adapter;
+
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 /**
- * An extensions for spring batch item adaptor concerns.
+ * A delegate for {@link ItemProcessor}.
+ *
+ * @since 0.1.0
  */
-package com.navercorp.spring.batch.plus.item.adaptor;
+public interface ItemProcessorDelegate<I, O> {
+
+	/**
+	 * A delegate method for {@link ItemProcessor#process(Object)}.
+	 *
+	 * @param item an item to process
+	 * @return processed item
+	 */
+	@Nullable
+	O process(@NonNull I item);
+}
