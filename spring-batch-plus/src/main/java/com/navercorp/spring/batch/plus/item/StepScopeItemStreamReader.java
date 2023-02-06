@@ -34,7 +34,7 @@ import org.springframework.batch.item.ItemStreamReader;
 /**
  * A {@link StepScope} bound proxy implementation.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.StepScopeItemStreamReader} instead.
+ * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adapter.StepScopeItemStreamReader} instead.
  * @since 0.1.0
  */
 @Deprecated

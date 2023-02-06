@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,14 +32,14 @@ import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
-class ItemStreamReaderAdaptorTest {
+class ItemStreamReaderAdapterTest {
 
 	@Test
 	void testOpen() {
 		// given
 		AtomicInteger onOpenReadCallCount = new AtomicInteger();
 		AtomicInteger readFluxCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
@@ -76,7 +76,7 @@ class ItemStreamReaderAdaptorTest {
 	@Test
 	void testRead() throws Exception {
 		// given
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
 			new ItemStreamReaderDelegate<Integer>() {
 				private int count = 0;
 
@@ -124,7 +124,7 @@ class ItemStreamReaderAdaptorTest {
 	@Test
 	void testReadWithOpenShouldThrowsException() {
 		// given
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
 			new ItemStreamReaderDelegate<Integer>() {
 				private int count = 0;
 
@@ -167,7 +167,7 @@ class ItemStreamReaderAdaptorTest {
 	void testUpdate() {
 		// given
 		AtomicInteger onUpdateCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
@@ -203,7 +203,7 @@ class ItemStreamReaderAdaptorTest {
 	void testClose() {
 		// given
 		AtomicInteger onCloseReadCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdaptor.of(
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
 			new ItemStreamReaderDelegate<Integer>() {
 
 				@Override
@@ -238,6 +238,6 @@ class ItemStreamReaderAdaptorTest {
 	@Test
 	void testPassingNull() {
 		// when, then
-		assertThatThrownBy(() -> ItemStreamReaderAdaptor.of(null));
+		assertThatThrownBy(() -> ItemStreamReaderAdapter.of(null));
 	}
 }

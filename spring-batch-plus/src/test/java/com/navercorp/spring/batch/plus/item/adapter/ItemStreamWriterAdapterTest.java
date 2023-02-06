@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,13 +30,13 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
 
-class ItemStreamWriterAdaptorTest {
+class ItemStreamWriterAdapterTest {
 
 	@Test
 	void testOpen() {
 		// given
 		AtomicInteger onOpenWriteCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.of(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
@@ -70,7 +70,7 @@ class ItemStreamWriterAdaptorTest {
 	void testWrite() throws Exception {
 		// given
 		AtomicInteger writeCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.of(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
@@ -104,7 +104,7 @@ class ItemStreamWriterAdaptorTest {
 	void testUpdate() {
 		// given
 		AtomicInteger onUpdateWriteCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.of(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
@@ -138,7 +138,7 @@ class ItemStreamWriterAdaptorTest {
 	void testClose() {
 		// given
 		AtomicInteger onCloseCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdaptor.of(
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
 			new ItemStreamWriterDelegate<Integer>() {
 				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
@@ -171,6 +171,6 @@ class ItemStreamWriterAdaptorTest {
 	@Test
 	void testPassingNull() {
 		// when, then
-		assertThatThrownBy(() -> ItemStreamWriterAdaptor.of(null));
+		assertThatThrownBy(() -> ItemStreamWriterAdapter.of(null));
 	}
 }

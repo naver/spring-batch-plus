@@ -16,11 +16,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
 
-import static com.navercorp.spring.batch.plus.item.adaptor.AdaptorFactory.itemProcessor;
-import static com.navercorp.spring.batch.plus.item.adaptor.AdaptorFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.item.adaptor.AdaptorFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemStreamWriter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -45,14 +44,12 @@ import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
-class ItemStreamReaderProcessorWriterIntegrationTest {
+class ItemStreamReaderWriterIntegrationTest {
 
 	private static int onOpenReadCallCount = 0;
 	private static int readFluxCallCount = 0;
 	private static int onUpdateReadCallCount = 0;
 	private static int onCloseReadCallCount = 0;
-
-	private static int processCallCount = 0;
 
 	private static int onOpenWriteCallCount = 0;
 	private static int writeCallCount = 0;
@@ -66,8 +63,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		onUpdateReadCallCount = 0;
 		onCloseReadCallCount = 0;
 
-		processCallCount = 0;
-
 		onOpenWriteCallCount = 0;
 		writeCallCount = 0;
 		onUpdateWriteCallCount = 0;
@@ -76,20 +71,19 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void testReaderProcessorWriter() throws Exception {
+	void testReaderWriter() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
 		JobBuilderFactory jobBuilderFactory = context.getBean(JobBuilderFactory.class);
 		StepBuilderFactory stepBuilderFactory = context.getBean(StepBuilderFactory.class);
-		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet = context.getBean(
+		ItemStreamReaderWriter<Integer> testTasklet = context.getBean(
 			"testTasklet",
-			ItemStreamReaderProcessorWriter.class);
+			ItemStreamReaderWriter.class);
 		Job job = jobBuilderFactory.get("testJob")
 			.start(
 				stepBuilderFactory.get("testStep")
 					.<Integer, Integer>chunk(3)
 					.reader(itemStreamReader(testTasklet))
-					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
 					.build()
 			)
@@ -106,7 +100,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		assertThat(readFluxCallCount).isEqualTo(1);
 		assertThat(onUpdateReadCallCount).isEqualTo(8);
 		assertThat(onCloseReadCallCount).isEqualTo(1);
-		assertThat(processCallCount).isEqualTo(20);
 		assertThat(onOpenWriteCallCount).isEqualTo(1);
 		assertThat(writeCallCount).isEqualTo(7); // ceil(20/3)
 		assertThat(onUpdateWriteCallCount).isEqualTo(8);
@@ -122,7 +115,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		assertThat(readFluxCallCount).isEqualTo(1 + 1);
 		assertThat(onUpdateReadCallCount).isEqualTo(8 + 2);
 		assertThat(onCloseReadCallCount).isEqualTo(1 + 1);
-		assertThat(processCallCount).isEqualTo(20); // same as previous since it's not step scoped
 		assertThat(onOpenWriteCallCount).isEqualTo(1 + 1);
 		assertThat(writeCallCount).isEqualTo(7); // same as previous since it's not step scoped
 		assertThat(onUpdateWriteCallCount).isEqualTo(8 + 2);
@@ -131,20 +123,19 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void testStepScopeReaderProcessorWriter() throws Exception {
+	void testStepScopeReaderWriter() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
 		JobBuilderFactory jobBuilderFactory = context.getBean(JobBuilderFactory.class);
 		StepBuilderFactory stepBuilderFactory = context.getBean(StepBuilderFactory.class);
-		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet = context.getBean(
+		ItemStreamReaderWriter<Integer> testTasklet = context.getBean(
 			"stepScopeTestTasklet",
-			ItemStreamReaderProcessorWriter.class);
+			ItemStreamReaderWriter.class);
 		Job job = jobBuilderFactory.get("testJob")
 			.start(
 				stepBuilderFactory.get("testStep")
 					.<Integer, Integer>chunk(3)
 					.reader(itemStreamReader(testTasklet))
-					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
 					.build()
 			)
@@ -161,7 +152,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		assertThat(readFluxCallCount).isEqualTo(1);
 		assertThat(onUpdateReadCallCount).isEqualTo(8);
 		assertThat(onCloseReadCallCount).isEqualTo(1);
-		assertThat(processCallCount).isEqualTo(20);
 		assertThat(onOpenWriteCallCount).isEqualTo(1);
 		assertThat(writeCallCount).isEqualTo(7); // ceil(20/3)
 		assertThat(onUpdateWriteCallCount).isEqualTo(8);
@@ -177,7 +167,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		assertThat(readFluxCallCount).isEqualTo(1 + 1);
 		assertThat(onUpdateReadCallCount).isEqualTo(8 + 8);
 		assertThat(onCloseReadCallCount).isEqualTo(1 + 1);
-		assertThat(processCallCount).isEqualTo(20 + 20);
 		assertThat(onOpenWriteCallCount).isEqualTo(1 + 1);
 		assertThat(writeCallCount).isEqualTo(7 + 7); // ceil(20/3) * 2
 		assertThat(onUpdateWriteCallCount).isEqualTo(8 + 8);
@@ -186,20 +175,19 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void testReaderProcessorWriterWithRequiredMethodsOnly() throws Exception {
+	void testReaderWriterWithRequiredMethodsOnly() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
 		JobBuilderFactory jobBuilderFactory = context.getBean(JobBuilderFactory.class);
 		StepBuilderFactory stepBuilderFactory = context.getBean(StepBuilderFactory.class);
-		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet = context.getBean(
+		ItemStreamReaderWriter<Integer> testTasklet = context.getBean(
 			"testTaskletWithOnlyRequiredMethodsOnly",
-			ItemStreamReaderProcessorWriter.class);
+			ItemStreamReaderWriter.class);
 		Job job = jobBuilderFactory.get("testJob")
 			.start(
 				stepBuilderFactory.get("testStep")
 					.<Integer, Integer>chunk(3)
 					.reader(itemStreamReader(testTasklet))
-					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
 					.build()
 			)
@@ -216,7 +204,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		assertThat(readFluxCallCount).isEqualTo(1);
 		assertThat(onUpdateReadCallCount).isEqualTo(0);
 		assertThat(onCloseReadCallCount).isEqualTo(0);
-		assertThat(processCallCount).isEqualTo(20);
 		assertThat(onOpenWriteCallCount).isEqualTo(0);
 		assertThat(writeCallCount).isEqualTo(7); // ceil(20/3)
 		assertThat(onUpdateWriteCallCount).isEqualTo(0);
@@ -228,8 +215,8 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 	static class TestConfiguration {
 
 		@Bean
-		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet() {
-			return new ItemStreamReaderProcessorWriter<Integer, Integer>() {
+		ItemStreamReaderWriter<Integer> testTasklet() {
+			return new ItemStreamReaderWriter<Integer>() {
 
 				private int count = 0;
 
@@ -260,12 +247,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				@Override
 				public void onCloseRead() {
 					++onCloseReadCallCount;
-				}
-
-				@Override
-				public Integer process(@NonNull Integer item) {
-					++processCallCount;
-					return item;
 				}
 
 				@Override
@@ -292,8 +273,8 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 
 		@Bean
 		@StepScope
-		ItemStreamReaderProcessorWriter<Integer, Integer> stepScopeTestTasklet() {
-			return new ItemStreamReaderProcessorWriter<Integer, Integer>() {
+		ItemStreamReaderWriter<Integer> stepScopeTestTasklet() {
+			return new ItemStreamReaderWriter<Integer>() {
 
 				private int count = 0;
 
@@ -327,12 +308,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				}
 
 				@Override
-				public Integer process(@NonNull Integer item) {
-					++processCallCount;
-					return item;
-				}
-
-				@Override
 				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
 					++onOpenWriteCallCount;
 				}
@@ -355,8 +330,8 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		}
 
 		@Bean
-		ItemStreamReaderProcessorWriter<Integer, Integer> testTaskletWithOnlyRequiredMethodsOnly() {
-			return new ItemStreamReaderProcessorWriter<Integer, Integer>() {
+		ItemStreamReaderWriter<Integer> testTaskletWithOnlyRequiredMethodsOnly() {
+			return new ItemStreamReaderWriter<Integer>() {
 
 				private int count = 0;
 
@@ -372,12 +347,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 							sink.complete();
 						}
 					});
-				}
-
-				@Override
-				public Integer process(@NonNull Integer item) {
-					++processCallCount;
-					return item;
 				}
 
 				@Override

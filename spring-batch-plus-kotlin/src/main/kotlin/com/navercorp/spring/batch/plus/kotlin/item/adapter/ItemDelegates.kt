@@ -16,30 +16,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.item.adaptor
+package com.navercorp.spring.batch.plus.kotlin.item.adapter
 
-import com.navercorp.spring.batch.plus.item.adaptor.AdaptorFactory
-import com.navercorp.spring.batch.plus.item.adaptor.ItemProcessorDelegate
-import com.navercorp.spring.batch.plus.item.adaptor.ItemStreamReaderDelegate
-import com.navercorp.spring.batch.plus.item.adaptor.ItemStreamWriterDelegate
+import com.navercorp.spring.batch.plus.item.adapter.AdapterFactory
+import com.navercorp.spring.batch.plus.item.adapter.ItemProcessorDelegate
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderDelegate
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamWriterDelegate
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemStreamWriter
 
 /**
- * A extensions to invoke [AdaptorFactory.itemStreamReader].
+ * A extensions to invoke [AdapterFactory.itemStreamReader].
  */
 fun <T : Any> ItemStreamReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdaptorFactory.itemStreamReader(this)
+    AdapterFactory.itemStreamReader(this)
 
 /**
- * A extensions to invoke [AdaptorFactory.itemProcessor].
+ * A extensions to invoke [AdapterFactory.itemProcessor].
  */
 fun <I : Any, O : Any> ItemProcessorDelegate<I, O>.asItemProcessor(): ItemProcessor<I, O> =
-    AdaptorFactory.itemProcessor(this)
+    AdapterFactory.itemProcessor(this)
 
 /**
- * A extensions to invoke [AdaptorFactory.itemStreamWriter].
+ * A extensions to invoke [AdapterFactory.itemStreamWriter].
  */
 fun <T : Any> ItemStreamWriterDelegate<T>.asItemStreamWriter(): ItemStreamWriter<T> =
-    AdaptorFactory.itemStreamWriter(this)
+    AdapterFactory.itemStreamWriter(this)

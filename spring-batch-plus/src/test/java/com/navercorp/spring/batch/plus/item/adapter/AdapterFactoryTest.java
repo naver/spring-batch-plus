@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,13 +28,13 @@ import org.springframework.batch.item.ItemStreamWriter;
 
 import reactor.core.publisher.Flux;
 
-class AdaptorFactoryTest {
+class AdapterFactoryTest {
 
 	@Test
 	void testItemReader() {
 		// when
 		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = executionContext -> Flux.empty();
-		ItemStreamReader<Integer> actual = AdaptorFactory.itemStreamReader(
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(
 			itemStreamReaderDelegate);
 
 		// then
@@ -45,11 +45,11 @@ class AdaptorFactoryTest {
 	void testItemProcessor() {
 		// when
 		ItemProcessorDelegate<Integer, Integer> itemProcessorDelegate = item -> null;
-		ItemProcessor<Integer, Integer> actual = AdaptorFactory.itemProcessor(
+		ItemProcessor<Integer, Integer> actual = AdapterFactory.itemProcessor(
 			itemProcessorDelegate);
 
 		// then
-		assertThat(actual).isInstanceOf(ItemProcessorAdaptor.class);
+		assertThat(actual).isInstanceOf(ItemProcessorAdapter.class);
 	}
 
 	@Test
@@ -57,17 +57,17 @@ class AdaptorFactoryTest {
 		// when
 		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = items -> {
 		};
-		ItemStreamWriter<Integer> actual = AdaptorFactory.itemStreamWriter(
+		ItemStreamWriter<Integer> actual = AdapterFactory.itemStreamWriter(
 			itemStreamWriterDelegate);
 
 		// then
-		assertThat(actual).isInstanceOf(ItemStreamWriterAdaptor.class);
+		assertThat(actual).isInstanceOf(ItemStreamWriterAdapter.class);
 	}
 
 	@Test
 	void testPassingNull() {
-		assertThatThrownBy(() -> AdaptorFactory.itemStreamReader(null));
-		assertThatThrownBy(() -> AdaptorFactory.itemProcessor(null));
-		assertThatThrownBy(() -> AdaptorFactory.itemStreamWriter(null));
+		assertThatThrownBy(() -> AdapterFactory.itemStreamReader(null));
+		assertThatThrownBy(() -> AdapterFactory.itemProcessor(null));
+		assertThatThrownBy(() -> AdapterFactory.itemStreamWriter(null));
 	}
 }

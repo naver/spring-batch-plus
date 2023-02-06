@@ -25,7 +25,7 @@ import org.springframework.lang.Nullable;
 /**
  * A delegate for {@link ItemProcessor}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.ItemProcessorDelegate} instead.
+ * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adapter.ItemProcessorDelegate} instead.
  * @since 0.1.0
  */
 @Deprecated

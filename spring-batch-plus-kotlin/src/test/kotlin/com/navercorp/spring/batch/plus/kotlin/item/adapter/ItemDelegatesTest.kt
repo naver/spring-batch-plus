@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.item.adaptor
+package com.navercorp.spring.batch.plus.kotlin.item.adapter
 
-import com.navercorp.spring.batch.plus.item.adaptor.ItemStreamReaderProcessorWriter
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderProcessorWriter
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -37,7 +37,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import reactor.core.publisher.Flux
 
-internal class ItemAdaptorsTest {
+internal class ItemDelegatesTest {
 
     companion object {
         private var processCallCount = 0

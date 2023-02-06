@@ -16,49 +16,44 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
+
+import java.util.List;
 
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
 
-import reactor.core.publisher.Flux;
-
 /**
- * A delegate for {@link ItemStreamReader}.
+ * A delegate for {@link ItemStreamWriter}.
  *
  * @since 0.1.0
  */
-public interface ItemStreamReaderDelegate<T> {
+public interface ItemStreamWriterDelegate<T> {
 
 	/**
-	 * A delegate method for {@link ItemStreamReader#open(ExecutionContext)}.
-	 *
+	 * A delegate method for {@link ItemStreamWriter#open(ExecutionContext)}.
 	 * @param executionContext an execution context
 	 */
-	default void onOpenRead(@NonNull ExecutionContext executionContext) {
+	default void onOpenWrite(@NonNull ExecutionContext executionContext) {
 	}
 
 	/**
-	 * Read items by reactor flux. Invoked in {@link ItemStreamReader#open(ExecutionContext)}.
-	 *
-	 * @param executionContext an execution context
-	 * @return a flux to read item.
+	 * A delegate method for {@link ItemStreamWriter#write(List)}.
+	 * @param items items to write
 	 */
-	@NonNull
-	Flux<T> readFlux(@NonNull ExecutionContext executionContext);
+	void write(@NonNull List<? extends T> items);
 
 	/**
-	 * A delegate method for {@link ItemStreamReader#update(ExecutionContext)}.
-	 *
+	 * A delegate method for {@link ItemStreamWriter#update(ExecutionContext)}.
 	 * @param executionContext an execution context
 	 */
-	default void onUpdateRead(@NonNull ExecutionContext executionContext) {
+	default void onUpdateWrite(@NonNull ExecutionContext executionContext) {
 	}
 
 	/**
-	 * A delegate method for {@link ItemStreamReader#close()}.
+	 * A delegate method for {@link ItemStreamWriter#close()}.
 	 */
-	default void onCloseRead() {
+	default void onCloseWrite() {
 	}
 }

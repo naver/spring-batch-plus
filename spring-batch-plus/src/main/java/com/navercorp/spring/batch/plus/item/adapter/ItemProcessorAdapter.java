@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.item.adaptor;
+package com.navercorp.spring.batch.plus.item.adapter;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ import org.springframework.lang.NonNull;
  *
  * @since 0.1.0
  */
-public class ItemProcessorAdaptor<I, O> implements ItemProcessor<I, O> {
+public class ItemProcessorAdapter<I, O> implements ItemProcessor<I, O> {
 
 	/**
 	 * Create an adaptor which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
@@ -39,12 +39,12 @@ public class ItemProcessorAdaptor<I, O> implements ItemProcessor<I, O> {
 	 * @param <O> a processed item type
 	 */
 	public static <I, O> ItemProcessor<I, O> of(@NonNull ItemProcessorDelegate<I, O> delegate) {
-		return new ItemProcessorAdaptor<>(delegate);
+		return new ItemProcessorAdapter<>(delegate);
 	}
 
 	protected final ItemProcessorDelegate<I, O> delegate;
 
-	protected ItemProcessorAdaptor(ItemProcessorDelegate<I, O> delegate) {
+	protected ItemProcessorAdapter(ItemProcessorDelegate<I, O> delegate) {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate processor must not be null");
 	}
 

@@ -30,7 +30,7 @@ import org.springframework.lang.NonNull;
  * An adaptor factory for {@link ItemStreamReaderDelegate}, {@link ItemProcessorDelegate},
  * {@link ItemStreamWriterDelegate}.
  *
- * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adaptor.AdaptorFactory} instead.
+ * @deprecated Use {@link com.navercorp.spring.batch.plus.item.adapter.AdapterFactory} instead.
  * @since 0.1.0
  */
 @Deprecated
