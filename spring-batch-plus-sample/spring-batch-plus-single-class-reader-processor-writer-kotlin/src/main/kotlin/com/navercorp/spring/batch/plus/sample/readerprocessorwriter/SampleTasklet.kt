@@ -18,7 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.readerprocessorwriter
 
-import com.navercorp.spring.batch.plus.item.ItemStreamReaderProcessorWriter
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderProcessorWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.beans.factory.annotation.Value

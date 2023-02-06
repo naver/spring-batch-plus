@@ -18,8 +18,8 @@
 
 package com.navecorp.spring.batch.plus.sample.readerwriter;
 
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemStreamWriter;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
