@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Flux;
 
-import com.navercorp.spring.batch.plus.item.ItemStreamReaderWriter;
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderWriter;
 
 @Component
 @StepScope
