@@ -1,5 +1,7 @@
 # ChangeLog
 
+## 1.0.0-SNAPSHOT
+
 ## 0.3.0
 
 New Features
