@@ -105,6 +105,7 @@ We've tested following versions only. Other versions may not work.
 
 | Spring Batch Plus Version | Spring Batch Version | Kotlin Version | Java Version |
 |---------------------------|----------------------|----------------|--------------|
+| 0.3.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher|
 | 0.2.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher|
 | 0.1.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher|
 

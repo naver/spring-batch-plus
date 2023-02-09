@@ -1,6 +1,6 @@
 # ChangeLog
 
-## 0.3.0-SNAPSHOT
+## 0.3.0
 
 New Features
 
@@ -8,7 +8,7 @@ New Features
 
 Changes
 
-- None
+- Move adapter classes to adapter package
 
 Bug fixes & Improvements
 
