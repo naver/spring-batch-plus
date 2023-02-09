@@ -2,6 +2,18 @@
 
 ## 1.0.0-SNAPSHOT
 
+New Features
+
+- None
+
+Changes
+
+- None
+
+Bug fixes & Improvements
+
+- None
+
 ## 0.3.0
 
 New Features

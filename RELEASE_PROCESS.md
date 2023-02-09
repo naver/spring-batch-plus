@@ -23,6 +23,7 @@
    - Merge release branch by `git checkout main && git merge release/vx.x.x`.
    - Delete release branch by `git branch -d release/vx.x.x`.
    - Push main to origin `git push origin main`.
+10. Make a release on [github](https://github.com/naver/spring-batch-plus/releases) based on [CHANGELOG](./CHANGELOG.md).
 
 ## See also
 
