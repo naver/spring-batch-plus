@@ -59,6 +59,9 @@ publishing {
 }
 
 signing {
+    // make the singing optional
+    setRequired(false)
+
     // in '.envrc'
     // export ORG_GRADLE_PROJECT_signingKeyId=xxx
     // export ORG_GRADLE_PROJECT_signingKey=xxx
