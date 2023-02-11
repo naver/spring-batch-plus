@@ -18,7 +18,7 @@ Bug fixes & Improvements
 
 New Features
 
-- None
+- Dry run mode in DeleteMetadataJob
 
 Changes
 
