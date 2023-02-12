@@ -36,7 +36,6 @@ import org.springframework.batch.core.partition.StepExecutionSplitter
 import org.springframework.batch.core.step.builder.PartitionStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.item.ExecutionContext
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 
 internal class PartitionStepBuilderDslTest {
 
@@ -47,13 +46,9 @@ internal class PartitionStepBuilderDslTest {
     private fun partitionStepBuilderDsl(init: PartitionStepBuilderDsl.() -> Unit): Step {
         val dslContext = DslContext(
             beanFactory = mock(),
-            jobBuilderFactory = mock(),
-            stepBuilderFactory = mock(),
+            jobRepository = mock(),
         )
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
+        val stepBuilder = StepBuilder("testStep", mock())
 
         return PartitionStepBuilderDsl(dslContext, PartitionStepBuilder(stepBuilder)).apply(init).build()
     }
@@ -66,10 +61,7 @@ internal class PartitionStepBuilderDslTest {
             // given
             var partitionHandlerCallCount = 0
             var taskExecutorCallCount = 0
-            val stepBuilder = StepBuilder("testStep").apply {
-                repository(mock())
-                transactionManager(ResourcelessTransactionManager())
-            }
+            val stepBuilder = StepBuilder("testStep", mock())
             val partitionStepBuilder = PartitionStepBuilder(stepBuilder)
 
             // when
@@ -430,10 +422,7 @@ internal class PartitionStepBuilderDslTest {
             var splitterCallCount = 0
             val dummyStepName = "dummyStepName"
             var partitionerCallCount = 0
-            val stepBuilder = StepBuilder("testStep").apply {
-                repository(mock())
-                transactionManager(ResourcelessTransactionManager())
-            }
+            val stepBuilder = StepBuilder("testStep", mock())
             val partitionStepBuilder = PartitionStepBuilder(stepBuilder)
 
             // when

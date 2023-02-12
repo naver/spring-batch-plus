@@ -18,7 +18,10 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import io.micrometer.observation.ObservationRegistry
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
@@ -34,19 +37,54 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.batch.repeat.policy.SimpleCompletionPolicy
 import org.springframework.batch.repeat.support.RepeatTemplate
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.registerBean
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.TransactionManager
 import org.springframework.transaction.TransactionStatus
 import javax.sql.DataSource
 
 internal class StepBuilderDslIntegrationTest {
+
+    @Test
+    fun testTransactionManager() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val transactionManager = context.getBean<PlatformTransactionManager>()
+        val batch = context.getBean<BatchDsl>()
+        var transactionManagerCallCount = 0
+
+        // when
+        val job = batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        object : PlatformTransactionManager by transactionManager {
+                            override fun commit(status: TransactionStatus) {
+                                ++transactionManagerCallCount
+                                transactionManager.commit(status)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        val jobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(transactionManagerCallCount).isGreaterThan(0)
+    }
 
     @Test
     fun testRepository() {
@@ -69,7 +107,10 @@ internal class StepBuilderDslIntegrationTest {
                             }
                         }
                     )
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -81,27 +122,30 @@ internal class StepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testTransactionManager() {
+    fun testObservationRegistry() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobLauncher = context.getBean<JobLauncher>()
-        val transactionManager = context.getBean<PlatformTransactionManager>()
         val batch = context.getBean<BatchDsl>()
-        var transactionManagerCallCount = 0
+        var isCalled = false
 
         // when
+        val delegate = ObservationRegistry.create()
         val job = batch {
             job("testJob") {
                 step("testStep") {
-                    transactionManager(
-                        object : PlatformTransactionManager by transactionManager {
-                            override fun commit(status: TransactionStatus) {
-                                ++transactionManagerCallCount
-                                transactionManager.commit(status)
+                    observationRegistry(
+                        object : ObservationRegistry by delegate {
+                            override fun observationConfig(): ObservationRegistry.ObservationConfig {
+                                isCalled = true
+                                return delegate.observationConfig()
                             }
                         }
                     )
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -109,7 +153,35 @@ internal class StepBuilderDslIntegrationTest {
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(transactionManagerCallCount).isGreaterThan(0)
+        assertThat(isCalled).isTrue
+    }
+
+    @Test
+    fun testMeterRegistry() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        // TODO: check if called after the spring batch actually uses meterRegistry
+        // var isCalled = false
+
+        // when
+        val job = batch {
+            job("testJob") {
+                step("testStep") {
+                    meterRegistry(SimpleMeterRegistry())
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
+                }
+            }
+        }
+        val jobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        // assertThat(isCalled).isTrue
     }
 
     @Test
@@ -125,7 +197,10 @@ internal class StepBuilderDslIntegrationTest {
                 step("testStep") {
                     allowStartIfComplete(true)
                     startLimit(2)
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -166,7 +241,10 @@ internal class StepBuilderDslIntegrationTest {
             job("testJob") {
                 step("testStep") {
                     listener(TestListener())
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -203,7 +281,10 @@ internal class StepBuilderDslIntegrationTest {
                             }
                         }
                     )
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -213,6 +294,222 @@ internal class StepBuilderDslIntegrationTest {
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(beforeStepCallCount).isEqualTo(1)
         assertThat(afterStepCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testDeprecatedTaskletBean() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val batch = context.getBean<BatchDsl>()
+        var taskletCallCount = 0
+        val tasklet = Tasklet { _, _ ->
+            ++taskletCallCount
+            RepeatStatus.FINISHED
+        }
+        context.registerBean("testTasklet") {
+            tasklet
+        }
+
+        // when, then
+        assertThatThrownBy {
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        taskletBean("testTasklet")
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testDeprecatedTaskletBeanWithInit() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val batch = context.getBean<BatchDsl>()
+        var taskletCallCount = 0
+        var taskExecutorCallCount = 0
+        val tasklet = Tasklet { _, _ ->
+            ++taskletCallCount
+            RepeatStatus.FINISHED
+        }
+        context.registerBean("testTasklet") {
+            tasklet
+        }
+
+        // when, then
+        assertThatThrownBy {
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        taskletBean("testTasklet") {
+                            taskExecutor {
+                                ++taskExecutorCallCount
+                                it.run()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testDeprecatedTaskletWithLambda() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val batch = context.getBean<BatchDsl>()
+        var taskletCallCount = 0
+
+        // when, then
+        assertThatThrownBy {
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        tasklet { _, _ ->
+                            ++taskletCallCount
+                            RepeatStatus.FINISHED
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testDeprecatedTaskletWithLambdaAndInit() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val batch = context.getBean<BatchDsl>()
+        var taskletCallCount = 0
+        var taskExecutorCallCount = 0
+
+        // when, then
+        assertThatThrownBy {
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        tasklet(
+                            { _, _ ->
+                                ++taskletCallCount
+                                RepeatStatus.FINISHED
+                            },
+                        ) {
+                            taskExecutor {
+                                ++taskExecutorCallCount
+                                it.run()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testDeprecatedChunkWithCount() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val batch = context.getBean<BatchDsl>()
+        val readLimit = 20
+        val chunkSize = 3
+        var readCallCount = 0
+        var writeCallCount = 0
+
+        // when, then
+        assertThatThrownBy {
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        chunk<Int, Int>(chunkSize) {
+                            reader {
+                                if (readCallCount < readLimit) {
+                                    ++readCallCount
+                                    1
+                                } else {
+                                    null
+                                }
+                            }
+                            writer {
+                                ++writeCallCount
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testDeprecatedChunkWithCompletionPolicy() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val batch = context.getBean<BatchDsl>()
+        val readLimit = 20
+        val chunkSize = 3
+        var readCallCount = 0
+        var writeCallCount = 0
+
+        // when, then
+        assertThatThrownBy {
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        chunk<Int, Int>(SimpleCompletionPolicy(chunkSize)) {
+                            reader {
+                                if (readCallCount < readLimit) {
+                                    ++readCallCount
+                                    1
+                                } else {
+                                    null
+                                }
+                            }
+                            writer {
+                                ++writeCallCount
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testDeprecatedChunkWithRepeatOperations() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val batch = context.getBean<BatchDsl>()
+        val readLimit = 20
+        val chunkSize = 3
+        var readCallCount = 0
+        var writeCallCount = 0
+
+        // when, then
+        assertThatThrownBy {
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        chunk<Int, Int>(
+                            RepeatTemplate().apply {
+                                setCompletionPolicy(SimpleCompletionPolicy(chunkSize))
+                            }
+                        ) {
+                            reader {
+                                if (readCallCount < readLimit) {
+                                    ++readCallCount
+                                    1
+                                } else {
+                                    null
+                                }
+                            }
+                            writer {
+                                ++writeCallCount
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Test
@@ -234,7 +531,7 @@ internal class StepBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 step("testStep") {
-                    taskletBean("testTasklet")
+                    taskletBean("testTasklet", ResourcelessTransactionManager())
                 }
             }
         }
@@ -265,7 +562,7 @@ internal class StepBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 step("testStep") {
-                    taskletBean("testTasklet") {
+                    taskletBean("testTasklet", ResourcelessTransactionManager()) {
                         taskExecutor {
                             ++taskExecutorCallCount
                             it.run()
@@ -294,10 +591,13 @@ internal class StepBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 step("testStep") {
-                    tasklet { _, _ ->
-                        ++taskletCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++taskletCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -325,7 +625,8 @@ internal class StepBuilderDslIntegrationTest {
                         { _, _ ->
                             ++taskletCallCount
                             RepeatStatus.FINISHED
-                        }
+                        },
+                        ResourcelessTransactionManager()
                     ) {
                         taskExecutor {
                             ++taskExecutorCallCount
@@ -358,7 +659,7 @@ internal class StepBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, Int>(chunkSize) {
+                    chunk<Int, Int>(chunkSize, ResourcelessTransactionManager()) {
                         reader {
                             if (readCallCount < readLimit) {
                                 ++readCallCount
@@ -397,7 +698,7 @@ internal class StepBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, Int>(SimpleCompletionPolicy(chunkSize)) {
+                    chunk<Int, Int>(SimpleCompletionPolicy(chunkSize), ResourcelessTransactionManager()) {
                         reader {
                             if (readCallCount < readLimit) {
                                 ++readCallCount
@@ -439,7 +740,8 @@ internal class StepBuilderDslIntegrationTest {
                     chunk<Int, Int>(
                         RepeatTemplate().apply {
                             setCompletionPolicy(SimpleCompletionPolicy(chunkSize))
-                        }
+                        },
+                        ResourcelessTransactionManager()
                     ) {
                         reader {
                             if (readCallCount < readLimit) {
@@ -504,7 +806,10 @@ internal class StepBuilderDslIntegrationTest {
             job("testJob2") {
                 step("testStep2") {
                     ++stepCallCount
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -539,7 +844,10 @@ internal class StepBuilderDslIntegrationTest {
             job("testJob2") {
                 step("testStep2") {
                     ++stepCallCount
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -579,7 +887,10 @@ internal class StepBuilderDslIntegrationTest {
             job("testJob2") {
                 step("testStep2") {
                     ++stepCallCount
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -611,7 +922,10 @@ internal class StepBuilderDslIntegrationTest {
             job("testJob2") {
                 step("testStep2") {
                     ++jobCallcount
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -648,16 +962,22 @@ internal class StepBuilderDslIntegrationTest {
         val testFlow = batch {
             flow("testFlow") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -696,16 +1016,22 @@ internal class StepBuilderDslIntegrationTest {
                 step("testStep") {
                     flow("testFlow") {
                         step("testStep1") {
-                            tasklet { _, _ ->
-                                ++testStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                         step("testStep2") {
-                            tasklet { _, _ ->
-                                ++testStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -730,16 +1056,22 @@ internal class StepBuilderDslIntegrationTest {
         val testFlow = batch {
             flow("testFlow") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -761,7 +1093,10 @@ internal class StepBuilderDslIntegrationTest {
     }
 
     @Configuration
-    @EnableBatchProcessing
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
     private open class TestConfiguration {
 
         @Bean
@@ -774,7 +1109,12 @@ internal class StepBuilderDslIntegrationTest {
         )
 
         @Bean
-        open fun dataSource(): DataSource {
+        open fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        open fun metadataDataSource(): DataSource {
             return EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")

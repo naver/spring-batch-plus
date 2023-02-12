@@ -32,7 +32,6 @@ import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.step.builder.StepBuilder
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 
 internal class FlowStepBuilderDslTest {
 
@@ -43,13 +42,9 @@ internal class FlowStepBuilderDslTest {
     private fun flowStepBuilderDsl(flow: Flow): Step {
         val dslContext = DslContext(
             beanFactory = mock(),
-            jobBuilderFactory = mock(),
-            stepBuilderFactory = mock(),
+            jobRepository = mock(),
         )
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
+        val stepBuilder = StepBuilder("testStep", mock())
         val flowStepBuilder = stepBuilder.flow(flow)
 
         return FlowStepBuilderDsl(dslContext, flowStepBuilder).build()

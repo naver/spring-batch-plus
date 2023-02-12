@@ -48,8 +48,8 @@ import org.springframework.batch.core.annotation.OnWriteError
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.builder.SimpleStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
+import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ExecutionContext
-import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStream
 import org.springframework.batch.repeat.CompletionPolicy
 import org.springframework.batch.repeat.RepeatCallback
@@ -77,14 +77,10 @@ internal class SimpleStepBuilderDslTest {
     ): Step {
         val dslContext = DslContext(
             beanFactory = mock(),
-            jobBuilderFactory = mock(),
-            stepBuilderFactory = mock(),
+            jobRepository = mock(),
         )
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
-        val simpleStepBuilder = stepBuilder.chunk<I, O>(chunkSize)
+        val stepBuilder = StepBuilder("testStep", mock())
+        val simpleStepBuilder = stepBuilder.chunk<I, O>(chunkSize, ResourcelessTransactionManager())
 
         return SimpleStepBuilderDsl(dslContext, simpleStepBuilder).apply(init).build()
     }
@@ -95,14 +91,10 @@ internal class SimpleStepBuilderDslTest {
     ): Step {
         val dslContext = DslContext(
             beanFactory = mock(),
-            jobBuilderFactory = mock(),
-            stepBuilderFactory = mock(),
+            jobRepository = mock(),
         )
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
-        val simpleStepBuilder = stepBuilder.chunk<I, O>(completionPolicy)
+        val stepBuilder = StepBuilder("testStep", mock())
+        val simpleStepBuilder = stepBuilder.chunk<I, O>(completionPolicy, ResourcelessTransactionManager())
 
         return SimpleStepBuilderDsl(dslContext, simpleStepBuilder).apply(init).build()
     }
@@ -113,15 +105,11 @@ internal class SimpleStepBuilderDslTest {
     ): Step {
         val dslContext = DslContext(
             beanFactory = mock(),
-            jobBuilderFactory = mock(),
-            stepBuilderFactory = mock(),
+            jobRepository = mock(),
         )
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
-        val simpleStepBuilder =
-            SimpleStepBuilder<I, O>(stepBuilder).chunkOperations(repeatOperations)
+        val stepBuilder = StepBuilder("testStep", mock())
+        val simpleStepBuilder = SimpleStepBuilder<I, O>(stepBuilder).chunkOperations(repeatOperations)
+            .transactionManager(ResourcelessTransactionManager())
 
         return SimpleStepBuilderDsl(dslContext, simpleStepBuilder).apply(init).build()
     }
@@ -501,15 +489,15 @@ internal class SimpleStepBuilderDslTest {
         val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
             listener(
                 object : ItemWriteListener<Number> {
-                    override fun beforeWrite(items: MutableList<out Number>) {
+                    override fun beforeWrite(items: Chunk<out Number>) {
                         ++beforeWriteCallCount
                     }
 
-                    override fun afterWrite(items: MutableList<out Number>) {
+                    override fun afterWrite(items: Chunk<out Number>) {
                         ++afterWriteCallCount
                     }
 
-                    override fun onWriteError(ex: Exception, items: MutableList<out Number>) {
+                    override fun onWriteError(exception: java.lang.Exception, items: Chunk<out Number>) {
                         // no need to test. we are just testing if listener is invoked
                     }
                 }
@@ -818,14 +806,11 @@ internal class SimpleStepBuilderDslTest {
         var stepOperationCallCount = 0
         var taskExecutorCallCount = 0
         var exceptionHandlerCallCount = 0
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
+        val stepBuilder = StepBuilder("testStep", mock())
 
         // when
         val step = stepBuilder
-            .chunk<Int, Int>(chunkSize)
+            .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
             .reader {
                 if (readCallCount < readLimit) {
                     ++readCallCount
@@ -899,14 +884,11 @@ internal class SimpleStepBuilderDslTest {
         var readCallCount = 0
         var processCallCount = 0
         var writeCallCount = 0
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
+        val stepBuilder = StepBuilder("testStep", mock())
 
         // when
         val step = stepBuilder
-            .chunk<Int, Int>(chunkSize)
+            .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
             .reader {
                 if (readCallCount < readLimit) {
                     ++readCallCount
@@ -915,12 +897,10 @@ internal class SimpleStepBuilderDslTest {
                     null
                 }
             }
-            .processor(
-                ItemProcessor {
-                    ++processCallCount
-                    it
-                }
-            )
+            .processor {
+                ++processCallCount
+                it
+            }
             .writer {
                 ++writeCallCount
             }

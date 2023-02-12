@@ -63,14 +63,10 @@ internal class FaultTolerantStepBuilderDslTest {
     ): Step {
         val dslContext = DslContext(
             beanFactory = mock(),
-            jobBuilderFactory = mock(),
-            stepBuilderFactory = mock(),
+            jobRepository = mock(),
         )
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
-        val simpleStepBuilder = stepBuilder.chunk<I, O>(chunkSize)
+        val stepBuilder = StepBuilder("testStep", mock())
+        val simpleStepBuilder = stepBuilder.chunk<I, O>(chunkSize, ResourcelessTransactionManager())
 
         return SimpleStepBuilderDsl(dslContext, simpleStepBuilder).apply(init).build()
     }
@@ -745,10 +741,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var tryCount = 0
             var onSkipInReadCallCount = 0
 
-            val stepBuilder = StepBuilder("testStep").apply {
-                repository(mock())
-                transactionManager(ResourcelessTransactionManager())
-            }
+            val stepBuilder = StepBuilder("testStep", mock())
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestListener {
@@ -762,6 +755,7 @@ internal class FaultTolerantStepBuilderDslTest {
             // when
             val step = simpleStepBuilder
                 .chunk(chunkSize)
+                .transactionManager(ResourcelessTransactionManager())
                 .listener(TestListener()) // called before faultTolerant()
                 .reader {
                     if (tryCount < skipLimit) {
@@ -802,10 +796,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var tryCount = 0
             var onSkipInReadCallCount = 0
 
-            val stepBuilder = StepBuilder("testStep").apply {
-                repository(mock())
-                transactionManager(ResourcelessTransactionManager())
-            }
+            val stepBuilder = StepBuilder("testStep", mock())
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestListener {
@@ -819,6 +810,7 @@ internal class FaultTolerantStepBuilderDslTest {
             // when
             val step = simpleStepBuilder
                 .chunk(chunkSize)
+                .transactionManager(ResourcelessTransactionManager())
                 .reader {
                     if (tryCount < skipLimit) {
                         ++tryCount
@@ -954,14 +946,13 @@ internal class FaultTolerantStepBuilderDslTest {
         @Test
         fun testDelegateListenerIsInvokedWhenCalledWithFaultTolerant() {
             // given
-            val stepBuilder = StepBuilder("testStep").apply {
-                repository(mock())
-                transactionManager(ResourcelessTransactionManager())
-            }
+            val stepBuilder = StepBuilder("testStep", mock())
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             // when
-            val step = simpleStepBuilder.chunk(3)
+            val step = simpleStepBuilder
+                .chunk(3)
+                .transactionManager(ResourcelessTransactionManager())
                 .reader { null }
                 .faultTolerant()
                 .retryLimit(3)
@@ -1068,14 +1059,13 @@ internal class FaultTolerantStepBuilderDslTest {
             var readCallCount = 0
             var noRollbackCallCount = 0
 
-            val stepBuilder = StepBuilder("testStep").apply {
-                repository(mock())
-                transactionManager(ResourcelessTransactionManager())
-            }
+            val stepBuilder = StepBuilder("testStep", mock())
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             // when
-            val step = simpleStepBuilder.chunk(chunkSize)
+            val step = simpleStepBuilder
+                .chunk(chunkSize)
+                .transactionManager(ResourcelessTransactionManager())
                 .reader {
                     if (readCallCount < readLimit) {
                         ++readCallCount
@@ -1199,10 +1189,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var streamOpenCallCount = 0
             var readCallCount = 0
 
-            val stepBuilder = StepBuilder("testStep").apply {
-                repository(mock())
-                transactionManager(ResourcelessTransactionManager())
-            }
+            val stepBuilder = StepBuilder("testStep", mock())
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestStream : ItemStream, ItemReader<Int> {
@@ -1227,7 +1214,9 @@ internal class FaultTolerantStepBuilderDslTest {
             }
 
             // when
-            val step = simpleStepBuilder.chunk(chunkSize)
+            val step = simpleStepBuilder
+                .chunk(chunkSize)
+                .transactionManager(ResourcelessTransactionManager())
                 .reader {
                     if (readCallCount < readLimit) {
                         ++readCallCount
