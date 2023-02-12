@@ -29,19 +29,21 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
+import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class StepTransitionBuilderDslIntegrationTest {
 
     @RepeatedTest(10)
-    @Test
     fun testStepWithMultipleTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
@@ -51,11 +53,14 @@ internal class StepTransitionBuilderDslIntegrationTest {
         var testStep1CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { contribution, _ ->
-                    ++testStep1CallCount
-                    contribution.exitStatus = expectedExitStatus
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { contribution, _ ->
+                        ++testStep1CallCount
+                        contribution.exitStatus = expectedExitStatus
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -96,9 +101,12 @@ internal class StepTransitionBuilderDslIntegrationTest {
         val batch = context.getBean<BatchDsl>()
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -126,7 +134,10 @@ internal class StepTransitionBuilderDslIntegrationTest {
     }
 
     @Configuration
-    @EnableBatchProcessing
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
     private open class TestConfiguration {
 
         @Bean
@@ -139,7 +150,12 @@ internal class StepTransitionBuilderDslIntegrationTest {
         )
 
         @Bean
-        open fun dataSource(): DataSource {
+        open fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        open fun metadataDataSource(): DataSource {
             return EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")

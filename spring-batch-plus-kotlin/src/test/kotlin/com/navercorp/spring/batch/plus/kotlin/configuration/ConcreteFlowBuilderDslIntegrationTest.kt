@@ -29,15 +29,18 @@ import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.registerBean
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class ConcreteFlowBuilderDslIntegrationTest {
@@ -52,18 +55,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         var testStep2CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testStep2 = batch {
             step("testStep2") {
-                tasklet { _, _ ->
-                    ++testStep2CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep2CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         context.apply {
@@ -109,16 +118,22 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         val testFlow = batch {
             flow("testFlow") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -146,18 +161,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         var testStep2CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testStep2 = batch {
             step("testStep2") {
-                tasklet { _, _ ->
-                    ++testStep2CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep2CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -194,18 +215,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         var testStep2CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    throw RuntimeException("Error")
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        throw RuntimeException("Error")
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testStep2 = batch {
             step("testStep2") {
-                tasklet { _, _ ->
-                    ++testStep2CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep2CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         context.apply {
@@ -223,18 +250,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
                 stepBean("testStep1") {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -278,36 +311,48 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
                 step(
                     "testStep1",
                     {
-                        tasklet { _, _ ->
-                            ++testStep1CallCount
-                            throw RuntimeException("Error")
-                        }
+                        tasklet(
+                            { _, _ ->
+                                ++testStep1CallCount
+                                throw RuntimeException("Error")
+                            },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 ) {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
                 step(
                     "testStep2",
                     {
-                        tasklet { _, _ ->
-                            ++testStep2CallCount
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet(
+                            { _, _ ->
+                                ++testStep2CallCount
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 ) {
                     on("COMPLETED") {
@@ -344,18 +389,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         var testStep2CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    throw RuntimeException("Error")
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        throw RuntimeException("Error")
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testStep2 = batch {
             step("testStep2") {
-                tasklet { _, _ ->
-                    ++testStep2CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep2CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -365,18 +416,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
                 step(testStep1) {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -414,20 +471,26 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -475,18 +538,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
             flow("testFlow") {
                 flow("testFlow1") {
                     step("testStep1") {
-                        tasklet { _, _ ->
-                            ++testStep1CallCount
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet(
+                            { _, _ ->
+                                ++testStep1CallCount
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 }
                 flow("testFlow2") {
                     step("testStep2") {
-                        tasklet { _, _ ->
-                            ++testStep2CallCount
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet(
+                            { _, _ ->
+                                ++testStep2CallCount
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 }
             }
@@ -516,20 +585,26 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -568,20 +643,26 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        throw RuntimeException("Error")
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            throw RuntimeException("Error")
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -600,18 +681,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
                 flowBean("testFlow1") {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -656,27 +743,36 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
                     "testFlow1",
                     {
                         step("testStep1") {
-                            tasklet { _, _ ->
-                                ++testStep1CallCount
-                                throw RuntimeException("Error")
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep1CallCount
+                                    throw RuntimeException("Error")
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 ) {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -684,10 +780,13 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
                     "testFlow2",
                     {
                         step("testStep2") {
-                            tasklet { _, _ ->
-                                ++testStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 ) {
@@ -726,20 +825,26 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        throw RuntimeException("Error")
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            throw RuntimeException("Error")
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -750,18 +855,24 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
                 flow(testFlow1) {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -846,10 +957,13 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         val testFlow = batch {
             flow("testFlow") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
                 deciderBean("testDecider") {
                     on("COMPLETED") {
@@ -924,10 +1038,13 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         val testFlow = batch {
             flow("testFlow") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
                 decider(decider) {
                     on("COMPLETED") {
@@ -973,20 +1090,26 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
                 split(taskExecutor) {
                     flow("testFlow1") {
                         step("testStep1") {
-                            tasklet { _, _ ->
-                                ++testStep1CallCount
-                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep1CallCount
+                                    assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     flow("testFlow2") {
                         step("testStep2") {
-                            tasklet { _, _ ->
-                                ++testStep2CallCount
-                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep2CallCount
+                                    assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -1008,7 +1131,10 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
     }
 
     @Configuration
-    @EnableBatchProcessing
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
     private open class TestConfiguration {
 
         @Bean
@@ -1021,7 +1147,12 @@ internal class ConcreteFlowBuilderDslIntegrationTest {
         )
 
         @Bean
-        open fun dataSource(): DataSource {
+        open fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        open fun metadataDataSource(): DataSource {
             return EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")
