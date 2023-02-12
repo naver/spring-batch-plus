@@ -18,4 +18,6 @@ dependencies {
     testImplementation(libs.spring.boot.autoconfigure)
     testImplementation(libs.spring.boot.test)
     testImplementation(libs.spring.batch.core)
+
+    testRuntimeOnly(libs.h2)
 }

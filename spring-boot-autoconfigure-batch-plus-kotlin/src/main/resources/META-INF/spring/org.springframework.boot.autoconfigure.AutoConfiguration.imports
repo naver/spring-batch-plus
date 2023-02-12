@@ -1,2 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.navercorp.spring.boot.autoconfigure.batch.plus.kotlin.BatchPlusAutoConfiguration

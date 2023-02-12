@@ -19,8 +19,7 @@
 package com.navercorp.spring.boot.autoconfigure.batch.plus.kotlin
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
+import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -37,16 +36,14 @@ class BatchPlusAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean(value = [JobBuilderFactory::class, StepBuilderFactory::class])
+    @ConditionalOnBean(value = [JobRepository::class])
     fun batchDsl(
         beanFactory: BeanFactory,
-        jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory
+        jobRepository: JobRepository,
     ): BatchDsl {
         return BatchDsl(
             beanFactory,
-            jobBuilderFactory,
-            stepBuilderFactory
+            jobRepository,
         )
     }
 }
