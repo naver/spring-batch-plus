@@ -23,14 +23,18 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
+import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import org.springframework.context.annotation.Bean
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
+import org.springframework.transaction.TransactionManager
+import javax.sql.DataSource
 
 internal class BatchPlusAutoConfigurationTest {
 
@@ -61,22 +65,55 @@ internal class BatchPlusAutoConfigurationTest {
         }
     }
 
-    @EnableBatchProcessing
-    class BatchConfiguration
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
+    class BatchConfiguration {
 
-    @EnableBatchProcessing
+        @Bean
+        fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        fun metadataDataSource(): DataSource {
+            return EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScript("/org/springframework/batch/core/schema-h2.sql")
+                .generateUniqueName(true)
+                .build()
+        }
+    }
+
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
     class BatchDslConfiguration {
         @Bean
         fun batchDsl(
             beanFactory: BeanFactory,
-            jobBuilderFactory: JobBuilderFactory,
-            stepBuilderFactory: StepBuilderFactory
+            jobRepository: JobRepository,
         ): BatchDsl {
             return BatchDsl(
                 beanFactory,
-                jobBuilderFactory,
-                stepBuilderFactory
+                jobRepository
             )
+        }
+
+        @Bean
+        fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        fun metadataDataSource(): DataSource {
+            return EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScript("/org/springframework/batch/core/schema-h2.sql")
+                .generateUniqueName(true)
+                .build()
         }
     }
 }
