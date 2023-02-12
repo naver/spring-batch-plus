@@ -28,13 +28,21 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ExecutionContext
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
+import org.springframework.transaction.TransactionManager
 import reactor.core.publisher.Flux
+import javax.sql.DataSource
 
 internal class ItemDelegatesTest {
 
@@ -55,7 +63,7 @@ internal class ItemDelegatesTest {
         val job = batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3) {
+                    chunk<Int, String>(3, ResourcelessTransactionManager()) {
                         reader(testTasklet.asItemStreamReader())
                         processor(testTasklet.asItemProcessor())
                         writer(testTasklet.asItemStreamWriter())
@@ -95,16 +103,20 @@ internal class ItemDelegatesTest {
             return item.toString()
         }
 
-        override fun write(items: MutableList<out String>) {
+        override fun write(chunk: Chunk<out String>) {
             ++writeCallCount
         }
     }
 
-    @EnableBatchProcessing
-    class TestConfiguration {
+    @Configuration
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
+    private open class TestConfiguration {
 
         @Bean
-        fun batchDsl(
+        open fun batchDsl(
             beanFactory: BeanFactory,
             jobRepository: JobRepository,
         ): BatchDsl = BatchDsl(
@@ -113,8 +125,22 @@ internal class ItemDelegatesTest {
         )
 
         @Bean
+        open fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        open fun metadataDataSource(): DataSource {
+            return EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScript("/org/springframework/batch/core/schema-h2.sql")
+                .generateUniqueName(true)
+                .build()
+        }
+
+        @Bean
         @StepScope
-        fun testTasklet(
+        open fun testTasklet(
             @Value("#{jobParameters['limit']}") limit: Long,
         ): TestClass {
             return TestClass(limit)

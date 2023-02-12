@@ -89,14 +89,8 @@ public class TestJobRepositoryConfig {
 	}
 
 	@Bean
-	JobRepositoryTestUtils jobRepositoryTestUtils(
-		JobRepository jobRepository,
-		DataSource dataSource,
-		String tablePrefix
-	) {
-		JobRepositoryTestUtils testUtils = new JobRepositoryTestUtils(jobRepository, dataSource);
-		testUtils.setTablePrefix(tablePrefix);
-		return testUtils;
+	JobRepositoryTestUtils jobRepositoryTestUtils(JobRepository jobRepository) {
+		return new JobRepositoryTestUtils(jobRepository);
 	}
 
 	private String readFromClassPath(String path) throws IOException {

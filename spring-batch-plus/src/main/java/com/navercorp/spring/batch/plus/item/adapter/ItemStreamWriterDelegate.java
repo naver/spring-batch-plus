@@ -18,8 +18,7 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
-import java.util.List;
-
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
@@ -39,10 +38,10 @@ public interface ItemStreamWriterDelegate<T> {
 	}
 
 	/**
-	 * A delegate method for {@link ItemStreamWriter#write(List)}.
-	 * @param items items to write
+	 * A delegate method for {@link ItemStreamWriter#write(Chunk)}.
+	 * @param chunk chunk to write
 	 */
-	void write(@NonNull List<? extends T> items);
+	void write(@NonNull Chunk<? extends T> chunk);
 
 	/**
 	 * A delegate method for {@link ItemStreamWriter#update(ExecutionContext)}.

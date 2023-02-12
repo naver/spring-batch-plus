@@ -25,11 +25,12 @@ import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.DefaultJobParametersValidator;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.dao.AbstractJdbcBatchMetadataDao;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -43,9 +44,7 @@ import org.springframework.transaction.interceptor.TransactionAttribute;
  * @since 0.2.0
  */
 public class DeleteMetadataJobBuilder {
-	private final StepBuilderFactory stepBuilderFactory;
-
-	private final JobBuilderFactory jobBuilderFactory;
+	private final JobRepository jobRepository;
 
 	private final DataSource dataSource;
 
@@ -68,9 +67,7 @@ public class DeleteMetadataJobBuilder {
 		Objects.requireNonNull(dataSource, "DataSource must not be null");
 
 		this.dataSource = dataSource;
-		this.jobBuilderFactory = new JobBuilderFactory(jobRepository);
-		PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
-		this.stepBuilderFactory = new StepBuilderFactory(jobRepository, transactionManager);
+		this.jobRepository = jobRepository;
 	}
 
 	/**
@@ -129,12 +126,12 @@ public class DeleteMetadataJobBuilder {
 	public Job build() {
 
 		DefaultJobParametersValidator validator = new DefaultJobParametersValidator();
-		validator.setRequiredKeys(new String[] {baseDateParameterName});
+		validator.setRequiredKeys(new String[] {this.baseDateParameterName});
 
-		JobMetadataDao dao = new JobMetadataDao(this.dataSource, tablePrefix);
+		JobMetadataDao dao = new JobMetadataDao(this.dataSource, this.tablePrefix);
 		Step checkStep = this.buildCheckStep(dao);
 
-		return jobBuilderFactory.get(name)
+		return new JobBuilder(this.name, this.jobRepository)
 			.validator(validator)
 			.start(checkStep)
 
@@ -155,8 +152,8 @@ public class DeleteMetadataJobBuilder {
 		);
 
 		TransactionAttribute noTransaction = new DefaultTransactionAttribute(Propagation.NOT_SUPPORTED.value());
-		return stepBuilderFactory.get("checkMaxJobInstanceId")
-			.tasklet(tasklet)
+		return new StepBuilder("checkMaxJobInstanceId", this.jobRepository)
+			.tasklet(tasklet, new ResourcelessTransactionManager())
 			.transactionAttribute(noTransaction)
 			.listener(tasklet)
 			.build();
@@ -167,8 +164,9 @@ public class DeleteMetadataJobBuilder {
 			dao,
 			this.dryRunParameterName
 		);
-		return stepBuilderFactory.get("deleteMetadata")
-			.tasklet(tasklet)
+		PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+		return new StepBuilder("deleteMetadata", this.jobRepository)
+			.tasklet(tasklet, transactionManager)
 			.listener(tasklet)
 			.build();
 	}
