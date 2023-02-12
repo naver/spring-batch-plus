@@ -26,11 +26,10 @@ import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.job.flow.FlowExecutionStatus
 import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
@@ -79,10 +78,12 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
                 // just finish it so no exit status
                 assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.NOOP.exitCode)
             }
+
             FlowExecutionStatus.STOPPED -> { // when stopped, just stop the job
                 assertThat(jobExecution.status).isEqualTo(BatchStatus.STOPPED)
                 assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.STOPPED.exitCode)
             }
+
             else -> {
                 assertThat(jobExecution.status).isEqualTo(BatchStatus.FAILED)
                 assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.FAILED.exitCode)
@@ -127,12 +128,10 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,
-            jobBuilderFactory: JobBuilderFactory,
-            stepBuilderFactory: StepBuilderFactory
+            jobRepository: JobRepository,
         ): BatchDsl = BatchDsl(
             beanFactory,
-            jobBuilderFactory,
-            stepBuilderFactory
+            jobRepository,
         )
 
         @Bean

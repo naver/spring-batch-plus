@@ -31,7 +31,7 @@ internal class SimpleJobBuilderDslAdapterTest {
     @Test
     fun testUnsupportedCall() {
         // given
-        val simpleJobBuilderDsl = SimpleJobBuilderDsl(DslContext(mock(), mock(), mock()), mock())
+        val simpleJobBuilderDsl = SimpleJobBuilderDsl(DslContext(mock(), mock()), mock())
         val simpleJobBuilderDslAdapter = SimpleJobBuilderDslAdapter(simpleJobBuilderDsl)
 
         // when, then

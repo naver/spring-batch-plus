@@ -25,10 +25,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.annotation.Value
@@ -107,12 +106,10 @@ internal class ItemDelegatesTest {
         @Bean
         fun batchDsl(
             beanFactory: BeanFactory,
-            jobBuilderFactory: JobBuilderFactory,
-            stepBuilderFactory: StepBuilderFactory
+            jobRepository: JobRepository,
         ): BatchDsl = BatchDsl(
             beanFactory,
-            jobBuilderFactory,
-            stepBuilderFactory,
+            jobRepository,
         )
 
         @Bean
