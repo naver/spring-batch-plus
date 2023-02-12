@@ -108,6 +108,7 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step by bean name.
      */
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "spring batch 5.0.0 deprecates this",
         replaceWith = ReplaceWith("taskletBean(name, transactionManager)")
@@ -119,6 +120,7 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step by bean name.
      */
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "spring batch 5.0.0 deprecates this",
         replaceWith = ReplaceWith("taskletBean(name, transactionManager, taskletStepInit)")
@@ -131,6 +133,7 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step.
      */
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "spring batch 5.0.0 deprecates this",
         replaceWith = ReplaceWith("tasklet(tasklet, transactionManager)")
@@ -142,6 +145,7 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step.
      */
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "spring batch 5.0.0 deprecates this",
         replaceWith = ReplaceWith("tasklet(tasklet, transactionManager, taskletStepInit)")
@@ -155,6 +159,7 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a chunk size.
      */
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "spring batch 5.0.0 deprecates this",
         replaceWith = ReplaceWith("chunk(chunkSize, transactionManager, simpleStepInit)")
@@ -168,6 +173,7 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a completion policy.
      */
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "spring batch 5.0.0 deprecates this",
         replaceWith = ReplaceWith("chunk(completionPolicy, transactionManager, simpleStepInit)")
