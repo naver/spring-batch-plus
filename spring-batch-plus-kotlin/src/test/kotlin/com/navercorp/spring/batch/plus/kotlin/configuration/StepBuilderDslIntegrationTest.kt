@@ -52,6 +52,7 @@ import org.springframework.transaction.TransactionManager
 import org.springframework.transaction.TransactionStatus
 import javax.sql.DataSource
 
+@Suppress("DEPRECATION")
 internal class StepBuilderDslIntegrationTest {
 
     @Test

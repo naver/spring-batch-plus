@@ -202,6 +202,10 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * If not present, set as default value of [AbstractTaskletStepBuilder][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder].
      * It can't be used when no [taskExecutor] is set.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "spring batch 5.0.0 deprecates this",
+    )
     fun throttleLimit(throttleLimit: Int) {
         this.simpleStepConfigurer.add {
             it.throttleLimit(throttleLimit)

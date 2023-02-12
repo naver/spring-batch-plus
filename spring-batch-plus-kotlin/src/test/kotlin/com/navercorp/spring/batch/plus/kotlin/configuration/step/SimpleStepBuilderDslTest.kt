@@ -64,7 +64,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 import org.springframework.transaction.support.TransactionSynchronizationManager
 import kotlin.math.ceil
 
-@Suppress("SameParameterValue")
+@Suppress("SameParameterValue", "DEPRECATION")
 internal class SimpleStepBuilderDslTest {
 
     private val jobInstance = JobInstance(0L, "testJob")
