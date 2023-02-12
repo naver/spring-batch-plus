@@ -18,6 +18,11 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
+import io.micrometer.core.instrument.LongTaskTimer
+import io.micrometer.core.instrument.Meter
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import io.micrometer.observation.ObservationRegistry
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -33,13 +38,16 @@ import org.springframework.batch.core.explore.JobExplorer
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
+import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class JobBuilderDslIntegrationTest {
@@ -53,13 +61,14 @@ internal class JobBuilderDslIntegrationTest {
         var validatorCallCount = 0
 
         // when
+        val transactionManager = ResourcelessTransactionManager()
         val job = batch {
             job("testJob") {
                 validator {
                     ++validatorCallCount
                 }
                 step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
         }
@@ -80,6 +89,7 @@ internal class JobBuilderDslIntegrationTest {
         var incrementerCallCount = 0
 
         // when
+        val transactionManager = ResourcelessTransactionManager()
         val job = batch {
             job("testJob") {
                 incrementer {
@@ -87,7 +97,7 @@ internal class JobBuilderDslIntegrationTest {
                     it!!
                 }
                 step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
         }
@@ -102,6 +112,74 @@ internal class JobBuilderDslIntegrationTest {
     }
 
     @Test
+    fun testObservationRegistry() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var isCalled = false
+
+        // when
+        val transactionManager = ResourcelessTransactionManager()
+        val delegate = ObservationRegistry.create()
+        val job = batch {
+            job("testJob") {
+                observationRegistry(
+                    object : ObservationRegistry by delegate {
+                        override fun observationConfig(): ObservationRegistry.ObservationConfig {
+                            isCalled = true
+                            return delegate.observationConfig()
+                        }
+                    }
+                )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+            }
+        }
+        val jobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(isCalled).isTrue
+    }
+
+    @Test
+    fun testMeterRegistry() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobLauncher = context.getBean<JobLauncher>()
+        val batch = context.getBean<BatchDsl>()
+        var isCalled = false
+
+        // when
+        val transactionManager = ResourcelessTransactionManager()
+        val job = batch {
+            job("testJob") {
+                meterRegistry(
+                    object : SimpleMeterRegistry() {
+                        override fun newLongTaskTimer(
+                            id: Meter.Id,
+                            distributionStatisticConfig: DistributionStatisticConfig
+                        ): LongTaskTimer {
+                            isCalled = true
+                            return super.newLongTaskTimer(id, distributionStatisticConfig)
+                        }
+                    }
+                )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+            }
+        }
+        val jobExecution = jobLauncher.run(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(isCalled).isTrue
+    }
+
+    @Test
     fun testRepository() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
@@ -111,6 +189,7 @@ internal class JobBuilderDslIntegrationTest {
         var repositoryCallCount = 0
 
         // when
+        val transactionManager = ResourcelessTransactionManager()
         val job = batch {
             job("testJob") {
                 repository(
@@ -122,7 +201,7 @@ internal class JobBuilderDslIntegrationTest {
                     }
                 )
                 step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
         }
@@ -156,11 +235,12 @@ internal class JobBuilderDslIntegrationTest {
         }
 
         // when
+        val transactionManager = ResourcelessTransactionManager()
         val job = batch {
             job("testJob") {
                 listener(TestListener())
                 step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
         }
@@ -182,6 +262,7 @@ internal class JobBuilderDslIntegrationTest {
         var afterJobCallCount = 0
 
         // when
+        val transactionManager = ResourcelessTransactionManager()
         val job = batch {
             job("testJob") {
                 listener(
@@ -196,7 +277,10 @@ internal class JobBuilderDslIntegrationTest {
                     }
                 )
                 step("testStep") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        transactionManager
+                    )
                 }
             }
         }
@@ -217,17 +301,21 @@ internal class JobBuilderDslIntegrationTest {
         var tryCount = 0
 
         // when
+        val transactionManager = ResourcelessTransactionManager()
         val job = batch {
             job("testJob") {
                 preventRestart()
                 step("testStep") {
-                    tasklet { _, _ ->
-                        if (tryCount == 0) {
-                            ++tryCount
-                            throw RuntimeException()
-                        }
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            if (tryCount == 0) {
+                                ++tryCount
+                                throw RuntimeException()
+                            }
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager
+                    )
                 }
             }
         }
@@ -252,19 +340,26 @@ internal class JobBuilderDslIntegrationTest {
         var step2CallCount = 0
 
         // when
+        val transactionManager = ResourcelessTransactionManager()
         val job = batch {
             job("testJob") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++step1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++step1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager
+                    )
                 }
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++step2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++step2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager
+                    )
                 }
                 validator {
                     ++validatorCallCount
@@ -281,7 +376,10 @@ internal class JobBuilderDslIntegrationTest {
     }
 
     @Configuration
-    @EnableBatchProcessing
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
     private open class TestConfiguration {
 
         @Bean
@@ -294,7 +392,12 @@ internal class JobBuilderDslIntegrationTest {
         )
 
         @Bean
-        open fun dataSource(): DataSource {
+        open fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        open fun metadataDataSource(): DataSource {
             return EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")

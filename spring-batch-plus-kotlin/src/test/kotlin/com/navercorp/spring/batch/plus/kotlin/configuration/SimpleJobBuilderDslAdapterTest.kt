@@ -25,6 +25,7 @@ import org.mockito.kotlin.mock
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 
 internal class SimpleJobBuilderDslAdapterTest {
 
@@ -40,8 +41,14 @@ internal class SimpleJobBuilderDslAdapterTest {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
-            simpleJobBuilderDslAdapter.step("testStep", { tasklet { _, _ -> RepeatStatus.FINISHED } }) {
-            }
+            simpleJobBuilderDslAdapter.step(
+                "testStep", {
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        ResourcelessTransactionManager()
+                    )
+                }
+            ) {}
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
             simpleJobBuilderDslAdapter.step(mock<Step>()) {

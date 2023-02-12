@@ -28,15 +28,18 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.registerBean
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class SplitBuilderDslIntegrationTest {
@@ -60,22 +63,28 @@ internal class SplitBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -130,20 +139,26 @@ internal class SplitBuilderDslIntegrationTest {
                 split(taskExecutor) {
                     flow("testFlow1") {
                         step("testStep1") {
-                            tasklet { _, _ ->
-                                ++testStep1CallCount
-                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep1CallCount
+                                    assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     flow("testFlow2") {
                         step("testStep2") {
-                            tasklet { _, _ ->
-                                ++testStep2CallCount
-                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep2CallCount
+                                    assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -178,22 +193,28 @@ internal class SplitBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -238,7 +259,10 @@ internal class SplitBuilderDslIntegrationTest {
     }
 
     @Configuration
-    @EnableBatchProcessing
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
     private open class TestConfiguration {
 
         @Bean
@@ -251,7 +275,12 @@ internal class SplitBuilderDslIntegrationTest {
         )
 
         @Bean
-        open fun dataSource(): DataSource {
+        open fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        open fun metadataDataSource(): DataSource {
             return EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")

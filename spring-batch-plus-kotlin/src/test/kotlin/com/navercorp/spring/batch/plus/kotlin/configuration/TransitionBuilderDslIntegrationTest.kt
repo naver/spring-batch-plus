@@ -30,14 +30,17 @@ import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.registerBean
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
+import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 /**
@@ -55,18 +58,24 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionStep = batch {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    ++transitionStepCallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++transitionStepCallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         context.registerBean("transitionStep") {
@@ -102,10 +111,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -115,10 +127,13 @@ internal class TransitionBuilderDslIntegrationTest {
                 step(testStep1) {
                     on("COMPLETED") {
                         step("transitionStep") {
-                            tasklet { _, _ ->
-                                ++transitionStepCallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStepCallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -143,18 +158,24 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionStep = batch {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    ++transitionStepCallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++transitionStepCallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -187,18 +208,24 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionStep = batch {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    ++transitionStepCallCount
-                    throw RuntimeException("Error")
-                }
+                tasklet(
+                    { _, _ ->
+                        ++transitionStepCallCount
+                        throw RuntimeException("Error")
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         context.registerBean("transitionStep") {
@@ -244,10 +271,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -259,10 +289,13 @@ internal class TransitionBuilderDslIntegrationTest {
                         step(
                             "transitionStep",
                             {
-                                tasklet { _, _ ->
-                                    ++transitionStepCallCount
-                                    throw RuntimeException("Error")
-                                }
+                                tasklet(
+                                    { _, _ ->
+                                        ++transitionStepCallCount
+                                        throw RuntimeException("Error")
+                                    },
+                                    ResourcelessTransactionManager()
+                                )
                             }
                         ) {
                             on("COMPLETED") {
@@ -298,18 +331,24 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionStep = batch {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    ++transitionStepCallCount
-                    throw RuntimeException("Error")
-                }
+                tasklet(
+                    { _, _ ->
+                        ++transitionStepCallCount
+                        throw RuntimeException("Error")
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -352,19 +391,25 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionFlow = batch {
             flow("transitionFlow") {
                 step("transitionStep") {
-                    tasklet { _, _ ->
-                        ++transitionStepCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++transitionStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -401,10 +446,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -415,10 +463,13 @@ internal class TransitionBuilderDslIntegrationTest {
                     on("COMPLETED") {
                         flow("transitionFlow") {
                             step("transitionStep") {
-                                tasklet { _, _ ->
-                                    ++transitionStepCallCount
-                                    RepeatStatus.FINISHED
-                                }
+                                tasklet(
+                                    { _, _ ->
+                                        ++transitionStepCallCount
+                                        RepeatStatus.FINISHED
+                                    },
+                                    ResourcelessTransactionManager()
+                                )
                             }
                         }
                     }
@@ -444,19 +495,25 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionFlow = batch {
             flow("transitionFlow") {
                 step("transitionStep") {
-                    tasklet { _, _ ->
-                        ++transitionStepCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++transitionStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -490,19 +547,25 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionFlow = batch {
             flow("transitionFlow") {
                 step("transitionStep") {
-                    tasklet { _, _ ->
-                        ++transitionStepCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++transitionStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -546,10 +609,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -562,10 +628,13 @@ internal class TransitionBuilderDslIntegrationTest {
                             "transitionFlow",
                             {
                                 step("transitionStep") {
-                                    tasklet { _, _ ->
-                                        ++transitionStepCallCount
-                                        RepeatStatus.FINISHED
-                                    }
+                                    tasklet(
+                                        { _, _ ->
+                                            ++transitionStepCallCount
+                                            RepeatStatus.FINISHED
+                                        },
+                                        ResourcelessTransactionManager()
+                                    )
                                 }
                             }
                         ) {
@@ -599,19 +668,25 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionFlow = batch {
             flow("transitionFlow") {
                 step("transitionStep") {
-                    tasklet { _, _ ->
-                        ++transitionStepCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++transitionStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -652,10 +727,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var testDeciderCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testDecider = JobExecutionDecider { _, _ ->
@@ -705,10 +783,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var testDeciderCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testDecider = JobExecutionDecider { _, _ ->
@@ -754,10 +835,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var testStep1CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -789,19 +873,25 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionFlow = batch {
             flow("transitionFlow") {
                 step("transitionStep") {
-                    tasklet { _, _ ->
-                        ++transitionStepCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++transitionStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -844,10 +934,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -858,10 +951,13 @@ internal class TransitionBuilderDslIntegrationTest {
                     on("COMPLETED") {
                         stopAndRestartToFlow("transitionFlow") {
                             step("transitionStep") {
-                                tasklet { _, _ ->
-                                    ++transitionStepCallCount
-                                    RepeatStatus.FINISHED
-                                }
+                                tasklet(
+                                    { _, _ ->
+                                        ++transitionStepCallCount
+                                        RepeatStatus.FINISHED
+                                    },
+                                    ResourcelessTransactionManager()
+                                )
                             }
                         }
                     }
@@ -893,19 +989,25 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionFlow = batch {
             flow("transitionFlow") {
                 step("transitionStep") {
-                    tasklet { _, _ ->
-                        ++transitionStepCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++transitionStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -945,19 +1047,25 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionFlow = batch {
             flow("transitionFlow") {
                 step("transitionStep") {
-                    tasklet { _, _ ->
-                        ++transitionStepCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++transitionStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -1007,10 +1115,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1021,10 +1132,13 @@ internal class TransitionBuilderDslIntegrationTest {
                     on("COMPLETED") {
                         stopAndRestartToFlow("transitionFlow", {
                             step("transitionStep") {
-                                tasklet { _, _ ->
-                                    ++transitionStepCallCount
-                                    RepeatStatus.FINISHED
-                                }
+                                tasklet(
+                                    { _, _ ->
+                                        ++transitionStepCallCount
+                                        RepeatStatus.FINISHED
+                                    },
+                                    ResourcelessTransactionManager()
+                                )
                             }
                         }) {
                             on("COMPLETED") {
@@ -1063,19 +1177,25 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionFlow = batch {
             flow("transitionFlow") {
                 step("transitionStep") {
-                    tasklet { _, _ ->
-                        ++transitionStepCallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++transitionStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -1123,10 +1243,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testDecider = JobExecutionDecider { _, _ ->
@@ -1145,10 +1268,13 @@ internal class TransitionBuilderDslIntegrationTest {
                         stopAndRestartToDeciderBean("testDecider") {
                             on("UNKNOWN") {
                                 step("transitionStep") {
-                                    tasklet { _, _ ->
-                                        ++transitionStepCallCount
-                                        RepeatStatus.FINISHED
-                                    }
+                                    tasklet(
+                                        { _, _ ->
+                                            ++transitionStepCallCount
+                                            RepeatStatus.FINISHED
+                                        },
+                                        ResourcelessTransactionManager()
+                                    )
                                 }
                             }
                             on("*") {
@@ -1186,10 +1312,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1206,10 +1335,13 @@ internal class TransitionBuilderDslIntegrationTest {
                         ) {
                             on("UNKNOWN") {
                                 step("transitionStep") {
-                                    tasklet { _, _ ->
-                                        ++transitionStepCallCount
-                                        RepeatStatus.FINISHED
-                                    }
+                                    tasklet(
+                                        { _, _ ->
+                                            ++transitionStepCallCount
+                                            RepeatStatus.FINISHED
+                                        },
+                                        ResourcelessTransactionManager()
+                                    )
                                 }
                             }
                             on("*") {
@@ -1246,18 +1378,24 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionStep = batch {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    ++transitionStepCallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++transitionStepCallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         context.registerBean("transitionStep") {
@@ -1299,10 +1437,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1312,10 +1453,13 @@ internal class TransitionBuilderDslIntegrationTest {
                 step(testStep1) {
                     on("COMPLETED") {
                         stopAndRestartToStep("transitionStep") {
-                            tasklet { _, _ ->
-                                ++transitionStepCallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStepCallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -1346,18 +1490,24 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionStep = batch {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    ++transitionStepCallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++transitionStepCallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1396,18 +1546,24 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionStep = batch {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    ++transitionStepCallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++transitionStepCallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         context.registerBean("transitionStep") {
@@ -1456,10 +1612,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1469,10 +1628,13 @@ internal class TransitionBuilderDslIntegrationTest {
                 step(testStep1) {
                     on("COMPLETED") {
                         stopAndRestartToStep("transitionStep", {
-                            tasklet { _, _ ->
-                                ++transitionStepCallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStepCallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }) {
                             on("COMPLETED") {
                                 end("TEST")
@@ -1510,18 +1672,24 @@ internal class TransitionBuilderDslIntegrationTest {
         var transitionStepCallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val transitionStep = batch {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    ++transitionStepCallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++transitionStepCallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1566,11 +1734,14 @@ internal class TransitionBuilderDslIntegrationTest {
         var testStep1CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { contribution, _ ->
-                    ++testStep1CallCount
-                    contribution.exitStatus = ExitStatus.UNKNOWN
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { contribution, _ ->
+                        ++testStep1CallCount
+                        contribution.exitStatus = ExitStatus.UNKNOWN
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1601,11 +1772,14 @@ internal class TransitionBuilderDslIntegrationTest {
         var testStep1CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { contribution, _ ->
-                    ++testStep1CallCount
-                    contribution.exitStatus = ExitStatus.UNKNOWN
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { contribution, _ ->
+                        ++testStep1CallCount
+                        contribution.exitStatus = ExitStatus.UNKNOWN
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1639,10 +1813,13 @@ internal class TransitionBuilderDslIntegrationTest {
         var testStep1CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1671,9 +1848,12 @@ internal class TransitionBuilderDslIntegrationTest {
         val batch = context.getBean<BatchDsl>()
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -1691,7 +1871,10 @@ internal class TransitionBuilderDslIntegrationTest {
     }
 
     @Configuration
-    @EnableBatchProcessing
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
     private open class TestConfiguration {
 
         @Bean
@@ -1704,7 +1887,12 @@ internal class TransitionBuilderDslIntegrationTest {
         )
 
         @Bean
-        open fun dataSource(): DataSource {
+        open fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        open fun metadataDataSource(): DataSource {
             return EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")

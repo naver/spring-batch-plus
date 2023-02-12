@@ -29,15 +29,18 @@ import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.registerBean
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class FlowJobBuilderDslIntegrationTest {
@@ -54,18 +57,24 @@ internal class FlowJobBuilderDslIntegrationTest {
         var testStep2CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    throw RuntimeException("Error")
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        throw RuntimeException("Error")
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testStep2 = batch {
             step("testStep2") {
-                tasklet { _, _ ->
-                    ++testStep2CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep2CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         context.apply {
@@ -83,18 +92,24 @@ internal class FlowJobBuilderDslIntegrationTest {
                 stepBean("testStep1") {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -133,36 +148,48 @@ internal class FlowJobBuilderDslIntegrationTest {
                 step(
                     "testStep1",
                     {
-                        tasklet { _, _ ->
-                            ++testStep1CallCount
-                            throw RuntimeException("Error")
-                        }
+                        tasklet(
+                            { _, _ ->
+                                ++testStep1CallCount
+                                throw RuntimeException("Error")
+                            },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 ) {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
                 step(
                     "testStep2",
                     {
-                        tasklet { _, _ ->
-                            ++testStep2CallCount
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet(
+                            { _, _ ->
+                                ++testStep2CallCount
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 ) {
                     on("COMPLETED") {
@@ -194,18 +221,24 @@ internal class FlowJobBuilderDslIntegrationTest {
         var testStep2CallCount = 0
         val testStep1 = batch {
             step("testStep1") {
-                tasklet { _, _ ->
-                    ++testStep1CallCount
-                    throw RuntimeException("Error")
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep1CallCount
+                        throw RuntimeException("Error")
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
         val testStep2 = batch {
             step("testStep2") {
-                tasklet { _, _ ->
-                    ++testStep2CallCount
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        ++testStep2CallCount
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
 
@@ -215,18 +248,24 @@ internal class FlowJobBuilderDslIntegrationTest {
                 step(testStep1) {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -259,20 +298,26 @@ internal class FlowJobBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -315,18 +360,24 @@ internal class FlowJobBuilderDslIntegrationTest {
             job("testJob") {
                 flow("testFlow1") {
                     step("testStep1") {
-                        tasklet { _, _ ->
-                            ++testStep1CallCount
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet(
+                            { _, _ ->
+                                ++testStep1CallCount
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 }
                 flow("testFlow2") {
                     step("testStep2") {
-                        tasklet { _, _ ->
-                            ++testStep2CallCount
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet(
+                            { _, _ ->
+                                ++testStep2CallCount
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 }
             }
@@ -351,20 +402,26 @@ internal class FlowJobBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -398,20 +455,27 @@ internal class FlowJobBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        throw RuntimeException("Error")
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            throw RuntimeException("Error")
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
+
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -430,18 +494,24 @@ internal class FlowJobBuilderDslIntegrationTest {
                 flowBean("testFlow1") {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -481,27 +551,36 @@ internal class FlowJobBuilderDslIntegrationTest {
                     "testFlow1",
                     {
                         step("testStep1") {
-                            tasklet { _, _ ->
-                                ++testStep1CallCount
-                                throw RuntimeException("Error")
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep1CallCount
+                                    throw RuntimeException("Error")
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 ) {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -509,10 +588,13 @@ internal class FlowJobBuilderDslIntegrationTest {
                     "testFlow2",
                     {
                         step("testStep2") {
-                            tasklet { _, _ ->
-                                ++testStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 ) {
@@ -546,20 +628,26 @@ internal class FlowJobBuilderDslIntegrationTest {
         val testFlow1 = batch {
             flow("testFlow1") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        throw RuntimeException("Error")
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            throw RuntimeException("Error")
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
         val testFlow2 = batch {
             flow("testFlow2") {
                 step("testStep2") {
-                    tasklet { _, _ ->
-                        ++testStep2CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep2CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
             }
         }
@@ -570,18 +658,24 @@ internal class FlowJobBuilderDslIntegrationTest {
                 flow(testFlow1) {
                     on("COMPLETED") {
                         step("transitionStep1") {
-                            tasklet { _, _ ->
-                                ++transitionStep1CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep1CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     on("FAILED") {
                         step("transitionStep2") {
-                            tasklet { _, _ ->
-                                ++transitionStep2CallCount
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++transitionStep2CallCount
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -656,10 +750,13 @@ internal class FlowJobBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
                 deciderBean("testDecider") {
                     on("COMPLETED") {
@@ -724,10 +821,13 @@ internal class FlowJobBuilderDslIntegrationTest {
         val job = batch {
             job("testJob") {
                 step("testStep1") {
-                    tasklet { _, _ ->
-                        ++testStep1CallCount
-                        RepeatStatus.FINISHED
-                    }
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager()
+                    )
                 }
                 decider(decider) {
                     on("COMPLETED") {
@@ -768,20 +868,26 @@ internal class FlowJobBuilderDslIntegrationTest {
                 split(taskExecutor) {
                     flow("testFlow1") {
                         step("testStep1") {
-                            tasklet { _, _ ->
-                                ++testStep1CallCount
-                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep1CallCount
+                                    assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                     flow("testFlow2") {
                         step("testStep2") {
-                            tasklet { _, _ ->
-                                ++testStep2CallCount
-                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet(
+                                { _, _ ->
+                                    ++testStep2CallCount
+                                    assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                    RepeatStatus.FINISHED
+                                },
+                                ResourcelessTransactionManager()
+                            )
                         }
                     }
                 }
@@ -798,7 +904,10 @@ internal class FlowJobBuilderDslIntegrationTest {
     }
 
     @Configuration
-    @EnableBatchProcessing
+    @EnableBatchProcessing(
+        dataSourceRef = "metadataDataSource",
+        transactionManagerRef = "metadataTransactionManager",
+    )
     private open class TestConfiguration {
 
         @Bean
@@ -811,7 +920,12 @@ internal class FlowJobBuilderDslIntegrationTest {
         )
 
         @Bean
-        open fun dataSource(): DataSource {
+        open fun metadataTransactionManager(): TransactionManager {
+            return DataSourceTransactionManager(metadataDataSource())
+        }
+
+        @Bean
+        open fun metadataDataSource(): DataSource {
             return EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")
