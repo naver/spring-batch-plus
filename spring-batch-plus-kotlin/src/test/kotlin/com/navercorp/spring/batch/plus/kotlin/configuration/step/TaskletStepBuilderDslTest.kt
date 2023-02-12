@@ -54,14 +54,10 @@ internal class TaskletStepBuilderDslTest {
     private fun taskletStepBuilderDsl(tasklet: Tasklet, init: TaskletStepBuilderDsl.() -> Unit): Step {
         val dslContext = DslContext(
             beanFactory = mock(),
-            jobBuilderFactory = mock(),
-            stepBuilderFactory = mock(),
+            jobRepository = mock(),
         )
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
-        val taskletStepBuilder = stepBuilder.tasklet(tasklet)
+        val stepBuilder = StepBuilder("testStep", mock())
+        val taskletStepBuilder = stepBuilder.tasklet(tasklet, ResourcelessTransactionManager())
 
         return TaskletStepBuilderDsl(dslContext, taskletStepBuilder).apply(init).build()
     }
@@ -258,14 +254,11 @@ internal class TaskletStepBuilderDslTest {
         var iterateCount = 0
         var taskExecutorCallCount = 0
         var exceptionHandlerCallCount = 0
-        val stepBuilder = StepBuilder("testStep").apply {
-            repository(mock())
-            transactionManager(ResourcelessTransactionManager())
-        }
+        val stepBuilder = StepBuilder("testStep", mock())
 
         // when
         val step = stepBuilder
-            .tasklet { _, _ -> RepeatStatus.FINISHED }
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             .stepOperations(
                 object : RepeatTemplate() {
                     override fun iterate(callback: RepeatCallback): RepeatStatus {
