@@ -37,7 +37,7 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +63,7 @@ class DeleteMetadataJobTest {
 		@Autowired String tablePrefix,
 		@Autowired JobRepositoryTestUtils testUtils
 	) {
-		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+		TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
 		jobLauncher.setJobRepository(this.jobRepository);
 		jobLauncher.setTaskExecutor(new SyncTaskExecutor());
 		this.jobLauncher = jobLauncher;

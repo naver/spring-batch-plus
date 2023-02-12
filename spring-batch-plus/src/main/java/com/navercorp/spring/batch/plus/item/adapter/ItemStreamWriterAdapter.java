@@ -18,9 +18,9 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
-import java.util.List;
 import java.util.Objects;
 
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
@@ -57,8 +57,8 @@ public class ItemStreamWriterAdapter<T> implements ItemStreamWriter<T> {
 
 	@SuppressWarnings("NullableProblems")
 	@Override
-	public void write(List<? extends T> items) {
-		this.delegate.write(items);
+	public void write(Chunk<? extends T> chunk) {
+		this.delegate.write(chunk);
 	}
 
 	@SuppressWarnings("NullableProblems")

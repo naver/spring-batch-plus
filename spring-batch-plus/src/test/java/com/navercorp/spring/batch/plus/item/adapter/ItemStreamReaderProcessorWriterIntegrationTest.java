@@ -23,8 +23,9 @@ import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemSt
 import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemStreamWriter;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.UUID;
+
+import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,14 +35,21 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.TransactionManager;
 
 import reactor.core.publisher.Flux;
 
@@ -79,15 +87,14 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 	void testReaderProcessorWriter() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
-		JobBuilderFactory jobBuilderFactory = context.getBean(JobBuilderFactory.class);
-		StepBuilderFactory stepBuilderFactory = context.getBean(StepBuilderFactory.class);
+		JobRepository jobRepository = context.getBean(JobRepository.class);
 		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet = context.getBean(
 			"testTasklet",
 			ItemStreamReaderProcessorWriter.class);
-		Job job = jobBuilderFactory.get("testJob")
+		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
-				stepBuilderFactory.get("testStep")
-					.<Integer, Integer>chunk(3)
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
 					.reader(itemStreamReader(testTasklet))
 					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
@@ -134,15 +141,14 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 	void testStepScopeReaderProcessorWriter() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
-		JobBuilderFactory jobBuilderFactory = context.getBean(JobBuilderFactory.class);
-		StepBuilderFactory stepBuilderFactory = context.getBean(StepBuilderFactory.class);
+		JobRepository jobRepository = context.getBean(JobRepository.class);
 		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet = context.getBean(
 			"stepScopeTestTasklet",
 			ItemStreamReaderProcessorWriter.class);
-		Job job = jobBuilderFactory.get("testJob")
+		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
-				stepBuilderFactory.get("testStep")
-					.<Integer, Integer>chunk(3)
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
 					.reader(itemStreamReader(testTasklet))
 					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
@@ -189,15 +195,14 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 	void testReaderProcessorWriterWithRequiredMethodsOnly() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
-		JobBuilderFactory jobBuilderFactory = context.getBean(JobBuilderFactory.class);
-		StepBuilderFactory stepBuilderFactory = context.getBean(StepBuilderFactory.class);
+		JobRepository jobRepository = context.getBean(JobRepository.class);
 		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet = context.getBean(
 			"testTaskletWithOnlyRequiredMethodsOnly",
 			ItemStreamReaderProcessorWriter.class);
-		Job job = jobBuilderFactory.get("testJob")
+		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
-				stepBuilderFactory.get("testStep")
-					.<Integer, Integer>chunk(3)
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
 					.reader(itemStreamReader(testTasklet))
 					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
@@ -224,8 +229,25 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 	}
 
 	@SuppressWarnings("unused")
-	@EnableBatchProcessing
+	@EnableBatchProcessing(
+		dataSourceRef = "metadataDataSource",
+		transactionManagerRef = "metadataTransactionManager"
+	)
 	static class TestConfiguration {
+
+		@Bean
+		TransactionManager metadataTransactionManager() {
+			return new DataSourceTransactionManager(metadataDataSource());
+		}
+
+		@Bean
+		DataSource metadataDataSource() {
+			return new EmbeddedDatabaseBuilder()
+				.setType(EmbeddedDatabaseType.H2)
+				.addScript("/org/springframework/batch/core/schema-h2.sql")
+				.generateUniqueName(true)
+				.build();
+		}
 
 		@Bean
 		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet() {
@@ -274,7 +296,7 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				}
 
 				@Override
-				public void write(@NonNull List<? extends Integer> items) {
+				public void write(@NonNull Chunk<? extends Integer> chunk) {
 					++writeCallCount;
 				}
 
@@ -338,7 +360,7 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				}
 
 				@Override
-				public void write(@NonNull List<? extends Integer> items) {
+				public void write(@NonNull Chunk<? extends Integer> chunk) {
 					++writeCallCount;
 				}
 
@@ -381,7 +403,7 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				}
 
 				@Override
-				public void write(@NonNull List<? extends Integer> items) {
+				public void write(@NonNull Chunk<? extends Integer> chunk) {
 					++writeCallCount;
 				}
 			};

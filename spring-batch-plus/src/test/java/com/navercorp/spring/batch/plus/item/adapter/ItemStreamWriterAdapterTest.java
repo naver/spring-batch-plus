@@ -21,11 +21,10 @@ package com.navercorp.spring.batch.plus.item.adapter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
@@ -44,7 +43,7 @@ class ItemStreamWriterAdapterTest {
 				}
 
 				@Override
-				public void write(@NonNull List<? extends Integer> items) {
+				public void write(@NonNull Chunk<? extends Integer> chunk) {
 					throw new UnsupportedOperationException();
 				}
 
@@ -78,7 +77,7 @@ class ItemStreamWriterAdapterTest {
 				}
 
 				@Override
-				public void write(@NonNull List<? extends Integer> items) {
+				public void write(@NonNull Chunk<? extends Integer> chunk) {
 					writeCallCount.incrementAndGet();
 				}
 
@@ -94,7 +93,7 @@ class ItemStreamWriterAdapterTest {
 			});
 
 		// when
-		itemStreamWriterAdaptor.write(Collections.emptyList());
+		itemStreamWriterAdaptor.write(Chunk.of());
 
 		// then
 		assertThat(writeCallCount.get()).isEqualTo(1);
@@ -112,7 +111,7 @@ class ItemStreamWriterAdapterTest {
 				}
 
 				@Override
-				public void write(@NonNull List<? extends Integer> items) {
+				public void write(@NonNull Chunk<? extends Integer> chunk) {
 					throw new UnsupportedOperationException();
 				}
 
@@ -146,7 +145,7 @@ class ItemStreamWriterAdapterTest {
 				}
 
 				@Override
-				public void write(@NonNull List<? extends Integer> items) {
+				public void write(@NonNull Chunk<? extends Integer> chunk) {
 					throw new UnsupportedOperationException();
 				}
 
