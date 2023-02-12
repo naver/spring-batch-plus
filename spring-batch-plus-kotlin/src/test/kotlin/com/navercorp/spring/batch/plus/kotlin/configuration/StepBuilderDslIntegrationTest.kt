@@ -28,8 +28,6 @@ import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.annotation.AfterStep
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -769,12 +767,10 @@ internal class StepBuilderDslIntegrationTest {
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,
-            jobBuilderFactory: JobBuilderFactory,
-            stepBuilderFactory: StepBuilderFactory
+            jobRepository: JobRepository,
         ): BatchDsl = BatchDsl(
             beanFactory,
-            jobBuilderFactory,
-            stepBuilderFactory,
+            jobRepository,
         )
 
         @Bean

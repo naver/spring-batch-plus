@@ -26,9 +26,8 @@ import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
@@ -84,6 +83,7 @@ internal class FlowTransitionBuilderDslIntegrationTest {
                 assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
                 assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
             }
+
             else -> {
                 assertThat(jobExecution.status).isEqualTo(BatchStatus.FAILED)
                 assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.FAILED.exitCode)
@@ -136,12 +136,10 @@ internal class FlowTransitionBuilderDslIntegrationTest {
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,
-            jobBuilderFactory: JobBuilderFactory,
-            stepBuilderFactory: StepBuilderFactory
+            jobRepository: JobRepository,
         ): BatchDsl = BatchDsl(
             beanFactory,
-            jobBuilderFactory,
-            stepBuilderFactory
+            jobRepository,
         )
 
         @Bean

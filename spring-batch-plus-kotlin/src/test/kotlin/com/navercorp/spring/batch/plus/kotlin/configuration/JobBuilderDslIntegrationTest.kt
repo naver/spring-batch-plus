@@ -29,8 +29,6 @@ import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.annotation.AfterJob
 import org.springframework.batch.core.annotation.BeforeJob
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
 import org.springframework.batch.core.explore.JobExplorer
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
@@ -289,12 +287,10 @@ internal class JobBuilderDslIntegrationTest {
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,
-            jobBuilderFactory: JobBuilderFactory,
-            stepBuilderFactory: StepBuilderFactory
+            jobRepository: JobRepository,
         ): BatchDsl = BatchDsl(
             beanFactory,
-            jobBuilderFactory,
-            stepBuilderFactory,
+            jobRepository,
         )
 
         @Bean
