@@ -8,7 +8,7 @@ New Features
 
 Changes
 
-- None
+- Support spring batch plus 5.0.0
 
 Bug fixes & Improvements
 
