@@ -118,14 +118,14 @@ Since it provides extension features to spring batch, need to used with [spring 
 Kotlin
 
 ```kotlin
-implementation("org.springframework.batch:spring-batch-core:${springBatchVersion}") // need spring batch
+implementation("org.springframework.boot:spring-boot-starter-batch:${springBootVersion}") // need spring batch
 implementation("com.navercorp.spring:spring-boot-starter-batch-plus-kotlin:${springBatchPlusVersion}")
 ```
 
 Java
 
 ```kotlin
-implementation("org.springframework.batch:spring-batch-core:${springBatchVersion}") // need spring batch
+implementation("org.springframework.boot:spring-boot-starter-batch:${springBootVersion}") // need spring batch
 implementation("com.navercorp.spring:spring-boot-starter-batch-plus:${springBatchPlusVersion}")
 ```
 
@@ -136,9 +136,9 @@ Kotlin
 ```xml
 <!-- need spring batch -->
 <dependency>
-    <groupId>org.springframework.batch</groupId>
-    <artifactId>spring-batch-core</artifactId>
-    <version>{springBatchVersion}</version>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-batch</artifactId>
+    <version>{springBootVersion}</version>
 </dependency>
 <dependency>
     <groupId>com.navercorp.spring</groupId>
@@ -152,9 +152,9 @@ Java
 ```xml
 <!-- need spring batch -->
 <dependency>
-    <groupId>org.springframework.batch</groupId>
-    <artifactId>spring-batch-core</artifactId>
-    <version>{springBatchVersion}</version>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-batch</artifactId>
+    <version>{springBootVersion}</version>
 </dependency>
 <dependency>
     <groupId>com.navercorp.spring</groupId>
