@@ -19,12 +19,14 @@
 package com.navecorp.spring.batch.plus.sample.comparison.good;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,14 +38,16 @@ public class TestJobConfig {
 
 	@Bean
 	public Job testJob(
-		JobBuilderFactory jobBuilderFactory,
-		StepBuilderFactory stepBuilderFactory
+		JobRepository jobRepository
 	) {
-		return jobBuilderFactory.get("testJob")
-			.incrementer(ClearRunIdIncrementer.create())
+		return new JobBuilder("testJob", jobRepository)
+			.incrementer(ClearRunIdIncrementer.create()) // use ClearRunIdIncrementer
 			.start(
-				stepBuilderFactory.get("testStep")
-					.tasklet(testTasklet(null, null))
+				new StepBuilder("testStep", jobRepository)
+					.tasklet(
+						testTasklet(null, null),
+						new ResourcelessTransactionManager()
+					)
 					.build()
 			)
 			.build();

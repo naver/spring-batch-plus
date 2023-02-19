@@ -25,14 +25,16 @@ Let’s say you define a job using two job parameters as shown in the following 
 ```java
 @Bean
 public Job testJob(
-    JobBuilderFactory jobBuilderFactory,
-    StepBuilderFactory stepBuilderFactory
+    JobRepository jobRepository
 ) {
-    return jobBuilderFactory.get("testJob")
+    return new JobBuilder("testJob", jobRepository)
         .incrementer(new RunIdIncrementer())
         .start(
-            stepBuilderFactory.get("testStep")
-                .tasklet(testTasklet(null, null))
+            new StepBuilder("testStep", jobRepository)
+                .tasklet(
+                    testTasklet(null, null),
+                    new ResourcelessTransactionManager()
+                )
                 .build()
         )
         .build();
@@ -102,14 +104,16 @@ public static void main(String[] args) throws Exception {
 ```java
 @Bean
 public Job testJob(
-    JobBuilderFactory jobBuilderFactory,
-    StepBuilderFactory stepBuilderFactory
+    JobRepository jobRepository
 ) {
-    return jobBuilderFactory.get("testJob")
-        .incrementer(ClearRunIdIncrementer.create()) // ClearRunIdIncrementer 사용
+    return new JobBuilder("testJob", jobRepository)
+        .incrementer(ClearRunIdIncrementer.create()) // use ClearRunIdIncrementer
         .start(
-            stepBuilderFactory.get("testStep")
-                .tasklet(testTasklet(null, null))
+            new StepBuilder("testStep", jobRepository)
+                .tasklet(
+                    testTasklet(null, null),
+                    new ResourcelessTransactionManager()
+                )
                 .build()
         )
         .build();
@@ -186,14 +190,16 @@ public class TestJobConfig {
 
     @Bean
     public Job testJob(
-        JobBuilderFactory jobBuilderFactory,
-        StepBuilderFactory stepBuilderFactory
+        JobRepository jobRepository
     ) {
-        return jobBuilderFactory.get("testJob")
+        return new JobBuilder("testJob", jobRepository)
             .incrementer(ClearRunIdIncrementer.create())
             .start(
-                stepBuilderFactory.get("testStep")
-                    .tasklet((contribution, chunkContext) -> RepeatStatus.FINISHED)
+                new StepBuilder("testStep", jobRepository)
+                    .tasklet(
+                        (contribution, chunkContext) -> RepeatStatus.FINISHED,
+                        new ResourcelessTransactionManager()
+                    )
                     .build()
             )
             .build();
@@ -205,16 +211,19 @@ public class TestJobConfig {
 
 ```kotlin
 @Configuration
-class TestJobConfig {
+open class TestJobConfig {
 
     @Bean
-    fun testJob(
-        batch: BatchDsl
+    open fun testJob(
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             incrementer(ClearRunIdIncrementer.create())
             step("testStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet(
+                    { _, _ -> RepeatStatus.FINISHED },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }
@@ -233,14 +242,16 @@ public class TestJobConfig {
 
     @Bean
     public Job testJob(
-        JobBuilderFactory jobBuilderFactory,
-        StepBuilderFactory stepBuilderFactory
+        JobRepository jobRepository
     ) {
-        return jobBuilderFactory.get("testJob")
+        return new JobBuilder("testJob", jobRepository)
             .incrementer(ClearRunIdIncrementer.create("testId"))
             .start(
-                stepBuilderFactory.get("testStep")
-                    .tasklet((contribution, chunkContext) -> RepeatStatus.FINISHED)
+                new StepBuilder("testStep", jobRepository)
+                    .tasklet(
+                        (contribution, chunkContext) -> RepeatStatus.FINISHED,
+                        new ResourcelessTransactionManager()
+                    )
                     .build()
             )
             .build();
@@ -252,16 +263,19 @@ public class TestJobConfig {
 
 ```kotlin
 @Configuration
-class TestJobConfig {
+open class TestJobConfig {
 
     @Bean
-    fun testJob(
+    open fun testJob(
         batch: BatchDsl
     ): Job = batch {
         job("testJob") {
             incrementer(ClearRunIdIncrementer.create("testId"))
             step("testStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet(
+                    { _, _ -> RepeatStatus.FINISHED },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }

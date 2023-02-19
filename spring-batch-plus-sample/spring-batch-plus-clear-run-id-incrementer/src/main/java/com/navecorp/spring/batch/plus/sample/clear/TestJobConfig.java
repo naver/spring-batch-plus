@@ -19,9 +19,11 @@
 package com.navecorp.spring.batch.plus.sample.clear;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,14 +34,16 @@ public class TestJobConfig {
 
 	@Bean
 	public Job testJob(
-		JobBuilderFactory jobBuilderFactory,
-		StepBuilderFactory stepBuilderFactory
+		JobRepository jobRepository
 	) {
-		return jobBuilderFactory.get("testJob")
+		return new JobBuilder("testJob", jobRepository)
 			.incrementer(ClearRunIdIncrementer.create())
 			.start(
-				stepBuilderFactory.get("testStep")
-					.tasklet((contribution, chunkContext) -> RepeatStatus.FINISHED)
+				new StepBuilder("testStep", jobRepository)
+					.tasklet(
+						(contribution, chunkContext) -> RepeatStatus.FINISHED,
+						new ResourcelessTransactionManager()
+					)
 					.build()
 			)
 			.build();
