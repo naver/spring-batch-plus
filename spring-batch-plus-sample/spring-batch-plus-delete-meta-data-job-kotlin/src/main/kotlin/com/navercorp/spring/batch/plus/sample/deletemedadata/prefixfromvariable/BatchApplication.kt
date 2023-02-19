@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.deletemedadata.plain
+package com.navercorp.spring.batch.plus.sample.deletemedadata.prefixfromvariable
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobExecution
@@ -27,11 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.Properties
 
 @SpringBootApplication
 open class BatchApplication : ApplicationRunner {
@@ -73,11 +74,18 @@ open class BatchApplication : ApplicationRunner {
 }
 
 fun main() {
-    val applicationContext = runApplication<BatchApplication>()
+    // launch with custom prefix
+    val application = SpringApplication(BatchApplication::class.java).apply {
+        val properties = Properties().apply {
+            this["spring.batch.jdbc.table-prefix"] = "CUSTOM_"
+        }
+        setDefaultProperties(properties)
+    }
+    val applicationContext = application.run()
     val jobLauncher = applicationContext.getBean<JobLauncher>()
 
-    // launch deleteMetadataJob
-    val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
+    // launch removeJob
+    val removeJob = applicationContext.getBean<Job>("removeJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     val jobParameter = JobParametersBuilder()

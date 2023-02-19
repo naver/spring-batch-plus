@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navecorp.spring.batch.plus.sample.deletemetadata.plain;
+package com.navecorp.spring.batch.plus.sample.deletemetadata.prefixfromvariable;
 
 import javax.sql.DataSource;
 
@@ -28,6 +28,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.boot.autoconfigure.batch.BatchDataSource;
+import org.springframework.boot.autoconfigure.batch.BatchProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,11 +38,15 @@ import com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataJobBuilder;
 public class TestJobConfig {
 
 	@Bean
-	public Job deleteMetadataJob(
+	public Job removeJob(
 		@BatchDataSource DataSource dataSource,
-		JobRepository jobRepository
+		JobRepository jobRepository,
+		BatchProperties properties
 	) {
+		String tablePrefix = properties.getJdbc().getTablePrefix();
 		return new DeleteMetadataJobBuilder(jobRepository, dataSource)
+			.name("removeJob")
+			.tablePrefix(tablePrefix)
 			.build();
 	}
 

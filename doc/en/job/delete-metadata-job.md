@@ -46,14 +46,19 @@ public class TestJobConfig {
 }
 
 // run
-JobLauncher jobLauncher = ...
-Job deleteMetadataJob = applicationContext.getBean("deleteMetadataJob", Job.class);
-LocalDate now = LocalDate.now();
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-JobParameters jobParameter = new JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .toJobParameters();
-jobLauncher.run(deleteMetadataJob, jobParameter);
+public static void main(String[] args) throws Exception {
+    ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
+    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+
+    // launch deleteMetadataJob
+    Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
+    LocalDate now = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    JobParameters jobParameter = new JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .toJobParameters();
+    jobLauncher.run(removeJob, jobParameter);
+}
 ```
 
 ### Kotlin
@@ -74,14 +79,19 @@ open class TestJobConfig {
 }
 
 // run
-val jobLauncher = ...
-val deleteMetadataJob = applicationContext.getBean<Job>("deleteMetadataJob")
-val now = LocalDate.now()
-val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-val jobParameter = JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .toJobParameters()
-jobLauncher.run(deleteMetadataJob, jobParameter)
+fun main() {
+    val applicationContext = runApplication<BatchApplication>()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+
+    // launch deleteMetadataJob
+    val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
+    val now = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    val jobParameter = JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .toJobParameters()
+    jobLauncher.run(removeJob, jobParameter)
+}
 ```
 
 ## Specify a job name
@@ -107,14 +117,19 @@ public class TestJobConfig {
 }
 
 // run
-JobLauncher jobLauncher = ...
-Job removeJob = applicationContext.getBean("removeJob", Job.class);
-LocalDate now = LocalDate.now();
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-JobParameters jobParameter = new JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .toJobParameters();
-jobLauncher.run(removeJob, jobParameter);
+public static void main(String[] args) throws Exception {
+    ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
+    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+
+    // launch removeJob
+    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    LocalDate now = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    JobParameters jobParameter = new JobParametersBuilder()
+        .addString("base", now.format(formatter)) // custom naming
+        .toJobParameters();
+    jobLauncher.run(removeJob, jobParameter);
+}
 ```
 
 ### Kotlin
@@ -136,14 +151,19 @@ open class TestJobConfig {
 }
 
 // run
-val jobLauncher = ...
-val removeJob = applicationContext.getBean<Job>("removeJob")
-val now = LocalDate.now()
-val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-val jobParameter = JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .toJobParameters()
-jobLauncher.run(removeJob, jobParameter)
+fun main() {
+    val applicationContext = runApplication<BatchApplication>()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+
+    // launch removeJob
+    val removeJob = applicationContext.getBean<Job>("removeJob")
+    val now = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    val jobParameter = JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .toJobParameters()
+    jobLauncher.run(removeJob, jobParameter)
+}
 ```
 
 ## Specify a metatable prefix
@@ -170,14 +190,24 @@ public class TestJobConfig {
 }
 
 // run
-JobLauncher jobLauncher = ...
-Job removeJob = applicationContext.getBean("removeJob", Job.class);
-LocalDate now = LocalDate.now();
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-JobParameters jobParameter = new JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .toJobParameters();
-jobLauncher.run(removeJob, jobParameter);
+public static void main(String[] args) throws Exception {
+    // launch with custom prefix
+    SpringApplication application = new SpringApplication(BatchApplication.class);
+    Properties properties = new Properties();
+    properties.put("spring.batch.jdbc.table-prefix", "CUSTOM_");
+    application.setDefaultProperties(properties);
+    ApplicationContext applicationContext = application.run(args);
+    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+
+    // launch removeJob
+    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    LocalDate now = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    JobParameters jobParameter = new JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .toJobParameters();
+    jobLauncher.run(removeJob, jobParameter);
+}
 ```
 
 You can also get the value of `spring.batch.jdbc.table-prefix` in Spring Boot as shown in the following code example.
@@ -225,14 +255,26 @@ open class TestJobConfig {
 }
 
 // run
-val jobLauncher = ...
-val removeJob = applicationContext.getBean<Job>("removeJob")
-val now = LocalDate.now()
-val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-val jobParameter = JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .toJobParameters()
-jobLauncher.run(removeJob, jobParameter)
+fun main() {
+    // launch with custom prefix
+    val application = SpringApplication(BatchApplication::class.java).apply {
+        val properties = Properties().apply {
+            this["spring.batch.jdbc.table-prefix"] = "CUSTOM_"
+        }
+        setDefaultProperties(properties)
+    }
+    val applicationContext = application.run()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+
+    // launch removeJob
+    val removeJob = applicationContext.getBean<Job>("removeJob")
+    val now = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    val jobParameter = JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .toJobParameters()
+    jobLauncher.run(removeJob, jobParameter)
+}
 ```
 
 You can also get the value of `spring.batch.jdbc.table-prefix` in Spring Boot as shown in the following code example.
@@ -254,7 +296,7 @@ open class TestJobConfig {
         val tablePrefix = properties.jdbc.tablePrefix
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
             .name("removeJob")
-            .tablePrefix("CUSTOM_")
+            .tablePrefix(tablePrefix)
             .build()
     }
 }
@@ -284,16 +326,19 @@ public class TestJobConfig {
 }
 
 // run
-JobLauncher jobLauncher = ...
+public static void main(String[] args) throws Exception {
+    ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
+    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
 
-// launch removeJob
-Job removeJob = applicationContext.getBean("removeJob", Job.class);
-LocalDate now = LocalDate.now();
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-JobParameters jobParameter = new JobParametersBuilder()
-    .addString("base", now.format(formatter)) // custom naming
-    .toJobParameters();
-jobLauncher.run(removeJob, jobParameter);
+    // launch removeJob
+    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    LocalDate now = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    JobParameters jobParameter = new JobParametersBuilder()
+        .addString("base", now.format(formatter)) // custom naming
+        .toJobParameters();
+    jobLauncher.run(removeJob, jobParameter);
+}
 ```
 
 ### Kotlin
@@ -316,14 +361,19 @@ open class TestJobConfig {
 }
 
 // run
-val jobLauncher = ...
-val removeJob = applicationContext.getBean<Job>("removeJob")
-val now = LocalDate.now()
-val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-val jobParameter = JobParametersBuilder()
-    .addString("base", now.format(formatter)) // custom naming
-    .toJobParameters()
-jobLauncher.run(removeJob, jobParameter)
+fun main() {
+    val applicationContext = runApplication<BatchApplication>()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+
+    // launch removeJob
+    val removeJob = applicationContext.getBean<Job>("removeJob")
+    val now = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    val jobParameter = JobParametersBuilder()
+        .addString("base", now.format(formatter)) // custom naming
+        .toJobParameters()
+    jobLauncher.run(removeJob, jobParameter)
+}
 ```
 
 ## Specify a date format
@@ -350,14 +400,19 @@ public class TestJobConfig {
 }
 
 // run
-JobLauncher jobLauncher = ...
-Job removeJob = applicationContext.getBean("removeJob", Job.class);
-LocalDate now = LocalDate.now();
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-JobParameters jobParameter = new JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .toJobParameters();
-jobLauncher.run(removeJob, jobParameter);
+public static void main(String[] args) throws Exception {
+    ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
+    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+
+    // launch removeJob
+    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    LocalDate now = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    JobParameters jobParameter = new JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .toJobParameters();
+    jobLauncher.run(removeJob, jobParameter);
+}
 ```
 
 ### Kotlin
@@ -380,14 +435,19 @@ open class TestJobConfig {
 }
 
 // run
-val jobLauncher = ...
-val removeJob = applicationContext.getBean<Job>("removeJob")
-val now = LocalDate.now()
-val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-val jobParameter = JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .toJobParameters()
-jobLauncher.run(removeJob, jobParameter)
+fun main() {
+    val applicationContext = runApplication<BatchApplication>()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+
+    // launch removeJob
+    val removeJob = applicationContext.getBean<Job>("removeJob")
+    val now = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val jobParameter = JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .toJobParameters()
+    jobLauncher.run(removeJob, jobParameter)
+}
 ```
 
 ## Execute as a dryRun mode
@@ -413,15 +473,20 @@ public class TestJobConfig {
 }
 
 // run
-JobLauncher jobLauncher = ...
-Job removeJob = applicationContext.getBean("removeJob", Job.class);
-LocalDate now = LocalDate.now();
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-JobParameters jobParameter = new JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .addString("dryRun", "true") // set dryRun to 'true'
-    .toJobParameters();
-jobLauncher.run(removeJob, jobParameter);
+public static void main(String[] args) throws Exception {
+    ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
+    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+
+    // launch removeJob
+    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    LocalDate now = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    JobParameters jobParameter = new JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .addString("dryRun", "true") // set dryRun to 'true'
+        .toJobParameters();
+    jobLauncher.run(removeJob, jobParameter);
+}
 ```
 
 ### Kotlin
@@ -438,21 +503,25 @@ open class TestJobConfig {
     ): Job {
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
             .name("removeJob")
-            .dryRunParameterName("customDryRun")
             .build()
     }
 }
 
 // run
-val jobLauncher = ...
-val removeJob = applicationContext.getBean<Job>("removeJob")
-val now = LocalDate.now()
-val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-val jobParameter = JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .addString("dryRun", "true") // set dryRun to 'true'
-    .toJobParameters()
-jobLauncher.run(removeJob, jobParameter)
+fun main() {
+    val applicationContext = runApplication<BatchApplication>()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+
+    // launch removeJob
+    val removeJob = applicationContext.getBean<Job>("removeJob")
+    val now = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    val jobParameter = JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .addString("dryRun", "true") // set dryRun to 'true'
+        .toJobParameters()
+    jobLauncher.run(removeJob, jobParameter)
+}
 ```
 
 ## Specify dryRun parameter name
@@ -479,15 +548,20 @@ public class TestJobConfig {
 }
 
 // run
-JobLauncher jobLauncher = ...
-Job removeJob = applicationContext.getBean("removeJob", Job.class);
-LocalDate now = LocalDate.now();
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-JobParameters jobParameter = new JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .addString("customDryRunParam", "true") // set dryRun to 'true'
-    .toJobParameters();
-jobLauncher.run(removeJob, jobParameter);
+public static void main(String[] args) throws Exception {
+    ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
+    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+
+    // launch removeJob
+    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    LocalDate now = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    JobParameters jobParameter = new JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .addString("customDryRunParam", "true") // set dryRun to 'true'
+        .toJobParameters();
+    jobLauncher.run(removeJob, jobParameter);
+}
 ```
 
 ### Kotlin
@@ -510,13 +584,18 @@ open class TestJobConfig {
 }
 
 // run
-val jobLauncher = ...
-val removeJob = applicationContext.getBean<Job>("removeJob")
-val now = LocalDate.now()
-val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-val jobParameter = JobParametersBuilder()
-    .addString("baseDate", now.format(formatter))
-    .addString("customDryRunParam", "true") // set dryRun to 'true'
-    .toJobParameters()
-jobLauncher.run(removeJob, jobParameter)
+fun main() {
+    val applicationContext = runApplication<BatchApplication>()
+    val jobLauncher = applicationContext.getBean<JobLauncher>()
+
+    // launch removeJob
+    val removeJob = applicationContext.getBean<Job>("removeJob")
+    val now = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    val jobParameter = JobParametersBuilder()
+        .addString("baseDate", now.format(formatter))
+        .addString("customDryRunParam", "true") // set dryRun to 'true'
+        .toJobParameters()
+    jobLauncher.run(removeJob, jobParameter)
+}
 ```
