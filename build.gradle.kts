@@ -19,8 +19,8 @@ koverMerged {
             //     ":spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer-kotlin",
                 ":spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer",
                 ":spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer-kotlin",
-            //     ":spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job",
-            //     ":spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job-kotlin"
+                ":spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job",
+                ":spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job-kotlin"
             )
         }
     }

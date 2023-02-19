@@ -12,8 +12,8 @@ include("spring-boot-starter-batch-plus-kotlin")
 // include("spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer-kotlin")
 include("spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer")
 include("spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer-kotlin")
-// include("spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job")
-// include("spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job-kotlin")
+include("spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job")
+include("spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job-kotlin")
 
 dependencyResolutionManagement {
     repositories {

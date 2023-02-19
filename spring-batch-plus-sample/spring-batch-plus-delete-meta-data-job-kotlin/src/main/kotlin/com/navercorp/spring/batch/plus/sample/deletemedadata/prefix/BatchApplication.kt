@@ -21,7 +21,6 @@ package com.navercorp.spring.batch.plus.sample.deletemedadata.prefix
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobExecution
 import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,10 +32,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Date
 import java.util.Properties
 
-@EnableBatchProcessing
 @SpringBootApplication
 open class BatchApplication : ApplicationRunner {
 
@@ -63,11 +60,11 @@ open class BatchApplication : ApplicationRunner {
             val createTime = jobExecution.createTime
             val startTime = jobExecution.startTime
             val endTime = jobExecution.endTime
-            val updateCreateTime = Date.from(createTime.toInstant().minus(1, ChronoUnit.DAYS))
-            val updateStartTime = Date.from(startTime!!.toInstant().minus(1, ChronoUnit.DAYS))
-            val updateEndTime = Date.from(endTime!!.toInstant().minus(1, ChronoUnit.DAYS))
-            val updateJobExecution =
-                JobExecution(jobExecution)
+            val updateCreateTime = createTime.minus(1, ChronoUnit.DAYS)
+            val updateStartTime = startTime!!.minus(1, ChronoUnit.DAYS)
+            val updateEndTime = endTime!!.minus(1, ChronoUnit.DAYS)
+
+            val updateJobExecution = JobExecution(jobExecution)
             updateJobExecution.createTime = updateCreateTime
             updateJobExecution.setStartTime(updateStartTime)
             updateJobExecution.setEndTime(updateEndTime)
