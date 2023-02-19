@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navecorp.spring.batch.plus.sample.deletemetadata.plain;
+package com.navecorp.spring.batch.plus.sample.deletemetadata.jobname;
 
 import javax.sql.DataSource;
 
@@ -37,11 +37,12 @@ import com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataJobBuilder;
 public class TestJobConfig {
 
 	@Bean
-	public Job deleteMetadataJob(
+	public Job removeJob(
 		@BatchDataSource DataSource dataSource,
 		JobRepository jobRepository
 	) {
 		return new DeleteMetadataJobBuilder(jobRepository, dataSource)
+			.name("removeJob")
 			.build();
 	}
 

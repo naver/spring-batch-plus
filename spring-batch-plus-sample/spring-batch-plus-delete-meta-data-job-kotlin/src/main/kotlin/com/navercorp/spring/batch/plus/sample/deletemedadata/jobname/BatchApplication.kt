@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.deletemedadata.plain
+package com.navercorp.spring.batch.plus.sample.deletemedadata.jobname
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobExecution
@@ -76,8 +76,8 @@ fun main() {
     val applicationContext = runApplication<BatchApplication>()
     val jobLauncher = applicationContext.getBean<JobLauncher>()
 
-    // launch deleteMetadataJob
-    val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
+    // launch removeJob
+    val removeJob = applicationContext.getBean<Job>("removeJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     val jobParameter = JobParametersBuilder()

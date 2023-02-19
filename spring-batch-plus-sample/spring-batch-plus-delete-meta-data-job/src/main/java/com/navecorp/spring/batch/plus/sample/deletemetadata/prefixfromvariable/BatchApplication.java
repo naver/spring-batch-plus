@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navecorp.spring.batch.plus.sample.deletemetadata.plain;
+package com.navecorp.spring.batch.plus.sample.deletemetadata.prefixfromvariable;
 
 import static java.util.stream.Collectors.toList;
 
@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.LongStream;
 
 import org.springframework.batch.core.Job;
@@ -89,11 +90,16 @@ public class BatchApplication implements ApplicationRunner {
 	}
 
 	public static void main(String[] args) throws Exception {
-		ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
+		// launch with custom prefix
+		SpringApplication application = new SpringApplication(BatchApplication.class);
+		Properties properties = new Properties();
+		properties.put("spring.batch.jdbc.table-prefix", "CUSTOM_");
+		application.setDefaultProperties(properties);
+		ApplicationContext applicationContext = application.run(args);
 		JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
 
-		// launch deleteMetadataJob
-		Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
+		// launch removeJob
+		Job removeJob = applicationContext.getBean("removeJob", Job.class);
 		LocalDate now = LocalDate.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		JobParameters jobParameter = new JobParametersBuilder()
