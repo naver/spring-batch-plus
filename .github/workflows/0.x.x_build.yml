@@ -1,10 +1,10 @@
-name: Build
+name: 0.x.x Build
 
 on:
   push:
-    branches: [ main, '[1-9]+.[0-9]+.x' ]
+    branches: [ '0.[0-9]+.x' ]
   pull_request:
-    branches: [ main, '[1-9]+.[0-9]+.x' ]
+    branches: [ '0.[0-9]+.x' ]
   workflow_dispatch:
     inputs:
       commit_id:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ '17' ]
+        java-version: [ '8', '11', '17' ]
 
     steps:
       - name: Setup Commit ID
