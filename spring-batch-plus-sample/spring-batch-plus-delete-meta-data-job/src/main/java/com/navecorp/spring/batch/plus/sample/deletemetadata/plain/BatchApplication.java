@@ -21,19 +21,16 @@ package com.navecorp.spring.batch.plus.sample.deletemetadata.plain;
 import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +41,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
-@EnableBatchProcessing
 @SpringBootApplication
 public class BatchApplication implements ApplicationRunner {
 
@@ -76,13 +72,13 @@ public class BatchApplication implements ApplicationRunner {
 
 		// change previous execution date for test
 		jobExecutions.forEach(jobExecution -> {
-			Date createTime = jobExecution.getCreateTime();
-			Date startTime = jobExecution.getStartTime();
-			Date endTime = jobExecution.getEndTime();
+			LocalDateTime createTime = jobExecution.getCreateTime();
+			LocalDateTime startTime = jobExecution.getStartTime();
+			LocalDateTime endTime = jobExecution.getEndTime();
 
-			Date updateCreateTime = Date.from(createTime.toInstant().minus(1, ChronoUnit.DAYS));
-			Date updateStartTime = Date.from(startTime.toInstant().minus(1, ChronoUnit.DAYS));
-			Date updateEndTime = Date.from(endTime.toInstant().minus(1, ChronoUnit.DAYS));
+			LocalDateTime updateCreateTime = createTime.minus(1, ChronoUnit.DAYS);
+			LocalDateTime updateStartTime = startTime.minus(1, ChronoUnit.DAYS);
+			LocalDateTime updateEndTime = endTime.minus(1, ChronoUnit.DAYS);
 
 			JobExecution updateJobExecution = new JobExecution(jobExecution);
 			updateJobExecution.setCreateTime(updateCreateTime);

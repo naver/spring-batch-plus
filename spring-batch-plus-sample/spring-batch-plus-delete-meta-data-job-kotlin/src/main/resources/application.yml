@@ -8,4 +8,6 @@ spring:
   batch:
     job:
       enabled: false
-
+    jdbc:
+      initialize-schema: embedded
+      platform: h2
