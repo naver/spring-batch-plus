@@ -21,17 +21,18 @@ package com.navercorp.spring.boot.autoconfigure.batch.plus.kotlin
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 
 /**
  * Register [BatchDsl] bean.
  *
  * @since 0.1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration(after = [BatchAutoConfiguration::class])
 class BatchPlusAutoConfiguration {
 
     @Bean
