@@ -103,11 +103,11 @@ fun testJob(
 
 We've tested following versions only. Other versions may not work.
 
-| Spring Batch Plus Version | Spring Batch Version | Kotlin Version | Java Version |
-|---------------------------|----------------------|----------------|--------------|
-| 0.3.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher|
-| 0.2.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher|
-| 0.1.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher|
+| Spring Batch Plus Version | Spring Batch Version | Kotlin Version | Java Version | Samples                                                                                    |
+|---------------------------|----------------------|----------------|--------------|--------------------------------------------------------------------------------------------|
+| 0.3.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher| [Samples](https://github.com/naver/spring-batch-plus/tree/v0.3.0/spring-batch-plus-sample) |
+| 0.2.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher| [Samples](https://github.com/naver/spring-batch-plus/tree/v0.2.0/spring-batch-plus-sample) |
+| 0.1.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher| [Samples](https://github.com/naver/spring-batch-plus/tree/v0.1.0/spring-batch-plus-sample) |
 
 ## Download
 
