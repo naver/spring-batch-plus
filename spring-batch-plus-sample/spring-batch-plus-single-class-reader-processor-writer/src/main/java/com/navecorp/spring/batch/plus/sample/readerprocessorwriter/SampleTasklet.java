@@ -18,9 +18,8 @@
 
 package com.navecorp.spring.batch.plus.sample.readerprocessorwriter;
 
-import java.util.List;
-
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -59,7 +58,7 @@ class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> 
 	}
 
 	@Override
-	public void write(@NonNull List<? extends String> items) {
-		System.out.println(items);
+	public void write(@NonNull Chunk<? extends String> chunk) {
+		System.out.println(chunk.getItems());
 	}
 }

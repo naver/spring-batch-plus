@@ -62,11 +62,10 @@ class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> 
     }
 
     @Override
-    public void write(@NonNull List<? extends String> items) {
-        System.out.println(items);
+    public void write(@NonNull Chunk<? extends String> chunk) {
+        System.out.println(chunk.getItems());
     }
 }
-
 ```
 
 ```java
@@ -75,17 +74,16 @@ public class TestJobConfig {
 
     @Bean
     public Job testJob(
-        JobBuilderFactory jobBuilderFactory,
-        StepBuilderFactory stepBuilderFactory,
-        SampleTasklet sampleTasklet
+        SampleTasklet sampleTasklet,
+        JobRepository jobRepository
     ) {
-        return jobBuilderFactory.get("testJob")
+        return new JobBuilder("testJob", jobRepository)
             .start(
-                stepBuilderFactory.get("testStep")
-                    .<Integer, String>chunk(3)
-                    .reader(AdaptorFactory.itemStreamReader(sampleTasklet))
-                    .processor(AdaptorFactory.itemProcessor(sampleTasklet))
-                    .writer(AdaptorFactory.itemStreamWriter(sampleTasklet))
+                new StepBuilder("testStep", jobRepository)
+                    .<Integer, String>chunk(3, new ResourcelessTransactionManager())
+                    .reader(AdapterFactory.itemStreamReader(sampleTasklet))
+                    .processor(AdapterFactory.itemProcessor(sampleTasklet))
+                    .writer(AdapterFactory.itemStreamWriter(sampleTasklet))
                     .build()
             )
             .build();
@@ -96,25 +94,24 @@ public class TestJobConfig {
 You can statically import the method of `AdaptorFactory` for better readability.
 
 ```java
-...
 import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemProcessor;
 import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
 import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
+
 ...
 
 @Configuration
 public class TestJobConfig {
 
     @Bean
-    Job testJob(
-        JobBuilderFactory jobBuilderFactory,
-        StepBuilderFactory stepBuilderFactory,
-        SampleTasklet sampleTasklet
+    public Job testJob(
+        SampleTasklet sampleTasklet,
+        JobRepository jobRepository
     ) {
-        return jobBuilderFactory.get("testJob")
+        return new JobBuilder("testJob", jobRepository)
             .start(
-                stepBuilderFactory.get("testStep")
-                    .<Integer, String>chunk(3)
+                new StepBuilder("testStep", jobRepository)
+                    .<Integer, String>chunk(3, new ResourcelessTransactionManager())
                     .reader(itemStreamReader(sampleTasklet))
                     .processor(itemProcessor(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
@@ -122,7 +119,6 @@ public class TestJobConfig {
             )
             .build();
     }
-
 }
 ```
 
@@ -133,7 +129,7 @@ In Kotlin, you can convert a tasklet defined using an extension function to `Ite
 ```kotlin
 @Component
 @StepScope
-class SampleTasklet(
+open class SampleTasklet(
     @Value("#{jobParameters['totalCount']}") private var totalCount: Long
 ) : ItemStreamReaderProcessorWriter<Int, String> {
     private var count = 0
@@ -154,24 +150,23 @@ class SampleTasklet(
         return "'$item'"
     }
 
-    override fun write(items: List<String>) {
-        println(items)
+    override fun write(chunk: Chunk<out String>) {
+        println(chunk.items)
     }
 }
 ```
 
 ```kotlin
 @Configuration
-class TestJobConfig {
-
+open class TestJobConfig {
     @Bean
-    fun testJob(
+    open fun testJob(
         sampleTasklet: SampleTasklet,
         batch: BatchDsl
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(sampleTasklet.asItemStreamReader())
                     processor(sampleTasklet.asItemProcessor())
                     writer(sampleTasklet.asItemStreamWriter())
@@ -215,8 +210,8 @@ class SampleTasklet implements ItemStreamReaderWriter<Integer> {
     }
 
     @Override
-    public void write(@NonNull List<? extends Integer> items) {
-        System.out.println(items);
+    public void write(@NonNull Chunk<? extends Integer> chunk) {
+        System.out.println(chunk.getItems());
     }
 }
 ```
@@ -227,14 +222,13 @@ public class TestJobConfig {
 
     @Bean
     public Job testJob(
-        JobBuilderFactory jobBuilderFactory,
-        StepBuilderFactory stepBuilderFactory,
-        SampleTasklet sampleTasklet
+        SampleTasklet sampleTasklet,
+        JobRepository jobRepository
     ) {
-        return jobBuilderFactory.get("testJob")
+        return new JobBuilder("testJob", jobRepository)
             .start(
-                stepBuilderFactory.get("testStep")
-                    .<Integer, Integer>chunk(3)
+                new StepBuilder("testStep", jobRepository)
+                    .<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
                     .reader(AdaptorFactory.itemStreamReader(sampleTasklet))
                     .writer(AdaptorFactory.itemStreamWriter(sampleTasklet))
                     .build()
@@ -247,9 +241,9 @@ public class TestJobConfig {
 You can statically import the method of `AdaptorFactory` for better readability.
 
 ```java
-...
 import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
 import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
+
 ...
 
 @Configuration
@@ -257,14 +251,13 @@ public class TestJobConfig {
 
     @Bean
     public Job testJob(
-        JobBuilderFactory jobBuilderFactory,
-        StepBuilderFactory stepBuilderFactory,
-        SampleTasklet sampleTasklet
+        SampleTasklet sampleTasklet,
+        JobRepository jobRepository
     ) {
-        return jobBuilderFactory.get("testJob")
+        return new JobBuilder("testJob", jobRepository)
             .start(
-                stepBuilderFactory.get("testStep")
-                    .<Integer, Integer>chunk(3)
+                new StepBuilder("testStep", jobRepository)
+                    .<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
                     .reader(itemStreamReader(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
                     .build()
@@ -281,7 +274,7 @@ In Kotlin, you can easily convert a tasklet defined using an extension function 
 ```Kotlin
 @Component
 @StepScope
-class SampleTasklet(
+open class SampleTasklet(
     @Value("#{jobParameters['totalCount']}") private var totalCount: Long
 ) : ItemStreamReaderWriter<Int> {
     private var count = 0
@@ -298,24 +291,24 @@ class SampleTasklet(
         }
     }
 
-    override fun write(items: List<Int>) {
-        println(items)
+    override fun write(chunk: Chunk<out Int>) {
+        println(chunk.items)
     }
 }
 ```
 
 ```Kotlin
 @Configuration
-class TestJobConfig {
+open class TestJobConfig {
 
     @Bean
-    fun testJob(
+    open fun testJob(
         sampleTasklet: SampleTasklet,
         batch: BatchDsl
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(sampleTasklet.asItemStreamReader())
                     writer(sampleTasklet.asItemStreamWriter())
                 }
@@ -362,10 +355,7 @@ public class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, S
 
     @Override
     public void onUpdateRead(@NonNull ExecutionContext executionContext) {
-        Object beforeLastReadCount = executionContext.get("lastReadCount");
-        long afterLastReadCount = this.count;
-        System.out.printf("onUpdateWrite (lastReadCount: %d -> %d)%n", beforeLastReadCount, afterLastReadCount);
-        executionContext.put("lastReadCount", afterLastReadCount);
+        System.out.println("onUpdateRead");
     }
 
     @Override
@@ -384,16 +374,14 @@ public class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, S
     }
 
     @Override
-    public void write(@NonNull List<? extends String> items) {
-        System.out.println(items);
+    public void write(@NonNull Chunk<? extends String> chunk) {
+        System.out.println(chunk.getItems());
     }
 
     @Override
     public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
-        Object beforeLastWriteCount = executionContext.get("lastWriteCount");
-        long afterLastWriteCount = this.count;
-        System.out.printf("onUpdateWrite (lastWriteCount: %d -> %d)%n", beforeLastWriteCount, afterLastWriteCount);
-        executionContext.put("lastWriteCount", afterLastWriteCount);
+        System.out.println("onUpdateWrite");
+        executionContext.putString("samplekey", "samplevlaue");
     }
 
     @Override
@@ -409,14 +397,13 @@ public class TestJobConfig {
 
     @Bean
     public Job testJob(
-        JobBuilderFactory jobBuilderFactory,
-        StepBuilderFactory stepBuilderFactory,
-        SampleTasklet sampleTasklet
+        SampleTasklet sampleTasklet,
+        JobRepository jobRepository
     ) {
-        return jobBuilderFactory.get("testJob")
+        return new JobBuilder("testJob", jobRepository)
             .start(
-                stepBuilderFactory.get("testStep")
-                    .<Integer, String>chunk(3)
+                new StepBuilder("testStep", jobRepository)
+                    .<Integer, String>chunk(3, new ResourcelessTransactionManager())
                     .reader(itemStreamReader(sampleTasklet))
                     .processor(itemProcessor(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
@@ -454,10 +441,7 @@ open class SampleTasklet(
     }
 
     override fun onUpdateRead(executionContext: ExecutionContext) {
-        val beforeLastReadCount = executionContext["lastReadCount"]
-        val afterLastReadCount = count.toLong()
-        System.out.printf("onUpdateWrite (lastReadCount: %d -> %d)%n", beforeLastReadCount, afterLastReadCount)
-        executionContext.put("lastReadCount", afterLastReadCount)
+        println("onUpdateRead")
     }
 
     override fun onCloseRead() {
@@ -472,19 +456,39 @@ open class SampleTasklet(
         println("onOpenWrite")
     }
 
-    override fun write(items: List<String>) {
-        println(items)
+    override fun write(chunk: Chunk<out String>) {
+        println(chunk.items)
     }
 
     override fun onUpdateWrite(executionContext: ExecutionContext) {
-        val beforeLastWriteCount = executionContext["lastWriteCount"]
-        val afterLastWriteCount = count.toLong()
-        System.out.printf("onUpdateWrite (lastWriteCount: %d -> %d)%n", beforeLastWriteCount, afterLastWriteCount)
-        executionContext.put("lastWriteCount", afterLastWriteCount)
+        println("onUpdateWrite")
+        executionContext.putString("samplekey", "samplevalue")
     }
 
     override fun onCloseWrite() {
         println("onCloseWrite")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig {
+
+    @Bean
+    open fun testJob(
+        sampleTasklet: SampleTasklet,
+        batch: BatchDsl
+    ): Job = batch {
+        job("testJob") {
+            step("testStep") {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                    reader(sampleTasklet.asItemStreamReader())
+                    processor(sampleTasklet.asItemProcessor())
+                    writer(sampleTasklet.asItemStreamWriter())
+                }
+            }
+        }
     }
 }
 ```
