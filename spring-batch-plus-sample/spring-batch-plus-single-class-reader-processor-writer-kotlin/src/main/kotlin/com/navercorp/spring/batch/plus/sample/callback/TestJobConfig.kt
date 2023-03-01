@@ -23,6 +23,7 @@ import com.navercorp.spring.batch.plus.kotlin.item.adapter.asItemProcessor
 import com.navercorp.spring.batch.plus.kotlin.item.adapter.asItemStreamReader
 import com.navercorp.spring.batch.plus.kotlin.item.adapter.asItemStreamWriter
 import org.springframework.batch.core.Job
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -36,7 +37,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(sampleTasklet.asItemStreamReader())
                     processor(sampleTasklet.asItemProcessor())
                     writer(sampleTasklet.asItemStreamWriter())

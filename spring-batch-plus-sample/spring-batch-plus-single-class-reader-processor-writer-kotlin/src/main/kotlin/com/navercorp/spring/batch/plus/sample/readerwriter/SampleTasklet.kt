@@ -20,6 +20,7 @@ package com.navercorp.spring.batch.plus.sample.readerwriter
 
 import com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
+import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -44,7 +45,7 @@ open class SampleTasklet(
         }
     }
 
-    override fun write(items: List<Int>) {
-        println(items)
+    override fun write(chunk: Chunk<out Int>) {
+        println(chunk.items)
     }
 }

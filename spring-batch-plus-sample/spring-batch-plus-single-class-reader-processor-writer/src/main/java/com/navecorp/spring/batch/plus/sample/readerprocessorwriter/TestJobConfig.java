@@ -23,8 +23,10 @@ import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemSt
 import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemStreamWriter;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,14 +35,13 @@ public class TestJobConfig {
 
 	@Bean
 	public Job testJob(
-		JobBuilderFactory jobBuilderFactory,
-		StepBuilderFactory stepBuilderFactory,
-		SampleTasklet sampleTasklet
+		SampleTasklet sampleTasklet,
+		JobRepository jobRepository
 	) {
-		return jobBuilderFactory.get("testJob")
+		return new JobBuilder("testJob", jobRepository)
 			.start(
-				stepBuilderFactory.get("testStep")
-					.<Integer, String>chunk(3)
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, String>chunk(3, new ResourcelessTransactionManager())
 					.reader(itemStreamReader(sampleTasklet))
 					.processor(itemProcessor(sampleTasklet))
 					.writer(itemStreamWriter(sampleTasklet))
