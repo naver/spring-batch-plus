@@ -25,6 +25,7 @@ import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.repeat.policy.SimpleCompletionPolicy
 import org.springframework.batch.repeat.support.RepeatTemplate
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -38,7 +39,7 @@ open class TestJobConfig {
                 val repeatOperations = RepeatTemplate().apply {
                     setCompletionPolicy(SimpleCompletionPolicy(3))
                 }
-                chunk<Int, String>(repeatOperations) {
+                chunk<Int, String>(repeatOperations, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())

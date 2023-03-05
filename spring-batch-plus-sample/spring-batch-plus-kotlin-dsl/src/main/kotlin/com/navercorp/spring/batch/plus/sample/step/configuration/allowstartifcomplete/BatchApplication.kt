@@ -20,13 +20,11 @@ package com.navercorp.spring.batch.plus.sample.step.configuration.allowstartifco
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@EnableBatchProcessing
 @SpringBootApplication
 open class BatchApplication
 
@@ -39,19 +37,7 @@ fun main() {
         .toJobParameters()
 
     // always alwaysRunStep is invoked
-    try {
-        jobLauncher.run(job, jobParameter)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    try {
-        jobLauncher.run(job, jobParameter)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    try {
-        jobLauncher.run(job, jobParameter)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+    jobLauncher.run(job, jobParameter)
+    jobLauncher.run(job, jobParameter)
+    jobLauncher.run(job, jobParameter)
 }

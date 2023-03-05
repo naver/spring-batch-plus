@@ -24,6 +24,7 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -48,7 +49,7 @@ open class TestJobConfig {
                         }
                     }
                 )
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }

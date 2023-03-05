@@ -20,13 +20,11 @@ package com.navercorp.spring.batch.plus.sample.job.configuration.validator
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@EnableBatchProcessing
 @SpringBootApplication
 open class BatchApplication
 
@@ -38,5 +36,10 @@ fun main() {
     val jobParameter = JobParametersBuilder()
         .addLong("param", -1L)
         .toJobParameters()
-    jobLauncher.run(job, jobParameter)
+    try {
+        jobLauncher.run(job, jobParameter)
+    } catch (e: Exception) {
+        // param is null or less than 0
+        e.printStackTrace(System.out)
+    }
 }

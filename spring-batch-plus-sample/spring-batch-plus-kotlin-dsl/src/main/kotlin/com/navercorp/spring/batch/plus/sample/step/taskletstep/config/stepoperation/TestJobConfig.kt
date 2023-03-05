@@ -25,6 +25,7 @@ import org.springframework.batch.repeat.RepeatCallback
 import org.springframework.batch.repeat.RepeatOperations
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.batch.repeat.support.RepeatTemplate
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -37,7 +38,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     stepOperations(
                         object : RepeatOperations {
                             override fun iterate(callback: RepeatCallback): RepeatStatus {

@@ -7,7 +7,7 @@ include("spring-boot-autoconfigure-batch-plus-kotlin")
 include("spring-boot-starter-batch-plus")
 include("spring-boot-starter-batch-plus-kotlin")
 
-// include("spring-batch-plus-sample:spring-batch-plus-kotlin-dsl")
+include("spring-batch-plus-sample:spring-batch-plus-kotlin-dsl")
 include("spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer")
 include("spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer-kotlin")
 include("spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer")

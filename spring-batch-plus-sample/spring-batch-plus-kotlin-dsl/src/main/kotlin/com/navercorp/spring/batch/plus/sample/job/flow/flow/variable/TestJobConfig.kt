@@ -22,6 +22,7 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -36,7 +37,7 @@ open class TestJobConfig(
             val testFlow3 = batch {
                 flow("testFlow3") {
                     step("testFlow3Step1") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
             }
@@ -51,10 +52,10 @@ open class TestJobConfig(
     open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testFlow1Step1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
             step("testFlow1Step2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -63,7 +64,7 @@ open class TestJobConfig(
     open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
             step("testFlow2Step1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }

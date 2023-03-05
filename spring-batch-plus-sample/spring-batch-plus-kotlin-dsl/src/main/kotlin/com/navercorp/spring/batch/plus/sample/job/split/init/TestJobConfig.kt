@@ -21,6 +21,7 @@ package com.navercorp.spring.batch.plus.sample.job.split.init
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
@@ -36,17 +37,17 @@ open class TestJobConfig {
             split(SimpleAsyncTaskExecutor()) {
                 flow("testFlow1") {
                     step("testStep1") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 flow("testFlow2") {
                     step("testStep2") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 flow("testFlow3") {
                     step("testStep3") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
             }

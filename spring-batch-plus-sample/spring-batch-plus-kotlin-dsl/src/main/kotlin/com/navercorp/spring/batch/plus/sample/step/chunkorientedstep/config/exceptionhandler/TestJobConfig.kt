@@ -22,6 +22,7 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -34,7 +35,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     exceptionHandler { _, throwable ->

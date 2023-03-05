@@ -20,13 +20,11 @@ package com.navercorp.spring.batch.plus.sample.job.flow.transition.stopandrestar
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@EnableBatchProcessing
 @SpringBootApplication
 open class BatchApplication
 
@@ -42,5 +40,5 @@ fun main() {
     val secondJobExecution = jobLauncher.run(job, jobParameters)
 
     println("firstJobExecution: $firstJobExecution")
-    println("secondJobExecution: $secondJobExecution: $firstJobExecution\")")
+    println("secondJobExecution: $secondJobExecution")
 }

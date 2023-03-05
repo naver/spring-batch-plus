@@ -20,13 +20,11 @@ package com.navercorp.spring.batch.plus.sample.job.configuration.preventrestart
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@EnableBatchProcessing
 @SpringBootApplication
 open class BatchApplication
 
@@ -41,9 +39,14 @@ fun main() {
     try {
         jobLauncher.run(job, jobParameter)
     } catch (e: Exception) {
-        e.printStackTrace()
+        // First try should be failed
+        e.printStackTrace(System.out)
     }
 
-    val secondJobExecution = jobLauncher.run(job, jobParameter)
-    println("secondJobExecution: $secondJobExecution")
+    try {
+        jobLauncher.run(job, jobParameter)
+    } catch (e: Exception) {
+        // JobInstance already exists and is not restartable
+        e.printStackTrace(System.out)
+    }
 }

@@ -20,13 +20,11 @@ package com.navercorp.spring.batch.plus.sample.job.flow.comparison.before
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@EnableBatchProcessing
 @SpringBootApplication
 open class BatchApplication
 
@@ -35,7 +33,8 @@ fun main() {
     val jobLauncher = applicationContext.getBean<JobLauncher>()
     val job = applicationContext.getBean<Job>()
 
-    val jobParameter = JobParametersBuilder()
+    val jobParameters = JobParametersBuilder()
         .toJobParameters()
-    jobLauncher.run(job, jobParameter)
+    val jobExecution = jobLauncher.run(job, jobParameters)
+    println("jobExecution: $jobExecution")
 }

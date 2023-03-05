@@ -21,6 +21,7 @@ package com.navercorp.spring.batch.plus.sample.step.configuration.allowstartifco
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -34,15 +35,21 @@ open class TestJobConfig {
         job("testJob") {
             step("alwaysRunStep") {
                 allowStartIfComplete(true)
-                tasklet { _, _ ->
-                    println("always run")
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        println("always run")
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
             step("alwaysFailsStep") {
-                tasklet { _, _ ->
-                    throw IllegalStateException("always failed")
-                }
+                tasklet(
+                    { _, _ ->
+                        throw IllegalStateException("always failed")
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }
