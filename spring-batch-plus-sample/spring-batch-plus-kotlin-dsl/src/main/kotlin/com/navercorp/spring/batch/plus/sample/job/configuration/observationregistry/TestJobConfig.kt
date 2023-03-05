@@ -16,36 +16,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.configuration.transactionmanager
+package com.navercorp.spring.batch.plus.sample.job.configuration.observationregistry
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
+import io.micrometer.observation.ObservationRegistry
 import org.springframework.batch.core.Job
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.TransactionStatus
 
 @Configuration
-open class TestJobConfig(
-    private val platformTransactionManager: PlatformTransactionManager
-) {
+open class TestJobConfig {
 
     @Bean
     open fun testJob(
         batch: BatchDsl
     ): Job = batch {
         job("testJob") {
+            observationRegistry(ObservationRegistry.create())
             step("testStep") {
-                transactionManager(
-                    object : PlatformTransactionManager by platformTransactionManager {
-                        override fun commit(status: TransactionStatus) {
-                            println("commit tx (status: $status)")
-                            platformTransactionManager.commit(status)
-                        }
-                    }
-                )
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }

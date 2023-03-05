@@ -26,6 +26,7 @@ import org.springframework.batch.core.annotation.OnSkipInWrite
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -54,7 +55,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())

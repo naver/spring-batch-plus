@@ -19,9 +19,11 @@
 package com.navercorp.spring.batch.plus.sample.comparision.before
 
 import org.springframework.batch.core.Job
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
+import org.springframework.batch.core.job.builder.JobBuilder
+import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -30,28 +32,28 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory
+        jobRepository: JobRepository,
     ): Job {
-        return jobBuilderFactory.get("testJob")
+        val transactionManager = ResourcelessTransactionManager()
+        return JobBuilder("testJob", jobRepository)
             .start(
-                stepBuilderFactory.get("testStep1")
-                    .tasklet { _, _ -> RepeatStatus.FINISHED }
+                StepBuilder("testStep1", jobRepository)
+                    .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     .build()
             )
             .next(
-                stepBuilderFactory.get("testStep2")
-                    .tasklet { _, _ -> RepeatStatus.FINISHED }
+                StepBuilder("testStep2", jobRepository)
+                    .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     .build()
             )
             .next(
-                stepBuilderFactory.get("testStep3")
-                    .tasklet { _, _ -> RepeatStatus.FINISHED }
+                StepBuilder("testStep3", jobRepository)
+                    .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     .build()
             )
             .next(
-                stepBuilderFactory.get("testStep4")
-                    .tasklet { _, _ -> RepeatStatus.FINISHED }
+                StepBuilder("testStep4", jobRepository)
+                    .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     .build()
             )
             .build()

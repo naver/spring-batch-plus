@@ -20,13 +20,11 @@ package com.navercorp.spring.batch.plus.sample.step.configuration.startlimit
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@EnableBatchProcessing
 @SpringBootApplication
 open class BatchApplication
 
@@ -38,21 +36,10 @@ fun main() {
     val jobParameter = JobParametersBuilder()
         .toJobParameters()
 
-    try {
-        jobLauncher.run(job, jobParameter)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    try {
-        jobLauncher.run(job, jobParameter)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+    // failed
+    jobLauncher.run(job, jobParameter)
+    jobLauncher.run(job, jobParameter)
 
-    // it also failed
-    try {
-        jobLauncher.run(job, jobParameter)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+    // it also failed (Maximum start limit exceeded for step: testStepStartMax: 2)
+    jobLauncher.run(job, jobParameter)
 }

@@ -24,6 +24,7 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.partition.support.DefaultStepExecutionAggregator
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
@@ -57,10 +58,13 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("actualStep") {
-            tasklet { contribution, _ ->
-                println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
-                RepeatStatus.FINISHED
-            }
+            tasklet(
+                { contribution, _ ->
+                    println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
+                    RepeatStatus.FINISHED
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }

@@ -26,6 +26,7 @@ import org.springframework.batch.core.annotation.BeforeChunk
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -54,7 +55,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     listener(TestListener())
                 }
             }

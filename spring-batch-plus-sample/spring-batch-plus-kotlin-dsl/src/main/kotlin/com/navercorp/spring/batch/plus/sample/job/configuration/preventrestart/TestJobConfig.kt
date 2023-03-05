@@ -21,6 +21,7 @@ package com.navercorp.spring.batch.plus.sample.job.configuration.preventrestart
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -36,13 +37,17 @@ open class TestJobConfig {
         job("testJob") {
             preventRestart()
             step("testStep") {
-                tasklet { _, _ ->
-                    if (isFirst) {
-                        isFirst = false
-                        throw RuntimeException("First try should be failed")
-                    }
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+
+                        if (isFirst) {
+                            isFirst = false
+                            throw RuntimeException("First try should be failed")
+                        }
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }

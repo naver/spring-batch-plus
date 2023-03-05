@@ -21,6 +21,7 @@ package com.navercorp.spring.batch.plus.sample.comparision.after
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -31,18 +32,19 @@ open class TestJobConfig {
     open fun testJob(
         batch: BatchDsl
     ): Job = batch {
+        val transactionManager = ResourcelessTransactionManager()
         job("testJob") {
             step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testStep2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testStep3") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testStep4") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }

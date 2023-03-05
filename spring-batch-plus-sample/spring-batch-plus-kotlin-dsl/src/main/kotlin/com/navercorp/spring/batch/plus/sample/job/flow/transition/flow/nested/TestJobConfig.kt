@@ -23,6 +23,7 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -45,9 +46,7 @@ open class TestJobConfig(
                         }
                         on("*") {
                             step("nestedStep") {
-                                tasklet { _, _ ->
-                                    RepeatStatus.FINISHED
-                                }
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                             }
                         }
                     }
@@ -62,9 +61,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
@@ -72,9 +72,10 @@ open class TestJobConfig(
     open fun transitionFlow(): Flow = batch {
         flow("transitionFlow") {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    throw IllegalStateException("transitionStep failed")
-                }
+                tasklet(
+                    { _, _ -> throw IllegalStateException("transitionStep failed") },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }

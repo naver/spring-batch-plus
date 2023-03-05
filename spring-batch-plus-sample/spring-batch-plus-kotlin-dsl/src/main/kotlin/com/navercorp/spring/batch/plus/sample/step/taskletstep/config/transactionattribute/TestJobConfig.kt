@@ -22,9 +22,9 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 import org.springframework.transaction.support.TransactionSynchronizationManager
 
@@ -37,8 +37,12 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
-                    transactionAttribute(DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                    transactionAttribute(
+                        DefaultTransactionAttribute().apply {
+                            setName("test-tx")
+                        }
+                    )
                 }
             }
         }
@@ -47,8 +51,8 @@ open class TestJobConfig {
     @Bean
     open fun testTasklet(): Tasklet = Tasklet { _, _ ->
         // print false
-        val actualTransactionActive = TransactionSynchronizationManager.isActualTransactionActive()
-        println("run testTasklet (transaction active: $actualTransactionActive}")
+        val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
+        println("run testTasklet (transactionName: $transactionName}")
         RepeatStatus.FINISHED
     }
 }

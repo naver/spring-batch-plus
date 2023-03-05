@@ -22,9 +22,9 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 import org.springframework.transaction.support.TransactionSynchronizationManager
 
@@ -37,10 +37,14 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     writer(testItemWriter())
-                    transactionAttribute(DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
+                    transactionAttribute(
+                        DefaultTransactionAttribute().apply {
+                            setName("test-tx")
+                        }
+                    )
                 }
             }
         }
@@ -64,8 +68,8 @@ open class TestJobConfig {
     @Bean
     open fun testItemWriter(): ItemWriter<Int> {
         return ItemWriter { items ->
-            val actualTransactionActive = TransactionSynchronizationManager.isActualTransactionActive()
-            println("write $items (actualTransactionActive: $actualTransactionActive)")
+            val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
+            println("write $items (transactionName: $transactionName)")
         }
     }
 }

@@ -21,6 +21,7 @@ package com.navercorp.spring.batch.plus.sample.step.configuration.startlimit
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -36,12 +37,15 @@ open class TestJobConfig {
         job("testJob") {
             step("testStep") {
                 startLimit(2)
-                tasklet { _, _ ->
-                    if (count < 2) {
-                        throw IllegalStateException("count is less than 2 (count: ${count++})")
-                    }
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        if (count < 2) {
+                            throw IllegalStateException("count is less than 2 (count: ${count++})")
+                        }
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }

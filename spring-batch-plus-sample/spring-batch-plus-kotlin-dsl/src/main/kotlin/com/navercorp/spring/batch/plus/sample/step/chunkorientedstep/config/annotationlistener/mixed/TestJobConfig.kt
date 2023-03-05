@@ -23,9 +23,11 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.annotation.AfterProcess
 import org.springframework.batch.core.annotation.AfterRead
 import org.springframework.batch.core.annotation.BeforeWrite
+import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -44,8 +46,8 @@ open class TestJobConfig {
         }
 
         @BeforeWrite
-        fun beforeWrite(items: List<String>) {
-            println("beforeWrite: $items")
+        fun beforeWrite(chunk: Chunk<String>) {
+            println("beforeWrite: ${chunk.items}")
         }
     }
 
@@ -55,7 +57,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())

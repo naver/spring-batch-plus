@@ -22,6 +22,7 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -39,7 +40,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("failureStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -52,16 +53,19 @@ open class TestJobConfig(
     @Bean
     open fun testStep1(): Step = batch {
         step("testStep1") {
-            tasklet { _, _ ->
-                throw IllegalStateException("step failed")
-            }
+            tasklet(
+                { _, _ ->
+                    throw IllegalStateException("step failed")
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
     @Bean
     open fun successStep(): Step = batch {
         step("successStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }

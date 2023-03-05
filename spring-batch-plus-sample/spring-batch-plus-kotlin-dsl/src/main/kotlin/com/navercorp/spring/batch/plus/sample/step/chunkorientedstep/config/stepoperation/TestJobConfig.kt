@@ -26,6 +26,7 @@ import org.springframework.batch.repeat.RepeatCallback
 import org.springframework.batch.repeat.RepeatOperations
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.batch.repeat.support.RepeatTemplate
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -38,7 +39,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     stepOperations(

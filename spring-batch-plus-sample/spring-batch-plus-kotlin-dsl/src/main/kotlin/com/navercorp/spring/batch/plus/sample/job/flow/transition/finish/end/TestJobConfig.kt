@@ -21,6 +21,7 @@ package com.navercorp.spring.batch.plus.sample.job.flow.transition.finish.end
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -49,9 +50,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
