@@ -31,7 +31,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -61,7 +61,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -105,7 +105,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -139,7 +139,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -177,7 +177,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -211,7 +211,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }

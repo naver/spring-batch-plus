@@ -6,6 +6,8 @@
   - [JobExecutionListener 객체를 사용하여 Listener 설정하기](#jobexecutionlistener-객체를-사용하여-listener-설정하기)
 - [PreventRestart 설정하기](#preventrestart-설정하기)
 - [Repository 설정하기](#repository-설정하기)
+- [ObservationRegistry 설정하기](#observationregistry-설정하기)
+- [MeterRegistry 설정하기](#meterregistry-설정하기)
 - [JobParametersValidator 설정하기](#jobparametersvalidator-설정하기)
 
 Kotlin DSL은 `JobBuilder`에서 설정할 수 있는 기능을 모두 제공합니다. 이 문서에서는 Kotlin DSL을 활용해서 `Job` 을 설정하는 방법에 대해서 다룹니다.
@@ -31,7 +33,7 @@ open fun testJob(
             }
         )
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -52,7 +54,7 @@ open fun testJob(
                 .toJobParameters()
         }
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -64,7 +66,7 @@ Kotlin DSL은 `JobBuilder`를 사용해서 Job에 대한 Listener를 설정하�
 
 ### Annotation을 사용해서 Listener 설정하기
 
-임의의 객체에 `A@BeforeJob`, `@AfterJob` Annotation을 붙여서 Listener 를 설정할 수 있습니다.
+임의의 객체에 `@BeforeJob`, `@AfterJob` Annotation을 붙여서 Listener 를 설정할 수 있습니다.
 
 ```kotlin
 class TestListener {
@@ -86,7 +88,7 @@ open fun testJob(
     job("testJob") {
         listener(TestListener())
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -113,7 +115,7 @@ open fun testJob(
             }
         )
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -133,13 +135,16 @@ open fun testJob(
     job("testJob") {
         preventRestart()
         step("testStep") {
-            tasklet { _, _ ->
-                if (isFirst) {
-                    isFirst = false
-                    throw RuntimeException("First try should be failed")
-                }
-                RepeatStatus.FINISHED
-            }
+            tasklet(
+                { _, _ ->
+                    if (isFirst) {
+                        isFirst = false
+                        throw RuntimeException("First try should be failed")
+                    }
+                    RepeatStatus.FINISHED
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -165,7 +170,43 @@ open fun testJob(
             }
         )
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+        }
+    }
+}
+```
+
+## ObservationRegistry 설정하기
+
+Kotlin DSL은 `JobBuilder`를 사용해서 `ObservationRegistry` 설정을 하는 방법을 제공합니다.
+
+```kotlin
+@Bean
+open fun testJob(
+    batch: BatchDsl
+): Job = batch {
+    job("testJob") {
+        observationRegistry(ObservationRegistry.create())
+        step("testStep") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+        }
+    }
+}
+```
+
+## MeterRegistry 설정하기
+
+Kotlin DSL은 `JobBuilder`를 사용해서 `MeterRegistry` 설정을 하는 방법을 제공합니다.
+
+```kotlin
+@Bean
+open fun testJob(
+    batch: BatchDsl
+): Job = batch {
+    job("testJob") {
+        meterRegistry(SimpleMeterRegistry())
+        step("testStep") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -192,7 +233,7 @@ open fun testJob(
             }
         )
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -213,7 +254,7 @@ open fun testJob(
             }
         }
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }

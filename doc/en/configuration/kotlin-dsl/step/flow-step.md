@@ -29,14 +29,14 @@ open class TestJobConfig(
     open fun anotherFlow(): Flow = batch {
         flow("anotherFlow") {
             step("anotherStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
 }
 ```
 
-## Initialize a flow when defining a job
+## Initialize a flow when defining a step
 
 You can initialize a `Flow` to when you define a `Step`.
 
@@ -52,7 +52,7 @@ open class TestJobConfig {
             step("testStep") {
                 flow("anotherFlow") {
                     step("anotherStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
             }
@@ -84,7 +84,7 @@ open class TestJobConfig(
     open fun anotherFlow(): Flow = batch {
         flow("anotherFlow") {
             step("anotherStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }

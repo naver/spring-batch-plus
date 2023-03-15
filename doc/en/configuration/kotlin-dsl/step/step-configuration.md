@@ -1,7 +1,8 @@
 # Step Configuration
 
 - [Set a job repository](#set-a-job-repository)
-- [Set a TransactionManager](#set-a-transactionmanager)
+- [Set a ObservationRegistry](#set-a-observationregistry)
+- [Set a MeterRegistry](#set-a-meterregistry)
 - [Set startLimit](#set-startlimit)
 - [Set a step listener](#set-a-step-listener)
   - [Set a listener using annotations](#set-a-listener-using-annotations)
@@ -34,22 +35,20 @@ open class TestJobConfig(
                         }
                     }
                 )
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
 }
 ```
 
-## Set a TransactionManager
+## Set a ObservationRegistry
 
-The Kotlin DSL helps you set a `PlatformTransactionManager` using `StepBuilder`.
+The Kotlin DSL helps you set a `ObservationRegistry` using `StepBuilder`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig(
-    private val platformTransactionManager: PlatformTransactionManager
-) {
+open class TestJobConfig {
 
     @Bean
     open fun testJob(
@@ -57,15 +56,30 @@ open class TestJobConfig(
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                transactionManager(
-                    object : PlatformTransactionManager by platformTransactionManager {
-                        override fun commit(status: TransactionStatus) {
-                            println("commit tx (status: $status)")
-                            platformTransactionManager.commit(status)
-                        }
-                    }
-                )
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                observationRegistry(ObservationRegistry.create())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            }
+        }
+    }
+}
+```
+
+## Set a MeterRegistry
+
+The Kotlin DSL helps you set a `MeterRegistry` using `StepBuilder`.
+
+```kotlin
+@Configuration
+open class TestJobConfig {
+
+    @Bean
+    open fun testJob(
+        batch: BatchDsl
+    ): Job = batch {
+        job("testJob") {
+            step("testStep") {
+                meterRegistry(SimpleMeterRegistry())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -89,12 +103,15 @@ open class TestJobConfig {
         job("testJob") {
             step("testStep") {
                 startLimit(2)
-                tasklet { _, _ ->
-                    if (count < 2) {
-                        throw IllegalStateException("count is less than 2 (count: ${count++})")
-                    }
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        if (count < 2) {
+                            throw IllegalStateException("count is less than 2 (count: ${count++})")
+                        }
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }
@@ -132,7 +149,7 @@ open class TestJobConfig {
         job("testJob") {
             step("testStep") {
                 listener(TestListener())
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -165,7 +182,7 @@ open class TestJobConfig {
                         }
                     }
                 )
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -187,15 +204,21 @@ open class TestJobConfig {
         job("testJob") {
             step("alwaysRunStep") {
                 allowStartIfComplete(true)
-                tasklet { _, _ ->
-                    println("always run")
-                    RepeatStatus.FINISHED
-                }
+                tasklet(
+                    { _, _ ->
+                        println("always run")
+                        RepeatStatus.FINISHED
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
             step("alwaysFailsStep") {
-                tasklet { _, _ ->
-                    throw IllegalStateException("always failed")
-                }
+                tasklet(
+                    { _, _ ->
+                        throw IllegalStateException("always failed")
+                    },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }

@@ -26,8 +26,8 @@ open class TestJobConfig(
         job("testJob") {
             val testFlow3 = batch {
                 flow("testFlow3") {
-                    step("testStep1") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                    step("testStep3") {
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
             }
@@ -43,7 +43,7 @@ open class TestJobConfig(
     open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -51,8 +51,8 @@ open class TestJobConfig(
     @Bean
     open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
-            step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+            step("testStep2") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -75,17 +75,17 @@ open class TestJobConfig {
             split(SimpleAsyncTaskExecutor()) {
                 flow("testFlow1") {
                     step("testStep1") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 flow("testFlow2") {
                     step("testStep2") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 flow("testFlow3") {
                     step("testStep3") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
             }
@@ -121,7 +121,7 @@ open class TestJobConfig {
     ): Flow = batch {
         flow("testFlow1") {
             step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -132,7 +132,7 @@ open class TestJobConfig {
     ): Flow = batch {
         flow("testFlow2") {
             step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -143,7 +143,7 @@ open class TestJobConfig {
     ): Flow = batch {
         flow("testFlow3") {
             step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }

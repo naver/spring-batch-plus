@@ -5,7 +5,9 @@
   - [Set a listener using annotations](#set-a-listener-using-annotations)
   - [Set a listener using a JobExecutionListener object](#set-a-listener-using-a-jobexecutionlistener-object)
 - [Set preventRestart](#set-preventrestart)
-- [Set a repository](#set-a-repository)
+- [Set a Repository](#set-a-repository)
+- [Set a ObservationRegistry](#set-a-observationregistry)
+- [Set a MeterRegistry](#set-a-meterregistry)
 - [Set a JobParametersValidator](#set-a-jobparametersvalidator)
 
 The functions that can be set with `JobBuilder` are also available with the Kotlin DSL. In this page, you will learn how to set a `Job` using the Kotlin DSL.
@@ -31,7 +33,7 @@ open fun testJob(
             }
         )
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -52,7 +54,7 @@ open fun testJob(
                 .toJobParameters()
         }
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -64,7 +66,7 @@ The Kotlin DSL also helps you set a job listener using `JobBuilder`. To set a li
 
 ### Set a listener using annotations
 
-You can add `A@BeforeJob` and `@AfterJob` annotations to an object to set a listener.
+You can add `@BeforeJob` and `@AfterJob` annotations to an object to set a listener.
 
 ```kotlin
 class TestListener {
@@ -86,7 +88,7 @@ open fun testJob(
     job("testJob") {
         listener(TestListener())
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -113,7 +115,7 @@ open fun testJob(
             }
         )
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -133,19 +135,22 @@ open fun testJob(
     job("testJob") {
         preventRestart()
         step("testStep") {
-            tasklet { _, _ ->
-                if (isFirst) {
-                    isFirst = false
-                    throw RuntimeException("First try should be failed")
-                }
-                RepeatStatus.FINISHED
-            }
+            tasklet(
+                { _, _ ->
+                    if (isFirst) {
+                        isFirst = false
+                        throw RuntimeException("First try should be failed")
+                    }
+                    RepeatStatus.FINISHED
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
 ```
 
-## Set a repository
+## Set a Repository
 
 The Kotlin DSL helps you set a `JobRepository` using `JobBuilder`.
 
@@ -165,7 +170,43 @@ open fun testJob(
             }
         )
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+        }
+    }
+}
+```
+
+## Set a ObservationRegistry
+
+The Kotlin DSL helps you set a `ObservationRegistry` using `JobBuilder`.
+
+```kotlin
+@Bean
+open fun testJob(
+    batch: BatchDsl
+): Job = batch {
+    job("testJob") {
+        observationRegistry(ObservationRegistry.create())
+        step("testStep") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+        }
+    }
+}
+```
+
+## Set a MeterRegistry
+
+The Kotlin DSL helps you set a `MeterRegistry` using `JobBuilder`.
+
+```kotlin
+@Bean
+open fun testJob(
+    batch: BatchDsl
+): Job = batch {
+    job("testJob") {
+        meterRegistry(SimpleMeterRegistry())
+        step("testStep") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -192,7 +233,7 @@ open fun testJob(
             }
         )
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -213,7 +254,7 @@ open fun testJob(
             }
         }
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
