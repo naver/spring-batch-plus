@@ -58,18 +58,17 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -94,9 +93,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet { _, _ ->
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -109,9 +106,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -147,18 +145,17 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -188,9 +185,7 @@ open class TestJobConfig(
                         }
                         on("*") {
                             step("nestedStep") {
-                                tasklet { _, _ ->
-                                    RepeatStatus.FINISHED
-                                }
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                             }
                         }
                     }
@@ -205,18 +200,20 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("transitionStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("transitionStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -256,9 +253,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
@@ -266,9 +264,7 @@ open class TestJobConfig(
     open fun transitionFlow(): Flow = batch {
         flow("transitionFlow") {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    RepeatStatus.FINISHED
-                }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -295,9 +291,7 @@ open class TestJobConfig(
                 on("FAILED") {
                     flow("transitionFlow") {
                         step("transitionStep") {
-                            tasklet { _, _ ->
-                                RepeatStatus.FINISHED
-                            }
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                         }
                     }
                 }
@@ -311,9 +305,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -349,9 +344,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
@@ -359,9 +355,7 @@ open class TestJobConfig(
     open fun transitionFlow(): Flow = batch {
         flow("transitionFlow") {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    RepeatStatus.FINISHED
-                }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -392,9 +386,7 @@ open class TestJobConfig(
                         }
                         on("*") {
                             step("nestedStep") {
-                                tasklet { _, _ ->
-                                    RepeatStatus.FINISHED
-                                }
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                             }
                         }
                     }
@@ -409,9 +401,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
@@ -419,9 +412,10 @@ open class TestJobConfig(
     open fun transitionFlow(): Flow = batch {
         flow("transitionFlow") {
             step("transitionStep") {
-                tasklet { _, _ ->
-                    throw IllegalStateException("transitionStep failed")
-                }
+                tasklet(
+                    { _, _ -> throw IllegalStateException("transitionStep failed") },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }
@@ -472,9 +466,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
@@ -486,9 +481,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -534,9 +527,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
@@ -548,9 +542,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -590,9 +582,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -625,9 +618,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -660,9 +651,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -688,9 +677,7 @@ open class TestJobConfig(
             step(testStep()) {
                 on("COMPLETED") {
                     stopAndRestartToStep("restartStep") {
-                        tasklet { _, _ ->
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -703,9 +690,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -729,9 +714,7 @@ open class TestJobConfig(
                     stopAndRestartToFlow("restartFlow") {
                         flow("restartFlow") {
                             step("restartStep") {
-                                tasklet { _, _ ->
-                                    RepeatStatus.FINISHED
-                                }
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                             }
                         }
                     }
@@ -746,9 +729,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -791,9 +772,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 

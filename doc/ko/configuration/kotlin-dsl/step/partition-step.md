@@ -58,10 +58,13 @@ open class TestJobConfig(
     @Bean
     open fun actualStep(): Step = batch {
         step("actualStep") {
-            tasklet { contribution, _ ->
-                println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
-                RepeatStatus.FINISHED
-            }
+            tasklet(
+                { contribution, _ ->
+                    println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
+                    RepeatStatus.FINISHED
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -101,10 +104,13 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("actualStep") {
-            tasklet { contribution, _ ->
-                println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
-                RepeatStatus.FINISHED
-            }
+            tasklet(
+                { contribution, _ ->
+                    println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
+                    RepeatStatus.FINISHED
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -149,10 +155,13 @@ open class TestJobConfig(
     @Bean
     open fun actualStep(): Step = batch {
         step("actualStep") {
-            tasklet { contribution, _ ->
-                println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
-                RepeatStatus.FINISHED
-            }
+            tasklet(
+                { contribution, _ ->
+                    println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
+                    RepeatStatus.FINISHED
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -192,10 +201,13 @@ open class TestJobConfig(
     @Bean
     open fun actualStep(): Step = batch {
         step("actualStep") {
-            tasklet { contribution, _ ->
-                println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
-                RepeatStatus.FINISHED
-            }
+            tasklet(
+                { contribution, _ ->
+                    println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
+                    RepeatStatus.FINISHED
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -235,10 +247,13 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("actualStep") {
-            tasklet { contribution, _ ->
-                println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
-                RepeatStatus.FINISHED
-            }
+            tasklet(
+                { contribution, _ ->
+                    println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
+                    RepeatStatus.FINISHED
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }

@@ -29,7 +29,7 @@ open class TestJobConfig(
     open fun anotherFlow(): Flow = batch {
         flow("anotherFlow") {
             step("anotherStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -52,7 +52,7 @@ open class TestJobConfig {
             step("testStep") {
                 flow("anotherFlow") {
                     step("anotherStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
             }
@@ -84,7 +84,7 @@ open class TestJobConfig(
     open fun anotherFlow(): Flow = batch {
         flow("anotherFlow") {
             step("anotherStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }

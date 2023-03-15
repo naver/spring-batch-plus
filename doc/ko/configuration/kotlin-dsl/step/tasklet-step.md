@@ -1,7 +1,6 @@
 # Tasklet Step
 
 - [Tasklet을 변수로 넘기기](#tasklet을-변수로-넘기기)
-- [Trailing Lambda 를 통해 Tasklet을 정의하기](#trailing-lambda-를-통해-tasklet을-정의하기)
 - [Bean 이름으로 Tasklet을 가져오기](#bean-이름으로-tasklet을-가져오기)
 - [Tasklet Step 설정하기](#tasklet-step-설정하기)
   - [Annotation을 사용하여 Listener 설정하기](#annotation을-사용하여-listener-설정하기)
@@ -28,7 +27,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet())
+                tasklet(testTasklet(), ResourcelessTransactionManager())
             }
         }
     }
@@ -37,30 +36,6 @@ open class TestJobConfig {
     open fun testTasklet(): Tasklet = Tasklet { _, _ ->
         println("run testTasklet")
         RepeatStatus.FINISHED
-    }
-}
-```
-
-## Trailing Lambda 를 통해 Tasklet을 정의하기
-
-`Step`을 정의할 때 trailing lambda를 통해 `Tasklet`을 정의할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig {
-
-    @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet { _, _ ->
-                    println("run testTasklet")
-                    RepeatStatus.FINISHED
-                }
-            }
-        }
     }
 }
 ```
@@ -79,7 +54,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                taskletBean("testTasklet")
+                taskletBean("testTasklet", ResourcelessTransactionManager())
             }
         }
     }
@@ -107,7 +82,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(null))
+                tasklet(testTasklet(null), ResourcelessTransactionManager())
             }
         }
     }
@@ -137,13 +112,13 @@ open class TestJobConfig {
 
     class TestListener {
         @BeforeChunk
-        fun beforeChunk() {
-            println("beforeChunk")
+        fun beforeChunk(context: ChunkContext) {
+            println("beforeChunk: $context")
         }
 
         @AfterChunk
-        fun afterChunk() {
-            println("afterChunk")
+        fun afterChunk(context: ChunkContext) {
+            println("afterChunk: $context")
         }
 
         @AfterChunkError
@@ -157,7 +132,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     listener(TestListener())
                 }
             }
@@ -186,15 +161,15 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     listener(
                         object : ChunkListener {
                             override fun beforeChunk(context: ChunkContext) {
-                                println("beforeChunk")
+                                println("beforeChunk: $context")
                             }
 
                             override fun afterChunk(context: ChunkContext) {
-                                println("afterChunk")
+                                println("afterChunk: $context")
                             }
 
                             override fun afterChunkError(context: ChunkContext) {
@@ -228,7 +203,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     stream(
                         object : ItemStream {
                             override fun open(executionContext: ExecutionContext) {
@@ -281,7 +256,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     taskExecutor(customExecutor())
                 }
             }
@@ -310,7 +285,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     exceptionHandler(
                         object : ExceptionHandler {
                             override fun handleException(context: RepeatContext, throwable: Throwable) {
@@ -343,7 +318,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     exceptionHandler { _, throwable ->
                         println("handle exception ${throwable.message}")
                         throw throwable
@@ -374,7 +349,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
                     stepOperations(
                         object : RepeatOperations {
                             override fun iterate(callback: RepeatCallback): RepeatStatus {
@@ -411,8 +386,12 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet()) {
-                    transactionAttribute(DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
+                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                    transactionAttribute(
+                        DefaultTransactionAttribute().apply {
+                            setName("test-tx")
+                        }
+                    )
                 }
             }
         }
@@ -421,8 +400,8 @@ open class TestJobConfig {
     @Bean
     open fun testTasklet(): Tasklet = Tasklet { _, _ ->
         // print false
-        val actualTransactionActive = TransactionSynchronizationManager.isActualTransactionActive()
-        println("run testTasklet (transaction active: $actualTransactionActive}")
+        val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
+        println("run testTasklet (transactionName: $transactionName}")
         RepeatStatus.FINISHED
     }
 }

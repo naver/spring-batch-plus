@@ -5,7 +5,7 @@
   - [Initialize a flow when defining a job](#initialize-a-flow-when-defining-a-job)
   - [Get a flow using the bean name](#get-a-flow-using-the-bean-name)
 - [Conditional execution of flows](#conditional-execution-of-flows)
-  - [Pass a flow as a variable](#pass-a-flow-as-a-variable-2)
+  - [Pass a flow as a variable](#pass-a-flow-as-a-variable-1)
   - [Initialize a flow when defining a job](#initialize-a-flow-when-defining-a-job-1)
   - [Get a flow using the bean name](#get-a-flow-using-the-bean-name-1)
 
@@ -31,7 +31,7 @@ open class TestJobConfig(
             val testFlow3 = batch {
                 flow("testFlow3") {
                     step("testFlow3Step1") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
             }
@@ -46,10 +46,10 @@ open class TestJobConfig(
     open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testFlow1Step1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
             step("testFlow1Step2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -58,7 +58,7 @@ open class TestJobConfig(
     open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
             step("testFlow2Step1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -80,15 +80,15 @@ open class TestJobConfig {
         job("testJob") {
             flow("testFlow1") {
                 step("testFlow1Step1") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                 }
                 step("testFlow1Step2") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                 }
             }
             flow("testFlow2") {
                 step("testFlow2Step1") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                 }
             }
         }
@@ -120,10 +120,10 @@ open class TestJobConfig {
     ): Flow = batch {
         flow("testFlow1") {
             step("testFlow1Step1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
             step("testFlow1Step2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -134,7 +134,7 @@ open class TestJobConfig {
     ): Flow = batch {
         flow("testFlow2") {
             step("testFlow2Step1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -145,7 +145,7 @@ open class TestJobConfig {
 
 The Kotlin DSL helps you run `Flows` conditionally based on the result of the previous flow. As in the sequential execution of flows, you can add a `Flow` using a method and pass it as a variable, initialize it or get it using the bean name when you define a `Job`. A `Flow` stops or another `Step` or `Flow` is run based on the result of the previous `Flow`. For more information about how to decide what to run based on the result of a `Flow`, see [Job Flow - Transition from a Flow](./job-flow-transition.md).
  
-### <a id='pass-a-flow-as-a-variable-2'>Pass a flow as a variable</a>
+### Pass a flow as a variable
 
 You can pass a predefined `Flow` as a variable when defining a `Job`. You can use a trailing lambda to define a `Flow` of the `Job`.
 
@@ -164,9 +164,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet { _, _ ->
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -180,9 +178,10 @@ open class TestJobConfig(
     open fun testFlow(): Flow = batch {
         flow("testFlow") {
             step("testStep") {
-                tasklet { _, _ ->
-                    throw IllegalStateException("testStep failed")
-                }
+                tasklet(
+                    { _, _ -> throw IllegalStateException("testStep failed") },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }
@@ -206,9 +205,10 @@ open class TestJobConfig {
                 "testFlow",
                 {
                     step("testStep") {
-                        tasklet { _, _ ->
-                            throw IllegalStateException("testStep failed")
-                        }
+                        tasklet(
+                            { _, _ -> throw IllegalStateException("testStep failed") },
+                            ResourcelessTransactionManager()
+                        )
                     }
                 }
             ) {
@@ -217,9 +217,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet { _, _ ->
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -250,9 +248,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet { _, _ ->
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -268,9 +264,10 @@ open class TestJobConfig {
     ): Flow = batch {
         flow("testFlow") {
             step("testStep") {
-                tasklet { _, _ ->
-                    throw IllegalStateException("testStep failed")
-                }
+                tasklet(
+                    { _, _ -> throw IllegalStateException("testStep failed") },
+                    ResourcelessTransactionManager()
+                )
             }
         }
     }

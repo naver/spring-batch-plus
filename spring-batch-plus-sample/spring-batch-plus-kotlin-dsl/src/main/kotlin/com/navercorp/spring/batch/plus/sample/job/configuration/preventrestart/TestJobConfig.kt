@@ -39,7 +39,6 @@ open class TestJobConfig {
             step("testStep") {
                 tasklet(
                     { _, _ ->
-
                         if (isFirst) {
                             isFirst = false
                             throw RuntimeException("First try should be failed")

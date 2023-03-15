@@ -38,7 +38,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }

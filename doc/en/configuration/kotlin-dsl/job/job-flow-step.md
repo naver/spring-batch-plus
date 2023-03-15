@@ -14,40 +14,42 @@ In Spring Batch, a `Job` consists of one or more `Steps`, which can be run seque
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val jobBuilderFactory: JobBuilderFactory,
-    private val stepBuilderFactory: StepBuilderFactory
+    private val jobRepository: JobRepository,
 ) {
 
     @Bean
     open fun testJob(): Job {
-        return jobBuilderFactory.get("testJob")
+        return JobBuilder("testJob", jobRepository)
             .start(testStep1()).on("COMPLETED").to(successStep())
             .from(testStep1()).on("FAILED").to(failureStep())
             .from(testStep1()).on("*").stop()
-            .end()
+            .build()
             .build()
     }
 
     @Bean
     open fun testStep1(): Step {
-        return stepBuilderFactory.get("testStep1")
-            .tasklet { _, _ ->
-                throw IllegalStateException("step failed")
-            }
+        return StepBuilder("testStep1", jobRepository)
+            .tasklet(
+                { _, _ ->
+                    throw IllegalStateException("step failed")
+                },
+                ResourcelessTransactionManager()
+            )
             .build()
     }
 
     @Bean
     open fun successStep(): Step {
-        return stepBuilderFactory.get("successStep")
-            .tasklet { _, _ -> RepeatStatus.FINISHED }
+        return StepBuilder("successStep", jobRepository)
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             .build()
     }
 
     @Bean
     open fun failureStep(): Step {
-        return stepBuilderFactory.get("failureStep")
-            .tasklet { _, _ -> RepeatStatus.FINISHED }
+        return StepBuilder("failureStep", jobRepository)
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             .build()
     }
 }
@@ -86,11 +88,11 @@ open class TestJobConfig(
         job("testJob") {
             step(testStep1()) {
                 on("COMPLETED") {
-                    step(testStep1())
+                    step(successStep())
                 }
                 on("FAILED") {
                     step("failureStep") {
-                        tasklet { _, _ -> RepeatStatus.FINISHED }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -103,16 +105,19 @@ open class TestJobConfig(
     @Bean
     open fun testStep1(): Step = batch {
         step("testStep1") {
-            tasklet { _, _ ->
-                throw IllegalStateException("step failed")
-            }
+            tasklet(
+                { _, _ ->
+                    throw IllegalStateException("step failed")
+                },
+                ResourcelessTransactionManager()
+            )
         }
     }
 
     @Bean
     open fun successStep(): Step = batch {
         step("successStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -139,7 +144,7 @@ open class TestJobConfig(
         job("testJob") {
             val testStep3 = batch {
                 step("testStep3") {
-                    tasklet { _, _ -> RepeatStatus.FINISHED }
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                 }
             }
 
@@ -152,14 +157,14 @@ open class TestJobConfig(
     @Bean
     open fun testStep1(): Step = batch {
         step("testStep1") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 
     @Bean
     open fun testStep2(): Step = batch {
         step("testStep2") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -179,13 +184,13 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
             step("testStep2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
             step("testStep3") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }
         }
     }
@@ -216,7 +221,7 @@ open class TestJobConfig {
         batch: BatchDsl
     ): Step = batch {
         step("testStep1") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 
@@ -225,7 +230,7 @@ open class TestJobConfig {
         batch: BatchDsl
     ): Step = batch {
         step("testStep2") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 
@@ -234,7 +239,7 @@ open class TestJobConfig {
         batch: BatchDsl
     ): Step = batch {
         step("testStep3") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
         }
     }
 }
@@ -263,9 +268,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet { _, _ ->
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -278,9 +281,10 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
@@ -302,9 +306,10 @@ open class TestJobConfig {
             step(
                 "testStep",
                 {
-                    tasklet { _, _ ->
-                        throw IllegalStateException("testStep failed")
-                    }
+                    tasklet(
+                        { _, _ -> throw IllegalStateException("testStep failed") },
+                        ResourcelessTransactionManager()
+                    )
                 }
             ) {
                 on("COMPLETED") {
@@ -312,9 +317,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet { _, _ ->
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -345,9 +348,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet { _, _ ->
-                            RepeatStatus.FINISHED
-                        }
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
                     }
                 }
                 on("*") {
@@ -362,11 +363,11 @@ open class TestJobConfig {
         batch: BatchDsl
     ): Step = batch {
         step("testStep") {
-            tasklet { _, _ ->
-                throw IllegalStateException("testStep failed")
-            }
+            tasklet(
+                { _, _ -> throw IllegalStateException("testStep failed") },
+                ResourcelessTransactionManager()
+            )
         }
     }
 }
 ```
-
