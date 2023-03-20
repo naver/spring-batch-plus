@@ -13,28 +13,6 @@ Spring Batch Plus provides extension features to [Spring Batch](https://github.c
 
 ```kotlin
 @Bean
-fun subJob1(batch: BatchDsl): Job = batch {
-    job("subJob1") {
-        step("testStep1") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
-        }
-    }
-}
-
-@Bean
-fun subJob2(batch: BatchDsl): Job = batch {
-    job("subJob2") {
-        step("testStep2") {
-            tasklet { _, _ ->
-                RepeatStatus.FINISHED
-            }
-        }
-    }
-}
-
-@Bean
 fun testJob(batch: BatchDsl): Job = batch {
     job("testJob") {
         step("jobStep1") {
@@ -42,6 +20,24 @@ fun testJob(batch: BatchDsl): Job = batch {
         }
         step("jobStep2") {
             jobBean("subJob2")
+        }
+    }
+}
+
+@Bean
+fun subJob1(batch: BatchDsl, transactionManager: PlatformTransactionManager): Job = batch {
+    job("subJob1") {
+        step("testStep1") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+        }
+    }
+}
+
+@Bean
+fun subJob2(batch: BatchDsl, transactionManager: PlatformTransactionManager): Job = batch {
+    job("subJob2") {
+        step("testStep2") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -71,8 +67,8 @@ class SampleTasklet : ItemStreamReaderProcessorWriter<Int, String> {
         return "'$item'"
     }
 
-    override fun write(items: List<String>) {
-        println(items)
+    override fun write(chunk: Chunk<String>) {
+        println(chunk.items)
     }
 }
 
@@ -84,7 +80,7 @@ fun testJob(
 ): Job = batch {
     job("testJob") {
         step("testStep") {
-            chunk<Int, String>(3) {
+            chunk<Int, String>(3, ResourcelessTransactionManager()) {
                 reader(sampleTasklet.asItemStreamReader())
                 processor(sampleTasklet.asItemProcessor())
                 writer(sampleTasklet.asItemStreamWriter())
@@ -103,11 +99,12 @@ fun testJob(
 
 We've tested following versions only. Other versions may not work.
 
-| Spring Batch Plus Version | Spring Batch Version | Kotlin Version | Java Version | Samples                                                                                    |
-|---------------------------|----------------------|----------------|--------------|--------------------------------------------------------------------------------------------|
-| 0.3.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher| [Samples](https://github.com/naver/spring-batch-plus/tree/v0.3.0/spring-batch-plus-sample) |
-| 0.2.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher| [Samples](https://github.com/naver/spring-batch-plus/tree/v0.2.0/spring-batch-plus-sample) |
-| 0.1.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher| [Samples](https://github.com/naver/spring-batch-plus/tree/v0.1.0/spring-batch-plus-sample) |
+| Spring Batch Plus Version | Spring Batch Version | Kotlin Version | Java Version  | Samples                                                                                    |
+|---------------------------|----------------------|----------------|---------------|--------------------------------------------------------------------------------------------|
+| 1.0.x                     | 5.0.x                | 1.5 or higher  | 17 or higher  | [Samples](https://github.com/naver/spring-batch-plus/tree/v1.0.0/spring-batch-plus-sample) |
+| 0.3.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.3.0/spring-batch-plus-sample) |
+| 0.2.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.2.0/spring-batch-plus-sample) |
+| 0.1.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.1.0/spring-batch-plus-sample) |
 
 ## Download
 
@@ -165,14 +162,18 @@ Java
 
 ## User Guide
 
-- [Korean](./doc/ko/README.md)
-- [English](./doc/en/README.md)
+- 1.0.x
+  - [Korean](./doc/ko/README.md)
+  - [English](./doc/en/README.md)
+- 0.3.x
+  - [Korean](https://github.com/naver/spring-batch-plus/tree/0.3.x/doc/ko)
+  - [English](https://github.com/naver/spring-batch-plus/tree/0.3.x/doc/en)
 
 ## Build from source
 
 ### Prerequisites
 
-- Jdk8 or higher
+- Jdk 17 or higher
 - Kotlin 1.5 or higher
 
 ### Build

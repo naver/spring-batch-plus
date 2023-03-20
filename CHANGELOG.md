@@ -1,6 +1,6 @@
 # ChangeLog
 
-## 1.0.0-SNAPSHOT
+## 1.0.0
 
 Support for [Spring Batch 5.0.0](https://github.com/spring-projects/spring-batch/releases/tag/v5.0.0).
 
