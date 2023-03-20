@@ -11,7 +11,6 @@
   - [Set a listener using an ItemWriteListener object](#set-a-listener-using-an-itemwritelistener-object)
   - [Set a stream](#set-a-stream)
   - [Set a TaskExecutor](#set-a-taskexecutor)
-  - [Set throttleLimit](#set-throttlelimit)
   - [Set an ExceptionHandler](#set-an-exceptionhandler)
   - [Set RepeatOperations](#set-repeatoperations)
   - [Set a TransactionAttribute](#set-a-transactionattribute)
@@ -45,7 +44,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -97,7 +96,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(SimpleCompletionPolicy(3)) {
+                chunk<Int, String>(SimpleCompletionPolicy(3), ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -152,7 +151,7 @@ open class TestJobConfig {
                 val repeatOperations = RepeatTemplate().apply {
                     setCompletionPolicy(SimpleCompletionPolicy(3))
                 }
-                chunk<Int, String>(repeatOperations) {
+                chunk<Int, String>(repeatOperations, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -226,7 +225,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -286,6 +285,7 @@ open class TestJobConfig {
 
         @OnReadError
         fun onReadError(ex: Exception) {
+            println("onReadError (exception: $ex)")
         }
     }
 
@@ -295,7 +295,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -355,6 +355,7 @@ open class TestJobConfig {
 
         @OnProcessError
         fun onProcessError(item: Any, e: Exception) {
+            println("onProcessError: $item, exception: $e")
         }
     }
 
@@ -364,7 +365,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -413,17 +414,18 @@ open class TestJobConfig {
 
     class TestListener {
         @BeforeWrite
-        fun beforeWrite(items: List<String>) {
-            println("beforeWrite: $items")
+        fun beforeWrite(chunk: Chunk<String>) {
+            println("beforeWrite: ${chunk.items}")
         }
 
         @AfterWrite
-        fun afterWrite(items: List<String>) {
-            println("afterWrite: $items")
+        fun afterWrite(chunk: Chunk<String>) {
+            println("afterWrite: ${chunk.items}")
         }
 
         @OnWriteError
-        fun onWriteError(exception: Exception, items: List<String>) {
+        fun onWriteError(exception: Exception, chunk: Chunk<String>) {
+            println("afterWrite: ${chunk.items}, exception: $exception")
         }
     }
 
@@ -433,7 +435,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -492,8 +494,8 @@ open class TestJobConfig {
         }
 
         @BeforeWrite
-        fun beforeWrite(items: List<String>) {
-            println("beforeWrite: $items")
+        fun beforeWrite(chunk: Chunk<String>) {
+            println("beforeWrite: ${chunk.items}")
         }
     }
 
@@ -503,7 +505,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -558,7 +560,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -626,7 +628,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -694,7 +696,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -762,21 +764,21 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
                     listener(
                         object : ItemWriteListener<String> {
-                            override fun beforeWrite(items: List<String>) {
-                                println("beforeWrite: $items")
+                            override fun beforeWrite(chunk: Chunk<out String>) {
+                                println("beforeWrite: ${chunk.items}")
                             }
 
-                            override fun afterWrite(items: List<String>) {
-                                println("afterWrite: $items")
+                            override fun afterWrite(chunk: Chunk<out String>) {
+                                println("afterWrite: ${chunk.items}")
                             }
 
-                            override fun onWriteError(exception: Exception, items: List<String>) {
+                            override fun onWriteError(exception: Exception, Chunk: Chunk<out String>) {
                             }
                         }
                     )
@@ -830,7 +832,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -904,63 +906,10 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     taskExecutor(customExecutor())
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                return if (count < 20) {
-                    count++
-                } else {
-                    null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<Int> {
-        return ItemWriter { items ->
-            println("[${Thread.currentThread().name}] write $items")
-        }
-    }
-}
-```
-
-### Set throttleLimit
-
-You can specify a `TaskExecutor` and throttleLimit to set the maximum number of chunks to run at the same time. The following example sets throttleLimit to 1, meaning the step is run on a single `TaskExecutor`.
-
-```kotlin
-@Configuration
-open class TestJobConfig {
-
-    @Bean
-    open fun customExecutor(): TaskExecutor {
-        return SimpleAsyncTaskExecutor()
-    }
-
-    @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, Int>(3) {
-                    reader(testItemReader())
-                    writer(testItemWriter())
-                    taskExecutor(customExecutor())
-                    throttleLimit(1)
                 }
             }
         }
@@ -1004,7 +953,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     exceptionHandler(
@@ -1048,7 +997,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     exceptionHandler { _, throwable ->
@@ -1090,7 +1039,7 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     stepOperations(
@@ -1145,10 +1094,14 @@ open class TestJobConfig {
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3) {
+                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     writer(testItemWriter())
-                    transactionAttribute(DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
+                    transactionAttribute(
+                        DefaultTransactionAttribute().apply {
+                            setName("test-tx")
+                        }
+                    )
                 }
             }
         }
@@ -1172,14 +1125,14 @@ open class TestJobConfig {
     @Bean
     open fun testItemWriter(): ItemWriter<Int> {
         return ItemWriter { items ->
-            val actualTransactionActive = TransactionSynchronizationManager.isActualTransactionActive()
-            println("write $items (actualTransactionActive: $actualTransactionActive)")
+            val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
+            println("write $items (transactionName: $transactionName)")
         }
     }
 }
 ```
 
-## Set FaultTolerant
+## Set faultTolerant
 
 A chunk-oriented step lets you define an action to run when it fails. The Kotlin DSL helps you do the same.
 
@@ -1211,7 +1164,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1274,7 +1227,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1349,7 +1302,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1439,7 +1392,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1508,7 +1461,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1575,7 +1528,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1638,7 +1591,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1702,7 +1655,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1765,7 +1718,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1839,7 +1792,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1910,7 +1863,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1970,7 +1923,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -2035,7 +1988,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -2099,7 +2052,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -2158,7 +2111,7 @@ open class TestJobConfig {
     open fun testJob(batch: BatchDsl): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3) {
+                chunk<Int, String>(3, ResourcelessTransactionManager()) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
