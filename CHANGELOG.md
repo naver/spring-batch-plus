@@ -1,5 +1,19 @@
 # ChangeLog
 
+## 1.1.0-SNAPSHOT
+
+### New Features
+
+- None
+
+### Changes
+
+- None
+
+### Bug fixes & Improvements
+
+- None
+
 ## 1.0.0
 
 Support for [Spring Batch 5.0.0](https://github.com/spring-projects/spring-batch/releases/tag/v5.0.0).
