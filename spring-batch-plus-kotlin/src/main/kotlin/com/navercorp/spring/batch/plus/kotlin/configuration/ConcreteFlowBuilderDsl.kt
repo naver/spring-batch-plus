@@ -195,6 +195,7 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
         deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
     ) {
         val baseUnterminatedFlowBuilder = if (!started) {
+            this.started = true
             this.flowBuilder.start(decider)
         } else {
             this.flowBuilder.next(decider)
