@@ -1,5 +1,19 @@
 # ChangeLog
 
+## 0.3.1
+
+New Features
+
+- None
+
+Changes
+
+- None
+
+Bug fixes & Improvements
+
+- Fix not setting started flag when decider is first
+
 ## 0.3.0
 
 New Features
