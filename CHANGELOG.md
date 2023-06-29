@@ -1,6 +1,6 @@
 # ChangeLog
 
-## 1.1.0-SNAPSHOT
+## 1.0.1
 
 ### New Features
 
@@ -12,7 +12,7 @@
 
 ### Bug fixes & Improvements
 
-- None
+- Fix not setting started flag when decider is first
 
 ## 1.0.0
 
