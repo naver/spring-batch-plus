@@ -1,5 +1,19 @@
 # ChangeLog
 
+## 0.3.2-SNAPSHOT
+
+New Features
+
+- None
+
+Changes
+
+- None
+
+Bug fixes & Improvements
+
+- None
+
 ## 0.3.1
 
 New Features
