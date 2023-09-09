@@ -35,6 +35,7 @@ import org.springframework.batch.core.job.builder.JobFlowBuilder
 import org.springframework.batch.core.job.builder.SimpleJobBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.JobExecutionDecider
+import org.springframework.batch.core.observability.BatchJobObservationConvention
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.core.task.TaskExecutor
 
@@ -70,6 +71,15 @@ class JobBuilderDsl internal constructor(
     fun incrementer(jobParametersIncrementer: JobParametersIncrementer) {
         lazyConfigurer.add {
             it.incrementer(jobParametersIncrementer)
+        }
+    }
+
+    /**
+     * Set for [JobBuilder.observationConvention][org.springframework.batch.core.job.builder.JobBuilderHelper.observationConvention].
+     */
+    fun observationConvention(observationConvention: BatchJobObservationConvention) {
+        lazyConfigurer.add {
+            it.observationConvention(observationConvention)
         }
     }
 
