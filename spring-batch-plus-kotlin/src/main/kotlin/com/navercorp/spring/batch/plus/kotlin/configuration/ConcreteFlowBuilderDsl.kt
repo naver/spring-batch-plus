@@ -24,7 +24,6 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.JobExecutionDecider
-import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.getBean
 import org.springframework.core.task.TaskExecutor
@@ -218,10 +217,5 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
             .build()
     }
 
-    internal fun build(): T = this.flowBuilder.build().apply {
-        // resolve https://github.com/spring-projects/spring-batch/issues/4092
-        if (this is SimpleFlow) {
-            afterPropertiesSet()
-        }
-    }
+    internal fun build(): T = this.flowBuilder.build()
 }
