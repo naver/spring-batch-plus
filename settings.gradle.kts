@@ -19,12 +19,13 @@ dependencyResolutionManagement {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven("https://repo.spring.io/milestone/")
     }
 
     versionCatalogs {
         create("libs") {
             val springBootVersion = "3.0.0"
-            val springBatchVersion = "5.0.0"
+            val springBatchVersion = "5.1.0-M2"
 
             library(
                 "spring-boot-autoconfigure",
