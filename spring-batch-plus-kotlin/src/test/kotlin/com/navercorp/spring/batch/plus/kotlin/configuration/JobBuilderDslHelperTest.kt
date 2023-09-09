@@ -128,6 +128,7 @@ internal class JobBuilderDslHelperTest {
         verify(jobBuilder, atLeastOnce()).meterRegistry(meterRegistry)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testRepository() {
         // given
