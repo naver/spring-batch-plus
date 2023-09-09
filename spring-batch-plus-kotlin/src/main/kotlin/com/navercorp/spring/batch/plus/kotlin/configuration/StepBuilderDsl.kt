@@ -56,6 +56,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set for [StepBuilder.repository][org.springframework.batch.core.step.builder.StepBuilderHelper.repository].
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "spring batch 5.1.0 deprecates this",
+    )
     fun repository(jobRepository: JobRepository) {
         this.stepBuilder.repository(jobRepository)
     }

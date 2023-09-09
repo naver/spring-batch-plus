@@ -94,6 +94,10 @@ class JobBuilderDsl internal constructor(
     /**
      * Set for [JobBuilder.repository][org.springframework.batch.core.job.builder.JobBuilderHelper.repository].
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "spring batch 5.1.0 deprecates this",
+    )
     fun repository(jobRepository: JobRepository) {
         lazyConfigurer.add {
             it.repository(jobRepository)
