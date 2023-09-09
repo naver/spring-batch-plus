@@ -32,6 +32,7 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
+import org.springframework.batch.core.observability.BatchStepObservationConvention
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.PartitionStepBuilder
 import org.springframework.batch.core.step.builder.SimpleStepBuilder
@@ -62,6 +63,13 @@ class StepBuilderDsl internal constructor(
     )
     fun repository(jobRepository: JobRepository) {
         this.stepBuilder.repository(jobRepository)
+    }
+
+    /**
+     * Set for [StepBuilder.observationConvention][org.springframework.batch.core.step.builder.StepBuilderHelper.observationConvention].
+     */
+    fun observationConvention(observationConvention: BatchStepObservationConvention) {
+        this.stepBuilder.observationConvention(observationConvention)
     }
 
     /**
