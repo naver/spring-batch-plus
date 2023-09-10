@@ -18,335 +18,231 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
-import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ChunkListener
 import org.springframework.batch.core.JobExecution
 import org.springframework.batch.core.JobInstance
 import org.springframework.batch.core.JobParameters
-import org.springframework.batch.core.Step
-import org.springframework.batch.core.annotation.AfterChunk
-import org.springframework.batch.core.annotation.AfterChunkError
-import org.springframework.batch.core.annotation.BeforeChunk
-import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.builder.StepBuilder
-import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.item.ExecutionContext
+import org.springframework.batch.core.step.builder.TaskletStepBuilder
+import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemStream
 import org.springframework.batch.repeat.RepeatCallback
+import org.springframework.batch.repeat.RepeatOperations
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.repeat.exception.ExceptionHandler
 import org.springframework.batch.repeat.support.RepeatTemplate
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager
-import org.springframework.core.task.SyncTaskExecutor
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute
-import org.springframework.transaction.support.TransactionSynchronizationManager
+import org.springframework.core.task.TaskExecutor
+import org.springframework.transaction.interceptor.TransactionAttribute
+import java.util.UUID
+import java.util.concurrent.ThreadLocalRandom
 
 internal class TaskletStepBuilderDslTest {
-
-    private val jobInstance = JobInstance(0L, "testJob")
-
-    private val jobParameters = JobParameters()
-
-    private fun taskletStepBuilderDsl(tasklet: Tasklet, init: TaskletStepBuilderDsl.() -> Unit): Step {
-        val dslContext = DslContext(
-            beanFactory = mock(),
-            jobRepository = mock(),
-        )
-        val stepBuilder = StepBuilder("testStep", mock())
-        val taskletStepBuilder = stepBuilder.tasklet(tasklet, ResourcelessTransactionManager())
-
-        return TaskletStepBuilderDsl(dslContext, taskletStepBuilder).apply(init).build()
-    }
 
     @Test
     fun testChunkListener() {
         // given
-        var beforeChunkCallCount = 0
-        var afterChunkCallCount = 0
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
         // when
-        val step = taskletStepBuilderDsl(
-            { _, _ -> RepeatStatus.FINISHED }
-        ) {
-            listener(
-                object : ChunkListener {
-                    override fun beforeChunk(context: ChunkContext) {
-                        ++beforeChunkCallCount
-                    }
-
-                    override fun afterChunk(context: ChunkContext) {
-                        ++afterChunkCallCount
-                    }
-
-                    override fun afterChunkError(context: ChunkContext) {
-                        // no need to test. we are just testing if listener is invoked
-                    }
-                }
-            )
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        val chunkListener = mockk<ChunkListener>()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+            listener(chunkListener)
+        }.build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(beforeChunkCallCount).isEqualTo(1)
-        assertThat(afterChunkCallCount).isEqualTo(1)
+        verify(exactly = 1) { taskletStepBuilder.listener(chunkListener) }
     }
 
     @Test
     fun testObjectListener() {
         // given
-        var beforeChunkCallCount = 0
-        var afterChunkCallCount = 0
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
+
+        class TestListener
 
         // when
-        class TestListener {
-            @BeforeChunk
-            fun beforeChunk() {
-                ++beforeChunkCallCount
-            }
-
-            @AfterChunk
-            fun afterChunk() {
-                ++afterChunkCallCount
-            }
-
-            @AfterChunkError
-            fun afterChunkError() {
-                // no need to test. we are just testing if listener is invoked
-            }
-        }
-
-        val step = taskletStepBuilderDsl(
-            { _, _ -> RepeatStatus.FINISHED }
-        ) {
-            listener(TestListener())
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        val testListener = TestListener()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+            listener(testListener)
+        }.build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(beforeChunkCallCount).isEqualTo(1)
-        assertThat(afterChunkCallCount).isEqualTo(1)
+        verify(exactly = 1) { taskletStepBuilder.listener(testListener) }
     }
 
     @Test
     fun testStream() {
         // given
-        var openCallCount = 0
-        var updateCallCount = 0
-        var closeCallCount = 0
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
         // when
-        val step = taskletStepBuilderDsl(
-            { _, _ -> RepeatStatus.FINISHED }
-        ) {
-            stream(
-                object : ItemStream {
-                    override fun open(executionContext: ExecutionContext) {
-                        ++openCallCount
-                    }
-
-                    override fun update(executionContext: ExecutionContext) {
-                        ++updateCallCount
-                    }
-
-                    override fun close() {
-                        ++closeCallCount
-                    }
-                }
-            )
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        val itemStream = mockk<ItemStream>()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+            stream(itemStream)
+        }.build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(openCallCount).isEqualTo(1)
-        assertThat(updateCallCount).isGreaterThan(1)
-        assertThat(closeCallCount).isEqualTo(1)
+        verify(exactly = 1) { taskletStepBuilder.stream(itemStream) }
     }
 
     @Test
     fun testTaskExecutor() {
         // given
-        var taskExecutorCallCount = 0
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
         // when
-        val step = taskletStepBuilderDsl(
-            { _, _ -> RepeatStatus.FINISHED }
-        ) {
-            taskExecutor { task ->
-                ++taskExecutorCallCount
-                task.run()
-            }
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        val taskExecutor = mockk<TaskExecutor>()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+            taskExecutor(taskExecutor)
+        }.build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(taskExecutorCallCount).isEqualTo(1)
+        verify(exactly = 1) { taskletStepBuilder.taskExecutor(taskExecutor) }
     }
 
     @Test
     fun testExceptionHandler() {
         // given
-        var exceptionHandlerCallCount = 0
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
         // when
-        val step = taskletStepBuilderDsl(
-            { _, _ -> throw RuntimeException("error") }
-        ) {
-            exceptionHandler { _, e ->
-                ++exceptionHandlerCallCount
-                throw e
-            }
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        val exceptionHandler = mockk<ExceptionHandler>()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+            exceptionHandler(exceptionHandler)
+        }.build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.FAILED)
-        assertThat(exceptionHandlerCallCount).isEqualTo(1)
+        verify(exactly = 1) { taskletStepBuilder.exceptionHandler(exceptionHandler) }
     }
 
     @Test
     fun testStepOperations() {
         // given
-        var iterateCount = 0
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
         // when
-        val step = taskletStepBuilderDsl(
-            { _, _ -> RepeatStatus.FINISHED }
-        ) {
-            stepOperations(
-                object : RepeatTemplate() {
-                    override fun iterate(callback: RepeatCallback): RepeatStatus {
-                        ++iterateCount
-                        return super.iterate(callback)
-                    }
-                }
-            )
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        val repeatOperations = mockk<RepeatOperations>()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+            stepOperations(repeatOperations)
+        }.build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(iterateCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testStepOperationsAndRedundantSettings() {
-        // given
-        var iterateCount = 0
-        var taskExecutorCallCount = 0
-        var exceptionHandlerCallCount = 0
-        val stepBuilder = StepBuilder("testStep", mock())
-
-        // when
-        val step = stepBuilder
-            .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
-            .stepOperations(
-                object : RepeatTemplate() {
-                    override fun iterate(callback: RepeatCallback): RepeatStatus {
-                        ++iterateCount
-                        return super.iterate(callback)
-                    }
-                }
-            )
-            // redundant
-            .taskExecutor { task ->
-                ++taskExecutorCallCount
-                task.run()
-            }
-            .exceptionHandler { _, e ->
-                ++exceptionHandlerCallCount
-                throw e
-            }
-            .build()
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
-
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(iterateCount).isEqualTo(1)
-        assertThat(taskExecutorCallCount).isEqualTo(0)
-        assertThat(exceptionHandlerCallCount).isEqualTo(0)
-    }
-
-    @Test
-    fun testStepOperationsAndSetTaskExecutor() {
-        assertThatThrownBy {
-            taskletStepBuilderDsl(
-                { _, _ -> throw RuntimeException("error") }
-            ) {
-                stepOperations(
-                    object : RepeatTemplate() {
-                        override fun iterate(callback: RepeatCallback): RepeatStatus {
-                            return super.iterate(callback)
-                        }
-                    }
-                )
-                taskExecutor(SyncTaskExecutor())
-            }
-        }.hasMessageContaining("taskExecutor is redundant")
-    }
-
-    @Test
-    fun testStepOperationsAndSetExceptionHandler() {
-        assertThatThrownBy {
-            taskletStepBuilderDsl(
-                { _, _ -> throw RuntimeException("error") }
-            ) {
-                stepOperations(
-                    object : RepeatTemplate() {
-                        override fun iterate(callback: RepeatCallback): RepeatStatus {
-                            return super.iterate(callback)
-                        }
-                    }
-                )
-                exceptionHandler { _, e ->
-                    throw e
-                }
-            }
-        }.hasMessageContaining("exceptionHandler is redundant")
+        verify(exactly = 1) { taskletStepBuilder.stepOperations(repeatOperations) }
     }
 
     @Test
     fun testTransactionalAttribute() {
-        // when
-        val step = taskletStepBuilderDsl(
-            { _, _ ->
-                val actual = TransactionSynchronizationManager.getCurrentTransactionName()
-                assertThat(actual).isEqualTo("some_tx")
+        // given
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
-                RepeatStatus.FINISHED
-            }
-        ) {
-            transactionAttribute(
-                DefaultTransactionAttribute().apply {
-                    setName("some_tx")
-                }
-            )
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        // when
+        val transactionAttribute = mockk<TransactionAttribute>()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+            transactionAttribute(transactionAttribute)
+        }.build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        verify(exactly = 1) { taskletStepBuilder.transactionAttribute(transactionAttribute) }
+    }
+
+    @Test
+    fun testBuild() {
+        // given
+        val mockStep = mockk<TaskletStep>()
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true) {
+            every { build() } returns mockStep
+        }
+
+        // when
+        val actual = TaskletStepBuilderDsl(mockk(), taskletStepBuilder).build()
+
+        // then
+        assertThat(actual).isEqualTo(mockStep)
+    }
+
+    @Test
+    fun testBuildWithSettingStepOperationsAndTaskExecutor() {
+        // given
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
+
+        // when, then
+        val repeatOperations = mockk<RepeatOperations>()
+        val taskExecutor = mockk<TaskExecutor>()
+        assertThatThrownBy {
+            TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+                stepOperations(repeatOperations)
+                taskExecutor(taskExecutor)
+            }.build()
+        }.hasMessageContaining("taskExecutor is redundant")
+    }
+
+    @Test
+    fun testBuildWithSettingStepOperationsAndExceptionHandler() {
+        // given
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
+
+        // when, then
+        val repeatOperations = mockk<RepeatOperations>()
+        val exceptionHandler = mockk<ExceptionHandler>()
+        assertThatThrownBy {
+            TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
+                stepOperations(repeatOperations)
+                exceptionHandler(exceptionHandler)
+            }.build()
+        }.hasMessageContaining("exceptionHandler is redundant")
+    }
+
+    @Nested
+    inner class RedundancyCheck {
+
+        @Test
+        fun testStepOperationsAndRedundantSettings() {
+            // given
+            var iterateCount = 0
+            var taskExecutorCallCount = 0
+            var exceptionHandlerCallCount = 0
+            val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
+
+            // when
+            val step = stepBuilder
+                .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                .stepOperations(
+                    object : RepeatTemplate() {
+                        override fun iterate(callback: RepeatCallback): RepeatStatus {
+                            ++iterateCount
+                            return super.iterate(callback)
+                        }
+                    }
+                )
+                // redundant
+                .taskExecutor { task ->
+                    ++taskExecutorCallCount
+                    task.run()
+                }
+                .exceptionHandler { _, e ->
+                    ++exceptionHandlerCallCount
+                    throw e
+                }
+                .build()
+            val jobInstance = JobInstance(ThreadLocalRandom.current().nextLong(), UUID.randomUUID().toString())
+            val jobExecution = JobExecution(jobInstance, JobParameters())
+            val stepExecution = jobExecution.createStepExecution(step.name)
+            step.execute(stepExecution)
+
+            // then
+            assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
+            assertThat(iterateCount).isEqualTo(1)
+            assertThat(taskExecutorCallCount).isEqualTo(0)
+            assertThat(exceptionHandlerCallCount).isEqualTo(0)
+        }
     }
 }
