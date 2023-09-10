@@ -66,6 +66,10 @@ dependencyResolutionManagement {
                 "org.mockito.kotlin:mockito-kotlin:4.+"
             )
             library(
+                "mockk",
+                "io.mockk:mockk:1.+"
+            )
+            library(
                 "spring-boot-test",
                 "org.springframework.boot:spring-boot-test:$springBootVersion"
             )
