@@ -18,81 +18,60 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
-import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
-import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobExecution
-import org.springframework.batch.core.JobInstance
-import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.launch.JobLauncher
-import org.springframework.batch.core.step.builder.StepBuilder
+import org.springframework.batch.core.step.builder.JobStepBuilder
+import org.springframework.batch.core.step.job.JobParametersExtractor
 
 internal class JobStepBuilderDslTest {
-
-    private val jobInstance = JobInstance(0L, "testJob")
-
-    private val jobParameters = JobParameters()
-
-    private fun jobStepBuilderDsl(job: Job, init: JobStepBuilderDsl.() -> Unit): Step {
-        val dslContext = DslContext(
-            beanFactory = mock(),
-            jobRepository = mock(),
-        )
-        val stepBuilder = StepBuilder("testStep", mock())
-        val jobStepBuilder = stepBuilder.job(job)
-
-        return JobStepBuilderDsl(dslContext, jobStepBuilder).apply(init).build()
-    }
 
     @Test
     fun testLauncher() {
         // given
-        var jobLauncherCallCount = 0
+        val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true)
 
         // when
-        val job = mock<Job>()
-        val step = jobStepBuilderDsl(job) {
-            launcher { _, _ ->
-                ++jobLauncherCallCount
-                JobExecution(jobInstance, jobParameters)
-            }
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        val jobLauncher = mockk<JobLauncher>()
+        JobStepBuilderDsl(mockk(), jobStepBuilder).apply {
+            launcher(jobLauncher)
+        }.build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobLauncherCallCount).isEqualTo(1)
+        verify(exactly = 1) { jobStepBuilder.launcher(jobLauncher) }
     }
 
     @Test
     fun testParametersExtractor() {
         // given
-        var parameterExtractorCallCount = 0
-        val mockJobLauncher = JobLauncher { _, _ ->
-            JobExecution(jobInstance, jobParameters)
+        val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true)
+
+        // when
+        val jobParametersExtractor = mockk<JobParametersExtractor>()
+        JobStepBuilderDsl(mockk(), jobStepBuilder).apply {
+            parametersExtractor(jobParametersExtractor)
+        }.build()
+
+        // then
+        verify(exactly = 1) { jobStepBuilder.parametersExtractor(jobParametersExtractor) }
+    }
+
+    @Test
+    fun testBuild() {
+        // given
+        val mockStep = mockk<Step>()
+        val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true) {
+            every { build() } returns mockStep
         }
 
         // when
-        val job = mock<Job>()
-        val step = jobStepBuilderDsl(job) {
-            launcher(mockJobLauncher)
-            parametersExtractor { _, _ ->
-                ++parameterExtractorCallCount
-                JobParameters()
-            }
-        }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
-        step.execute(stepExecution)
+        val actual = JobStepBuilderDsl(mockk(), jobStepBuilder).build()
 
         // then
-        assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(parameterExtractorCallCount).isEqualTo(1)
+        assertThat(actual).isEqualTo(mockStep)
     }
 }
