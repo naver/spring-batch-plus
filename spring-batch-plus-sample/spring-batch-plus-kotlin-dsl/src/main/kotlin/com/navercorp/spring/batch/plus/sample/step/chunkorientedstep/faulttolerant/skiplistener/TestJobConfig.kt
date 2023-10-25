@@ -51,7 +51,7 @@ open class TestJobConfig {
 
                                 override fun onSkipInWrite(item: String, t: Throwable) {
                                 }
-                            }
+                            },
                         )
                         skip<IllegalStateException>()
                         skipLimit(1)

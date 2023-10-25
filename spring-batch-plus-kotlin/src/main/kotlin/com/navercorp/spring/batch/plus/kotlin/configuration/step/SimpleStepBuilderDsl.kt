@@ -54,7 +54,7 @@ import kotlin.reflect.KClass
 @BatchDslMarker
 class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
     private val dslContext: DslContext,
-    private val simpleStepBuilder: SimpleStepBuilder<I, O>
+    private val simpleStepBuilder: SimpleStepBuilder<I, O>,
 ) {
     private val simpleStepConfigurer = LazyConfigurer<SimpleStepBuilder<I, O>>()
     private var faultTolerantStepConfigurer: Configurer<FaultTolerantStepBuilder<I, O>>? = null

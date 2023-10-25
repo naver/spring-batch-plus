@@ -53,7 +53,7 @@ open class TestJobConfig {
                                 override fun backOff(backOffContext: BackOffContext?) {
                                     println("backOff (context: $backOffContext)")
                                 }
-                            }
+                            },
                         )
                     }
                 }

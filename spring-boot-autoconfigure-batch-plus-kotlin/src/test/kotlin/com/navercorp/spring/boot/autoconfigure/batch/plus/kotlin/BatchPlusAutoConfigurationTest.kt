@@ -98,7 +98,7 @@ internal class BatchPlusAutoConfigurationTest {
         ): BatchDsl {
             return BatchDsl(
                 beanFactory,
-                jobRepository
+                jobRepository,
             )
         }
 

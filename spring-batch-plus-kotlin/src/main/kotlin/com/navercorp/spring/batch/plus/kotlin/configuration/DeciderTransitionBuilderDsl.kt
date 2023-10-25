@@ -32,7 +32,7 @@ import org.springframework.batch.core.job.flow.JobExecutionDecider
 class DeciderTransitionBuilderDsl<T : Any> internal constructor(
     private val dslContext: DslContext,
     private val decider: JobExecutionDecider,
-    private val baseUnterminatedFlowBuilder: FlowBuilder.UnterminatedFlowBuilder<T>
+    private val baseUnterminatedFlowBuilder: FlowBuilder.UnterminatedFlowBuilder<T>,
 ) {
     private var flowBuilder: FlowBuilder<T>? = null
 

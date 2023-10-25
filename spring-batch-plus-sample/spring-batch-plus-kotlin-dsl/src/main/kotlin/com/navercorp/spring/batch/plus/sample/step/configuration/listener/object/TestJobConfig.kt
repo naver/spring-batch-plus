@@ -33,7 +33,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("testStep") {
@@ -47,7 +47,7 @@ open class TestJobConfig {
                             println("afterStep")
                             return null
                         }
-                    }
+                    },
                 )
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }

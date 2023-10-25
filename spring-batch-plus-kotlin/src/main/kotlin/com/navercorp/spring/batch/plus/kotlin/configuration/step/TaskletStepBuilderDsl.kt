@@ -39,7 +39,7 @@ import org.springframework.transaction.interceptor.TransactionAttribute
 class TaskletStepBuilderDsl internal constructor(
     @Suppress("unused")
     private val dslContext: DslContext,
-    private val taskletStepBuilder: TaskletStepBuilder
+    private val taskletStepBuilder: TaskletStepBuilder,
 ) {
     private val lazyConfigurer = LazyConfigurer<TaskletStepBuilder>()
 

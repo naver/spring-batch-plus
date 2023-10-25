@@ -62,7 +62,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         throw RuntimeException("Error")
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -73,7 +73,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                         ++testStep2CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -97,7 +97,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep1CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -108,7 +108,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep2CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -153,9 +153,9 @@ internal class FlowJobBuilderDslIntegrationTest {
                                 ++testStep1CallCount
                                 throw RuntimeException("Error")
                             },
-                            ResourcelessTransactionManager()
+                            ResourcelessTransactionManager(),
                         )
-                    }
+                    },
                 ) {
                     on("COMPLETED") {
                         step("transitionStep1") {
@@ -164,7 +164,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep1CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -175,7 +175,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep2CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -188,9 +188,9 @@ internal class FlowJobBuilderDslIntegrationTest {
                                 ++testStep2CallCount
                                 RepeatStatus.FINISHED
                             },
-                            ResourcelessTransactionManager()
+                            ResourcelessTransactionManager(),
                         )
-                    }
+                    },
                 ) {
                     on("COMPLETED") {
                         end("TEST")
@@ -226,7 +226,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         throw RuntimeException("Error")
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -237,7 +237,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                         ++testStep2CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -253,7 +253,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep1CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -264,7 +264,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep2CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -303,7 +303,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -316,7 +316,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep2CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -365,7 +365,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                 ++testStep1CallCount
                                 RepeatStatus.FINISHED
                             },
-                            ResourcelessTransactionManager()
+                            ResourcelessTransactionManager(),
                         )
                     }
                 }
@@ -376,7 +376,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                 ++testStep2CallCount
                                 RepeatStatus.FINISHED
                             },
-                            ResourcelessTransactionManager()
+                            ResourcelessTransactionManager(),
                         )
                     }
                 }
@@ -407,7 +407,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -420,7 +420,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep2CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -460,7 +460,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             throw RuntimeException("Error")
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -474,7 +474,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep2CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -499,7 +499,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep1CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -510,7 +510,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep2CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -556,10 +556,10 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++testStep1CallCount
                                     throw RuntimeException("Error")
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
-                    }
+                    },
                 ) {
                     on("COMPLETED") {
                         step("transitionStep1") {
@@ -568,7 +568,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep1CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -579,7 +579,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep2CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -593,10 +593,10 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++testStep2CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
-                    }
+                    },
                 ) {
                     on("COMPLETED") {
                         end("TEST")
@@ -633,7 +633,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             throw RuntimeException("Error")
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -646,7 +646,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep2CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -663,7 +663,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep1CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -674,7 +674,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     ++transitionStep2CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -755,7 +755,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
                 deciderBean("testDecider") {
@@ -826,7 +826,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
                 decider(decider) {
@@ -874,7 +874,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -886,7 +886,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                                     assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }

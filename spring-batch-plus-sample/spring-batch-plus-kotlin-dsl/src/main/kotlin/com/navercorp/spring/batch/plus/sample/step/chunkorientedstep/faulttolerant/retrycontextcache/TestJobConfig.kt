@@ -48,7 +48,7 @@ open class TestJobConfig {
                                     println("contains key: $key")
                                     return super.containsKey(key)
                                 }
-                            }
+                            },
                         )
                     }
                 }

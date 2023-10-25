@@ -88,7 +88,7 @@ internal class PartitionStepBuilderDslTest {
                         override fun execute(stepExecution: StepExecution) {
                             throw RuntimeException("Should not be called")
                         }
-                    }
+                    },
                 )
                 .taskExecutor { task ->
                     ++taskExecutorCallCount
@@ -197,7 +197,7 @@ internal class PartitionStepBuilderDslTest {
                                     exitStatus = ExitStatus.COMPLETED
                                 }
                             }
-                        }
+                        },
                     )
                     taskExecutor { task ->
                         ++taskExecutorCallCount
@@ -266,7 +266,7 @@ internal class PartitionStepBuilderDslTest {
                                     exitStatus = ExitStatus.COMPLETED
                                 }
                             }
-                        }
+                        },
                     )
                     gridSize(gridSize)
                 }
@@ -332,7 +332,7 @@ internal class PartitionStepBuilderDslTest {
                                     exitStatus = ExitStatus.COMPLETED
                                 }
                             }
-                        }
+                        },
                     )
                     taskExecutor { task ->
                         ++taskExecutorCallCount
@@ -440,7 +440,7 @@ internal class PartitionStepBuilderDslTest {
                             ++splitterCallCount
                             return setOf()
                         }
-                    }
+                    },
                 )
                 // dummy
                 .partitioner(dummyStepName) {
@@ -491,7 +491,7 @@ internal class PartitionStepBuilderDslTest {
                                 }
                                 .toSet()
                         }
-                    }
+                    },
                 )
             }
             val jobExecution = JobExecution(jobInstance, jobParameters)

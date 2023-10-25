@@ -59,7 +59,7 @@ internal class StepTransitionBuilderDslIntegrationTest {
                         contribution.exitStatus = expectedExitStatus
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -105,7 +105,7 @@ internal class StepTransitionBuilderDslIntegrationTest {
                     { _, _ ->
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -128,7 +128,7 @@ internal class StepTransitionBuilderDslIntegrationTest {
             ExitStatus.NOOP,
             ExitStatus.FAILED,
             ExitStatus.STOPPED,
-            ExitStatus.COMPLETED
+            ExitStatus.COMPLETED,
             // ExitStatus.EXECUTING, // why considered ExitStatus.COMPLETE?
         ).random()
     }

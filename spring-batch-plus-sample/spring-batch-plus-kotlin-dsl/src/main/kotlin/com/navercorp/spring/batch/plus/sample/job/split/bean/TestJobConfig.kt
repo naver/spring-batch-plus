@@ -32,7 +32,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             split(SimpleAsyncTaskExecutor()) {
@@ -45,7 +45,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testFlow1(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Flow = batch {
         flow("testFlow1") {
             step("testStep1") {
@@ -56,7 +56,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testFlow2(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Flow = batch {
         flow("testFlow2") {
             step("testStep1") {
@@ -67,7 +67,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testFlow3(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Flow = batch {
         flow("testFlow3") {
             step("testStep1") {

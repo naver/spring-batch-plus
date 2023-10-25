@@ -35,7 +35,7 @@ import org.springframework.batch.core.step.job.JobParametersExtractor
 class JobStepBuilderDsl internal constructor(
     @Suppress("unused")
     private val dslContext: DslContext,
-    private val jobStepBuilder: JobStepBuilder
+    private val jobStepBuilder: JobStepBuilder,
 ) {
     private val lazyConfigurer = LazyConfigurer<JobStepBuilder>()
 

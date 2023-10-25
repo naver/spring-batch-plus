@@ -37,7 +37,7 @@ open class TestJobConfig {
     open fun removeJob(
         @BatchDataSource dataSource: DataSource,
         jobRepository: JobRepository,
-        properties: BatchProperties
+        properties: BatchProperties,
     ): Job {
         val tablePrefix = properties.jdbc.tablePrefix
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
@@ -48,13 +48,13 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("testStep") {
                 tasklet(
                     { _, _ -> RepeatStatus.FINISHED },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }

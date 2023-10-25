@@ -59,7 +59,7 @@ internal class FaultTolerantStepBuilderDslTest {
 
     private fun <I : Any, O : Any> simpleStepBuilderDsl(
         chunkSize: Int,
-        init: SimpleStepBuilderDsl<I, O>.() -> Unit
+        init: SimpleStepBuilderDsl<I, O>.() -> Unit,
     ): Step {
         val dslContext = DslContext(
             beanFactory = mock(),
@@ -113,7 +113,7 @@ internal class FaultTolerantStepBuilderDslTest {
                         override fun onSkipInWrite(item: Number, t: Throwable) {
                             // no need to test. we are just testing if listener is invoked
                         }
-                    }
+                    },
                 )
             }
         }
@@ -157,7 +157,7 @@ internal class FaultTolerantStepBuilderDslTest {
                     object : RetryListener {
                         override fun <T : Any?, E : Throwable?> open(
                             context: RetryContext?,
-                            callback: RetryCallback<T, E>?
+                            callback: RetryCallback<T, E>?,
                         ): Boolean {
                             ++retryOpenCallCount
                             return true
@@ -166,7 +166,7 @@ internal class FaultTolerantStepBuilderDslTest {
                         override fun <T : Any?, E : Throwable?> close(
                             context: RetryContext?,
                             callback: RetryCallback<T, E>?,
-                            throwable: Throwable?
+                            throwable: Throwable?,
                         ) {
                             // no need to test. we are just testing if listener is invoked
                         }
@@ -174,11 +174,11 @@ internal class FaultTolerantStepBuilderDslTest {
                         override fun <T : Any?, E : Throwable?> onError(
                             context: RetryContext?,
                             callback: RetryCallback<T, E>?,
-                            throwable: Throwable?
+                            throwable: Throwable?,
                         ) {
                             // no need to test. we are just testing if listener is invoked
                         }
-                    }
+                    },
                 )
             }
         }
@@ -418,7 +418,7 @@ internal class FaultTolerantStepBuilderDslTest {
                             ++backoffPolicyCallCount
                             super.doBackOff()
                         }
-                    }
+                    },
                 )
                 retry<RuntimeException>()
             }
@@ -466,7 +466,7 @@ internal class FaultTolerantStepBuilderDslTest {
                             ++retryContextCacheCallCount
                             return super.containsKey(key)
                         }
-                    }
+                    },
                 )
                 retry<RuntimeException>()
             }
@@ -632,8 +632,8 @@ internal class FaultTolerantStepBuilderDslTest {
                 skipPolicy(
                     LimitCheckingItemSkipPolicy(
                         skipLimit,
-                        mapOf(IllegalStateException::class.java to true)
-                    )
+                        mapOf(IllegalStateException::class.java to true),
+                    ),
                 )
             }
         }
@@ -958,17 +958,19 @@ internal class FaultTolerantStepBuilderDslTest {
                 .retryLimit(3)
                 .retry(RuntimeException::class.java)
                 .writer {}
-                .listener(object : ChunkListener {
-                    override fun beforeChunk(context: ChunkContext) {
-                        throw IllegalStateException("Error")
-                    }
+                .listener(
+                    object : ChunkListener {
+                        override fun beforeChunk(context: ChunkContext) {
+                            throw IllegalStateException("Error")
+                        }
 
-                    override fun afterChunk(context: ChunkContext) {
-                    }
+                        override fun afterChunk(context: ChunkContext) {
+                        }
 
-                    override fun afterChunkError(context: ChunkContext) {
-                    }
-                })
+                        override fun afterChunkError(context: ChunkContext) {
+                        }
+                    },
+                )
                 .build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
@@ -998,7 +1000,7 @@ internal class FaultTolerantStepBuilderDslTest {
 
                         override fun afterChunkError(context: ChunkContext) {
                         }
-                    }
+                    },
                 )
                 faultTolerant {
                     retryLimit(3)
@@ -1037,7 +1039,7 @@ internal class FaultTolerantStepBuilderDslTest {
 
                         override fun afterChunkError(context: ChunkContext) {
                         }
-                    }
+                    },
                 )
             }
             val jobExecution = JobExecution(jobInstance, jobParameters)
@@ -1079,15 +1081,17 @@ internal class FaultTolerantStepBuilderDslTest {
                 }
                 .faultTolerant() // use faultTolerant
                 .noRollback(IllegalStateException::class.java) // wrapped by making it as noRollback
-                .transactionAttribute(object : DefaultTransactionAttribute() {
-                    override fun rollbackOn(ex: Throwable): Boolean {
-                        // make it always rollback (batch exit with failed)
-                        // but with faultTolerant, class defined in noRollback is considered
-                        // noRollback in transaction by wrapping transactionAttribute
-                        ++noRollbackCallCount
-                        return ex is IllegalStateException
-                    }
-                })
+                .transactionAttribute(
+                    object : DefaultTransactionAttribute() {
+                        override fun rollbackOn(ex: Throwable): Boolean {
+                            // make it always rollback (batch exit with failed)
+                            // but with faultTolerant, class defined in noRollback is considered
+                            // noRollback in transaction by wrapping transactionAttribute
+                            ++noRollbackCallCount
+                            return ex is IllegalStateException
+                        }
+                    },
+                )
                 .build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
@@ -1109,12 +1113,14 @@ internal class FaultTolerantStepBuilderDslTest {
 
             // when
             val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-                transactionAttribute(object : DefaultTransactionAttribute() {
-                    override fun rollbackOn(ex: Throwable): Boolean {
-                        ++noRollbackCallCount
-                        return ex is IllegalStateException
-                    }
-                })
+                transactionAttribute(
+                    object : DefaultTransactionAttribute() {
+                        override fun rollbackOn(ex: Throwable): Boolean {
+                            ++noRollbackCallCount
+                            return ex is IllegalStateException
+                        }
+                    },
+                )
                 reader {
                     if (readCallCount < readLimit) {
                         ++readCallCount
@@ -1164,12 +1170,14 @@ internal class FaultTolerantStepBuilderDslTest {
                 faultTolerant {
                     noRollback<IllegalStateException>()
                 }
-                transactionAttribute(object : DefaultTransactionAttribute() {
-                    override fun rollbackOn(ex: Throwable): Boolean {
-                        ++noRollbackCallCount
-                        return ex is IllegalStateException
-                    }
-                })
+                transactionAttribute(
+                    object : DefaultTransactionAttribute() {
+                        override fun rollbackOn(ex: Throwable): Boolean {
+                            ++noRollbackCallCount
+                            return ex is IllegalStateException
+                        }
+                    },
+                )
             }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)

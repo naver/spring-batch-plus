@@ -30,7 +30,7 @@ import org.springframework.batch.core.job.builder.FlowJobBuilder
 internal class FlowJobBuilderDsl internal constructor(
     @Suppress("unused")
     private val dslContext: DslContext,
-    private val delegate: ConcreteFlowBuilderDsl<FlowJobBuilder>
+    private val delegate: ConcreteFlowBuilderDsl<FlowJobBuilder>,
 ) : FlowBuilderDsl<FlowJobBuilder> by delegate {
 
     internal fun build(): Job = this.delegate.build()

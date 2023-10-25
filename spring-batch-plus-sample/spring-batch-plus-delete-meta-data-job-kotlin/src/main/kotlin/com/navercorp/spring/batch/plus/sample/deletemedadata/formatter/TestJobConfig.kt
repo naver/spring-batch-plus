@@ -36,7 +36,7 @@ open class TestJobConfig {
     @Bean
     open fun removeJob(
         @BatchDataSource dataSource: DataSource,
-        jobRepository: JobRepository
+        jobRepository: JobRepository,
     ): Job {
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
             .name("removeJob")
@@ -46,13 +46,13 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("testStep") {
                 tasklet(
                     { _, _ -> RepeatStatus.FINISHED },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }

@@ -29,12 +29,12 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 open class TestJobConfig(
-    private val jobRepository: JobRepository
+    private val jobRepository: JobRepository,
 ) {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("testStep") {
@@ -44,7 +44,7 @@ open class TestJobConfig(
                             println("update stepExecution to $stepExecution")
                             jobRepository.update(stepExecution)
                         }
-                    }
+                    },
                 )
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
             }

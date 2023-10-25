@@ -375,7 +375,7 @@ internal class SimpleStepBuilderDslTest {
                             ++stepOperationCallCount
                             return super.iterate(callback)
                         }
-                    }
+                    },
                 )
                 // redundant
                 .taskExecutor { task ->

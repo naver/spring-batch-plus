@@ -33,7 +33,7 @@ import org.springframework.batch.core.job.builder.FlowBuilder
 class StepTransitionBuilderDsl<T : Any> internal constructor(
     private val dslContext: DslContext,
     private val step: Step,
-    private val baseFlowBuilder: FlowBuilder<T>
+    private val baseFlowBuilder: FlowBuilder<T>,
 ) {
     private var flowBuilder: FlowBuilder<T>? = null
 

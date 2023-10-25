@@ -32,7 +32,7 @@ import org.springframework.beans.factory.getBean
 @BatchDslMarker
 internal class SimpleJobBuilderDsl internal constructor(
     private val dslContext: DslContext,
-    private val simpleJobBuilder: SimpleJobBuilder
+    private val simpleJobBuilder: SimpleJobBuilder,
 ) {
 
     fun stepBean(name: String) {

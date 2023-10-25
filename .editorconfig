@@ -17,6 +17,12 @@ end_of_line = crlf
 [{*.kt, *.kts}]
 # [indentation-tab]
 indent_style = space
+# [allow-trailing-comma]
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+# [disable-star-import]
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
 
 # [4-spaces-tab]
 indent_size = 4

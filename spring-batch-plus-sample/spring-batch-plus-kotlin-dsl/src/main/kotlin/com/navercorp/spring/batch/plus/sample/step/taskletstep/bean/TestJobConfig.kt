@@ -33,7 +33,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("testStep") {
@@ -45,7 +45,7 @@ open class TestJobConfig {
     @Bean
     @StepScope
     open fun testTasklet(
-        @Value("#{jobParameters['param']}") paramValue: String
+        @Value("#{jobParameters['param']}") paramValue: String,
     ): Tasklet = Tasklet { _, _ ->
         println("param is '$paramValue'")
         RepeatStatus.FINISHED

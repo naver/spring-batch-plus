@@ -33,7 +33,7 @@ open class TestJobConfig {
     @Bean
     open fun testJob(
         batch: BatchDsl,
-        jobRepository: JobRepository
+        jobRepository: JobRepository,
     ): Job = batch {
         job("testJob") {
             repository(
@@ -42,7 +42,7 @@ open class TestJobConfig {
                         println("update jobExecution to $jobExecution")
                         jobRepository.update(jobExecution)
                     }
-                }
+                },
             )
             step("testStep") {
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())

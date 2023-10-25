@@ -29,7 +29,7 @@ import reactor.core.publisher.Flux
 @Component
 @StepScope
 open class SampleTasklet(
-    @Value("#{jobParameters['totalCount']}") private var totalCount: Long
+    @Value("#{jobParameters['totalCount']}") private var totalCount: Long,
 ) : ItemStreamReaderWriter<Int> {
     private var count = 0
 

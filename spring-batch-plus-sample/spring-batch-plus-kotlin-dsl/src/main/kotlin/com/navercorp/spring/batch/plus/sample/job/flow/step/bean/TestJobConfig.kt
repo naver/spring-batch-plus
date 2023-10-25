@@ -31,7 +31,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             stepBean("testStep1")
@@ -42,7 +42,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testStep1(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Step = batch {
         step("testStep1") {
             tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
@@ -51,7 +51,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testStep2(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Step = batch {
         step("testStep2") {
             tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
@@ -60,7 +60,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testStep3(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Step = batch {
         step("testStep3") {
             tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())

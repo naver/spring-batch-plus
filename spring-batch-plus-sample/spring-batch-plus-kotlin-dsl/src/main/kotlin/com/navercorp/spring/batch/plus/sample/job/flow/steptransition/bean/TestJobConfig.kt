@@ -31,7 +31,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             stepBean("testStep") {
@@ -52,12 +52,12 @@ open class TestJobConfig {
 
     @Bean
     open fun testStep(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Step = batch {
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                ResourcelessTransactionManager(),
             )
         }
     }

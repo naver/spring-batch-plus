@@ -69,7 +69,7 @@ internal class SplitBuilderDslIntegrationTest {
                             assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -83,7 +83,7 @@ internal class SplitBuilderDslIntegrationTest {
                             assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -145,7 +145,7 @@ internal class SplitBuilderDslIntegrationTest {
                                     assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -157,7 +157,7 @@ internal class SplitBuilderDslIntegrationTest {
                                     assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -199,7 +199,7 @@ internal class SplitBuilderDslIntegrationTest {
                             assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -213,7 +213,7 @@ internal class SplitBuilderDslIntegrationTest {
                             assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
