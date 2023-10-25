@@ -50,7 +50,7 @@ open class TestJobConfig(
                 { _, _ ->
                     throw IllegalStateException("step failed")
                 },
-                ResourcelessTransactionManager()
+                ResourcelessTransactionManager(),
             )
             .build()
     }

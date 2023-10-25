@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
 ) {
 
     @Bean

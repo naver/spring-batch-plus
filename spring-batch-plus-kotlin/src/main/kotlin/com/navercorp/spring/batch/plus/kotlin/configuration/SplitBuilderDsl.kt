@@ -32,7 +32,7 @@ import org.springframework.beans.factory.getBean
 @BatchDslMarker
 class SplitBuilderDsl<T : Any> internal constructor(
     private val dslContext: DslContext,
-    private val splitBuilder: FlowBuilder.SplitBuilder<T>
+    private val splitBuilder: FlowBuilder.SplitBuilder<T>,
 ) {
     private var flows = mutableListOf<Flow>()
 

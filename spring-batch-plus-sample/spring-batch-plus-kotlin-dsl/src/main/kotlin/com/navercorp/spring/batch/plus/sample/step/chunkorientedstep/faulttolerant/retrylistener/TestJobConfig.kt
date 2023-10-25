@@ -46,7 +46,7 @@ open class TestJobConfig {
                             object : RetryListener {
                                 override fun <T : Any?, E : Throwable?> open(
                                     context: RetryContext?,
-                                    callback: RetryCallback<T, E>?
+                                    callback: RetryCallback<T, E>?,
                                 ): Boolean {
                                     println("RetryListener::open (context: $context")
                                     return true
@@ -55,7 +55,7 @@ open class TestJobConfig {
                                 override fun <T : Any?, E : Throwable?> close(
                                     context: RetryContext?,
                                     callback: RetryCallback<T, E>?,
-                                    throwable: Throwable?
+                                    throwable: Throwable?,
                                 ) {
                                     println("RetryListener::close (error: ${throwable?.message})")
                                 }
@@ -63,11 +63,11 @@ open class TestJobConfig {
                                 override fun <T : Any?, E : Throwable?> onError(
                                     context: RetryContext?,
                                     callback: RetryCallback<T, E>?,
-                                    throwable: Throwable?
+                                    throwable: Throwable?,
                                 ) {
                                     println("RetryListener::onError (error: ${throwable?.message})")
                                 }
-                            }
+                            },
                         )
                         retry<IllegalStateException>()
                         retryLimit(4)

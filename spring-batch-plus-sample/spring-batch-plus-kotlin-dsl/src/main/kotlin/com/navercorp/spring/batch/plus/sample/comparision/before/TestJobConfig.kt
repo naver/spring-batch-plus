@@ -39,22 +39,22 @@ open class TestJobConfig {
             .start(
                 StepBuilder("testStep1", jobRepository)
                     .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-                    .build()
+                    .build(),
             )
             .next(
                 StepBuilder("testStep2", jobRepository)
                     .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-                    .build()
+                    .build(),
             )
             .next(
                 StepBuilder("testStep3", jobRepository)
                     .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-                    .build()
+                    .build(),
             )
             .next(
                 StepBuilder("testStep4", jobRepository)
                     .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-                    .build()
+                    .build(),
             )
             .build()
     }

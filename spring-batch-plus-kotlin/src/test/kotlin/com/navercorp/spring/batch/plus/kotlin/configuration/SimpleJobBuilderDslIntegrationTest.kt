@@ -58,7 +58,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -69,7 +69,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                         ++testStep2CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -115,7 +115,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
                 step("testStep2") {
@@ -124,7 +124,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                             ++testStep2CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -152,7 +152,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -163,7 +163,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                         ++testStep2CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }

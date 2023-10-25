@@ -63,7 +63,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -74,7 +74,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++transitionStepCallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -116,7 +116,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -132,7 +132,7 @@ internal class TransitionBuilderDslIntegrationTest {
                                     ++transitionStepCallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -163,7 +163,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -174,7 +174,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++transitionStepCallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -213,7 +213,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -224,7 +224,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++transitionStepCallCount
                         throw RuntimeException("Error")
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -276,7 +276,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -294,9 +294,9 @@ internal class TransitionBuilderDslIntegrationTest {
                                         ++transitionStepCallCount
                                         throw RuntimeException("Error")
                                     },
-                                    ResourcelessTransactionManager()
+                                    ResourcelessTransactionManager(),
                                 )
-                            }
+                            },
                         ) {
                             on("COMPLETED") {
                                 fail()
@@ -336,7 +336,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -347,7 +347,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++transitionStepCallCount
                         throw RuntimeException("Error")
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -396,7 +396,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -408,7 +408,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             ++transitionStepCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -451,7 +451,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -468,7 +468,7 @@ internal class TransitionBuilderDslIntegrationTest {
                                         ++transitionStepCallCount
                                         RepeatStatus.FINISHED
                                     },
-                                    ResourcelessTransactionManager()
+                                    ResourcelessTransactionManager(),
                                 )
                             }
                         }
@@ -500,7 +500,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -512,7 +512,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             ++transitionStepCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -552,7 +552,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -564,7 +564,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             ++transitionStepCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -614,7 +614,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -633,10 +633,10 @@ internal class TransitionBuilderDslIntegrationTest {
                                             ++transitionStepCallCount
                                             RepeatStatus.FINISHED
                                         },
-                                        ResourcelessTransactionManager()
+                                        ResourcelessTransactionManager(),
                                     )
                                 }
-                            }
+                            },
                         ) {
                             on("COMPLETED") {
                                 end("TEST")
@@ -673,7 +673,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -685,7 +685,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             ++transitionStepCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -732,7 +732,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -788,7 +788,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -840,7 +840,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -878,7 +878,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -890,7 +890,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             ++transitionStepCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -939,7 +939,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -956,7 +956,7 @@ internal class TransitionBuilderDslIntegrationTest {
                                         ++transitionStepCallCount
                                         RepeatStatus.FINISHED
                                     },
-                                    ResourcelessTransactionManager()
+                                    ResourcelessTransactionManager(),
                                 )
                             }
                         }
@@ -994,7 +994,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1006,7 +1006,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             ++transitionStepCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -1052,7 +1052,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1064,7 +1064,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             ++transitionStepCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -1120,7 +1120,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1137,10 +1137,10 @@ internal class TransitionBuilderDslIntegrationTest {
                                         ++transitionStepCallCount
                                         RepeatStatus.FINISHED
                                     },
-                                    ResourcelessTransactionManager()
+                                    ResourcelessTransactionManager(),
                                 )
                             }
-                        }) {
+                        },) {
                             on("COMPLETED") {
                                 end("TEST")
                             }
@@ -1182,7 +1182,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1194,7 +1194,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             ++transitionStepCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -1248,7 +1248,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1273,7 +1273,7 @@ internal class TransitionBuilderDslIntegrationTest {
                                             ++transitionStepCallCount
                                             RepeatStatus.FINISHED
                                         },
-                                        ResourcelessTransactionManager()
+                                        ResourcelessTransactionManager(),
                                     )
                                 }
                             }
@@ -1317,7 +1317,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1331,7 +1331,7 @@ internal class TransitionBuilderDslIntegrationTest {
                             { _, _ ->
                                 ++testDeciderCallCount
                                 FlowExecutionStatus.UNKNOWN
-                            }
+                            },
                         ) {
                             on("UNKNOWN") {
                                 step("transitionStep") {
@@ -1340,7 +1340,7 @@ internal class TransitionBuilderDslIntegrationTest {
                                             ++transitionStepCallCount
                                             RepeatStatus.FINISHED
                                         },
-                                        ResourcelessTransactionManager()
+                                        ResourcelessTransactionManager(),
                                     )
                                 }
                             }
@@ -1383,7 +1383,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1394,7 +1394,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++transitionStepCallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1442,7 +1442,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1458,7 +1458,7 @@ internal class TransitionBuilderDslIntegrationTest {
                                     ++transitionStepCallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -1495,7 +1495,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1506,7 +1506,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++transitionStepCallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1551,7 +1551,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1562,7 +1562,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++transitionStepCallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1617,7 +1617,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1633,9 +1633,9 @@ internal class TransitionBuilderDslIntegrationTest {
                                     ++transitionStepCallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
-                        }) {
+                        },) {
                             on("COMPLETED") {
                                 end("TEST")
                             }
@@ -1677,7 +1677,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1688,7 +1688,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++transitionStepCallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1740,7 +1740,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         contribution.exitStatus = ExitStatus.UNKNOWN
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1778,7 +1778,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         contribution.exitStatus = ExitStatus.UNKNOWN
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1818,7 +1818,7 @@ internal class TransitionBuilderDslIntegrationTest {
                         ++testStep1CallCount
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }
@@ -1852,7 +1852,7 @@ internal class TransitionBuilderDslIntegrationTest {
                     { _, _ ->
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }

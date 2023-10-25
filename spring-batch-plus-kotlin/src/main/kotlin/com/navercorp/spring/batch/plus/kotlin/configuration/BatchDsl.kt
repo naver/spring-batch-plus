@@ -45,7 +45,7 @@ class BatchDsl internal constructor(
         DslContext(
             beanFactory,
             jobRepository,
-        )
+        ),
     )
 
     operator fun <T : Any> invoke(init: BatchDsl.() -> T): T = init()

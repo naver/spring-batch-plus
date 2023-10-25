@@ -31,7 +31,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             flowBean("testFlow1")
@@ -41,7 +41,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testFlow1(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Flow = batch {
         flow("testFlow1") {
             step("testFlow1Step1") {
@@ -55,7 +55,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testFlow2(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Flow = batch {
         flow("testFlow2") {
             step("testFlow2Step1") {

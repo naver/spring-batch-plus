@@ -30,7 +30,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         var isFirst = true
 
@@ -45,7 +45,7 @@ open class TestJobConfig {
                         }
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }

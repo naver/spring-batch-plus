@@ -59,7 +59,7 @@ interface FlowBuilderDsl<T : Any> {
     fun step(
         name: String,
         stepInit: StepBuilderDsl.() -> Step,
-        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit,
     )
 
     /**
@@ -93,7 +93,7 @@ interface FlowBuilderDsl<T : Any> {
     fun flow(
         name: String,
         flowInit: FlowBuilderDsl<Flow>.() -> Unit,
-        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit,
     )
 
     /**
@@ -106,7 +106,7 @@ interface FlowBuilderDsl<T : Any> {
      */
     fun deciderBean(
         name: String,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit,
     )
 
     /**
@@ -114,7 +114,7 @@ interface FlowBuilderDsl<T : Any> {
      */
     fun decider(
         decider: JobExecutionDecider,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit,
     )
 
     /**

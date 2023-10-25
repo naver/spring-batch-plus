@@ -32,7 +32,7 @@ open class TestJobConfig {
     @Bean
     open fun testJob(
         sampleTasklet: SampleTasklet,
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("testStep") {

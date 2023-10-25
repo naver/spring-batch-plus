@@ -221,7 +221,7 @@ internal class TaskletStepBuilderDslTest {
                             ++iterateCount
                             return super.iterate(callback)
                         }
-                    }
+                    },
                 )
                 // redundant
                 .taskExecutor { task ->

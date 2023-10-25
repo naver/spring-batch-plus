@@ -30,7 +30,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor
 
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
 ) {
 
     @Bean
@@ -62,7 +62,7 @@ open class TestJobConfig(
                     println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
                     RepeatStatus.FINISHED
                 },
-                ResourcelessTransactionManager()
+                ResourcelessTransactionManager(),
             )
         }
     }

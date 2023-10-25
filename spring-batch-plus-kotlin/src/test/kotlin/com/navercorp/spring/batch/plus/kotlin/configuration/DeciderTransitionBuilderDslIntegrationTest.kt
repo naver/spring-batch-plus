@@ -118,7 +118,7 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
             FlowExecutionStatus.COMPLETED,
             FlowExecutionStatus.FAILED,
             FlowExecutionStatus.UNKNOWN,
-            FlowExecutionStatus.STOPPED // when stopped, just stop the job
+            FlowExecutionStatus.STOPPED, // when stopped, just stop the job
         ).random()
     }
 

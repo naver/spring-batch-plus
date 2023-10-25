@@ -32,7 +32,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             listener(
@@ -44,7 +44,7 @@ open class TestJobConfig {
                     override fun afterJob(jobExecution: JobExecution) {
                         println("after $jobExecution")
                     }
-                }
+                },
             )
             step("testStep") {
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())

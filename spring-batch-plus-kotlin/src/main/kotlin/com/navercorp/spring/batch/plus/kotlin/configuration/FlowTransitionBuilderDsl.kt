@@ -32,7 +32,7 @@ import org.springframework.batch.core.job.flow.Flow
 class FlowTransitionBuilderDsl<T : Any> internal constructor(
     private val dslContext: DslContext,
     private val flow: Flow,
-    private val baseFlowBuilder: FlowBuilder<T>
+    private val baseFlowBuilder: FlowBuilder<T>,
 ) {
     private var flowBuilder: FlowBuilder<T>? = null
 

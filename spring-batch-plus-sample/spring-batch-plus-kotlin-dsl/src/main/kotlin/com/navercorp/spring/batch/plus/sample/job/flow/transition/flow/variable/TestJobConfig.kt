@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
 ) {
 
     @Bean
@@ -54,7 +54,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                ResourcelessTransactionManager(),
             )
         }
     }

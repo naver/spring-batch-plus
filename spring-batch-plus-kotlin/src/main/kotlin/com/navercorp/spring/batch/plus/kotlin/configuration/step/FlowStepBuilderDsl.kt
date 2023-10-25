@@ -33,7 +33,7 @@ import org.springframework.batch.core.step.builder.FlowStepBuilder
 class FlowStepBuilderDsl internal constructor(
     @Suppress("unused")
     private val dslContext: DslContext,
-    private val flowStepBuilder: FlowStepBuilder
+    private val flowStepBuilder: FlowStepBuilder,
 ) {
     private val lazyConfigurer = LazyConfigurer<FlowStepBuilder>()
 

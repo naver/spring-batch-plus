@@ -43,8 +43,8 @@ open class TestJobConfig {
                         skipPolicy(
                             LimitCheckingItemSkipPolicy(
                                 4,
-                                mapOf(RuntimeException::class.java to true)
-                            )
+                                mapOf(RuntimeException::class.java to true),
+                            ),
                         )
                     }
                 }

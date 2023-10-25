@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val jobLauncher: JobLauncher
+    private val jobLauncher: JobLauncher,
 ) {
 
     @Bean

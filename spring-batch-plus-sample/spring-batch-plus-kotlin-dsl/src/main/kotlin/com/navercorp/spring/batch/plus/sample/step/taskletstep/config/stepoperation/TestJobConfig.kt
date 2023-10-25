@@ -34,7 +34,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("testStep") {
@@ -46,7 +46,7 @@ open class TestJobConfig {
                                 println("custom iterate")
                                 return delegate.iterate(callback)
                             }
-                        }
+                        },
                     )
                 }
             }

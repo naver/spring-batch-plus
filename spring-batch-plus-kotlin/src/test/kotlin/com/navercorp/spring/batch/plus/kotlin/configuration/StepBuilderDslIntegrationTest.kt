@@ -242,7 +242,7 @@ internal class StepBuilderDslIntegrationTest {
                         chunk<Int, Int>(
                             RepeatTemplate().apply {
                                 setCompletionPolicy(SimpleCompletionPolicy(chunkSize))
-                            }
+                            },
                         ) {
                             reader {
                                 if (readCallCount < readLimit) {
@@ -346,7 +346,7 @@ internal class StepBuilderDslIntegrationTest {
                             ++taskletCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -376,7 +376,7 @@ internal class StepBuilderDslIntegrationTest {
                             ++taskletCallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     ) {
                         taskExecutor {
                             ++taskExecutorCallCount
@@ -491,7 +491,7 @@ internal class StepBuilderDslIntegrationTest {
                         RepeatTemplate().apply {
                             setCompletionPolicy(SimpleCompletionPolicy(chunkSize))
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     ) {
                         reader {
                             if (readCallCount < readLimit) {
@@ -558,7 +558,7 @@ internal class StepBuilderDslIntegrationTest {
                     ++stepCallCount
                     tasklet(
                         { _, _ -> RepeatStatus.FINISHED },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -596,7 +596,7 @@ internal class StepBuilderDslIntegrationTest {
                     ++stepCallCount
                     tasklet(
                         { _, _ -> RepeatStatus.FINISHED },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -639,7 +639,7 @@ internal class StepBuilderDslIntegrationTest {
                     ++stepCallCount
                     tasklet(
                         { _, _ -> RepeatStatus.FINISHED },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -674,7 +674,7 @@ internal class StepBuilderDslIntegrationTest {
                     ++jobCallcount
                     tasklet(
                         { _, _ -> RepeatStatus.FINISHED },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -717,7 +717,7 @@ internal class StepBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
                 step("testStep2") {
@@ -726,7 +726,7 @@ internal class StepBuilderDslIntegrationTest {
                             ++testStep2CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -771,7 +771,7 @@ internal class StepBuilderDslIntegrationTest {
                                     ++testStep1CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                         step("testStep2") {
@@ -780,7 +780,7 @@ internal class StepBuilderDslIntegrationTest {
                                     ++testStep2CallCount
                                     RepeatStatus.FINISHED
                                 },
-                                ResourcelessTransactionManager()
+                                ResourcelessTransactionManager(),
                             )
                         }
                     }
@@ -811,7 +811,7 @@ internal class StepBuilderDslIntegrationTest {
                             ++testStep1CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
                 step("testStep2") {
@@ -820,7 +820,7 @@ internal class StepBuilderDslIntegrationTest {
                             ++testStep2CallCount
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }

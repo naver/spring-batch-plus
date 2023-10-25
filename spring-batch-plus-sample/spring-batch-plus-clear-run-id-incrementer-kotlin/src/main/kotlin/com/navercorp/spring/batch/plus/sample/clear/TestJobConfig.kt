@@ -38,7 +38,7 @@ open class TestJobConfig {
             step("testStep") {
                 tasklet(
                     { _, _ -> RepeatStatus.FINISHED },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }

@@ -42,12 +42,13 @@ internal class SimpleJobBuilderDslAdapterTest {
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
             simpleJobBuilderDslAdapter.step(
-                "testStep", {
+                "testStep",
+                {
                     tasklet(
                         { _, _ -> RepeatStatus.FINISHED },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
-                }
+                },
             ) {}
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {

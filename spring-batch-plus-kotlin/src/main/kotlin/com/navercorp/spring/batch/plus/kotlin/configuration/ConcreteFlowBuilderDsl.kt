@@ -34,7 +34,7 @@ import org.springframework.core.task.TaskExecutor
 @BatchDslMarker
 internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
     private val dslContext: DslContext,
-    private var flowBuilder: FlowBuilder<T>
+    private var flowBuilder: FlowBuilder<T>,
 ) : FlowBuilderDsl<T> {
     private var started = false
 
@@ -83,7 +83,7 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
     override fun step(
         name: String,
         stepInit: StepBuilderDsl.() -> Step,
-        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit,
     ) {
         val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
@@ -152,7 +152,7 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
     override fun flow(
         name: String,
         flowInit: FlowBuilderDsl<Flow>.() -> Unit,
-        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit,
     ) {
         val flowBuilder = FlowBuilder<Flow>(name)
         val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
@@ -181,7 +181,7 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
      */
     override fun deciderBean(
         name: String,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit,
     ) {
         val decider = this.dslContext.beanFactory.getBean<JobExecutionDecider>(name)
         decider(decider, deciderTransitionInit)
@@ -192,7 +192,7 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
      */
     override fun decider(
         decider: JobExecutionDecider,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit,
     ) {
         val baseUnterminatedFlowBuilder = if (!started) {
             this.started = true

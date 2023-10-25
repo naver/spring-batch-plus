@@ -60,7 +60,7 @@ internal class FlowTransitionBuilderDslIntegrationTest {
                             contribution.exitStatus = expectedExitStatus
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -108,7 +108,7 @@ internal class FlowTransitionBuilderDslIntegrationTest {
                         { _, _ ->
                             RepeatStatus.FINISHED
                         },
-                        ResourcelessTransactionManager()
+                        ResourcelessTransactionManager(),
                     )
                 }
             }
@@ -132,7 +132,7 @@ internal class FlowTransitionBuilderDslIntegrationTest {
             ExitStatus.NOOP,
             ExitStatus.FAILED,
             ExitStatus.STOPPED,
-            ExitStatus.COMPLETED
+            ExitStatus.COMPLETED,
             // ExitStatus.EXECUTING, // why considered ExitStatus.COMPLETE?
         ).random()
     }

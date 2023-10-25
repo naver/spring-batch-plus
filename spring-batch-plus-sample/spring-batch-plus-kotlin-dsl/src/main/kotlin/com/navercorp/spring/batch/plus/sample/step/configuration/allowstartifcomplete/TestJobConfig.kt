@@ -30,7 +30,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("alwaysRunStep") {
@@ -40,7 +40,7 @@ open class TestJobConfig {
                         println("always run")
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
             step("alwaysFailsStep") {
@@ -48,7 +48,7 @@ open class TestJobConfig {
                     { _, _ ->
                         throw IllegalStateException("always failed")
                     },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }

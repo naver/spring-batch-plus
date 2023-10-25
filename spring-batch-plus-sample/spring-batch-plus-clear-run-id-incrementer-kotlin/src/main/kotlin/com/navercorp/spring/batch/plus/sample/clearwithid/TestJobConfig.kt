@@ -31,14 +31,14 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             incrementer(ClearRunIdIncrementer.create("testId"))
             step("testStep") {
                 tasklet(
                     { _, _ -> RepeatStatus.FINISHED },
-                    ResourcelessTransactionManager()
+                    ResourcelessTransactionManager(),
                 )
             }
         }

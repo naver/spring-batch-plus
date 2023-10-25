@@ -31,7 +31,7 @@ import org.springframework.core.task.TaskExecutor
  */
 @BatchDslMarker
 internal class SimpleJobBuilderDslAdapter internal constructor(
-    private val simpleJobBuilderDsl: SimpleJobBuilderDsl
+    private val simpleJobBuilderDsl: SimpleJobBuilderDsl,
 ) : FlowBuilderDsl<FlowJobBuilder> {
 
     override fun stepBean(name: String) {
@@ -53,7 +53,7 @@ internal class SimpleJobBuilderDslAdapter internal constructor(
     override fun step(
         name: String,
         stepInit: StepBuilderDsl.() -> Step,
-        stepTransitionInit: StepTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
+        stepTransitionInit: StepTransitionBuilderDsl<FlowJobBuilder>.() -> Unit,
     ) {
         throw UnsupportedOperationException("SimpleJob can't process flow.")
     }
@@ -81,7 +81,7 @@ internal class SimpleJobBuilderDslAdapter internal constructor(
     override fun flow(
         name: String,
         flowInit: FlowBuilderDsl<Flow>.() -> Unit,
-        flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
+        flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit,
     ) {
         throw UnsupportedOperationException("SimpleJob can't process flow.")
     }
@@ -92,14 +92,14 @@ internal class SimpleJobBuilderDslAdapter internal constructor(
 
     override fun deciderBean(
         name: String,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit,
     ) {
         throw UnsupportedOperationException("SimpleJob can't process flow.")
     }
 
     override fun decider(
         decider: JobExecutionDecider,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit,
     ) {
         throw UnsupportedOperationException("SimpleJob can't process flow.")
     }

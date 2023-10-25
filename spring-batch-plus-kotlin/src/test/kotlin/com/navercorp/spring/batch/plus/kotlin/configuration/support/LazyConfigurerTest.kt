@@ -55,7 +55,7 @@ internal class LazyConfigurerTest {
                 add {
                     ++configurer2CallCount
                 }
-            }
+            },
         )
         "test".apply(lazyConfigurer)
 

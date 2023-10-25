@@ -47,7 +47,7 @@ import org.springframework.core.task.TaskExecutor
 @BatchDslMarker
 class JobBuilderDsl internal constructor(
     private val dslContext: DslContext,
-    private val jobBuilder: JobBuilder
+    private val jobBuilder: JobBuilder,
 ) : FlowBuilderDsl<FlowJobBuilder> {
 
     private var lazyConfigurer = LazyConfigurer<JobBuilderHelper<*>>()
@@ -172,7 +172,7 @@ class JobBuilderDsl internal constructor(
     override fun step(
         name: String,
         stepInit: StepBuilderDsl.() -> Step,
-        stepTransitionInit: StepTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
+        stepTransitionInit: StepTransitionBuilderDsl<FlowJobBuilder>.() -> Unit,
     ) {
         this.lazyFlowConfigurer.add {
             it.step(name, stepInit, stepTransitionInit)
@@ -218,7 +218,7 @@ class JobBuilderDsl internal constructor(
     override fun flow(
         name: String,
         flowInit: FlowBuilderDsl<Flow>.() -> Unit,
-        flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
+        flowTransitionInit: FlowTransitionBuilderDsl<FlowJobBuilder>.() -> Unit,
     ) {
         this.lazyFlowConfigurer.add {
             it.flow(name, flowInit, flowTransitionInit)
@@ -235,7 +235,7 @@ class JobBuilderDsl internal constructor(
 
     override fun deciderBean(
         name: String,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit,
     ) {
         this.lazyFlowConfigurer.add {
             it.deciderBean(name, deciderTransitionInit)
@@ -245,7 +245,7 @@ class JobBuilderDsl internal constructor(
 
     override fun decider(
         decider: JobExecutionDecider,
-        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit
+        deciderTransitionInit: DeciderTransitionBuilderDsl<FlowJobBuilder>.() -> Unit,
     ) {
         this.lazyFlowConfigurer.add {
             it.decider(decider, deciderTransitionInit)

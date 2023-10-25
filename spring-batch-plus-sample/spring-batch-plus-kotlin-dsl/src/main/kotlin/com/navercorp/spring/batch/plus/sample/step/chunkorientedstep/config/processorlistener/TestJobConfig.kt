@@ -33,7 +33,7 @@ open class TestJobConfig {
 
     @Bean
     open fun testJob(
-        batch: BatchDsl
+        batch: BatchDsl,
     ): Job = batch {
         job("testJob") {
             step("testStep") {
@@ -53,7 +53,7 @@ open class TestJobConfig {
 
                             override fun onProcessError(item: Int, e: Exception) {
                             }
-                        }
+                        },
                     )
                 }
             }
