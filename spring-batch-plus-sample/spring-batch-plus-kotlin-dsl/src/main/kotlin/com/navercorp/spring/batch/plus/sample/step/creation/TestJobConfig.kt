@@ -21,34 +21,37 @@ package com.navercorp.spring.batch.plus.sample.step.creation
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            // within job
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+    open fun testJob(): Job {
+        return batch {
+            job("testJob") {
+                // within job
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+                step("testStep2") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+                flow(testFlow())
+                step(testStep())
             }
-            step("testStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
-            }
-            flow(testFlow())
-            step(testStep())
         }
     }
 
     @Bean
     open fun testStep() = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 
@@ -57,10 +60,10 @@ open class TestJobConfig(
         flow("testFlow") {
             // within flow
             step("flowStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("flowStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }

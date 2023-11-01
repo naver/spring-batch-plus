@@ -22,13 +22,14 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -45,7 +46,7 @@ open class TestJobConfig(
                         }
                         on("*") {
                             step("nestedStep") {
-                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                             }
                         }
                     }
@@ -62,7 +63,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager(),
+                transactionManager,
             )
         }
     }
@@ -72,7 +73,7 @@ open class TestJobConfig(
         step("transitionStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("transitionStep failed") },
-                ResourcelessTransactionManager(),
+                transactionManager,
             )
         }
     }

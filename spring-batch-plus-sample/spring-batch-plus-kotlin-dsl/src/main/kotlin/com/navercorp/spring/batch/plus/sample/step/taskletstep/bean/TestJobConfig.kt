@@ -23,21 +23,22 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl,
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                taskletBean("testTasklet", ResourcelessTransactionManager())
+                taskletBean("testTasklet", transactionManager)
             }
         }
     }
@@ -54,12 +55,10 @@ open class TestJobConfig {
     /* if not using bean name */
 
     // @Bean
-    // open fun testJob(
-    //     batch: BatchDsl
-    // ): Job = batch {
+    // open fun testJob(): Job = batch {
     //     job("testJob") {
     //         step("testStep") {
-    //             tasklet(testTasklet(null), ResourcelessTransactionManager())
+    //             tasklet(testTasklet(null), transactionManager)
     //         }
     //     }
     // }

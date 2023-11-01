@@ -22,22 +22,23 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.Job
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl,
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
+                chunk<Int, Int>(3, transactionManager) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     transactionAttribute(

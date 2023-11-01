@@ -24,13 +24,14 @@ import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
 open class TestJobConfig(
     private val jobRepository: JobRepository,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -50,7 +51,7 @@ open class TestJobConfig(
                 { _, _ ->
                     throw IllegalStateException("step failed")
                 },
-                ResourcelessTransactionManager(),
+                transactionManager,
             )
             .build()
     }
@@ -58,14 +59,14 @@ open class TestJobConfig(
     @Bean
     open fun successStep(): Step {
         return StepBuilder("successStep", jobRepository)
-            .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
     }
 
     @Bean
     open fun failureStep(): Step {
         return StepBuilder("failureStep", jobRepository)
-            .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
     }
 }

@@ -25,9 +25,9 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 public class TestJobConfig {
@@ -35,12 +35,13 @@ public class TestJobConfig {
 	@Bean
 	public Job testJob(
 		SampleTasklet sampleTasklet,
-		JobRepository jobRepository
+		JobRepository jobRepository,
+		PlatformTransactionManager transactionManager
 	) {
 		return new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
+					.<Integer, Integer>chunk(3, transactionManager)
 					.reader(itemStreamReader(sampleTasklet))
 					.writer(itemStreamWriter(sampleTasklet))
 					.build()
