@@ -23,14 +23,15 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
+import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -62,7 +63,7 @@ open class TestJobConfig(
                     println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
                     RepeatStatus.FINISHED
                 },
-                ResourcelessTransactionManager(),
+                transactionManager,
             )
         }
     }

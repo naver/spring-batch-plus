@@ -22,21 +22,22 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.springframework.batch.core.Job
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl,
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 meterRegistry(SimpleMeterRegistry())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }

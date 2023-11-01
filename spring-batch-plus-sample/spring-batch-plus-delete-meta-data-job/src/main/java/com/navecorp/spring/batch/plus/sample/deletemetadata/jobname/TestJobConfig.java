@@ -26,10 +26,10 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.boot.autoconfigure.batch.BatchDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataJobBuilder;
 
@@ -48,7 +48,8 @@ public class TestJobConfig {
 
 	@Bean
 	public Job testJob(
-		JobRepository jobRepository
+		JobRepository jobRepository,
+		PlatformTransactionManager transactionManager
 	) {
 		return new JobBuilder("testJob", jobRepository)
 			.incrementer(new RunIdIncrementer())
@@ -56,7 +57,7 @@ public class TestJobConfig {
 				new StepBuilder("testStep", jobRepository)
 					.tasklet(
 						(contribution, chunkContext) -> RepeatStatus.FINISHED,
-						new ResourcelessTransactionManager()
+						transactionManager
 					)
 					.build()
 			)

@@ -39,6 +39,6 @@ fun main() {
     val firstJobExecution = jobLauncher.run(job, jobParameters)
     val secondJobExecution = jobLauncher.run(job, jobParameters)
 
-    println("firstJobExecution: $firstJobExecution")
-    println("secondJobExecution: $secondJobExecution")
+    println("firstJobExecution: $firstJobExecution") // STOPPED
+    println("secondJobExecution: $secondJobExecution") // COMPLETED
 }
