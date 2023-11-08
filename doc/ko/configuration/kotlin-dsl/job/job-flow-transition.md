@@ -35,7 +35,8 @@ Spring Batch에서 `Step`, `Flow`, `JobExecutionDecider`를 수행 후 `ExitStat
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -60,7 +61,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -68,7 +69,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -81,7 +82,8 @@ Transition을 정의할 때 `Step`을 초기화 할 수 있습니다.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -93,7 +95,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -108,7 +110,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -122,7 +124,8 @@ Transition을 정의할 때 수행할 `Step`을 Bean으로 가져올 수 있습�
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -147,7 +150,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -155,7 +158,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -168,7 +171,8 @@ Transition을 통해 수행할 `Step`에서도 Transition을 정의할 수 있�
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -185,7 +189,7 @@ open class TestJobConfig(
                         }
                         on("*") {
                             step("nestedStep") {
-                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                             }
                         }
                     }
@@ -202,7 +206,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -212,7 +216,7 @@ open class TestJobConfig(
         step("transitionStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("transitionStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -230,7 +234,8 @@ open class TestJobConfig(
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -255,7 +260,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -264,7 +269,7 @@ open class TestJobConfig(
     open fun transitionFlow(): Flow = batch {
         flow("transitionFlow") {
             step("transitionStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -278,7 +283,8 @@ Transition을 정의할 때 `Flow`를 초기화 할 수 있습니다.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -291,7 +297,7 @@ open class TestJobConfig(
                 on("FAILED") {
                     flow("transitionFlow") {
                         step("transitionStep") {
-                            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                         }
                     }
                 }
@@ -307,7 +313,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -321,7 +327,8 @@ Transition을 정의할 때 수행할 `Flow`를 Bean으로 가져올 수 있습�
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -346,7 +353,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -355,7 +362,7 @@ open class TestJobConfig(
     open fun transitionFlow(): Flow = batch {
         flow("transitionFlow") {
             step("transitionStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -369,7 +376,8 @@ Transition을 통해 수행할 `Flow`에서도 Transition을 정의할 수 있�
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -386,7 +394,7 @@ open class TestJobConfig(
                         }
                         on("*") {
                             step("nestedStep") {
-                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                             }
                         }
                     }
@@ -403,7 +411,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -414,7 +422,7 @@ open class TestJobConfig(
             step("transitionStep") {
                 tasklet(
                     { _, _ -> throw IllegalStateException("transitionStep failed") },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }
@@ -433,7 +441,8 @@ open class TestJobConfig(
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -468,7 +477,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -481,7 +490,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -494,7 +503,8 @@ open class TestJobConfig(
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -529,7 +539,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -542,7 +552,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -559,7 +569,8 @@ end를 호출할 경우 새로운 `ExitStatus`를 지정하며 종료됩니다. 
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -584,7 +595,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -598,7 +609,8 @@ fail을 호출할 경우 강제로 `Job`을 종료시킬 수 있습니다. 다�
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -618,7 +630,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -631,7 +643,8 @@ fail을 호출할 경우 강제로 `Job`을 종료시킬 수 있습니다. 다�
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -651,7 +664,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -668,7 +681,8 @@ open class TestJobConfig(
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -677,7 +691,7 @@ open class TestJobConfig(
             step(testStep()) {
                 on("COMPLETED") {
                     stopAndRestartToStep("restartStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -690,7 +704,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -703,7 +717,8 @@ open class TestJobConfig(
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -714,7 +729,7 @@ open class TestJobConfig(
                     stopAndRestartToFlow("restartFlow") {
                         flow("restartFlow") {
                             step("restartStep") {
-                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                             }
                         }
                     }
@@ -729,7 +744,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -742,7 +757,8 @@ open class TestJobConfig(
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -772,7 +788,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 

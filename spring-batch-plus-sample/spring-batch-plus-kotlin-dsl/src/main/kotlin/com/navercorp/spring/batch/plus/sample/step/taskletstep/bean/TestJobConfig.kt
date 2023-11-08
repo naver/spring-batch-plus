@@ -51,24 +51,4 @@ open class TestJobConfig(
         println("param is '$paramValue'")
         RepeatStatus.FINISHED
     }
-
-    /* if not using bean name */
-
-    // @Bean
-    // open fun testJob(): Job = batch {
-    //     job("testJob") {
-    //         step("testStep") {
-    //             tasklet(testTasklet(null), transactionManager)
-    //         }
-    //     }
-    // }
-
-    // @Bean
-    // @StepScope
-    // open fun testTasklet(
-    //     @Value("#{jobParameters['param']}") paramValue: String?
-    // ): Tasklet = Tasklet { _, _ ->
-    //     println("param is '$paramValue'")
-    //     RepeatStatus.FINISHED
-    // }
 }

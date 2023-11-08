@@ -16,12 +16,13 @@ Spring Batch의 `Flow`는 이전 `Step`의 결과에 따라 분기해서 수행�
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             decider(testDecider()) {
                 on("COMPLETED") {
@@ -29,7 +30,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -57,14 +58,17 @@ class TestDecider : JobExecutionDecider {
         return FlowExecutionStatus.FAILED
     }
 }
+```
 
+```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             deciderBean("testDecider") {
                 on("COMPLETED") {
@@ -72,7 +76,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {

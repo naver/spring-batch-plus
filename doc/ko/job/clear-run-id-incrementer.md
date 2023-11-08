@@ -25,7 +25,8 @@ JobParameters firstJobParameter = new JobParametersBuilder(jobExplorer)
 ```java
 @Bean
 public Job testJob(
-    JobRepository jobRepository
+    JobRepository jobRepository,
+    PlatformTransactionManager transactionManager
 ) {
     return new JobBuilder("testJob", jobRepository)
         .incrementer(new RunIdIncrementer())
@@ -33,7 +34,7 @@ public Job testJob(
             new StepBuilder("testStep", jobRepository)
                 .tasklet(
                     testTasklet(null, null),
-                    new ResourcelessTransactionManager()
+                    transactionManager
                 )
                 .build()
         )
@@ -104,7 +105,8 @@ public static void main(String[] args) throws Exception {
 ```java
 @Bean
 public Job testJob(
-    JobRepository jobRepository
+    JobRepository jobRepository,
+    PlatformTransactionManager transactionManager
 ) {
     return new JobBuilder("testJob", jobRepository)
         .incrementer(ClearRunIdIncrementer.create()) // use ClearRunIdIncrementer
@@ -112,7 +114,7 @@ public Job testJob(
             new StepBuilder("testStep", jobRepository)
                 .tasklet(
                     testTasklet(null, null),
-                    new ResourcelessTransactionManager()
+                    transactionManager
                 )
                 .build()
         )
@@ -190,7 +192,8 @@ public class TestJobConfig {
 
     @Bean
     public Job testJob(
-        JobRepository jobRepository
+        JobRepository jobRepository,
+        PlatformTransactionManager transactionManager
     ) {
         return new JobBuilder("testJob", jobRepository)
             .incrementer(ClearRunIdIncrementer.create())
@@ -198,7 +201,7 @@ public class TestJobConfig {
                 new StepBuilder("testStep", jobRepository)
                     .tasklet(
                         (contribution, chunkContext) -> RepeatStatus.FINISHED,
-                        new ResourcelessTransactionManager()
+                        transactionManager
                     )
                     .build()
             )
@@ -211,18 +214,19 @@ public class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl,
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             incrementer(ClearRunIdIncrementer.create())
             step("testStep") {
                 tasklet(
                     { _, _ -> RepeatStatus.FINISHED },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }
@@ -242,7 +246,8 @@ public class TestJobConfig {
 
     @Bean
     public Job testJob(
-        JobRepository jobRepository
+        JobRepository jobRepository,
+        PlatformTransactionManager transactionManager
     ) {
         return new JobBuilder("testJob", jobRepository)
             .incrementer(ClearRunIdIncrementer.create("testId"))
@@ -250,7 +255,7 @@ public class TestJobConfig {
                 new StepBuilder("testStep", jobRepository)
                     .tasklet(
                         (contribution, chunkContext) -> RepeatStatus.FINISHED,
-                        new ResourcelessTransactionManager()
+                        transactionManager
                     )
                     .build()
             )
@@ -263,18 +268,19 @@ public class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             incrementer(ClearRunIdIncrementer.create("testId"))
             step("testStep") {
                 tasklet(
                     { _, _ -> RepeatStatus.FINISHED },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }

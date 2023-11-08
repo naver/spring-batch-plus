@@ -18,13 +18,13 @@ The Kotlin DSL helps you set a `JobRepository` using `StepBuilder`.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val jobRepository: JobRepository
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+    private val jobRepository: JobRepository,
 ) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 repository(
@@ -33,9 +33,9 @@ open class TestJobConfig(
                             println("update stepExecution to $stepExecution")
                             jobRepository.update(stepExecution)
                         }
-                    }
+                    },
                 )
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -48,16 +48,17 @@ The Kotlin DSL helps you set a `ObservationRegistry` using `StepBuilder`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 observationRegistry(ObservationRegistry.create())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -70,16 +71,17 @@ The Kotlin DSL helps you set a `MeterRegistry` using `StepBuilder`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 meterRegistry(SimpleMeterRegistry())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -92,14 +94,15 @@ The Kotlin DSL helps you set startLimit using `StepBuilder`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     private var count = 0
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 startLimit(2)
@@ -110,7 +113,7 @@ open class TestJobConfig {
                         }
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }
@@ -128,7 +131,10 @@ You can add `@BeforeStep` and `@AfterStep` annotations to an object to set a lis
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     class TestListener {
         @BeforeStep
@@ -143,13 +149,11 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 listener(TestListener())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -162,12 +166,13 @@ You can pass a `StepExecutionListener` object as an argument to set a listener.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 listener(
@@ -180,9 +185,9 @@ open class TestJobConfig {
                             println("afterStep")
                             return null
                         }
-                    }
+                    },
                 )
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -195,12 +200,13 @@ The Kotlin DSL helps you set allowStartIfComplete using `StepBuilder`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("alwaysRunStep") {
                 allowStartIfComplete(true)
@@ -209,7 +215,7 @@ open class TestJobConfig {
                         println("always run")
                         RepeatStatus.FINISHED
                     },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
             step("alwaysFailsStep") {
@@ -217,7 +223,7 @@ open class TestJobConfig {
                     { _, _ ->
                         throw IllegalStateException("always failed")
                     },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }

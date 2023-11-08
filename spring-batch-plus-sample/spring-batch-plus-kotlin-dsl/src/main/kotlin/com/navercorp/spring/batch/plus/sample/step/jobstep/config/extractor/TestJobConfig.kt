@@ -43,13 +43,15 @@ open class TestJobConfig(
                             .toJobParameters()
                     }
                     // same as
-                    // object : JobParametersExtractor {
-                    //     override fun getJobParameters(job: Job, stepExecution: StepExecution): JobParameters {
-                    //         return JobParametersBuilder()
-                    //             .addString("extra", "value")
-                    //             .toJobParameters()
+                    // parametersExtractor(
+                    //     object : JobParametersExtractor {
+                    //         override fun getJobParameters(job: Job, stepExecution: StepExecution): JobParameters {
+                    //             return JobParametersBuilder()
+                    //                 .addString("extra", "value")
+                    //                 .toJobParameters()
+                    //         }
                     //     }
-                    // }
+                    // )
                 }
             }
         }

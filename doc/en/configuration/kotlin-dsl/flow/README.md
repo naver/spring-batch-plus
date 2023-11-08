@@ -11,7 +11,8 @@ You can use `BatchDsl` to create a `Flow`.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -38,7 +39,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }

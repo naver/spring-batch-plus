@@ -22,7 +22,8 @@ You can pass a predefined `Flow` as a variable to define a `Job`. You can declar
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -31,7 +32,7 @@ open class TestJobConfig(
             val testFlow3 = batch {
                 flow("testFlow3") {
                     step("testFlow3Step1") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
             }
@@ -46,10 +47,10 @@ open class TestJobConfig(
     open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testFlow1Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testFlow1Step2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -58,7 +59,7 @@ open class TestJobConfig(
     open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
             step("testFlow2Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -71,24 +72,25 @@ You can initialize a `Flow` when you define a `Job`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             flow("testFlow1") {
                 step("testFlow1Step1") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
                 step("testFlow1Step2") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
             flow("testFlow2") {
                 step("testFlow2Step1") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
         }
@@ -102,12 +104,13 @@ You can also get a `Flow` using the bean name when you define a `Job`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             flowBean("testFlow1")
             flowBean("testFlow2")
@@ -115,26 +118,22 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testFlow1(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testFlow1Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testFlow1Step2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
 
     @Bean
-    open fun testFlow2(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
             step("testFlow2Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -144,7 +143,7 @@ open class TestJobConfig {
 ## Conditional execution of flows
 
 The Kotlin DSL helps you run `Flows` conditionally based on the result of the previous flow. As in the sequential execution of flows, you can add a `Flow` using a method and pass it as a variable, initialize it or get it using the bean name when you define a `Job`. A `Flow` stops or another `Step` or `Flow` is run based on the result of the previous `Flow`. For more information about how to decide what to run based on the result of a `Flow`, see [Job Flow - Transition from a Flow](./job-flow-transition.md).
- 
+
 ### Pass a flow as a variable
 
 You can pass a predefined `Flow` as a variable when defining a `Job`. You can use a trailing lambda to define a `Flow` of the `Job`.
@@ -152,7 +151,8 @@ You can pass a predefined `Flow` as a variable when defining a `Job`. You can us
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -164,7 +164,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -180,7 +180,7 @@ open class TestJobConfig(
             step("testStep") {
                 tasklet(
                     { _, _ -> throw IllegalStateException("testStep failed") },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }
@@ -194,12 +194,13 @@ You can initialize a `Flow` when defining a `Job`. You can use a trailing lambda
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             flow(
                 "testFlow",
@@ -207,17 +208,17 @@ open class TestJobConfig {
                     step("testStep") {
                         tasklet(
                             { _, _ -> throw IllegalStateException("testStep failed") },
-                            ResourcelessTransactionManager()
+                            transactionManager,
                         )
                     }
-                }
+                },
             ) {
                 on("COMPLETED") {
                     end()
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -235,12 +236,13 @@ You can also get a `Flow` using the bean name when defining a `Job`. You can use
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             flowBean("testFlow") {
                 on("COMPLETED") {
@@ -248,7 +250,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -259,14 +261,12 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testFlow(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow(): Flow = batch {
         flow("testFlow") {
             step("testStep") {
                 tasklet(
                     { _, _ -> throw IllegalStateException("testStep failed") },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }
