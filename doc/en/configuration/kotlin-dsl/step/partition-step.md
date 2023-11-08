@@ -22,7 +22,8 @@ You can pass a `StepExecutionSplitter` object as an argument.
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val jobRepository: JobRepository
+    private val transactionManager: PlatformTransactionManager,
+    private val jobRepository: JobRepository,
 ) {
 
     @Bean
@@ -43,7 +44,7 @@ open class TestJobConfig(
                                 jobRepository.addAll(stepExecutions)
                                 return stepExecutions.toSet()
                             }
-                        }
+                        },
                     )
                     partitionHandler {
                         taskExecutor(SimpleAsyncTaskExecutor())
@@ -63,7 +64,7 @@ open class TestJobConfig(
                     println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
                     RepeatStatus.FINISHED
                 },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -77,7 +78,8 @@ Instead of using a `StepExecutionSplitter` object, you can use a `SimpleStepExec
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -109,11 +111,10 @@ open class TestJobConfig(
                     println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
                     RepeatStatus.FINISHED
                 },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
-}
 ```
 
 ## Set a PartitionHandler
@@ -127,7 +128,8 @@ You can pass a `PartitionHandler` object as an argument.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -145,7 +147,7 @@ open class TestJobConfig(
                             setTaskExecutor(SimpleAsyncTaskExecutor())
                             step = actualStep()
                             gridSize = 4
-                        }
+                        },
                     )
                 }
             }
@@ -160,7 +162,7 @@ open class TestJobConfig(
                     println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
                     RepeatStatus.FINISHED
                 },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -174,7 +176,8 @@ Instead of using a `PartitionHandler` object, you can use a `TaskExecutorPartiti
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -206,7 +209,7 @@ open class TestJobConfig(
                     println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
                     RepeatStatus.FINISHED
                 },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -220,7 +223,8 @@ You can set a `StepExecutionAggregator` to aggregate partitioned steps.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -252,7 +256,7 @@ open class TestJobConfig(
                     println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
                     RepeatStatus.FINISHED
                 },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }

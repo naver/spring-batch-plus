@@ -38,13 +38,16 @@ Chunk size를 지정하여 `Step`을 생성할 수 있습니다.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -90,13 +93,16 @@ CompletionPolicy를 직접 지정하여 `Step`을 생성할 수 있습니다.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(SimpleCompletionPolicy(3), ResourcelessTransactionManager()) {
+                chunk<Int, String>(SimpleCompletionPolicy(3), transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -142,16 +148,19 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 val repeatOperations = RepeatTemplate().apply {
                     setCompletionPolicy(SimpleCompletionPolicy(3))
                 }
-                chunk<Int, String>(repeatOperations, ResourcelessTransactionManager()) {
+                chunk<Int, String>(repeatOperations, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -201,7 +210,10 @@ Kotlin DSL에서는 `SimpleStepBuilder`에서 설정할 수 있는 기능을 모
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     class TestListener {
         @BeforeChunk
@@ -220,12 +232,10 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -270,7 +280,10 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     class TestListener {
         @BeforeRead
@@ -290,12 +303,10 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -340,7 +351,10 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     class TestListener {
         @BeforeProcess
@@ -360,12 +374,10 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -410,7 +422,10 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     class TestListener {
         @BeforeWrite
@@ -430,12 +445,10 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -480,7 +493,10 @@ Annotation 기반의 Listener들은 한 객체에서 일부만 선택하여 사�
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     class TestListener {
         @AfterRead
@@ -500,12 +516,10 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -552,15 +566,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -576,7 +591,7 @@ open class TestJobConfig {
 
                             override fun afterChunkError(context: ChunkContext) {
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -620,15 +635,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -644,7 +660,7 @@ open class TestJobConfig {
                             override fun afterRead(item: Int) {
                                 println("afterRead (item: $item)")
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -688,15 +704,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -712,7 +729,7 @@ open class TestJobConfig {
 
                             override fun onProcessError(item: Int, e: Exception) {
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -756,15 +773,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -780,7 +798,7 @@ open class TestJobConfig {
 
                             override fun onWriteError(exception: Exception, Chunk: Chunk<out String>) {
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -824,15 +842,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -849,7 +868,7 @@ open class TestJobConfig {
                             override fun close() {
                                 println("close stream")
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -893,7 +912,10 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
     open fun customExecutor(): TaskExecutor {
@@ -901,12 +923,10 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
+                chunk<Int, Int>(3, transactionManager) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     taskExecutor(customExecutor())
@@ -945,15 +965,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
+                chunk<Int, Int>(3, transactionManager) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     exceptionHandler(
@@ -989,15 +1010,16 @@ Kotlin의 trailing lambda 기능을 사용하면 보다 간단하게 설정할 �
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
+                chunk<Int, Int>(3, transactionManager) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     exceptionHandler { _, throwable ->
@@ -1031,15 +1053,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
+                chunk<Int, Int>(3, transactionManager) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     stepOperations(
@@ -1049,7 +1072,7 @@ open class TestJobConfig {
                                 println("custom iterate")
                                 return delegate.iterate(callback)
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -1086,21 +1109,22 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
+                chunk<Int, Int>(3, transactionManager) {
                     reader(testItemReader())
                     writer(testItemWriter())
                     transactionAttribute(
                         DefaultTransactionAttribute().apply {
                             setName("test-tx")
-                        }
+                        },
                     )
                 }
             }
@@ -1142,7 +1166,10 @@ faultTolerant를 설정하는 경우 `@OnSkipInRead`, `@OnSkipInProcess`, `@OnSk
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     class TestListener {
 
@@ -1153,18 +1180,20 @@ open class TestJobConfig {
 
         @OnSkipInProcess
         fun onSkipInProcess(item: Any, t: Throwable) {
+            println("Ignore exception of process (item: $item, exception: ${t.message})")
         }
 
         @OnSkipInWrite
         fun onSkipInWrite(item: Any, t: Throwable) {
+            println("Ignore exception of write (item: $item, exception: ${t.message})")
         }
     }
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1221,13 +1250,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1243,7 +1275,7 @@ open class TestJobConfig {
 
                                 override fun onSkipInWrite(item: String, t: Throwable) {
                                 }
-                            }
+                            },
                         )
                         skip<IllegalStateException>()
                         skipLimit(1)
@@ -1296,13 +1328,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1311,7 +1346,7 @@ open class TestJobConfig {
                             object : RetryListener {
                                 override fun <T : Any?, E : Throwable?> open(
                                     context: RetryContext?,
-                                    callback: RetryCallback<T, E>?
+                                    callback: RetryCallback<T, E>?,
                                 ): Boolean {
                                     println("RetryListener::open (context: $context")
                                     return true
@@ -1320,7 +1355,7 @@ open class TestJobConfig {
                                 override fun <T : Any?, E : Throwable?> close(
                                     context: RetryContext?,
                                     callback: RetryCallback<T, E>?,
-                                    throwable: Throwable?
+                                    throwable: Throwable?,
                                 ) {
                                     println("RetryListener::close (error: ${throwable?.message})")
                                 }
@@ -1328,11 +1363,11 @@ open class TestJobConfig {
                                 override fun <T : Any?, E : Throwable?> onError(
                                     context: RetryContext?,
                                     callback: RetryCallback<T, E>?,
-                                    throwable: Throwable?
+                                    throwable: Throwable?,
                                 ) {
                                     println("RetryListener::onError (error: ${throwable?.message})")
                                 }
-                            }
+                            },
                         )
                         retry<IllegalStateException>()
                         retryLimit(4)
@@ -1386,13 +1421,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1455,13 +1493,16 @@ Kotlin의 trailing lambda를 활용하여 보다 간략하게 표현 가능합�
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1522,13 +1563,16 @@ Retry 대상 Class, Retry Limit을 설정해서 특정 예외와 그 하위 클�
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1585,13 +1629,16 @@ Retry 대상 Class를 설정 후 특정 예외는 Retry 대상에서 제외하�
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1649,13 +1696,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1712,13 +1762,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1734,7 +1787,7 @@ open class TestJobConfig {
                                 override fun backOff(backOffContext: BackOffContext?) {
                                     println("backOff (context: $backOffContext)")
                                 }
-                            }
+                            },
                         )
                     }
                 }
@@ -1786,13 +1839,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1805,7 +1861,7 @@ open class TestJobConfig {
                                     println("contains key: $key")
                                     return super.containsKey(key)
                                 }
-                            }
+                            },
                         )
                     }
                 }
@@ -1857,13 +1913,16 @@ Skip 대상 Class, Skip Limit을 설정해서 특정 예외와 그 하위 클래
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1917,13 +1976,16 @@ Skip 대상 Class를 설정 후 특정 예외는 Skip 대상에서 제외하고 
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1982,13 +2044,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -1996,8 +2061,8 @@ open class TestJobConfig {
                         skipPolicy(
                             LimitCheckingItemSkipPolicy(
                                 4,
-                                mapOf(RuntimeException::class.java to true)
-                            )
+                                mapOf(RuntimeException::class.java to true),
+                            ),
                         )
                     }
                 }
@@ -2046,13 +2111,16 @@ noRollback 을 설정하여 에러가 발생해도 롤백하지 않고 진행할
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())
@@ -2105,13 +2173,16 @@ processorNonTransactional 을 설정하여 retry를 할 때 process에서 이전
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(testItemReader())
                     processor(testItemProcessor())
                     writer(testItemWriter())

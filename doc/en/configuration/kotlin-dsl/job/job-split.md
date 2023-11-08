@@ -18,7 +18,8 @@ When you define a `Flow` to run by a `TaskExecutor`, you can pass a predefined `
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -27,7 +28,7 @@ open class TestJobConfig(
             val testFlow3 = batch {
                 flow("testFlow3") {
                     step("testStep3") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
             }
@@ -43,7 +44,7 @@ open class TestJobConfig(
     open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -52,7 +53,7 @@ open class TestJobConfig(
     open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
             step("testStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -65,27 +66,28 @@ When you define a `Flow` to run by a `TaskExecutor`, you can initialize the flow
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             split(SimpleAsyncTaskExecutor()) {
                 flow("testFlow1") {
                     step("testStep1") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 flow("testFlow2") {
                     step("testStep2") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 flow("testFlow3") {
                     step("testStep3") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
             }
@@ -100,12 +102,13 @@ When you define a `Flow` to run by a `TaskExecutor`, you can get the flow using 
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             split(SimpleAsyncTaskExecutor()) {
                 flowBean("testFlow1")
@@ -116,34 +119,28 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testFlow1(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
 
     @Bean
-    open fun testFlow2(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
             step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
 
     @Bean
-    open fun testFlow3(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow3(): Flow = batch {
         flow("testFlow3") {
             step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }

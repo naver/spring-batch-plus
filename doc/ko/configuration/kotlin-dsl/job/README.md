@@ -13,17 +13,18 @@ Spring Batch 는 `Job` 단위로 수행됩니다. 한 `Job`은 한개 또는 여
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
     open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testStep2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -38,7 +39,7 @@ open class TestJobConfig(
 - [다른 Flow 사용](./job-flow-flow.md)
 - [JobExecutionDecider 사용](./job-flow-decider.md)
 - [Flow에서 Transition 하는 방법](./job-flow-transition.md)
-- [Flow 병렬처리](./job-flow-split.md)
+- [Flow 병렬처리](./job-split.md)
 
 ## Job 설정 방법
 

@@ -13,7 +13,8 @@ Flow Step 이란 하나의 다른 `Flow`으로 이루어진 `Step`입니다.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -28,8 +29,8 @@ open class TestJobConfig(
     @Bean
     open fun anotherFlow(): Flow = batch {
         flow("anotherFlow") {
-            step("anotherStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            step("anotherFlowStep") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -42,17 +43,18 @@ open class TestJobConfig(
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
                 flow("anotherFlow") {
-                    step("anotherStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    step("anotherFlowStep") {
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
             }
@@ -68,7 +70,8 @@ open class TestJobConfig {
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -83,8 +86,8 @@ open class TestJobConfig(
     @Bean
     open fun anotherFlow(): Flow = batch {
         flow("anotherFlow") {
-            step("anotherStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            step("anotherFlowStep") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }

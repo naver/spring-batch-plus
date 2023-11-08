@@ -13,13 +13,13 @@ There are two ways to create a `Step`. The first way is to call a step in `Batch
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
     open fun testStep() = batch {
         step("testStep") {
-            tasklet { _, _ -> RepeatStatus.FINISHED }
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -30,33 +30,35 @@ The second way is to create a `Step` during the process of creating a `Job` or a
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
-
-    @Bean
-    open fun testFlow() = batch {
-        flow("testFlow") {
-            // within flow
-            step("flowStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
-            }
-            step("flowStep2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
-            }
-        }
-    }
 
     @Bean
     open fun testJob(): Job = batch {
         job("testJob") {
             // within job
             step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testStep2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             flow(testFlow())
+            step(testStep())
+        }
+    }
+
+    @Bean
+    open fun testFlow() = batch {
+        flow("testFlow") {
+            // within flow
+            step("flowStep1") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
+            step("flowStep2") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
         }
     }
 }
