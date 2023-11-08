@@ -35,7 +35,8 @@ You can define a `Step` in advance and pass it for a transition.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -60,7 +61,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -68,7 +69,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -81,7 +82,8 @@ You can initialize a `Step` when you define a transition.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -93,7 +95,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -108,7 +110,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -122,7 +124,8 @@ You can get a `Step` to run using the bean name when you define a transition.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -147,7 +150,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -155,7 +158,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -168,7 +171,8 @@ You can also define a transition in a `Step` to run for a transition. The follow
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -185,7 +189,7 @@ open class TestJobConfig(
                         }
                         on("*") {
                             step("nestedStep") {
-                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                             }
                         }
                     }
@@ -202,7 +206,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -212,7 +216,7 @@ open class TestJobConfig(
         step("transitionStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("transitionStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -230,7 +234,8 @@ You can define a `Flow` in advance and pass it for a transition.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -255,7 +260,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -264,7 +269,7 @@ open class TestJobConfig(
     open fun transitionFlow(): Flow = batch {
         flow("transitionFlow") {
             step("transitionStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -278,7 +283,8 @@ You can initialize a `Flow` when you define a transition.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -291,7 +297,7 @@ open class TestJobConfig(
                 on("FAILED") {
                     flow("transitionFlow") {
                         step("transitionStep") {
-                            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                         }
                     }
                 }
@@ -307,7 +313,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -321,7 +327,8 @@ You can get a `Flow` to run using the bean name when you define a transition.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -346,7 +353,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -355,7 +362,7 @@ open class TestJobConfig(
     open fun transitionFlow(): Flow = batch {
         flow("transitionFlow") {
             step("transitionStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -369,7 +376,8 @@ You can define a transition in a `Flow` to run for a transition. The following e
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -386,7 +394,7 @@ open class TestJobConfig(
                         }
                         on("*") {
                             step("nestedStep") {
-                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                             }
                         }
                     }
@@ -403,7 +411,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -414,7 +422,7 @@ open class TestJobConfig(
             step("transitionStep") {
                 tasklet(
                     { _, _ -> throw IllegalStateException("transitionStep failed") },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }
@@ -433,7 +441,8 @@ You can define a `JobExecutionDecider` as a variable in advance and pass it for 
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -468,7 +477,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -481,7 +490,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -494,7 +503,8 @@ You can pass a `JobExecutionDecider` using the bean name, for a transition. When
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -529,7 +539,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -542,7 +552,7 @@ open class TestJobConfig(
     @Bean
     open fun transitionStep(): Step = batch {
         step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -559,7 +569,8 @@ The `end()` ends a job with a new value for `ExitStatus` specified when called. 
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -584,7 +595,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -598,7 +609,8 @@ The `fail()` forcibly ends a `Job` when called. The following example ends the j
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -618,7 +630,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -631,7 +643,8 @@ The `fail()` forcibly ends a `Job` when called. The following example ends the j
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -651,7 +664,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -668,7 +681,8 @@ You can specify a `Step` to run when you stop a batch and restart it with the sa
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -677,7 +691,7 @@ open class TestJobConfig(
             step(testStep()) {
                 on("COMPLETED") {
                     stopAndRestartToStep("restartStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -690,7 +704,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -703,7 +717,8 @@ You can specify a `Flow` to run when you stop a batch and restart it with the sa
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -714,7 +729,7 @@ open class TestJobConfig(
                     stopAndRestartToFlow("restartFlow") {
                         flow("restartFlow") {
                             step("restartStep") {
-                                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                             }
                         }
                     }
@@ -729,7 +744,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -742,7 +757,8 @@ You can specify a `JobExecutionDecider` to run when you stop a batch and restart
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -772,7 +788,7 @@ open class TestJobConfig(
     @Bean
     open fun testStep(): Step = batch {
         step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 

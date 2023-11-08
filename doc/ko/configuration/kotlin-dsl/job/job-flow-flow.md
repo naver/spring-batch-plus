@@ -22,7 +22,8 @@ Kotlin DSL은 `Flow`들을 순차 수행할 수 있습니다. 수행할 `Flow`�
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -31,7 +32,7 @@ open class TestJobConfig(
             val testFlow3 = batch {
                 flow("testFlow3") {
                     step("testFlow3Step1") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
             }
@@ -46,10 +47,10 @@ open class TestJobConfig(
     open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testFlow1Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testFlow1Step2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -58,7 +59,7 @@ open class TestJobConfig(
     open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
             step("testFlow2Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -71,24 +72,25 @@ open class TestJobConfig(
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             flow("testFlow1") {
                 step("testFlow1Step1") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
                 step("testFlow1Step2") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
             flow("testFlow2") {
                 step("testFlow2Step1") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
         }
@@ -102,12 +104,13 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             flowBean("testFlow1")
             flowBean("testFlow2")
@@ -115,26 +118,22 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testFlow1(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow1(): Flow = batch {
         flow("testFlow1") {
             step("testFlow1Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testFlow1Step2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
 
     @Bean
-    open fun testFlow2(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow2(): Flow = batch {
         flow("testFlow2") {
             step("testFlow2Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -144,7 +143,7 @@ open class TestJobConfig {
 ## Flow 분기 수행
 
 Kotlin DSL은 `Flow`의 결과에 따라 분기하는 방식을 제공합니다. `Flow`를 순차 수행할 때와 마찬가지로 수행할 `Flow`를 method로 등록해서 변수를 넘겨서 호출할 수도 있고 `Job`을 정의할 때 초기화를 하거나, Bean 이름으로 가져올 수도 있습니다. 앞선 `Flow`의 결과에 따라 stop할 수도 있고 다른 `Step`이나 `Flow`를 수행할 수도 있습니다. `Flow`의 결과에 따라 어떤 동작을 할지 설정하는 자세한 방법은 [Job Flow - Transition 하는 방법](./job-flow-transition.md)을 참고하기 바랍니다.
- 
+
 ### 변수로 Flow 넘기기
 
 `Job`을 정의할 때 미리 정의한 `Flow`를 변수로 넘길 수 있습니다. `Flow`를 설정할 때 trailing lambda를 사용하여 `Job`의 `Flow`를 정의할 수 있습니다.
@@ -152,7 +151,8 @@ Kotlin DSL은 `Flow`의 결과에 따라 분기하는 방식을 제공합니다.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -164,7 +164,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -180,7 +180,7 @@ open class TestJobConfig(
             step("testStep") {
                 tasklet(
                     { _, _ -> throw IllegalStateException("testStep failed") },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }
@@ -194,12 +194,13 @@ open class TestJobConfig(
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             flow(
                 "testFlow",
@@ -207,17 +208,17 @@ open class TestJobConfig {
                     step("testStep") {
                         tasklet(
                             { _, _ -> throw IllegalStateException("testStep failed") },
-                            ResourcelessTransactionManager()
+                            transactionManager,
                         )
                     }
-                }
+                },
             ) {
                 on("COMPLETED") {
                     end()
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -235,12 +236,13 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             flowBean("testFlow") {
                 on("COMPLETED") {
@@ -248,7 +250,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -259,14 +261,12 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testFlow(
-        batch: BatchDsl
-    ): Flow = batch {
+    open fun testFlow(): Flow = batch {
         flow("testFlow") {
             step("testStep") {
                 tasklet(
                     { _, _ -> throw IllegalStateException("testStep failed") },
-                    ResourcelessTransactionManager()
+                    transactionManager,
                 )
             }
         }

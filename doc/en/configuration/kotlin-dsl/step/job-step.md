@@ -15,7 +15,8 @@ You can pass a predefined `Job` as a variable to define a `Step`.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -31,7 +32,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -45,7 +46,8 @@ You can define a `Job` as a bean and use the bean name to get the `Job`.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -61,7 +63,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -80,6 +82,7 @@ You can set which `JobLauncher` will run the `Job` when a job step is run.
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
     private val jobLauncher: JobLauncher,
 ) {
 
@@ -105,7 +108,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -118,6 +121,7 @@ You can use Kotlin’s trailing lambda to make the code simpler.
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
     private val jobLauncher: JobLauncher,
 ) {
 
@@ -139,7 +143,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -154,6 +158,7 @@ You can specify parameters of the `Job` that a job step will run.
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -161,13 +166,15 @@ open class TestJobConfig(
         job("testJob") {
             step("testStep") {
                 job(anotherJob()) {
-                    object : JobParametersExtractor {
-                        override fun getJobParameters(job: Job, stepExecution: StepExecution): JobParameters {
-                            return JobParametersBuilder()
-                                .addString("extra", "value")
-                                .toJobParameters()
+                    parametersExtractor(
+                        object : JobParametersExtractor {
+                            override fun getJobParameters(job: Job, stepExecution: StepExecution): JobParameters {
+                                return JobParametersBuilder()
+                                    .addString("extra", "value")
+                                    .toJobParameters()
+                            }
                         }
-                    }
+                    )
                 }
             }
         }
@@ -177,7 +184,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -190,6 +197,7 @@ You can use Kotlin’s trailing lambda to make the code simpler.
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -211,7 +219,7 @@ open class TestJobConfig(
     open fun anotherJob() = batch {
         job("anotherJob") {
             step("anotherJobStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }

@@ -13,17 +13,18 @@ You can use `BatchDsl` to create a `Job`.
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
     open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testStep2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -38,7 +39,7 @@ open class TestJobConfig(
 - [Using Other Flows](./job-flow-flow.md)
 - [Using a JobExecutionDecider](./job-flow-decider.md)
 - [Transition from a Flow](./job-flow-transition.md)
-- [Processing Flows in Parallel](./job-flow-split.md)
+- [Processing Flows in Parallel](./job-split.md)
 
 ## How to set a job
 

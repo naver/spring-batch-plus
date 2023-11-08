@@ -5,38 +5,49 @@
   - [사용 방법](#사용-방법)
 - [Job, Step, Flow](#job-step-flow)
 
-Spring Batch 에서는 `Job`, `Step`, `Flow` 객체를 생성하기 위한 DSL을 제공합니다. Spring Batch 에서는 `JobBuilderFactory`, `StepBuilderFactory`, `FlowBuilder`를 통해 `Job`, `Step`, `Flow`를 만들 수 있습니다. 아래는 Kotlin 코드 예시입니다.
+Spring Batch 에서는 `Job`, `Step`, `Flow` 객체를 생성하기 위한 DSL을 제공합니다. Spring Batch 에서는 `JobBuilder`, `StepBuilder`, `FlowBuilder`를 통해 `Job`, `Step`, `Flow`를 만들 수 있습니다. 아래는 Kotlin 코드 예시입니다.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val jobRepository: JobRepository,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory
-    ): Job {
-        return jobBuilderFactory.get("testJob")
+    open fun testJob(): Job {
+        return JobBuilder("testJob", jobRepository)
             .start(
-                stepBuilderFactory.get("testStep1")
-                    .tasklet { _, _ -> RepeatStatus.FINISHED }
-                    .build()
+                StepBuilder("testStep1", jobRepository)
+                    .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                    .build(),
             )
-            .next(
-                stepBuilderFactory.get("testStep2")
-                    .tasklet { _, _ -> RepeatStatus.FINISHED }
-                    .build()
-            )
-            .next(
-                stepBuilderFactory.get("testStep3")
-                    .tasklet { _, _ -> RepeatStatus.FINISHED }
-                    .build()
-            )
-            .next(
-                stepBuilderFactory.get("testStep4")
-                    .tasklet { _, _ -> RepeatStatus.FINISHED }
-                    .build()
-            )
+            .next(testStep2())
+            .on("COMPLETED").to(testStep3())
+            .from(testStep2())
+            .on("FAILED").to(testStep4())
+            .end()
+            .build()
+    }
+
+    @Bean
+    open fun testStep2(): Step {
+        return StepBuilder("testStep2", jobRepository)
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            .build()
+    }
+
+    @Bean
+    open fun testStep3(): Step {
+        return StepBuilder("testStep3", jobRepository)
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            .build()
+    }
+
+    @Bean
+    open fun testStep4(): Step {
+        return StepBuilder("testStep4", jobRepository)
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
     }
 }
@@ -46,25 +57,46 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep1") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
-            step("testStep2") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
+            step(testStep2()) {
+                on("COMPLETED") {
+                    step(testStep3())
+                }
+                on("FAILED") {
+                    step(testStep4())
+                }
             }
-            step("testStep3") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
-            }
-            step("testStep4") {
-                tasklet { _, _ -> RepeatStatus.FINISHED }
-            }
+        }
+    }
+
+    @Bean
+    open fun testStep2(): Step = batch {
+        step("testStep2") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+        }
+    }
+
+    @Bean
+    open fun testStep3(): Step = batch {
+        step("testStep3") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+        }
+    }
+
+    @Bean
+    open fun testStep4(): Step = batch {
+        step("testStep4") {
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -87,38 +119,17 @@ open class BatchConfig {
     @Bean
     open fun batchDsl(
         beanFactory: BeanFactory,
-        jobBuilderFactory: JobBuilderFactory,
-        stepBuilderFactory: StepBuilderFactory
+        jobRepository: JobRepository
     ): BatchDsl {
         return BatchDsl(
             beanFactory,
-            jobBuilderFactory,
-            stepBuilderFactory
+            jobRepository,
         )
     }
 }
 ```
 
 ### 사용 방법
-
-Bean으로 등록된 `BatchDsl`을 함수의 인자로 binding해서 사용할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig {
-
-    @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet { _, _ ->
-                    RepeatStatus.FINISHED
-                }
-            }
-        }
-    }
-}
-```
 
 class의 property로 binding한 경우 함수 인자로 binding 하지 않고 바로 사용할 수 있습니다.
 
@@ -139,6 +150,26 @@ class TestJobConfig(
     }
 }
 ```
+
+Bean으로 등록된 `BatchDsl`을 함수의 인자로 binding해서 사용할 수 있습니다.
+
+```kotlin
+@Configuration
+open class TestJobConfig {
+
+    @Bean
+    open fun testJob(batch: BatchDsl): Job = batch {
+        job("testJob") {
+            step("testStep") {
+                tasklet { _, _ ->
+                    RepeatStatus.FINISHED
+                }
+            }
+        }
+    }
+}
+```
+
 
 ## Job, Step, Flow
 

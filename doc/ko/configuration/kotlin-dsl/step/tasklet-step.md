@@ -18,16 +18,16 @@ Tasklet Step은 단일 `Tasklet`으로 구성된 `Step`입니다.
 `Tasklet`을 미리 정의해 두 변수로 넘겨서 `Step`을 정의할 수 있습니다.
 
 ```kotlin
-@Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager())
+                tasklet(testTasklet(), transactionManager)
             }
         }
     }
@@ -46,15 +46,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                taskletBean("testTasklet", ResourcelessTransactionManager())
+                taskletBean("testTasklet", transactionManager)
             }
         }
     }
@@ -62,35 +63,7 @@ open class TestJobConfig {
     @Bean
     @StepScope
     open fun testTasklet(
-        @Value("#{jobParameters['param']}") paramValue: String
-    ): Tasklet = Tasklet { _, _ ->
-        println("param is '$paramValue'")
-        RepeatStatus.FINISHED
-    }
-}
-```
-
-이 방식에서는 kotlin의 nullability를 잘 활용할 수 있습니다. 이 방식으로 사용하지 않으면 testTasklet을 method 호출로 넘겨줘야 하는데 이 경우 인자로 null을 넣어야 합니다. `@StepScope`를 통해 Proxy로 생성되어서 실제 `Step`이 수행될 때 인자가 바인딩 되기 때문에 null을 넣어도 문제는 없으나 kotlin에서 강제로 nullable로 선언해줘야 하는 문제가 있습니다. Spring Batch Plus에서 제공하는 Kotlin DSL 기능을 활용하면 빈 이름으로 쉽게 적용이 가능해서 이런 non-nullable로 선언이 가능합니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig {
-
-    @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(null), ResourcelessTransactionManager())
-            }
-        }
-    }
-
-    @Bean
-    @StepScope
-    open fun testTasklet(
-        @Value("#{jobParameters['param']}") paramValue: String?
+        @Value("#{jobParameters['param']}") paramValue: String,
     ): Tasklet = Tasklet { _, _ ->
         println("param is '$paramValue'")
         RepeatStatus.FINISHED
@@ -108,7 +81,10 @@ Kotlin DSL에서는 `TaskletStepBuilder`에서 설정할 수 있는 기능을 �
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     class TestListener {
         @BeforeChunk
@@ -127,12 +103,10 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                tasklet(testTasklet(), transactionManager) {
                     listener(TestListener())
                 }
             }
@@ -153,15 +127,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                tasklet(testTasklet(), transactionManager) {
                     listener(
                         object : ChunkListener {
                             override fun beforeChunk(context: ChunkContext) {
@@ -174,7 +149,7 @@ open class TestJobConfig {
 
                             override fun afterChunkError(context: ChunkContext) {
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -195,15 +170,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                tasklet(testTasklet(), transactionManager) {
                     stream(
                         object : ItemStream {
                             override fun open(executionContext: ExecutionContext) {
@@ -217,7 +193,7 @@ open class TestJobConfig {
                             override fun close() {
                                 println("close stream")
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -238,7 +214,10 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
     open fun customExecutor(): TaskExecutor {
@@ -251,12 +230,10 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                tasklet(testTasklet(), transactionManager) {
                     taskExecutor(customExecutor())
                 }
             }
@@ -277,15 +254,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                tasklet(testTasklet(), transactionManager) {
                     exceptionHandler(
                         object : ExceptionHandler {
                             override fun handleException(context: RepeatContext, throwable: Throwable) {
@@ -310,15 +288,16 @@ Kotlin의 trailing lambda 기능을 사용하면 보다 간단하게 설정할 �
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                tasklet(testTasklet(), transactionManager) {
                     exceptionHandler { _, throwable ->
                         println("handle exception ${throwable.message}")
                         throw throwable
@@ -341,15 +320,16 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                tasklet(testTasklet(), transactionManager) {
                     stepOperations(
                         object : RepeatOperations {
                             override fun iterate(callback: RepeatCallback): RepeatStatus {
@@ -357,7 +337,7 @@ open class TestJobConfig {
                                 println("custom iterate")
                                 return delegate.iterate(callback)
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -378,19 +358,20 @@ open class TestJobConfig {
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep") {
-                tasklet(testTasklet(), ResourcelessTransactionManager()) {
+                tasklet(testTasklet(), transactionManager) {
                     transactionAttribute(
                         DefaultTransactionAttribute().apply {
                             setName("test-tx")
-                        }
+                        },
                     )
                 }
             }

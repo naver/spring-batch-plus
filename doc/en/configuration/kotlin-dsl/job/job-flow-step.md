@@ -9,12 +9,13 @@
   - [Initialize a step when defining a job](#initialize-a-step-when-defining-a-job-1)
   - [Get a step using the bean name](#get-a-step-using-the-bean-name-1)
 
-In Spring Batch, a `Job` consists of one or more `Steps`, which can be run sequentially or conditionally based on the result of the previous `Step`. However, using `JobBuilderFactory` and `StepBuilderFactory` in Spring Batch has a problem. Here is an example of setting a job flow using `JobBuilderFactory` and `StepBuilderFactory`.
+In Spring Batch, a `Job` consists of one or more `Steps`, which can be run sequentially or conditionally based on the result of the previous `Step`. However, using `JobBuilder` and `StepBuilder` in Spring Batch has a problem. Here is an example of setting a job flow using `JobBuilder` and `StepBuilder`.
 
 ```kotlin
 @Configuration
 open class TestJobConfig(
     private val jobRepository: JobRepository,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -34,7 +35,7 @@ open class TestJobConfig(
                 { _, _ ->
                     throw IllegalStateException("step failed")
                 },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
             .build()
     }
@@ -42,14 +43,14 @@ open class TestJobConfig(
     @Bean
     open fun successStep(): Step {
         return StepBuilder("successStep", jobRepository)
-            .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
     }
 
     @Bean
     open fun failureStep(): Step {
         return StepBuilder("failureStep", jobRepository)
-            .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
     }
 }
@@ -59,8 +60,8 @@ This example has several problems. First, you need to create a method for each `
 
 ```kotlin
 @Bean
-open fun testJob(): Job {
-    return jobBuilderFactory.get("testJob")
+open fun testJob(jobRepository: JobRepository): Job {
+    return JobBuilder("testJob", jobRepository)
         .start(testStep1())
         .on("COMPLETED")
         .to(successStep())
@@ -80,7 +81,8 @@ With the Kotlin DSL, however, you can declaratively set a job flow, avoiding suc
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -92,7 +94,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("failureStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -109,7 +111,7 @@ open class TestJobConfig(
                 { _, _ ->
                     throw IllegalStateException("step failed")
                 },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -117,7 +119,7 @@ open class TestJobConfig(
     @Bean
     open fun successStep(): Step = batch {
         step("successStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -125,7 +127,7 @@ open class TestJobConfig(
 
 The Kotlin DSL does not require boilerplate code such as `.build()`. As you can see in the code example, you can use a method like testStep1 and successStep, or define a `Step` in a job flow like failureStep.
 
-## Sequential execution of steps 
+## Sequential execution of steps
 
 The Kotlin DSL helps you run `Steps` sequentially. You can add a `Step` using a method and pass it as a variable, initialize it or get it using the bean name when you define a `Job`.
 
@@ -136,7 +138,8 @@ You can pass a predefined `Step` as a variable to define a `Job`. You can declar
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -144,7 +147,7 @@ open class TestJobConfig(
         job("testJob") {
             val testStep3 = batch {
                 step("testStep3") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
 
@@ -157,14 +160,14 @@ open class TestJobConfig(
     @Bean
     open fun testStep1(): Step = batch {
         step("testStep1") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 
     @Bean
     open fun testStep2(): Step = batch {
         step("testStep2") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -176,21 +179,22 @@ You can initialize a `Step` when you define a `Job`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
             step("testStep3") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
@@ -203,12 +207,13 @@ You can also get a `Step` using the bean name when you define a `Job`.
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             stepBean("testStep1")
             stepBean("testStep2")
@@ -217,29 +222,23 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testStep1(
-        batch: BatchDsl
-    ): Step = batch {
+    open fun testStep1(): Step = batch {
         step("testStep1") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 
     @Bean
-    open fun testStep2(
-        batch: BatchDsl
-    ): Step = batch {
+    open fun testStep2(): Step = batch {
         step("testStep2") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 
     @Bean
-    open fun testStep3(
-        batch: BatchDsl
-    ): Step = batch {
+    open fun testStep3(): Step = batch {
         step("testStep3") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
         }
     }
 }
@@ -256,7 +255,8 @@ You can pass a predefined `Step` as a variable when defining a `Job`. You can us
 ```kotlin
 @Configuration
 open class TestJobConfig(
-    private val batch: BatchDsl
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -268,7 +268,7 @@ open class TestJobConfig(
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -283,7 +283,7 @@ open class TestJobConfig(
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }
@@ -296,28 +296,29 @@ You can initialize a `Step` when you define a `Job`. You can use a trailing lamb
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             step(
                 "testStep",
                 {
                     tasklet(
                         { _, _ -> throw IllegalStateException("testStep failed") },
-                        ResourcelessTransactionManager()
+                        transactionManager,
                     )
-                }
+                },
             ) {
                 on("COMPLETED") {
                     end()
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -335,12 +336,13 @@ You can also get a `Step` using the bean name when you define a `Job`. You can u
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
-    open fun testJob(
-        batch: BatchDsl
-    ): Job = batch {
+    open fun testJob(): Job = batch {
         job("testJob") {
             stepBean("testStep") {
                 on("COMPLETED") {
@@ -348,7 +350,7 @@ open class TestJobConfig {
                 }
                 on("FAILED") {
                     step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     }
                 }
                 on("*") {
@@ -359,13 +361,11 @@ open class TestJobConfig {
     }
 
     @Bean
-    open fun testStep(
-        batch: BatchDsl
-    ): Step = batch {
+    open fun testStep(): Step = batch {
         step("testStep") {
             tasklet(
                 { _, _ -> throw IllegalStateException("testStep failed") },
-                ResourcelessTransactionManager()
+                transactionManager,
             )
         }
     }

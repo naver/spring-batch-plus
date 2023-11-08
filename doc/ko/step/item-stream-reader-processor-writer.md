@@ -75,12 +75,13 @@ public class TestJobConfig {
     @Bean
     public Job testJob(
         SampleTasklet sampleTasklet,
-        JobRepository jobRepository
+        JobRepository jobRepository,
+        PlatformTransactionManager transactionManager
     ) {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, String>chunk(3, new ResourcelessTransactionManager())
+                    .<Integer, String>chunk(3, transactionManager)
                     .reader(AdapterFactory.itemStreamReader(sampleTasklet))
                     .processor(AdapterFactory.itemProcessor(sampleTasklet))
                     .writer(AdapterFactory.itemStreamWriter(sampleTasklet))
@@ -106,12 +107,13 @@ public class TestJobConfig {
     @Bean
     public Job testJob(
         SampleTasklet sampleTasklet,
-        JobRepository jobRepository
+        JobRepository jobRepository,
+        PlatformTransactionManager transactionManager
     ) {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, String>chunk(3, new ResourcelessTransactionManager())
+                    .<Integer, String>chunk(3, transactionManager)
                     .reader(itemStreamReader(sampleTasklet))
                     .processor(itemProcessor(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
@@ -158,15 +160,17 @@ open class SampleTasklet(
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
     @Bean
     open fun testJob(
         sampleTasklet: SampleTasklet,
-        batch: BatchDsl
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(sampleTasklet.asItemStreamReader())
                     processor(sampleTasklet.asItemProcessor())
                     writer(sampleTasklet.asItemStreamWriter())
@@ -223,12 +227,13 @@ public class TestJobConfig {
     @Bean
     public Job testJob(
         SampleTasklet sampleTasklet,
-        JobRepository jobRepository
+        JobRepository jobRepository,
+        PlatformTransactionManager transactionManager
     ) {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
+                    .<Integer, Integer>chunk(3, transactionManager)
                     .reader(AdaptorFactory.itemStreamReader(sampleTasklet))
                     .writer(AdaptorFactory.itemStreamWriter(sampleTasklet))
                     .build()
@@ -252,12 +257,13 @@ public class TestJobConfig {
     @Bean
     public Job testJob(
         SampleTasklet sampleTasklet,
-        JobRepository jobRepository
+        JobRepository jobRepository,
+        PlatformTransactionManager transactionManager
     ) {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
+                    .<Integer, Integer>chunk(3, transactionManager)
                     .reader(itemStreamReader(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
                     .build()
@@ -299,16 +305,18 @@ open class SampleTasklet(
 
 ```Kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
     open fun testJob(
         sampleTasklet: SampleTasklet,
-        batch: BatchDsl
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3, ResourcelessTransactionManager()) {
+                chunk<Int, Int>(3, transactionManager) {
                     reader(sampleTasklet.asItemStreamReader())
                     writer(sampleTasklet.asItemStreamWriter())
                 }
@@ -398,12 +406,13 @@ public class TestJobConfig {
     @Bean
     public Job testJob(
         SampleTasklet sampleTasklet,
-        JobRepository jobRepository
+        JobRepository jobRepository,
+        PlatformTransactionManager transactionManager
     ) {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, String>chunk(3, new ResourcelessTransactionManager())
+                    .<Integer, String>chunk(3, transactionManager)
                     .reader(itemStreamReader(sampleTasklet))
                     .processor(itemProcessor(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
@@ -473,16 +482,18 @@ open class SampleTasklet(
 
 ```kotlin
 @Configuration
-open class TestJobConfig {
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
 
     @Bean
     open fun testJob(
         sampleTasklet: SampleTasklet,
-        batch: BatchDsl
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, ResourcelessTransactionManager()) {
+                chunk<Int, String>(3, transactionManager) {
                     reader(sampleTasklet.asItemStreamReader())
                     processor(sampleTasklet.asItemProcessor())
                     writer(sampleTasklet.asItemStreamWriter())
