@@ -32,19 +32,17 @@ open class TestJobConfig(
 ) {
 
     @Bean
-    open fun testJob(): Job {
-        return batch {
-            job("testJob") {
-                // within job
-                step("testStep1") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-                }
-                step("testStep2") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-                }
-                flow(testFlow())
-                step(testStep())
+    open fun testJob(): Job = batch {
+        job("testJob") {
+            // within job
+            step("testStep1") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
+            step("testStep2") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
+            flow(testFlow())
+            step(testStep())
         }
     }
 
