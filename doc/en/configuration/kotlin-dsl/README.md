@@ -101,7 +101,7 @@ open class TestJobConfig(
 }
 ```
 
-Because the Kotlin DSL is designed to act as a wrapper for Spring Batch functions, not to change them, configurations not available in JAVA-based DSL are not applicable to Spring Batch in the Kotlin DSL as well. For more information about Spring Batch configurations, see [Spring Batch Docs](https://docs.spring.io/spring-batch/docs/current/reference/html/).
+Because the Kotlin DSL is designed to act as a wrapper for Spring Batch functions, not to change them, configurations not available in JAVA-based DSL are not applicable to Spring Batch in the Kotlin DSL as well. For more information about Spring Batch configurations, see [Spring Batch Docs](https://spring.io/projects/spring-batch).
 
 ## BatchDsl
 
