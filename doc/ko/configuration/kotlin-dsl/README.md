@@ -102,7 +102,7 @@ open class TestJobConfig(
 }
 ```
 
-Kotlin DSL은 Spring Batch의 기능을 바꾸는 것이 아닌 편하게 감싸주는게 목적이므로 기존 Java 기반의 DSL에서 설정 불가능한 것은 여전히 설정할 수 없습니다. Spring Batch의 상세한 설정 정보는 [Spring Batch Docs](https://docs.spring.io/spring-batch/docs/current/reference/html/)를 참고바랍니다.
+Kotlin DSL은 Spring Batch의 기능을 바꾸는 것이 아닌 편하게 감싸주는게 목적이므로 기존 Java 기반의 DSL에서 설정 불가능한 것은 여전히 설정할 수 없습니다. Spring Batch의 상세한 설정 정보는 [Spring Batch Docs](https://spring.io/projects/spring-batch)를 참고바랍니다.
 
 ## BatchDsl
 
