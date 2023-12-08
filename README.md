@@ -95,16 +95,16 @@ fun testJob(
 - ClearRunIdIncrementer
 - DeleteMetadataJob
 
-## Compatibility
+## Version Compatibility
 
 We've tested following versions only. Other versions may not work.
 
-| Spring Batch Plus Version | Spring Batch Version | Kotlin Version | Java Version  | Samples                                                                                    |
-|---------------------------|----------------------|----------------|---------------|--------------------------------------------------------------------------------------------|
-| 1.0.x                     | 5.0.x                | 1.5 or higher  | 17 or higher  | [Samples](https://github.com/naver/spring-batch-plus/tree/v1.0.0/spring-batch-plus-sample) |
-| 0.3.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.3.0/spring-batch-plus-sample) |
-| 0.2.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.2.0/spring-batch-plus-sample) |
-| 0.1.x                     | 4.3.x                | 1.5 or higher  | 1.8 or higher | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.1.0/spring-batch-plus-sample) |
+| Spring Batch Plus (Latest) | Spring Batch | Kotlin        | Java          | Status     | Samples                                                                                    |
+|----------------------------|--------------|---------------|---------------|------------|--------------------------------------------------------------------------------------------|
+| 1.0.x (1.0.1)              | 5.0.x        | 1.5 or higher | 17 or higher  | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/1.0.x/spring-batch-plus-sample) |
+| 0.3.x (0.3.1)              | 4.3.x        | 1.5 or higher | 1.8 or higher | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/0.3.x/spring-batch-plus-sample) |
+| 0.2.x (0.2.0)              | 4.3.x        | 1.5 or higher | 1.8 or higher | Freezed    | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.2.0/spring-batch-plus-sample) |
+| 0.1.x (0.1.0)              | 4.3.x        | 1.5 or higher | 1.8 or higher | Freezed    | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.1.0/spring-batch-plus-sample) |
 
 ## Download
 
@@ -163,8 +163,8 @@ Java
 ## User Guide
 
 - 1.0.x
-  - [Korean](./doc/ko/README.md)
-  - [English](./doc/en/README.md)
+  - [Korean](https://github.com/naver/spring-batch-plus/tree/1.0.x/doc/ko)
+  - [English](https://github.com/naver/spring-batch-plus/tree/1.0.x/doc/en)
 - 0.3.x
   - [Korean](https://github.com/naver/spring-batch-plus/tree/0.3.x/doc/ko)
   - [English](https://github.com/naver/spring-batch-plus/tree/0.3.x/doc/en)
