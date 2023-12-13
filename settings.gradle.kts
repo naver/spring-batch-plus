@@ -29,65 +29,65 @@ dependencyResolutionManagement {
 
             library(
                 "spring-boot-autoconfigure",
-                "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion"
+                "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion",
             )
             library(
                 "spring-batch-core",
-                "org.springframework.batch:spring-batch-core:$springBatchVersion"
+                "org.springframework.batch:spring-batch-core:$springBatchVersion",
             )
             library(
                 "slf4j",
-                "org.slf4j:slf4j-api:1.7.36"
+                "org.slf4j:slf4j-api:1.7.36",
             )
             library(
                 "reactor-core",
-                "io.projectreactor:reactor-core:3.5.0"
+                "io.projectreactor:reactor-core:3.5.0",
             )
             library(
                 "findbugs-jsr305",
-                "com.google.code.findbugs:jsr305:3.0.2"
+                "com.google.code.findbugs:jsr305:3.0.2",
             )
 
             // test only
             library(
                 "junit",
-                "org.junit.jupiter:junit-jupiter:5.+"
+                "org.junit.jupiter:junit-jupiter:5.+",
             )
             library(
                 "assertj",
-                "org.assertj:assertj-core:3.+"
+                "org.assertj:assertj-core:3.+",
             )
             library(
                 "mockito",
-                "org.mockito:mockito-core:3.+"
+                "org.mockito:mockito-core:3.+",
             )
             library(
                 "mockito-kotlin",
-                "org.mockito.kotlin:mockito-kotlin:4.+"
+                "org.mockito.kotlin:mockito-kotlin:4.+",
             )
             library(
                 "mockk",
-                "io.mockk:mockk:1.+"
+                "io.mockk:mockk:1.+",
             )
             library(
                 "spring-boot-test",
-                "org.springframework.boot:spring-boot-test:$springBootVersion"
+                "org.springframework.boot:spring-boot-test:$springBootVersion",
             )
             library(
                 "spring-batch-test",
-                "org.springframework.batch:spring-batch-test:$springBatchVersion"
+                "org.springframework.batch:spring-batch-test:$springBatchVersion",
             )
             library(
                 "spring-jdbc",
-                "org.springframework:spring-jdbc:5.3.21"
+                "org.springframework:spring-jdbc:5.3.21",
             )
             library(
                 "h2",
-                "com.h2database:h2:2.1.214"
+                "com.h2database:h2:2.1.214",
             )
             library(
                 "log4j",
-                "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
+                "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2",
             )
         }
     }

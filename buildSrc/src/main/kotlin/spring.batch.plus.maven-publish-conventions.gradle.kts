@@ -52,7 +52,7 @@ publishing {
                     System.getenv("REPO_URL") ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
                 } else {
                     System.getenv("REPO_SNAPSHOT_URL") ?: "https://oss.sonatype.org/content/repositories/snapshots/"
-                }
+                },
             )
         }
     }
