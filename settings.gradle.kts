@@ -24,7 +24,7 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("libs") {
-            val springBootVersion = "3.0.0"
+            val springBootVersion = "3.2.0"
             val springBatchVersion = "5.1.0"
 
             library(
