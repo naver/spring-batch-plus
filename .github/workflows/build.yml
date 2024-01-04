@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ '17' ]
+        java-version: [ '17', '21' ]
 
     steps:
       - name: Setup Commit ID
@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
