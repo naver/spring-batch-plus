@@ -26,8 +26,8 @@ import org.springframework.batch.item.ItemStreamWriter;
  * A simple adapter for stream reader, processor, writer. It can represent
  * {@link ItemStreamReader}, {@link ItemProcessor}, {@link ItemStreamWriter} in a single class.
  *
- * @since 0.1.0
+ * @since 1.1.0
  */
-public interface ItemStreamReaderProcessorWriter<I, O>
-	extends ItemStreamReaderDelegate<I>, ItemProcessorDelegate<I, O>, ItemStreamWriterDelegate<O> {
+public interface ItemStreamIterableReaderProcessorWriter<I, O>
+	extends ItemStreamIterableReaderDelegate<I>, ItemProcessorDelegate<I, O>, ItemStreamWriterDelegate<O> {
 }
