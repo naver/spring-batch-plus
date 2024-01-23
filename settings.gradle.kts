@@ -59,11 +59,11 @@ dependencyResolutionManagement {
             )
             library(
                 "mockito",
-                "org.mockito:mockito-core:3.+",
+                "org.mockito:mockito-core:5.+",
             )
             library(
                 "mockito-kotlin",
-                "org.mockito.kotlin:mockito-kotlin:4.+",
+                "org.mockito.kotlin:mockito-kotlin:5.+",
             )
             library(
                 "mockk",
