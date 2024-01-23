@@ -20,94 +20,46 @@ package com.navercorp.spring.batch.plus.item.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
+@SuppressWarnings("unchecked")
 class ItemStreamReaderAdapterTest {
+
 
 	@Test
 	void testOpen() {
 		// given
-		AtomicInteger onOpenReadCallCount = new AtomicInteger();
-		AtomicInteger readFluxCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
-			new ItemStreamReaderDelegate<Integer>() {
-
-				@Override
-				public void onOpenRead(@NonNull ExecutionContext executionContext) {
-					onOpenReadCallCount.incrementAndGet();
-				}
-
-				@NonNull
-				@Override
-				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
-					readFluxCallCount.incrementAndGet();
-					return Flux.empty();
-				}
-
-				@Override
-				public void onUpdateRead(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onCloseRead() {
-					throw new UnsupportedOperationException();
-				}
-			});
+		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
 
 		// when
 		itemStreamReaderAdaptor.open(new ExecutionContext());
 
 		// then
-		assertThat(onOpenReadCallCount.get()).isEqualTo(1);
-		assertThat(readFluxCallCount.get()).isEqualTo(1);
+		verify(itemStreamReaderDelegate, times(1)).onOpenRead(any());
+		verify(itemStreamReaderDelegate, times(1)).readFlux(any());
 	}
 
 	@Test
 	void testRead() throws Exception {
 		// given
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
-			new ItemStreamReaderDelegate<Integer>() {
-				private int count = 0;
-
-				@Override
-				public void onOpenRead(@NonNull ExecutionContext executionContext) {
-					// do nothing
-				}
-
-				@NonNull
-				@Override
-				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
-					return Flux.generate(sink -> {
-						if (count < 10) {
-							sink.next(count);
-							++count;
-						} else {
-							sink.complete();
-						}
-					});
-				}
-
-				@Override
-				public void onUpdateRead(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onCloseRead() {
-					throw new UnsupportedOperationException();
-				}
-			});
+		List<Integer> expected = List.of(1, 2, 3);
+		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
+		when(itemStreamReaderDelegate.readFlux(any())).thenReturn(Flux.fromIterable(expected));
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
 
 		// when
 		itemStreamReaderAdaptor.open(new ExecutionContext());
@@ -118,121 +70,44 @@ class ItemStreamReaderAdapterTest {
 		}
 
 		// then
-		assertThat(items).hasSize(10);
+		assertThat(items).isEqualTo(expected);
 	}
 
 	@Test
 	void testReadWithOpenShouldThrowsException() {
 		// given
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
-			new ItemStreamReaderDelegate<Integer>() {
-				private int count = 0;
-
-				@Override
-				public void onOpenRead(@NonNull ExecutionContext executionContext) {
-					// do nothing
-				}
-
-				@NonNull
-				@Override
-				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
-					return Flux.generate(sink -> {
-						if (count < 10) {
-							sink.next(count);
-							++count;
-						} else {
-							sink.complete();
-						}
-					});
-				}
-
-				@Override
-				public void onUpdateRead(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onCloseRead() {
-					throw new UnsupportedOperationException();
-				}
-			});
+		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
 
 		// when, then
-		assertThatThrownBy(
-			itemStreamReaderAdaptor::read
-		).hasMessageContaining("Flux isn't set. Call 'open' first.");
+		assertThatThrownBy(itemStreamReaderAdaptor::read)
+			.hasMessageContaining("Flux isn't set. Call 'open' first.");
 	}
 
 	@Test
 	void testUpdate() {
 		// given
-		AtomicInteger onUpdateCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
-			new ItemStreamReaderDelegate<Integer>() {
-
-				@Override
-				public void onOpenRead(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@NonNull
-				@Override
-				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onUpdateRead(@NonNull ExecutionContext executionContext) {
-					onUpdateCallCount.incrementAndGet();
-				}
-
-				@Override
-				public void onCloseRead() {
-					throw new UnsupportedOperationException();
-				}
-			});
+		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
 
 		// when
 		itemStreamReaderAdaptor.update(new ExecutionContext());
 
 		// then
-		assertThat(onUpdateCallCount.get()).isEqualTo(1);
+		verify(itemStreamReaderDelegate, times(1)).onUpdateRead(any());
 	}
 
 	@Test
 	void testClose() {
 		// given
-		AtomicInteger onCloseReadCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(
-			new ItemStreamReaderDelegate<Integer>() {
-
-				@Override
-				public void onOpenRead(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@NonNull
-				@Override
-				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onUpdateRead(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onCloseRead() {
-					onCloseReadCallCount.incrementAndGet();
-				}
-			});
+		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
 
 		// when
 		itemStreamReaderAdaptor.close();
 
 		// then
-		assertThat(onCloseReadCallCount.get()).isEqualTo(1);
+		verify(itemStreamReaderDelegate, times(1)).onCloseRead();
 	}
 
 	@Test

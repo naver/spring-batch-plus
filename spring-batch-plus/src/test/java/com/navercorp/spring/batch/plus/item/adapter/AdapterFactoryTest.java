@@ -34,8 +34,7 @@ class AdapterFactoryTest {
 	void testItemReader() {
 		// when
 		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = executionContext -> Flux.empty();
-		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(
-			itemStreamReaderDelegate);
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(itemStreamReaderDelegate);
 
 		// then
 		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
@@ -45,8 +44,7 @@ class AdapterFactoryTest {
 	void testItemProcessor() {
 		// when
 		ItemProcessorDelegate<Integer, Integer> itemProcessorDelegate = item -> null;
-		ItemProcessor<Integer, Integer> actual = AdapterFactory.itemProcessor(
-			itemProcessorDelegate);
+		ItemProcessor<Integer, Integer> actual = AdapterFactory.itemProcessor(itemProcessorDelegate);
 
 		// then
 		assertThat(actual).isInstanceOf(ItemProcessorAdapter.class);
@@ -57,8 +55,7 @@ class AdapterFactoryTest {
 		// when
 		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = items -> {
 		};
-		ItemStreamWriter<Integer> actual = AdapterFactory.itemStreamWriter(
-			itemStreamWriterDelegate);
+		ItemStreamWriter<Integer> actual = AdapterFactory.itemStreamWriter(itemStreamWriterDelegate);
 
 		// then
 		assertThat(actual).isInstanceOf(ItemStreamWriterAdapter.class);
