@@ -20,8 +20,13 @@ package com.navercorp.spring.batch.plus.item.adapter;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.StepExecution;
@@ -30,37 +35,14 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.test.MetaDataInstanceFactory;
 import org.springframework.batch.test.StepScopeTestUtils;
 
-@SuppressWarnings("NullableProblems")
+@SuppressWarnings("unchecked")
 class StepScopeItemStreamReaderTest {
 
 	@Test
 	void testOpen() throws Exception {
 		// given
-		AtomicInteger openCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> delegate = new ItemStreamReader<Integer>() {
-
-			@Override
-			public void open(ExecutionContext executionContext) {
-				openCallCount.incrementAndGet();
-			}
-
-			@Override
-			public Integer read() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void update(ExecutionContext executionContext) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void close() {
-				throw new UnsupportedOperationException();
-			}
-		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
 		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -70,73 +52,30 @@ class StepScopeItemStreamReaderTest {
 		});
 
 		// then
-		assertThat(openCallCount.get()).isEqualTo(1);
+		verify(delegate, times(1)).open(any());
 	}
 
 	@Test
 	void testRead() throws Exception {
 		// given
-		ItemStreamReader<Integer> delegate = new ItemStreamReader<Integer>() {
-
-			@Override
-			public void open(ExecutionContext executionContext) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Integer read() {
-				return 1;
-			}
-
-			@Override
-			public void update(ExecutionContext executionContext) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void close() {
-				throw new UnsupportedOperationException();
-			}
-		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		Integer expected = ThreadLocalRandom.current().nextInt();
+		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
+		when(delegate.read()).thenReturn(expected);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
 		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
-		int actual = StepScopeTestUtils.doInStepScope(stepExecution, itemStreamReader::read);
+		Integer actual = StepScopeTestUtils.doInStepScope(stepExecution, itemStreamReader::read);
 
 		// then
-		assertThat(actual).isEqualTo(1);
+		assertThat(actual).isEqualTo(expected);
 	}
 
 	@Test
 	void testUpdate() throws Exception {
 		// given
-		AtomicInteger updateCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> delegate = new ItemStreamReader<Integer>() {
-
-			@Override
-			public void open(ExecutionContext executionContext) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Integer read() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void update(ExecutionContext executionContext) {
-				updateCallCount.incrementAndGet();
-			}
-
-			@Override
-			public void close() {
-				throw new UnsupportedOperationException();
-			}
-		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
 		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -146,37 +85,14 @@ class StepScopeItemStreamReaderTest {
 		});
 
 		// then
-		assertThat(updateCallCount.get()).isEqualTo(1);
+		verify(delegate, times(1)).update(any());
 	}
 
 	@Test
 	void testClose() throws Exception {
 		// given
-		AtomicInteger closeCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> delegate = new ItemStreamReader<Integer>() {
-
-			@Override
-			public void open(ExecutionContext executionContext) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public Integer read() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void update(ExecutionContext executionContext) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void close() {
-				closeCallCount.incrementAndGet();
-			}
-		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
 		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -186,41 +102,27 @@ class StepScopeItemStreamReaderTest {
 		});
 
 		// then
-		assertThat(closeCallCount.get()).isEqualTo(1);
+		verify(delegate, times(1)).close();
 	}
 
 	@Test
-	void testOpenShouldThrowsExceptionWhenNoStepScope() {
+	void testInvokeShouldThrowsExceptionWhenNoStepScope() {
 		// given
-		AtomicInteger openCallCount = new AtomicInteger();
-		ItemStreamReader<Integer> delegate = new ItemStreamReader<Integer>() {
-
-			@Override
-			public void open(ExecutionContext executionContext) {
-				openCallCount.incrementAndGet();
-			}
-
-			@Override
-			public Integer read() {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void update(ExecutionContext executionContext) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void close() {
-				throw new UnsupportedOperationException();
-			}
-		};
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
 		// when
 		assertThatThrownBy(
 			() -> itemStreamReader.open(new ExecutionContext())
+		).hasMessageContaining("No step context is set. Make sure if it's invoked in a stepScope.");
+		assertThatThrownBy(
+			itemStreamReader::read
+		).hasMessageContaining("No step context is set. Make sure if it's invoked in a stepScope.");
+		assertThatThrownBy(
+			() -> itemStreamReader.update(new ExecutionContext())
+		).hasMessageContaining("No step context is set. Make sure if it's invoked in a stepScope.");
+		assertThatThrownBy(
+			itemStreamReader::close
 		).hasMessageContaining("No step context is set. Make sure if it's invoked in a stepScope.");
 	}
 

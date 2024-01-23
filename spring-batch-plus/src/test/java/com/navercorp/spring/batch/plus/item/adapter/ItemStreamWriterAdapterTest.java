@@ -18,153 +18,70 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
-import org.springframework.lang.NonNull;
 
+@SuppressWarnings("unchecked")
 class ItemStreamWriterAdapterTest {
 
 	@Test
 	void testOpen() {
 		// given
-		AtomicInteger onOpenWriteCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
-			new ItemStreamWriterDelegate<Integer>() {
-				@Override
-				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
-					onOpenWriteCallCount.incrementAndGet();
-				}
-
-				@Override
-				public void write(@NonNull Chunk<? extends Integer> chunk) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onCloseWrite() {
-					throw new UnsupportedOperationException();
-				}
-			});
+		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(itemStreamWriterDelegate);
 
 		// when
 		itemStreamWriterAdaptor.open(new ExecutionContext());
 
 		// then
-		assertThat(onOpenWriteCallCount.get()).isEqualTo(1);
+		verify(itemStreamWriterDelegate, times(1)).onOpenWrite(any());
 	}
 
 	@Test
 	void testWrite() throws Exception {
 		// given
-		AtomicInteger writeCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
-			new ItemStreamWriterDelegate<Integer>() {
-				@Override
-				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void write(@NonNull Chunk<? extends Integer> chunk) {
-					writeCallCount.incrementAndGet();
-				}
-
-				@Override
-				public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onCloseWrite() {
-					throw new UnsupportedOperationException();
-				}
-			});
+		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(itemStreamWriterDelegate);
 
 		// when
 		itemStreamWriterAdaptor.write(Chunk.of());
 
 		// then
-		assertThat(writeCallCount.get()).isEqualTo(1);
+		verify(itemStreamWriterDelegate, times(1)).write(any());
 	}
 
 	@Test
 	void testUpdate() {
 		// given
-		AtomicInteger onUpdateWriteCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
-			new ItemStreamWriterDelegate<Integer>() {
-				@Override
-				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void write(@NonNull Chunk<? extends Integer> chunk) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
-					onUpdateWriteCallCount.incrementAndGet();
-				}
-
-				@Override
-				public void onCloseWrite() {
-					throw new UnsupportedOperationException();
-				}
-			});
+		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(itemStreamWriterDelegate);
 
 		// when
 		itemStreamWriterAdaptor.update(new ExecutionContext());
 
 		// then
-		assertThat(onUpdateWriteCallCount.get()).isEqualTo(1);
+		verify(itemStreamWriterDelegate, times(1)).onUpdateWrite(any());
 	}
 
 	@Test
 	void testClose() {
 		// given
-		AtomicInteger onCloseCallCount = new AtomicInteger();
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
-			new ItemStreamWriterDelegate<Integer>() {
-				@Override
-				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void write(@NonNull Chunk<? extends Integer> chunk) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void onCloseWrite() {
-					onCloseCallCount.incrementAndGet();
-				}
-			});
+		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(itemStreamWriterDelegate);
 
 		// when
 		itemStreamWriterAdaptor.close();
 
 		// then
-		assertThat(onCloseCallCount.get()).isEqualTo(1);
+		verify(itemStreamWriterDelegate, times(1)).onCloseWrite();
 	}
 
 	@Test

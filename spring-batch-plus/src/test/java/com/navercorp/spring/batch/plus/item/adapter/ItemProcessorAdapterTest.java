@@ -20,21 +20,31 @@ package com.navercorp.spring.batch.plus.item.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ItemProcessor;
 
+@SuppressWarnings("unchecked")
 class ItemProcessorAdapterTest {
 
 	@Test
 	void testProcess() throws Exception {
+		// given
+		Integer expected = ThreadLocalRandom.current().nextInt();
+		ItemProcessorDelegate<Integer, Integer> itemProcessorDelegate = mock(ItemProcessorDelegate.class);
+		when(itemProcessorDelegate.process(any())).thenReturn(expected);
+		ItemProcessor<Integer, Integer> itemProcessorAdaptor = ItemProcessorAdapter.of(itemProcessorDelegate);
+
 		// when
-		ItemProcessor<Integer, String> itemProcessorAdaptor = ItemProcessorAdapter.of(
-			Object::toString);
-		String actual = itemProcessorAdaptor.process(1234);
+		Integer actual = itemProcessorAdaptor.process(ThreadLocalRandom.current().nextInt());
 
 		// then
-		assertThat(actual).isEqualTo("1234");
+		assertThat(actual).isEqualTo(expected);
 	}
 
 	@Test
