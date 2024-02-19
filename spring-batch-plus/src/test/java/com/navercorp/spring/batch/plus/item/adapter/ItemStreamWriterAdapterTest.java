@@ -84,6 +84,7 @@ class ItemStreamWriterAdapterTest {
 		verify(itemStreamWriterDelegate, times(1)).onCloseWrite();
 	}
 
+	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
 	void testPassingNull() {
 		// when, then

@@ -18,11 +18,11 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
+import java.util.Iterator;
+
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.lang.NonNull;
-
-import java.util.Iterator;
 
 /**
  * A delegate for {@link ItemStreamReader} which uses {@link Iterator<T>}.
