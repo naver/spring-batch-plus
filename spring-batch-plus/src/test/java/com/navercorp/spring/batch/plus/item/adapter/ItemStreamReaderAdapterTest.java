@@ -110,6 +110,7 @@ class ItemStreamReaderAdapterTest {
 		verify(itemStreamReaderDelegate, times(1)).onCloseRead();
 	}
 
+	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
 	void testPassingNull() {
 		// when, then

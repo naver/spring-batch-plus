@@ -71,15 +71,6 @@ public class ItemStreamIterableReaderAdapter<T> implements ItemStreamReader<T> {
 		}
 	}
 
-	protected Iterator<? extends T> getIterator() {
-		if (this.iterator == null) {
-			this.iterator = Optional.ofNullable(this.iterable)
-				.map(Iterable::iterator)
-				.orElseThrow(() -> new IllegalStateException("No iterable is set. Call 'open' first."));
-		}
-		return this.iterator;
-	}
-
 	@SuppressWarnings("NullableProblems")
 	@Override
 	public void update(ExecutionContext executionContext) {
@@ -89,5 +80,14 @@ public class ItemStreamIterableReaderAdapter<T> implements ItemStreamReader<T> {
 	@Override
 	public void close() {
 		this.delegate.onCloseRead();
+	}
+
+	protected Iterator<? extends T> getIterator() {
+		if (this.iterator == null) {
+			this.iterator = Optional.ofNullable(this.iterable)
+				.map(Iterable::iterator)
+				.orElseThrow(() -> new IllegalStateException("No iterable is set. Call 'open' first."));
+		}
+		return this.iterator;
 	}
 }

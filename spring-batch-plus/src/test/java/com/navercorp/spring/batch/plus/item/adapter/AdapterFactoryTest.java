@@ -61,6 +61,7 @@ class AdapterFactoryTest {
 		assertThat(actual).isInstanceOf(ItemStreamWriterAdapter.class);
 	}
 
+	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
 	void testPassingNull() {
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader(null));

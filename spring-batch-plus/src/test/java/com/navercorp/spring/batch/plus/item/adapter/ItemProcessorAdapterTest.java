@@ -47,6 +47,7 @@ class ItemProcessorAdapterTest {
 		assertThat(actual).isEqualTo(expected);
 	}
 
+	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
 	void testPassingNull() {
 		// when, then
