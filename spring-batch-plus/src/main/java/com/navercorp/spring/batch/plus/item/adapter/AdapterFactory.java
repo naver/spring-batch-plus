@@ -35,6 +35,58 @@ import org.springframework.lang.NonNull;
 public final class AdapterFactory {
 
 	/**
+	 * Create an adapter which adapt {@link ItemStreamFluxReaderDelegate} to {@link ItemStreamReader}
+	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
+	 *
+	 * @param delegate a delegate
+	 * @return an adapted ItemStreamReader
+	 * @param <T> a read item type
+	 */
+	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamFluxReaderDelegate<T> delegate) {
+		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
+		return StepScopeItemStreamReader.of(() -> ItemStreamFluxReaderAdapter.of(delegate));
+	}
+
+	/**
+	 * Create an adapter which adapt {@link ItemStreamIterableReaderDelegate} to {@link ItemStreamReader}
+	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
+	 *
+	 * @param delegate a delegate
+	 * @return an adapted ItemStreamReader
+	 * @param <T> a read item type
+	 */
+	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamIterableReaderDelegate<T> delegate) {
+		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
+		return StepScopeItemStreamReader.of(() -> ItemStreamIterableReaderAdapter.of(delegate));
+	}
+
+	/**
+	 * Create an adapter which adapt {@link ItemStreamIteratorReaderDelegate} to {@link ItemStreamReader}
+	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
+	 *
+	 * @param delegate a delegate
+	 * @return an adapted ItemStreamReader
+	 * @param <T> a read item type
+	 */
+	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamIteratorReaderDelegate<T> delegate) {
+		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
+		return StepScopeItemStreamReader.of(() -> ItemStreamIteratorReaderAdapter.of(delegate));
+	}
+
+	/**
+	 * Create an adapter which adapt {@link ItemStreamSimpleReaderDelegate} to {@link ItemStreamReader}
+	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
+	 *
+	 * @param delegate a delegate
+	 * @return an adapted ItemStreamReader
+	 * @param <T> a read item type
+	 */
+	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamSimpleReaderDelegate<T> delegate) {
+		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
+		return StepScopeItemStreamReader.of(() -> ItemStreamSimpleReaderAdapter.of(delegate));
+	}
+
+	/**
 	 * Create an adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *

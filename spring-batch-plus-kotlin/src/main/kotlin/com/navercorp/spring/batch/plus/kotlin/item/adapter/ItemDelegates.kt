@@ -20,11 +20,39 @@ package com.navercorp.spring.batch.plus.kotlin.item.adapter
 
 import com.navercorp.spring.batch.plus.item.adapter.AdapterFactory
 import com.navercorp.spring.batch.plus.item.adapter.ItemProcessorDelegate
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamFluxReaderDelegate
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamIterableReaderDelegate
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamIteratorReaderDelegate
 import com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderDelegate
+import com.navercorp.spring.batch.plus.item.adapter.ItemStreamSimpleReaderDelegate
 import com.navercorp.spring.batch.plus.item.adapter.ItemStreamWriterDelegate
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemStreamWriter
+
+/**
+ * An extensions to invoke [AdapterFactory.itemStreamReader].
+ */
+fun <T : Any> ItemStreamFluxReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
+    AdapterFactory.itemStreamReader(this)
+
+/**
+ * An extensions to invoke [AdapterFactory.itemStreamReader].
+ */
+fun <T : Any> ItemStreamIterableReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
+    AdapterFactory.itemStreamReader(this)
+
+/**
+ * An extensions to invoke [AdapterFactory.itemStreamReader].
+ */
+fun <T : Any> ItemStreamIteratorReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
+    AdapterFactory.itemStreamReader(this)
+
+/**
+ * An extensions to invoke [AdapterFactory.itemStreamReader].
+ */
+fun <T : Any> ItemStreamSimpleReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
+    AdapterFactory.itemStreamReader(this)
 
 /**
  * An extensions to invoke [AdapterFactory.itemStreamReader].
