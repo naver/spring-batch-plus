@@ -33,8 +33,8 @@ class AdapterFactoryTest {
 	@Test
 	void testItemReader() {
 		// when
-		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = executionContext -> Flux.empty();
-		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(itemStreamReaderDelegate);
+		ItemStreamReaderDelegate<Integer> delegate = executionContext -> Flux.empty();
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
 		// then
 		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
@@ -43,8 +43,8 @@ class AdapterFactoryTest {
 	@Test
 	void testItemProcessor() {
 		// when
-		ItemProcessorDelegate<Integer, Integer> itemProcessorDelegate = item -> null;
-		ItemProcessor<Integer, Integer> actual = AdapterFactory.itemProcessor(itemProcessorDelegate);
+		ItemProcessorDelegate<Integer, Integer> delegate = item -> null;
+		ItemProcessor<Integer, Integer> actual = AdapterFactory.itemProcessor(delegate);
 
 		// then
 		assertThat(actual).isInstanceOf(ItemProcessorAdapter.class);
@@ -53,9 +53,9 @@ class AdapterFactoryTest {
 	@Test
 	void testItemWriter() {
 		// when
-		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = items -> {
+		ItemStreamWriterDelegate<Integer> delegate = items -> {
 		};
-		ItemStreamWriter<Integer> actual = AdapterFactory.itemStreamWriter(itemStreamWriterDelegate);
+		ItemStreamWriter<Integer> actual = AdapterFactory.itemStreamWriter(delegate);
 
 		// then
 		assertThat(actual).isInstanceOf(ItemStreamWriterAdapter.class);
@@ -64,7 +64,7 @@ class AdapterFactoryTest {
 	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
 	void testPassingNull() {
-		assertThatThrownBy(() -> AdapterFactory.itemStreamReader(null));
+		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamReaderDelegate<?>)null));
 		assertThatThrownBy(() -> AdapterFactory.itemProcessor(null));
 		assertThatThrownBy(() -> AdapterFactory.itemStreamWriter(null));
 	}
