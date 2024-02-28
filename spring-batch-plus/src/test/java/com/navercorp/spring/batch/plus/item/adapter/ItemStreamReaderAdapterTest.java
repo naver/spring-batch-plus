@@ -42,24 +42,24 @@ class ItemStreamReaderAdapterTest {
 	@Test
 	void testOpen() {
 		// given
-		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
+		ItemStreamReaderDelegate<Integer> delegate = mock(ItemStreamReaderDelegate.class);
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(delegate);
 
 		// when
 		itemStreamReaderAdaptor.open(new ExecutionContext());
 
 		// then
-		verify(itemStreamReaderDelegate, times(1)).onOpenRead(any());
-		verify(itemStreamReaderDelegate, times(1)).readFlux(any());
+		verify(delegate, times(1)).onOpenRead(any());
+		verify(delegate, times(1)).readFlux(any());
 	}
 
 	@Test
 	void testRead() throws Exception {
 		// given
 		List<Integer> expected = List.of(1, 2, 3);
-		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
-		when(itemStreamReaderDelegate.readFlux(any())).thenReturn(Flux.fromIterable(expected));
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
+		ItemStreamReaderDelegate<Integer> delegate = mock(ItemStreamReaderDelegate.class);
+		when(delegate.readFlux(any())).thenReturn(Flux.fromIterable(expected));
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(delegate);
 
 		// when
 		itemStreamReaderAdaptor.open(new ExecutionContext());
@@ -76,8 +76,8 @@ class ItemStreamReaderAdapterTest {
 	@Test
 	void testReadWithOpenShouldThrowsException() {
 		// given
-		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
+		ItemStreamReaderDelegate<Integer> delegate = mock(ItemStreamReaderDelegate.class);
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(delegate);
 
 		// when, then
 		assertThatThrownBy(itemStreamReaderAdaptor::read)
@@ -87,27 +87,27 @@ class ItemStreamReaderAdapterTest {
 	@Test
 	void testUpdate() {
 		// given
-		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
+		ItemStreamReaderDelegate<Integer> delegate = mock(ItemStreamReaderDelegate.class);
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(delegate);
 
 		// when
 		itemStreamReaderAdaptor.update(new ExecutionContext());
 
 		// then
-		verify(itemStreamReaderDelegate, times(1)).onUpdateRead(any());
+		verify(delegate, times(1)).onUpdateRead(any());
 	}
 
 	@Test
 	void testClose() {
 		// given
-		ItemStreamReaderDelegate<Integer> itemStreamReaderDelegate = mock(ItemStreamReaderDelegate.class);
-		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(itemStreamReaderDelegate);
+		ItemStreamReaderDelegate<Integer> delegate = mock(ItemStreamReaderDelegate.class);
+		ItemStreamReader<Integer> itemStreamReaderAdaptor = ItemStreamReaderAdapter.of(delegate);
 
 		// when
 		itemStreamReaderAdaptor.close();
 
 		// then
-		verify(itemStreamReaderDelegate, times(1)).onCloseRead();
+		verify(delegate, times(1)).onCloseRead();
 	}
 
 	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})

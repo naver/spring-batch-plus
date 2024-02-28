@@ -35,53 +35,53 @@ class ItemStreamWriterAdapterTest {
 	@Test
 	void testOpen() {
 		// given
-		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = mock(ItemStreamWriterDelegate.class);
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(itemStreamWriterDelegate);
+		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
 		// when
 		itemStreamWriterAdaptor.open(new ExecutionContext());
 
 		// then
-		verify(itemStreamWriterDelegate, times(1)).onOpenWrite(any());
+		verify(delegate, times(1)).onOpenWrite(any());
 	}
 
 	@Test
 	void testWrite() throws Exception {
 		// given
-		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = mock(ItemStreamWriterDelegate.class);
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(itemStreamWriterDelegate);
+		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
 		// when
 		itemStreamWriterAdaptor.write(Chunk.of());
 
 		// then
-		verify(itemStreamWriterDelegate, times(1)).write(any());
+		verify(delegate, times(1)).write(any());
 	}
 
 	@Test
 	void testUpdate() {
 		// given
-		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = mock(ItemStreamWriterDelegate.class);
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(itemStreamWriterDelegate);
+		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
 		// when
 		itemStreamWriterAdaptor.update(new ExecutionContext());
 
 		// then
-		verify(itemStreamWriterDelegate, times(1)).onUpdateWrite(any());
+		verify(delegate, times(1)).onUpdateWrite(any());
 	}
 
 	@Test
 	void testClose() {
 		// given
-		ItemStreamWriterDelegate<Integer> itemStreamWriterDelegate = mock(ItemStreamWriterDelegate.class);
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(itemStreamWriterDelegate);
+		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
 		// when
 		itemStreamWriterAdaptor.close();
 
 		// then
-		verify(itemStreamWriterDelegate, times(1)).onCloseWrite();
+		verify(delegate, times(1)).onCloseWrite();
 	}
 
 	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})

@@ -36,9 +36,9 @@ class ItemProcessorAdapterTest {
 	void testProcess() throws Exception {
 		// given
 		Integer expected = ThreadLocalRandom.current().nextInt();
-		ItemProcessorDelegate<Integer, Integer> itemProcessorDelegate = mock(ItemProcessorDelegate.class);
-		when(itemProcessorDelegate.process(any())).thenReturn(expected);
-		ItemProcessor<Integer, Integer> itemProcessorAdaptor = ItemProcessorAdapter.of(itemProcessorDelegate);
+		ItemProcessorDelegate<Integer, Integer> delegate = mock(ItemProcessorDelegate.class);
+		when(delegate.process(any())).thenReturn(expected);
+		ItemProcessor<Integer, Integer> itemProcessorAdaptor = ItemProcessorAdapter.of(delegate);
 
 		// when
 		Integer actual = itemProcessorAdaptor.process(ThreadLocalRandom.current().nextInt());
