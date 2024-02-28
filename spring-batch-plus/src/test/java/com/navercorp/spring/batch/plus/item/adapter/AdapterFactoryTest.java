@@ -21,6 +21,9 @@ package com.navercorp.spring.batch.plus.item.adapter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamReader;
@@ -29,6 +32,46 @@ import org.springframework.batch.item.ItemStreamWriter;
 import reactor.core.publisher.Flux;
 
 class AdapterFactoryTest {
+
+	@Test
+	void testItemReaderWithFlux() {
+		// when
+		ItemStreamFluxReaderDelegate<Integer> delegate = executionContext -> Flux.empty();
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
+
+		// then
+		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
+	}
+
+	@Test
+	void testItemReaderWithIterable() {
+		// when
+		ItemStreamIterableReaderDelegate<Integer> delegate = executionContext -> List.of();
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
+
+		// then
+		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
+	}
+
+	@Test
+	void testItemReaderWithIterator() {
+		// when
+		ItemStreamIteratorReaderDelegate<Integer> delegate = executionContext -> Collections.emptyIterator();
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
+
+		// then
+		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
+	}
+
+	@Test
+	void testItemReaderWithSimple() {
+		// when
+		ItemStreamSimpleReaderDelegate<Integer> delegate = () -> null;
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
+
+		// then
+		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
+	}
 
 	@Test
 	void testItemReader() {
@@ -64,6 +107,10 @@ class AdapterFactoryTest {
 	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
 	void testPassingNull() {
+		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamFluxReaderDelegate<?>)null));
+		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamIterableReaderDelegate<?>)null));
+		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamIteratorReaderDelegate<?>)null));
+		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamSimpleReaderDelegate<?>)null));
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamReaderDelegate<?>)null));
 		assertThatThrownBy(() -> AdapterFactory.itemProcessor(null));
 		assertThatThrownBy(() -> AdapterFactory.itemStreamWriter(null));
