@@ -28,14 +28,14 @@ import org.springframework.lang.NonNull;
 import reactor.core.publisher.Flux;
 
 /**
- * An adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
+ * An adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
  *
  * @since 0.1.0
  */
 public class ItemStreamReaderAdapter<T> implements ItemStreamReader<T> {
 
 	/**
-	 * Create an adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
+	 * Create an adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader

@@ -14,7 +14,7 @@ Spring uses a reactive library called [Reactor](https://projectreactor.io/), whi
 
 A chunk-oriented step in Spring Batch consists of `ItemReader`, `ItemProcessor`, and `ItemWriter`, which are usually defined separately and then assembled to define a step. However, there are some issues with this approach: it is difficult to share data between `ItemReader`, `ItemProcessor`, and `ItemWriter`, and you need to see each respective file to understand the batch flow. Also, if the classes are not reused, they can make the elements of a job less coherent.
 
-To resolve such issues, `ItemStreamReaderProcessorWriter` provides an adaptor to use `Flux` and helps you define `ItemReader`, `ItemProcessor`, and `ItemWriter` in a single file.
+To resolve such issues, `ItemStreamReaderProcessorWriter` provides an adapter to use `Flux` and helps you define `ItemReader`, `ItemProcessor`, and `ItemWriter` in a single file.
 
 Because Spring Batch Plus has compileOnly dependencies on Reactor, you need to manually add them to use `ItemStreamReaderProcessorWriter`.
 

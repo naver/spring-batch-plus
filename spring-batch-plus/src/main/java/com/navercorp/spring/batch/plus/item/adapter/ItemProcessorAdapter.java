@@ -24,14 +24,14 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.lang.NonNull;
 
 /**
- * An adaptor which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
+ * An adapter which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
  *
  * @since 0.1.0
  */
 public class ItemProcessorAdapter<I, O> implements ItemProcessor<I, O> {
 
 	/**
-	 * Create an adaptor which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
+	 * Create an adapter which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemProcessor

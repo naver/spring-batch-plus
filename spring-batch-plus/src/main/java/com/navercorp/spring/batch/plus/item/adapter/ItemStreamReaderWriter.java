@@ -22,7 +22,7 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
 
 /**
- * A simple adaptor for stream reader, writer. It can represent
+ * A simple adapter for stream reader, writer. It can represent
  * {@link ItemStreamReader}, {@link ItemStreamWriter} in a single class.
  *
  * @since 0.1.0
