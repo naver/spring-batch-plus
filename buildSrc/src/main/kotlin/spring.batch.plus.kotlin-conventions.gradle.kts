@@ -1,4 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -7,15 +8,12 @@ plugins {
 
 kotlin {
     jvmToolchain(17) // use this version when development
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
+    compilerOptions {
         freeCompilerArgs = listOf(
             "-Xjsr305=strict", // enable jsr305 null-safety in kotlin
         )
-        jvmTarget = "17" // make class files for this version
-        languageVersion = "1.6" // code level
-        apiVersion = "1.6" // runtime level
+        jvmTarget = JvmTarget.JVM_17 // make class files for this version
+        languageVersion = KotlinVersion.KOTLIN_1_6 // code level
+        apiVersion = KotlinVersion.KOTLIN_1_6 // runtime level
     }
 }
