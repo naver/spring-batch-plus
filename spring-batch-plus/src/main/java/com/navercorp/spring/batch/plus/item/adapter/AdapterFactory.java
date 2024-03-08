@@ -27,7 +27,7 @@ import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
 
 /**
- * An adaptor factory for {@link ItemStreamReaderDelegate}, {@link ItemProcessorDelegate},
+ * An adapter factory for {@link ItemStreamReaderDelegate}, {@link ItemProcessorDelegate},
  * {@link ItemStreamWriterDelegate}.
  *
  * @since 0.1.0
@@ -35,7 +35,7 @@ import org.springframework.lang.NonNull;
 public final class AdapterFactory {
 
 	/**
-	 * Create an adaptor which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}
+	 * Create an adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
 	 * @param delegate a delegate
@@ -48,7 +48,7 @@ public final class AdapterFactory {
 	}
 
 	/**
-	 * Create an adaptor which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
+	 * Create an adapter which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemProcessor
@@ -60,7 +60,7 @@ public final class AdapterFactory {
 	}
 
 	/**
-	 * Create an adaptor which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
+	 * Create an adapter which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamWriter

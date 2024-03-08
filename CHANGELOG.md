@@ -85,7 +85,7 @@ Support for [Spring Batch 5.0.0](https://github.com/spring-projects/spring-batch
     - Deprecate throttleLimit method
 - ItemStreamWriterDelegate
     - Change the signature of write method
-- Remove deprecated adaptor classes
+- Remove deprecated adapter classes
 
 #### Bug fixes & Improvements
 

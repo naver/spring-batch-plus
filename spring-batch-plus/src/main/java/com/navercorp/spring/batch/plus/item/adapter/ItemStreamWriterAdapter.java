@@ -26,14 +26,14 @@ import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
 
 /**
- * An adaptor which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
+ * An adapter which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
  *
  * @since 0.1.0
  */
 public class ItemStreamWriterAdapter<T> implements ItemStreamWriter<T> {
 
 	/**
-	 * Create an adaptor which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
+	 * Create an adapter which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamWriter

@@ -25,14 +25,14 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.lang.NonNull;
 
 /**
- * An adaptor which adapt {@link ItemStreamSimpleReaderDelegate} to {@link ItemStreamReader}.
+ * An adapter which adapt {@link ItemStreamSimpleReaderDelegate} to {@link ItemStreamReader}.
  *
  * @since 1.1.0
  */
 public class ItemStreamSimpleReaderAdapter<T> implements ItemStreamReader<T> {
 
 	/**
-	 * Create an adaptor which adapt {@link ItemStreamSimpleReaderDelegate} to {@link ItemStreamReader}.
+	 * Create an adapter which adapt {@link ItemStreamSimpleReaderDelegate} to {@link ItemStreamReader}.
 	 *
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
