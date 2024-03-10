@@ -18,18 +18,17 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
-import org.springframework.batch.item.ItemProcessor;
+import java.util.Iterator;
+
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
 
-import reactor.core.publisher.Flux;
-
 /**
- * A {@link Flux<I>} based adapter for stream reader, processor, writer. It can represent
- * {@link ItemStreamReader}, {@link ItemProcessor}, {@link ItemStreamWriter} in a single class.
+ * An {@link Iterator<T>} based adapter for stream reader, writer. It can represent
+ * {@link ItemStreamReader}, {@link ItemStreamWriter} in a single class.
  *
  * @since 1.1.0
  */
-public interface ItemStreamFluxReaderProcessorWriter<I, O>
-	extends ItemStreamFluxReaderDelegate<I>, ItemProcessorDelegate<I, O>, ItemStreamWriterDelegate<O> {
+public interface ItemStreamIteratorReaderWriter<T>
+	extends ItemStreamIteratorReaderDelegate<T>, ItemStreamWriterDelegate<T> {
 }
