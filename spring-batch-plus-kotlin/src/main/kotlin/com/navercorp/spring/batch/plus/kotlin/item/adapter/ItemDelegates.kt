@@ -27,19 +27,19 @@ import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemStreamWriter
 
 /**
- * A extensions to invoke [AdapterFactory.itemStreamReader].
+ * An extensions to invoke [AdapterFactory.itemStreamReader].
  */
 fun <T : Any> ItemStreamReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
     AdapterFactory.itemStreamReader(this)
 
 /**
- * A extensions to invoke [AdapterFactory.itemProcessor].
+ * An extensions to invoke [AdapterFactory.itemProcessor].
  */
 fun <I : Any, O : Any> ItemProcessorDelegate<I, O>.asItemProcessor(): ItemProcessor<I, O> =
     AdapterFactory.itemProcessor(this)
 
 /**
- * A extensions to invoke [AdapterFactory.itemStreamWriter].
+ * An extensions to invoke [AdapterFactory.itemStreamWriter].
  */
 fun <T : Any> ItemStreamWriterDelegate<T>.asItemStreamWriter(): ItemStreamWriter<T> =
     AdapterFactory.itemStreamWriter(this)
