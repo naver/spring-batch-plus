@@ -18,12 +18,14 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
+import java.util.Iterator;
+
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
 
 /**
- * A simple adapter for stream reader, processor, writer. It can represent
+ * An {@link Iterator<I>} based adapter for stream reader, processor, writer. It can represent
  * {@link ItemStreamReader}, {@link ItemProcessor}, {@link ItemStreamWriter} in a single class.
  *
  * @since 1.1.0
