@@ -5,7 +5,7 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    gradlePluginPortal() // give accees to gradle community plugins
+    gradlePluginPortal() // give access to gradle community plugins
 }
 
 dependencies {
