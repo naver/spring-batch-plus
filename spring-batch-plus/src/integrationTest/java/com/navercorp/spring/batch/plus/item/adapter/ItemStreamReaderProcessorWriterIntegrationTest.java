@@ -24,11 +24,14 @@ import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemSt
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -53,10 +56,15 @@ import org.springframework.transaction.TransactionManager;
 
 import reactor.core.publisher.Flux;
 
+@SuppressWarnings("unchecked")
 class ItemStreamReaderProcessorWriterIntegrationTest {
 
+	private static final int TEST_REPEAT_COUNT = 5;
+
+	private static final Logger logger = LoggerFactory.getLogger(ItemStreamReaderProcessorWriterIntegrationTest.class);
+
 	private static int onOpenReadCallCount = 0;
-	private static int readFluxCallCount = 0;
+	private static int readContextCallCount = 0;
 	private static int onUpdateReadCallCount = 0;
 	private static int onCloseReadCallCount = 0;
 
@@ -67,10 +75,14 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 	private static int onUpdateWriteCallCount = 0;
 	private static int onCloseWriteCallCount = 0;
 
+	private static int itemCount = 0;
+	private static int chunkCount = 0;
+	private static int expectedWriteCount = 0;
+
 	@BeforeEach
 	void beforeEach() {
 		onOpenReadCallCount = 0;
-		readFluxCallCount = 0;
+		readContextCallCount = 0;
 		onUpdateReadCallCount = 0;
 		onCloseReadCallCount = 0;
 
@@ -80,10 +92,15 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		writeCallCount = 0;
 		onUpdateWriteCallCount = 0;
 		onCloseWriteCallCount = 0;
+
+		itemCount = ThreadLocalRandom.current().nextInt(10, 100);
+		chunkCount = ThreadLocalRandom.current().nextInt(1, 10);
+		expectedWriteCount = (int)Math.ceil((double)itemCount / (double)chunkCount);
+
+		logger.debug("itemCount: {}, chunkCount: {}, writeCount: {}", itemCount, chunkCount, expectedWriteCount);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Test
+	@RepeatedTest(TEST_REPEAT_COUNT)
 	void testReaderProcessorWriter() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
@@ -94,7 +111,7 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
+					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
 					.reader(itemStreamReader(testTasklet))
 					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
@@ -102,42 +119,74 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 			)
 			.build();
 		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		int beforeRepeatCount = ThreadLocalRandom.current().nextInt(0, 3);
+		for (int i = 0; i < beforeRepeatCount; ++i) {
+			JobParameters jobParameters = new JobParametersBuilder()
+				.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+				.toJobParameters();
+			jobLauncher.run(job, jobParameters);
+		}
+		logger.debug("beforeRepeatCount: {}", beforeRepeatCount);
 
-		// when, then
-		JobParameters jobParameters1 = new JobParametersBuilder()
-			.addString("test", UUID.randomUUID().toString())
+		// when
+		JobParameters jobParameters = new JobParametersBuilder()
+			.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 			.toJobParameters();
-		JobExecution jobExecution1 = jobLauncher.run(job, jobParameters1);
-		assertThat(jobExecution1.getStatus()).isEqualTo(BatchStatus.COMPLETED);
-		assertThat(onOpenReadCallCount).isEqualTo(1);
-		assertThat(readFluxCallCount).isEqualTo(1);
-		assertThat(onUpdateReadCallCount).isEqualTo(8);
-		assertThat(onCloseReadCallCount).isEqualTo(1);
-		assertThat(processCallCount).isEqualTo(20);
-		assertThat(onOpenWriteCallCount).isEqualTo(1);
-		assertThat(writeCallCount).isEqualTo(7); // ceil(20/3)
-		assertThat(onUpdateWriteCallCount).isEqualTo(8);
-		assertThat(onCloseWriteCallCount).isEqualTo(1);
+		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
 
-		// when, then
-		JobParameters jobParameters2 = new JobParametersBuilder()
-			.addString("test", UUID.randomUUID().toString())
-			.toJobParameters();
-		JobExecution jobExecution2 = jobLauncher.run(job, jobParameters2);
-		assertThat(jobExecution2.getStatus()).isEqualTo(BatchStatus.COMPLETED);
-		assertThat(onOpenReadCallCount).isEqualTo(1 + 1);
-		assertThat(readFluxCallCount).isEqualTo(1 + 1);
-		assertThat(onUpdateReadCallCount).isEqualTo(8 + 2);
-		assertThat(onCloseReadCallCount).isEqualTo(1 + 1);
-		assertThat(processCallCount).isEqualTo(20); // same as previous since it's not step scoped
-		assertThat(onOpenWriteCallCount).isEqualTo(1 + 1);
-		assertThat(writeCallCount).isEqualTo(7); // same as previous since it's not step scoped
-		assertThat(onUpdateWriteCallCount).isEqualTo(8 + 2);
-		assertThat(onCloseWriteCallCount).isEqualTo(1 + 1);
+		// then
+		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+		assertThat(onOpenReadCallCount).isEqualTo(beforeRepeatCount + 1);
+		assertThat(readContextCallCount).isEqualTo(beforeRepeatCount + 1);
+		assertThat(onUpdateReadCallCount).isGreaterThanOrEqualTo(beforeRepeatCount + 1);
+		assertThat(onCloseReadCallCount).isEqualTo(beforeRepeatCount + 1);
+		assertThat(onOpenWriteCallCount).isEqualTo(beforeRepeatCount + 1);
+		assertThat(onUpdateWriteCallCount).isGreaterThanOrEqualTo(beforeRepeatCount + 1);
+		assertThat(onCloseWriteCallCount).isEqualTo(beforeRepeatCount + 1);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Test
+	@RepeatedTest(TEST_REPEAT_COUNT)
+	void testReaderProcessorWriterWithSameTaskletShouldKeepContext() throws Exception {
+		// given
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
+		JobRepository jobRepository = context.getBean(JobRepository.class);
+		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet = context.getBean(
+			"testTasklet",
+			ItemStreamReaderProcessorWriter.class);
+		Job job = new JobBuilder("testJob", jobRepository)
+			.start(
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
+					.reader(itemStreamReader(testTasklet))
+					.processor(itemProcessor(testTasklet))
+					.writer(itemStreamWriter(testTasklet))
+					.build()
+			)
+			.build();
+		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		int beforeRepeatCount = ThreadLocalRandom.current().nextInt(0, 3);
+		for (int i = 0; i < beforeRepeatCount; ++i) {
+			JobParameters jobParameters = new JobParametersBuilder()
+				.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+				.toJobParameters();
+			jobLauncher.run(job, jobParameters);
+		}
+		logger.debug("beforeRepeatCount: {}", beforeRepeatCount);
+
+		// when
+		JobParameters jobParameters = new JobParametersBuilder()
+			.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+			.toJobParameters();
+		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+
+		// then
+		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+		// it's not changed since it keeps 'count' in a bean
+		assertThat(processCallCount).isEqualTo(itemCount);
+		assertThat(writeCallCount).isEqualTo(expectedWriteCount);
+	}
+
+	@RepeatedTest(TEST_REPEAT_COUNT)
 	void testStepScopeReaderProcessorWriter() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
@@ -148,7 +197,7 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
+					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
 					.reader(itemStreamReader(testTasklet))
 					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
@@ -156,53 +205,44 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 			)
 			.build();
 		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		int beforeRepeatCount = ThreadLocalRandom.current().nextInt(0, 3);
+		for (int i = 0; i < beforeRepeatCount; ++i) {
+			JobParameters jobParameters = new JobParametersBuilder()
+				.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+				.toJobParameters();
+			jobLauncher.run(job, jobParameters);
+		}
+		logger.debug("beforeRepeatCount: {}", beforeRepeatCount);
 
-		// when, then
-		JobParameters jobParameters1 = new JobParametersBuilder()
-			.addString("test", UUID.randomUUID().toString())
+		// when
+		JobParameters jobParameters = new JobParametersBuilder()
+			.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 			.toJobParameters();
-		JobExecution jobExecution1 = jobLauncher.run(job, jobParameters1);
-		assertThat(jobExecution1.getStatus()).isEqualTo(BatchStatus.COMPLETED);
-		assertThat(onOpenReadCallCount).isEqualTo(1);
-		assertThat(readFluxCallCount).isEqualTo(1);
-		assertThat(onUpdateReadCallCount).isEqualTo(8);
-		assertThat(onCloseReadCallCount).isEqualTo(1);
-		assertThat(processCallCount).isEqualTo(20);
-		assertThat(onOpenWriteCallCount).isEqualTo(1);
-		assertThat(writeCallCount).isEqualTo(7); // ceil(20/3)
-		assertThat(onUpdateWriteCallCount).isEqualTo(8);
-		assertThat(onCloseWriteCallCount).isEqualTo(1);
+		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
 
-		// when, then
-		JobParameters jobParameters2 = new JobParametersBuilder()
-			.addString("test", UUID.randomUUID().toString())
-			.toJobParameters();
-		JobExecution jobExecution2 = jobLauncher.run(job, jobParameters2);
-		assertThat(jobExecution2.getStatus()).isEqualTo(BatchStatus.COMPLETED);
-		assertThat(onOpenReadCallCount).isEqualTo(1 + 1);
-		assertThat(readFluxCallCount).isEqualTo(1 + 1);
-		assertThat(onUpdateReadCallCount).isEqualTo(8 + 8);
-		assertThat(onCloseReadCallCount).isEqualTo(1 + 1);
-		assertThat(processCallCount).isEqualTo(20 + 20);
-		assertThat(onOpenWriteCallCount).isEqualTo(1 + 1);
-		assertThat(writeCallCount).isEqualTo(7 + 7); // ceil(20/3) * 2
-		assertThat(onUpdateWriteCallCount).isEqualTo(8 + 8);
-		assertThat(onCloseWriteCallCount).isEqualTo(1 + 1);
+		// then
+		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+		assertThat(onOpenReadCallCount).isEqualTo(beforeRepeatCount + 1);
+		assertThat(readContextCallCount).isEqualTo(beforeRepeatCount + 1);
+		assertThat(onUpdateReadCallCount).isGreaterThanOrEqualTo(beforeRepeatCount + 1);
+		assertThat(onCloseReadCallCount).isEqualTo(beforeRepeatCount + 1);
+		assertThat(onOpenWriteCallCount).isEqualTo(beforeRepeatCount + 1);
+		assertThat(onUpdateWriteCallCount).isGreaterThanOrEqualTo(beforeRepeatCount + 1);
+		assertThat(onCloseWriteCallCount).isEqualTo(beforeRepeatCount + 1);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Test
-	void testReaderProcessorWriterWithRequiredMethodsOnly() throws Exception {
+	@RepeatedTest(TEST_REPEAT_COUNT)
+	void testStepScopeReaderProcessorWriterWithSameTaskletShouldNotKeepCountContext() throws Exception {
 		// given
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
 		JobRepository jobRepository = context.getBean(JobRepository.class);
 		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet = context.getBean(
-			"testTaskletWithOnlyRequiredMethodsOnly",
+			"stepScopeTestTasklet",
 			ItemStreamReaderProcessorWriter.class);
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(3, new ResourcelessTransactionManager())
+					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
 					.reader(itemStreamReader(testTasklet))
 					.processor(itemProcessor(testTasklet))
 					.writer(itemStreamWriter(testTasklet))
@@ -210,22 +250,26 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 			)
 			.build();
 		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		int beforeRepeatCount = ThreadLocalRandom.current().nextInt(0, 3);
+		for (int i = 0; i < beforeRepeatCount; ++i) {
+			JobParameters jobParameters = new JobParametersBuilder()
+				.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+				.toJobParameters();
+			jobLauncher.run(job, jobParameters);
+		}
+		logger.debug("beforeRepeatCount: {}", beforeRepeatCount);
 
-		// when, then
-		JobParameters jobParameters1 = new JobParametersBuilder()
-			.addString("test", UUID.randomUUID().toString())
+		// when
+		JobParameters jobParameters = new JobParametersBuilder()
+			.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 			.toJobParameters();
-		JobExecution jobExecution1 = jobLauncher.run(job, jobParameters1);
-		assertThat(jobExecution1.getStatus()).isEqualTo(BatchStatus.COMPLETED);
-		assertThat(onOpenReadCallCount).isEqualTo(0);
-		assertThat(readFluxCallCount).isEqualTo(1);
-		assertThat(onUpdateReadCallCount).isEqualTo(0);
-		assertThat(onCloseReadCallCount).isEqualTo(0);
-		assertThat(processCallCount).isEqualTo(20);
-		assertThat(onOpenWriteCallCount).isEqualTo(0);
-		assertThat(writeCallCount).isEqualTo(7); // ceil(20/3)
-		assertThat(onUpdateWriteCallCount).isEqualTo(0);
-		assertThat(onCloseWriteCallCount).isEqualTo(0);
+		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+
+		// then
+		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+		// 'count' field is isolated per job instances since it is step scoped. so count is 0 for all job instances
+		assertThat(processCallCount).isEqualTo(beforeRepeatCount * itemCount + itemCount);
+		assertThat(writeCallCount).isEqualTo(beforeRepeatCount * expectedWriteCount + expectedWriteCount);
 	}
 
 	@SuppressWarnings("unused")
@@ -251,7 +295,7 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 
 		@Bean
 		ItemStreamReaderProcessorWriter<Integer, Integer> testTasklet() {
-			return new ItemStreamReaderProcessorWriter<Integer, Integer>() {
+			return new ItemStreamReaderProcessorWriter<>() {
 
 				private int count = 0;
 
@@ -263,9 +307,9 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				@NonNull
 				@Override
 				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
-					++readFluxCallCount;
+					++readContextCallCount;
 					return Flux.generate(sink -> {
-						if (count < 20) {
+						if (count < itemCount) {
 							sink.next(count);
 							++count;
 						} else {
@@ -315,7 +359,7 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 		@Bean
 		@StepScope
 		ItemStreamReaderProcessorWriter<Integer, Integer> stepScopeTestTasklet() {
-			return new ItemStreamReaderProcessorWriter<Integer, Integer>() {
+			return new ItemStreamReaderProcessorWriter<>() {
 
 				private int count = 0;
 
@@ -327,9 +371,9 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				@NonNull
 				@Override
 				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
-					++readFluxCallCount;
+					++readContextCallCount;
 					return Flux.generate(sink -> {
-						if (count < 20) {
+						if (count < itemCount) {
 							sink.next(count);
 							++count;
 						} else {
@@ -349,14 +393,14 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				}
 
 				@Override
-				public Integer process(@NonNull Integer item) {
-					++processCallCount;
-					return item;
+				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
+					++onOpenWriteCallCount;
 				}
 
 				@Override
-				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
-					++onOpenWriteCallCount;
+				public Integer process(@NonNull Integer item) {
+					++processCallCount;
+					return item;
 				}
 
 				@Override
@@ -372,39 +416,6 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 				@Override
 				public void onCloseWrite() {
 					++onCloseWriteCallCount;
-				}
-			};
-		}
-
-		@Bean
-		ItemStreamReaderProcessorWriter<Integer, Integer> testTaskletWithOnlyRequiredMethodsOnly() {
-			return new ItemStreamReaderProcessorWriter<Integer, Integer>() {
-
-				private int count = 0;
-
-				@NonNull
-				@Override
-				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
-					++readFluxCallCount;
-					return Flux.generate(sink -> {
-						if (count < 20) {
-							sink.next(count);
-							++count;
-						} else {
-							sink.complete();
-						}
-					});
-				}
-
-				@Override
-				public Integer process(@NonNull Integer item) {
-					++processCallCount;
-					return item;
-				}
-
-				@Override
-				public void write(@NonNull Chunk<? extends Integer> chunk) {
-					++writeCallCount;
 				}
 			};
 		}
