@@ -6,12 +6,9 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="INFO">
+        <Root level="WARN">
             <AppenderRef ref="Console" />
         </Root>
-        <logger name="org.springframework.jdbc" level="DEBUG"/>
-        <logger name="org.springframework.jdbc.core.StatementCreatorUtils" level="TRACE"/>
-        <logger name="org.springframework.transaction" level="DEBUG"/>
         <logger name="com.navercorp.spring.batch.plus" level="DEBUG"/>
     </Loggers>
 </Configuration>
