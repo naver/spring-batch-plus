@@ -2,7 +2,7 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{1.} - %msg%n" />
+            <PatternLayout pattern="%style{%d{YYYY-MM-dd HH:mm:ss.SSS}}{Cyan} %highlight{[%t] %-5level %c#L%L - %msg}{style=Logback}%n"/>
         </Console>
     </Appenders>
     <Loggers>
@@ -12,5 +12,6 @@
         <logger name="org.springframework.jdbc" level="DEBUG"/>
         <logger name="org.springframework.jdbc.core.StatementCreatorUtils" level="TRACE"/>
         <logger name="org.springframework.transaction" level="DEBUG"/>
+        <logger name="com.navercorp.spring.batch.plus" level="DEBUG"/>
     </Loggers>
 </Configuration>
