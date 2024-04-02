@@ -39,8 +39,7 @@ public interface ItemStreamSimpleReaderDelegate<T> {
 	}
 
 	/**
-	 * Read each item. Invoked in {@link ItemStreamReader#open(ExecutionContext)}.
-	 *
+	 * Read each item.
 	 * @return an item to read. null if it's end of data.
 	 *         Return contract is same as {@link org.springframework.batch.item.ItemReader<T>}
 	 */
