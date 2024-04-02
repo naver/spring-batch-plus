@@ -28,7 +28,9 @@ import reactor.core.publisher.Flux;
  * A delegate for {@link ItemStreamReader}.
  *
  * @since 0.1.0
+ * @deprecated use {@link ItemStreamFluxReaderDelegate<T>} instead.
  */
+@Deprecated
 public interface ItemStreamReaderDelegate<T> {
 
 	/**

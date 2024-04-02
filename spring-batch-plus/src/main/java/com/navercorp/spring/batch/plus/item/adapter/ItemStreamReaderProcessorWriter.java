@@ -27,7 +27,9 @@ import org.springframework.batch.item.ItemStreamWriter;
  * {@link ItemStreamReader}, {@link ItemProcessor}, {@link ItemStreamWriter} in a single class.
  *
  * @since 0.1.0
+ * @deprecated use {@link ItemStreamFluxReaderProcessorWriter<I, O>} instead.
  */
+@Deprecated
 public interface ItemStreamReaderProcessorWriter<I, O>
 	extends ItemStreamReaderDelegate<I>, ItemProcessorDelegate<I, O>, ItemStreamWriterDelegate<O> {
 }
