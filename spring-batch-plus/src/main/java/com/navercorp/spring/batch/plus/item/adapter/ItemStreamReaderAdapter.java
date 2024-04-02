@@ -31,7 +31,9 @@ import reactor.core.publisher.Flux;
  * An adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
  *
  * @since 0.1.0
+ * @deprecated use {@link ItemStreamFluxReaderAdapter<T>} instead.
  */
+@Deprecated
 public class ItemStreamReaderAdapter<T> implements ItemStreamReader<T> {
 
 	/**

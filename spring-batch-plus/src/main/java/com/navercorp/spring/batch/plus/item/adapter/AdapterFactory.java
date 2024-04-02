@@ -90,10 +90,12 @@ public final class AdapterFactory {
 	 * Create an adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
+	 * @deprecated use {@link #itemStreamReader(ItemStreamFluxReaderDelegate)} instead.
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
 	 * @param <T> a read item type
 	 */
+	@Deprecated
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
 		return StepScopeItemStreamReader.of(() -> ItemStreamReaderAdapter.of(delegate));

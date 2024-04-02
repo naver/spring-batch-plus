@@ -57,6 +57,10 @@ fun <T : Any> ItemStreamSimpleReaderDelegate<T>.asItemStreamReader(): ItemStream
 /**
  * An extensions to invoke [AdapterFactory.itemStreamReader].
  */
+@Deprecated(
+    message = "Uses ItemStreamFluxReaderDelegate instead",
+    replaceWith = ReplaceWith(""),
+)
 fun <T : Any> ItemStreamReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
     AdapterFactory.itemStreamReader(this)
 
