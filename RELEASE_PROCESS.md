@@ -4,7 +4,7 @@
 2. Make a release branch by `git switch -c release/va.b.c`.
 3. Make a prepare commit.
    - Remove `-SNAPSHOT` postfix of `gradle.properties`.
-   - Update compatibility, example, ... of `README.md`.
+   - Update compatibility, example, ... of `README.md`. Boot starter compatibility can be checked in [here](https://github.com/spring-projects/spring-boot/blob/main/spring-boot-project/spring-boot-dependencies/build.gradle).
    - Remove `-SNAPSHOT` of `CHANGELOG.md`.
    - Commit message: `Prepare for va.b.c`.
 4. Install to local by `./gradlew clean build install --no-build-cache`. Test it with example projects.
