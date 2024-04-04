@@ -95,7 +95,7 @@ fun testJob(
 - ClearRunIdIncrementer
 - DeleteMetadataJob
 
-## Version Compatibility
+## Compatibility
 
 We've tested following versions only. Other versions may not work.
 
