@@ -18,7 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.simple.readerwriter
 
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamSimpleReaderWriter
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamSimpleReaderWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.item.Chunk
 import org.springframework.beans.factory.annotation.Value

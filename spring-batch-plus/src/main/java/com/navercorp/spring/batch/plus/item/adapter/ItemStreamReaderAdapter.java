@@ -27,11 +27,13 @@ import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderAdapter;
+
 /**
  * An adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}.
  *
  * @since 0.1.0
- * @deprecated use {@link ItemStreamFluxReaderAdapter<T>} instead.
+ * @deprecated use {@link ItemStreamFluxReaderAdapter} instead.
  */
 @Deprecated
 public class ItemStreamReaderAdapter<T> implements ItemStreamReader<T> {

@@ -21,12 +21,14 @@ package com.navercorp.spring.batch.plus.item.adapter;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
 
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderWriter;
+
 /**
  * A simple adapter for stream reader, writer. It can represent
  * {@link ItemStreamReader}, {@link ItemStreamWriter} in a single class.
  *
  * @since 0.1.0
- * @deprecated use {@link ItemStreamFluxReaderWriter<T>} instead.
+ * @deprecated use {@link ItemStreamFluxReaderWriter} instead.
  */
 @Deprecated
 public interface ItemStreamReaderWriter<T> extends ItemStreamReaderDelegate<T>, ItemStreamWriterDelegate<T> {

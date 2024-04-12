@@ -27,7 +27,9 @@ import org.springframework.lang.NonNull;
  * A delegate for {@link ItemStreamWriter}.
  *
  * @since 0.1.0
+ * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.ItemStreamWriterDelegate} instead.
  */
+@Deprecated
 public interface ItemStreamWriterDelegate<T> {
 
 	/**

@@ -20,39 +20,11 @@ package com.navercorp.spring.batch.plus.kotlin.item.adapter
 
 import com.navercorp.spring.batch.plus.item.adapter.AdapterFactory
 import com.navercorp.spring.batch.plus.item.adapter.ItemProcessorDelegate
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamFluxReaderDelegate
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamIterableReaderDelegate
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamIteratorReaderDelegate
 import com.navercorp.spring.batch.plus.item.adapter.ItemStreamReaderDelegate
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamSimpleReaderDelegate
 import com.navercorp.spring.batch.plus.item.adapter.ItemStreamWriterDelegate
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemStreamWriter
-
-/**
- * An extensions to invoke [AdapterFactory.itemStreamReader].
- */
-fun <T : Any> ItemStreamFluxReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdapterFactory.itemStreamReader(this)
-
-/**
- * An extensions to invoke [AdapterFactory.itemStreamReader].
- */
-fun <T : Any> ItemStreamIterableReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdapterFactory.itemStreamReader(this)
-
-/**
- * An extensions to invoke [AdapterFactory.itemStreamReader].
- */
-fun <T : Any> ItemStreamIteratorReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdapterFactory.itemStreamReader(this)
-
-/**
- * An extensions to invoke [AdapterFactory.itemStreamReader].
- */
-fun <T : Any> ItemStreamSimpleReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdapterFactory.itemStreamReader(this)
 
 /**
  * An extensions to invoke [AdapterFactory.itemStreamReader].
@@ -67,11 +39,22 @@ fun <T : Any> ItemStreamReaderDelegate<T>.asItemStreamReader(): ItemStreamReader
 /**
  * An extensions to invoke [AdapterFactory.itemProcessor].
  */
+@Deprecated(
+    message = "Uses com.navercorp.spring.batch.plus.step.adapter.ItemProcessorDelegate instead",
+    replaceWith = ReplaceWith(""),
+)
 fun <I : Any, O : Any> ItemProcessorDelegate<I, O>.asItemProcessor(): ItemProcessor<I, O> =
     AdapterFactory.itemProcessor(this)
 
 /**
  * An extensions to invoke [AdapterFactory.itemStreamWriter].
  */
+@Deprecated(
+    message = "Uses com.navercorp.spring.batch.plus.step.adapter.ItemStreamWriterDelegate instead",
+    replaceWith = ReplaceWith(
+        "AdapterFactory.itemStreamWriter(this)",
+        "com.navercorp.spring.batch.plus.step.adapter.AdapterFactory",
+    ),
+)
 fun <T : Any> ItemStreamWriterDelegate<T>.asItemStreamWriter(): ItemStreamWriter<T> =
     AdapterFactory.itemStreamWriter(this)
