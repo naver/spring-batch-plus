@@ -24,11 +24,13 @@ import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderDelegate;
+
 /**
  * A delegate for {@link ItemStreamReader}.
  *
  * @since 0.1.0
- * @deprecated use {@link ItemStreamFluxReaderDelegate<T>} instead.
+ * @deprecated use {@link ItemStreamFluxReaderDelegate} instead.
  */
 @Deprecated
 public interface ItemStreamReaderDelegate<T> {

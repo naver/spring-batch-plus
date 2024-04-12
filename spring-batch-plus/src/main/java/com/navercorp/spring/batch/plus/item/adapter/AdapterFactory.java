@@ -26,72 +26,23 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
 
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderDelegate;
+
 /**
  * An adapter factory for {@link ItemStreamReaderDelegate}, {@link ItemProcessorDelegate},
  * {@link ItemStreamWriterDelegate}.
  *
  * @since 0.1.0
+ * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory} instead.
  */
+@Deprecated
 public final class AdapterFactory {
-
-	/**
-	 * Create an adapter which adapt {@link ItemStreamFluxReaderDelegate} to {@link ItemStreamReader}
-	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
-	 *
-	 * @param delegate a delegate
-	 * @return an adapted ItemStreamReader
-	 * @param <T> a read item type
-	 */
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamFluxReaderDelegate<T> delegate) {
-		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
-		return StepScopeItemStreamReader.of(() -> ItemStreamFluxReaderAdapter.of(delegate));
-	}
-
-	/**
-	 * Create an adapter which adapt {@link ItemStreamIterableReaderDelegate} to {@link ItemStreamReader}
-	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
-	 *
-	 * @param delegate a delegate
-	 * @return an adapted ItemStreamReader
-	 * @param <T> a read item type
-	 */
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamIterableReaderDelegate<T> delegate) {
-		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
-		return StepScopeItemStreamReader.of(() -> ItemStreamIterableReaderAdapter.of(delegate));
-	}
-
-	/**
-	 * Create an adapter which adapt {@link ItemStreamIteratorReaderDelegate} to {@link ItemStreamReader}
-	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
-	 *
-	 * @param delegate a delegate
-	 * @return an adapted ItemStreamReader
-	 * @param <T> a read item type
-	 */
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamIteratorReaderDelegate<T> delegate) {
-		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
-		return StepScopeItemStreamReader.of(() -> ItemStreamIteratorReaderAdapter.of(delegate));
-	}
-
-	/**
-	 * Create an adapter which adapt {@link ItemStreamSimpleReaderDelegate} to {@link ItemStreamReader}
-	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
-	 *
-	 * @param delegate a delegate
-	 * @return an adapted ItemStreamReader
-	 * @param <T> a read item type
-	 */
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamSimpleReaderDelegate<T> delegate) {
-		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
-		return StepScopeItemStreamReader.of(() -> ItemStreamSimpleReaderAdapter.of(delegate));
-	}
 
 	/**
 	 * Create an adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
-	 * @deprecated use {@link #itemStreamReader(ItemStreamFluxReaderDelegate)} instead.
-	 * @param delegate a delegate
+	 * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemStreamReader(ItemStreamFluxReaderDelegate)} instead.
 	 * @return an adapted ItemStreamReader
 	 * @param <T> a read item type
 	 */
@@ -104,11 +55,13 @@ public final class AdapterFactory {
 	/**
 	 * Create an adapter which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
 	 *
+	 * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemProcessor(com.navercorp.spring.batch.plus.step.adapter.ItemProcessorDelegate)} instead.
 	 * @param delegate a delegate
 	 * @return an adapted ItemProcessor
 	 * @param <I> an item type to process
 	 * @param <O> a processed item type
 	 */
+	@Deprecated
 	public static <I, O> ItemProcessor<I, O> itemProcessor(@NonNull ItemProcessorDelegate<I, O> delegate) {
 		return ItemProcessorAdapter.of(delegate);
 	}
@@ -116,10 +69,12 @@ public final class AdapterFactory {
 	/**
 	 * Create an adapter which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
 	 *
+	 * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemStreamWriter(com.navercorp.spring.batch.plus.step.adapter.ItemStreamWriterDelegate)} instead.
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamWriter
 	 * @param <T> an item type to write
 	 */
+	@Deprecated
 	public static <T> ItemStreamWriter<T> itemStreamWriter(@NonNull ItemStreamWriterDelegate<T> delegate) {
 		return ItemStreamWriterAdapter.of(delegate);
 	}

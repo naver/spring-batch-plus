@@ -18,7 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.flux.readerwriter
 
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamFluxReaderWriter
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ExecutionContext

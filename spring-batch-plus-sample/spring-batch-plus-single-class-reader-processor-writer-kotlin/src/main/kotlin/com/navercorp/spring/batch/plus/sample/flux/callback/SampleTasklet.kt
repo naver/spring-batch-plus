@@ -18,7 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.flux.callback
 
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamFluxReaderProcessorWriter
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderProcessorWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ExecutionContext

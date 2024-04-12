@@ -22,12 +22,14 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
 
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderProcessorWriter;
+
 /**
  * A simple adapter for stream reader, processor, writer. It can represent
  * {@link ItemStreamReader}, {@link ItemProcessor}, {@link ItemStreamWriter} in a single class.
  *
  * @since 0.1.0
- * @deprecated use {@link ItemStreamFluxReaderProcessorWriter<I, O>} instead.
+ * @deprecated use {@link ItemStreamFluxReaderProcessorWriter} instead.
  */
 @Deprecated
 public interface ItemStreamReaderProcessorWriter<I, O>

@@ -19,8 +19,8 @@
 package com.navercorp.spring.batch.plus.sample.simple.readerwriter
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import com.navercorp.spring.batch.plus.kotlin.item.adapter.asItemStreamReader
-import com.navercorp.spring.batch.plus.kotlin.item.adapter.asItemStreamWriter
+import com.navercorp.spring.batch.plus.kotlin.step.adapter.asItemStreamReader
+import com.navercorp.spring.batch.plus.kotlin.step.adapter.asItemStreamWriter
 import org.springframework.batch.core.Job
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

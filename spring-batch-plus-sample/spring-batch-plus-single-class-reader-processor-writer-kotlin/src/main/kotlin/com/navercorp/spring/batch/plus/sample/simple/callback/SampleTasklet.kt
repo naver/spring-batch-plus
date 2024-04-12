@@ -18,7 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.simple.callback
 
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamSimpleReaderProcessorWriter
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamSimpleReaderProcessorWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ExecutionContext

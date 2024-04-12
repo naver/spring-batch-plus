@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import com.navercorp.spring.batch.plus.item.adapter.ItemStreamSimpleReaderWriter;
+import com.navercorp.spring.batch.plus.step.adapter.ItemStreamSimpleReaderWriter;
 
 @Component
 @StepScope
