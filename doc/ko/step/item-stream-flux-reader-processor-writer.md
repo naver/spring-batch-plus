@@ -44,7 +44,7 @@ class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, Stri
 
     @NonNull
     @Override
-    public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
+    public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
         System.out.println("totalCount: " + totalCount);
         return Flux.generate(sink -> {
             if (count < totalCount) {
@@ -136,7 +136,7 @@ open class SampleTasklet(
 ) : ItemStreamFluxReaderProcessorWriter<Int, String> {
     private var count = 0
 
-    override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
+    override fun readFlux(executionContext: ExecutionContext): Flux<out Int> {
         println("totalCount: $totalCount")
         return Flux.generate { sink ->
             if (count < totalCount) {
@@ -201,7 +201,7 @@ class SampleTasklet implements ItemStreamFluxReaderWriter<Integer> {
 
     @NonNull
     @Override
-    public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
+    public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
         System.out.println("totalCount: " + totalCount);
         return Flux.generate(sink -> {
             if (count < totalCount) {
@@ -285,7 +285,7 @@ open class SampleTasklet(
 ) : ItemStreamFluxReaderWriter<Int> {
     private var count = 0
 
-    override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
+    override fun readFlux(executionContext: ExecutionContext): Flux<out Int> {
         println("totalCount: $totalCount")
         return Flux.generate { sink ->
             if (count < totalCount) {
@@ -349,7 +349,7 @@ public class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Intege
 
     @NonNull
     @Override
-    public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
+    public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
         System.out.println("totalCount: " + totalCount);
         return Flux.generate(sink -> {
             if (count < totalCount) {
@@ -437,7 +437,7 @@ open class SampleTasklet(
         println("onOpenRead")
     }
 
-    override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
+    override fun readFlux(executionContext: ExecutionContext): Flux<out Int> {
         println("totalCount: $totalCount")
         return Flux.generate { sink ->
             if (count < totalCount) {
