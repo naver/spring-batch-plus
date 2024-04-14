@@ -1,4 +1,4 @@
-# ItemStreamReaderProcessorWriter
+# ItemStreamFluxReaderProcessorWriter
 
 - [processor를 포함하여 Tasklet 작성하기](#processor를-포함하여-tasklet-작성하기)
   - [Java](#java)
@@ -14,9 +14,9 @@ Spring 진영에서는 Reactive library로 [Reactor](https://projectreactor.io/)
 
 Spring Batch의 Chunk-oriented Step은 `ItemReader`, `ItemProcessor`, `ItmeWriter`로 구성됩니다. Spring Batch에서는 일반적으로 `ItemReader`, `ItemProcessor`, `ItmeWriter`를 각각 정의하고 이를 Step을 정의할 때 조립해서 사용합니다. 그런데 이 경우 `ItemReader`, `ItemProcessor`, `ItmeWriter`간에 데이터 공유가 힘들고 배치의 흐름을 알기 위해서는 `ItemReader`, `ItemProcessor`, `ItmeWriter`파일 각각을 살펴봐야 한다는 문제점이 있습니다. 또한 해당 클래스들이 재활용 되지 않는 케이스라면 Job의 응집도를 해치는 요소가 될 수 있습니다.
 
-이 두가지 이슈를 해결하기 위해 `ItemStreamReaderProcessorWriter`는  `Flux`를 사용할 수 있는 Adaptor와 단일 파일에서 `ItemReader`, `ItemProcessor`, `ItmeWriter` 정의할 수 있는 기능을 제공핣니다.
+이 두가지 이슈를 해결하기 위해 `ItemStreamFluxReaderProcessorWriter`는  `Flux`를 사용할 수 있는 Adaptor와 단일 파일에서 `ItemReader`, `ItemProcessor`, `ItmeWriter` 정의할 수 있는 기능을 제공핣니다.
 
-Spring Batch Plus에서는 reactor를 compileOnly로 의존하기 때문에 `ItemStreamReaderProcessorWriter`를 사용하기 위해서는 직접 Reactor 의존성을 추가해야 합니다.
+Spring Batch Plus에서는 reactor를 compileOnly로 의존하기 때문에 `ItemStreamFluxReaderProcessorWriter`를 사용하기 위해서는 직접 Reactor 의존성을 추가해야 합니다.
 
 ```kotlin
 dependencies {
@@ -26,16 +26,16 @@ dependencies {
 
 ## processor를 포함하여 Tasklet 작성하기
 
-`ItemStreamReaderProcessorWriter`를 사용해서 단일 class에서 `ItemStreamReader`, `ItemProcessor`, `ItemStreamWriter`를 정의할 수 있습니다.
+`ItemStreamFluxReaderProcessorWriter`를 사용해서 단일 class에서 `ItemStreamReader`, `ItemProcessor`, `ItemStreamWriter`를 정의할 수 있습니다.
 
 ### Java
 
-Java의 경우 `AdaptorFactory`를 이용해서 정의한 Tasklet을 `ItemStreamReader`, `ItemProcessor`, `ItemStreamWriter`로 변환하여 사용할 수 있습니다.
+Java의 경우 `AdaptorFactery`를 이용해서 정의한 Tasklet을 `ItemStreamReader`, `ItemProcessor`, `ItemStreamWriter`로 변환하여 사용할 수 있습니다.
 
 ```java
 @Component
 @StepScope
-class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> {
+class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, String> {
 
     @Value("#{jobParameters['totalCount']}")
     private long totalCount;
@@ -92,12 +92,12 @@ public class TestJobConfig {
 }
 ```
 
-이 경우 `AdaptorFactory`의 method를 static import를 해서 사용하는게 미관상 보기 더 좋습니다.
+이 경우 `AdapterFactory`의 method를 static import를 해서 사용하는게 미관상 보기 더 좋습니다.
 
 ```java
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemProcessor;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemProcessor;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
 
 ...
 
@@ -133,7 +133,7 @@ Kotlin에서는 extension function을 이용하여 정의한 Tasklet을 `ItemStr
 @StepScope
 open class SampleTasklet(
     @Value("#{jobParameters['totalCount']}") private var totalCount: Long
-) : ItemStreamReaderProcessorWriter<Int, String> {
+) : ItemStreamFluxReaderProcessorWriter<Int, String> {
     private var count = 0
 
     override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
@@ -183,16 +183,16 @@ open class TestJobConfig(
 
 ## Processor 없이 Tasklet 작성하기
 
-Process 과정이 불필요하고 `ItemStreamReader` 와 `ItemStreamWriter` 만 필요하다면 `ItemStreamReaderWriter`를 상속하여 단일 class에서 `ItemStreamReader`, `ItemStreamWriter`를 정의할 수 있습니다.
+Process 과정이 불필요하고 `ItemStreamReader` 와 `ItemStreamWriter` 만 필요하다면 `ItemStreamFluxReaderWriter`를 상속하여 단일 class에서 `ItemStreamReader`, `ItemStreamWriter`를 정의할 수 있습니다.
 
 ### Java
 
-Java의 경우 `AdaptorFactory`를 이용해서 정의한 Tasklet을 `ItemStreamReader`, `ItemStreamWriter`로 변환하여 사용할 수 있습니다.
+Java의 경우 `AdapterFactory`를 이용해서 정의한 Tasklet을 `ItemStreamReader`, `ItemStreamWriter`로 변환하여 사용할 수 있습니다.
 
 ```java
 @Component
 @StepScope
-class SampleTasklet implements ItemStreamReaderWriter<Integer> {
+class SampleTasklet implements ItemStreamFluxReaderWriter<Integer> {
 
     @Value("#{jobParameters['totalCount']}")
     private long totalCount;
@@ -234,8 +234,8 @@ public class TestJobConfig {
             .start(
                 new StepBuilder("testStep", jobRepository)
                     .<Integer, Integer>chunk(3, transactionManager)
-                    .reader(AdaptorFactory.itemStreamReader(sampleTasklet))
-                    .writer(AdaptorFactory.itemStreamWriter(sampleTasklet))
+                    .reader(AdapterFactory.itemStreamReader(sampleTasklet))
+                    .writer(AdapterFactory.itemStreamWriter(sampleTasklet))
                     .build()
             )
             .build();
@@ -243,11 +243,11 @@ public class TestJobConfig {
 }
 ```
 
-이 경우 `AdaptorFactory`의 method를 static import를 해서 사용하는게 미관상 보기 더 좋습니다.
+이 경우 `AdapterFactory`의 method를 static import를 해서 사용하는게 미관상 보기 더 좋습니다.
 
 ```java
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
 
 ...
 
@@ -282,7 +282,7 @@ Kotlin 사용시에는 Spring Batch Plus가 제공하는 extension function 을 
 @StepScope
 open class SampleTasklet(
     @Value("#{jobParameters['totalCount']}") private var totalCount: Long
-) : ItemStreamReaderWriter<Int> {
+) : ItemStreamFluxReaderWriter<Int> {
     private var count = 0
 
     override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
@@ -328,14 +328,14 @@ open class TestJobConfig(
 
 ## Callback 사용하기
 
-`ItemStreamReaderProcessorWriter`, `ItemStreamReaderWriter` 에는 `ItemStreamReader`, `ItemStreamWriter`의 `ItemStream`에 대한 callback method도 같이 정의할 수 있습니다. Callback method는 선택적으로 정의할 수 있습니다.
+`ItemStreamFluxReaderProcessorWriter`, `ItemStreamFluxReaderWriter` 에는 `ItemStreamReader`, `ItemStreamWriter`의 `ItemStream`에 대한 callback method도 같이 정의할 수 있습니다. Callback method는 선택적으로 정의할 수 있습니다.
 
 ### Java
 
 ```java
 @Component
 @StepScope
-public class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> {
+public class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, String> {
 
     @Value("#{jobParameters['totalCount']}")
     private long totalCount;
@@ -430,7 +430,7 @@ public class TestJobConfig {
 @StepScope
 open class SampleTasklet(
     @Value("#{jobParameters['totalCount']}") private var totalCount: Long
-) : ItemStreamReaderProcessorWriter<Int, String> {
+) : ItemStreamFluxReaderProcessorWriter<Int, String> {
     private var count = 0
 
     override fun onOpenRead(executionContext: ExecutionContext) {
