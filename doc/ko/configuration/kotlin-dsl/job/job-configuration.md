@@ -5,6 +5,7 @@
   - [Annotation을 사용해서 Listener 설정하기](#annotation을-사용해서-listener-설정하기)
   - [JobExecutionListener 객체를 사용하여 Listener 설정하기](#jobexecutionlistener-객체를-사용하여-listener-설정하기)
 - [MeterRegistry 설정하기](#meterregistry-설정하기)
+- [BatchJobObservationConvention 설정하기](#batchjobobservationconvention-설정하기)
 - [ObservationRegistry 설정하기](#observationregistry-설정하기)
 - [PreventRestart 설정하기](#preventrestart-설정하기)
 - [Repository 설정하기](#repository-설정하기)
@@ -165,6 +166,30 @@ open class TestJobConfig(
 }
 
 ```
+
+## BatchJobObservationConvention 설정하기
+
+Kotlin DSL은 `JobBuilder`를 사용해서 `BatchJobObservationConvention` 설정을 하는 방법을 제공합니다.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+
+    @Bean
+    open fun testJob(): Job = batch {
+        job("testJob") {
+            observationConvention(DefaultBatchJobObservationConvention())
+            step("testStep") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
+        }
+    }
+}
+```
+
 ## ObservationRegistry 설정하기
 
 Kotlin DSL은 `JobBuilder`를 사용해서 `ObservationRegistry` 설정을 하는 방법을 제공합니다.

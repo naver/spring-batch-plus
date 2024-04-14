@@ -5,6 +5,7 @@
   - [Set a listener using annotations](#set-a-listener-using-annotations)
   - [Set a listener using a JobExecutionListener object](#set-a-listener-using-a-jobexecutionlistener-object)
 - [Set a MeterRegistry](#set-a-meterregistry)
+- [Set a BatchJobObservationConvention](#set-a-batchjobobservationconvention)
 - [Set a ObservationRegistry](#set-a-observationregistry)
 - [Set preventRestart](#set-preventrestart)
 - [Set a Repository](#set-a-repository)
@@ -157,6 +158,29 @@ open class TestJobConfig(
     open fun testJob(): Job = batch {
         job("testJob") {
             meterRegistry(SimpleMeterRegistry())
+            step("testStep") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
+        }
+    }
+}
+```
+
+## Set a BatchJobObservationConvention
+
+The Kotlin DSL helps you set a `BatchJobObservationConvention` using `JobBuilder`.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+
+    @Bean
+    open fun testJob(): Job = batch {
+        job("testJob") {
+            observationConvention(DefaultBatchJobObservationConvention())
             step("testStep") {
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
