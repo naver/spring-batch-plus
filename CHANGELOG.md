@@ -20,11 +20,16 @@
 
 #### New Features
 
-- None
+- Add BatchJobObservationConvention method to JobBuilderDsl
+- Add BatchStepObservationConvention method to StepBuilderDsl
+- Add Iterable based adapters (ItemStreamIterableReaderProcessorWriter, ItemStreamIterableReaderWriter)
+- Add Iterator based adapters (ItemStreamIteratorReaderProcessorWriter, ItemStreamIteratorReaderWriter)
+- Add simple adapters (ItemStreamSimpleReaderProcessorWriter, ItemStreamSimpleReaderWriter)
 
 #### Changes
 
-- None
+- Deprecate repository methods in JobBuilderDsl, StepBuilderDsl
+- Rename ItemStreamReaderProcessorWriter, ItemStreamReaderWriter to ItemStreamFluxReaderProcessorWriter, ItemStreamFluxReaderWriter.
 
 #### Bug fixes & Improvements
 
