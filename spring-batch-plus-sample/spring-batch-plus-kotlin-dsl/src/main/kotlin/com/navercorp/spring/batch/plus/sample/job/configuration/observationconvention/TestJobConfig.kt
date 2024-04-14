@@ -19,7 +19,6 @@
 package com.navercorp.spring.batch.plus.sample.job.configuration.observationconvention
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import io.micrometer.observation.ObservationRegistry
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.observability.DefaultBatchJobObservationConvention
 import org.springframework.batch.repeat.RepeatStatus
@@ -37,7 +36,6 @@ open class TestJobConfig(
     open fun testJob(): Job = batch {
         job("testJob") {
             observationConvention(DefaultBatchJobObservationConvention())
-            observationRegistry(ObservationRegistry.create())
             step("testStep") {
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
