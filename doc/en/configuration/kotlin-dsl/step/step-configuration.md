@@ -1,6 +1,7 @@
 # Step Configuration
 
 - [Set a job repository](#set-a-job-repository)
+- [Set a BatchStepObservationConvention](#set-a-batchstepobservationconvention)
 - [Set a ObservationRegistry](#set-a-observationregistry)
 - [Set a MeterRegistry](#set-a-meterregistry)
 - [Set startLimit](#set-startlimit)
@@ -35,6 +36,29 @@ open class TestJobConfig(
                         }
                     },
                 )
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
+        }
+    }
+}
+```
+
+## Set a BatchStepObservationConvention
+
+The Kotlin DSL helps you set a `BatchStepObservationConvention` using `StepBuilder`.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+
+    @Bean
+    open fun testJob(): Job = batch {
+        job("testJob") {
+            step("testStep") {
+                observationConvention(DefaultBatchStepObservationConvention())
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }

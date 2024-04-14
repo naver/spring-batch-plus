@@ -1,6 +1,7 @@
 # Step Configuration
 
 - [Job Repository 설정](#job-repository-설정)
+- [BatchStepObservationConvention 설정](#batchstepobservationconvention-설정)
 - [ObservationRegistry 설정](#observationregistry-설정)
 - [MeterRegistry 설정](#meterregistry-설정)
 - [StartLimit 설정](#startlimit-설정)
@@ -35,6 +36,29 @@ open class TestJobConfig(
                         }
                     },
                 )
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
+        }
+    }
+}
+```
+
+## BatchStepObservationConvention 설정
+
+Kotlin DSL은 `StepBuilder`를 사용하여 `BatchStepObservationConvention`을 설정하는 방법을 제공합니다.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+
+    @Bean
+    open fun testJob(): Job = batch {
+        job("testJob") {
+            observationConvention(DefaultBatchJobObservationConvention())
+            step("testStep") {
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
