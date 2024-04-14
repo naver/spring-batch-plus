@@ -1,4 +1,4 @@
-# ItemStreamReaderProcessorWriter
+# ItemStreamFluxReaderProcessorWriter
 
 - [Create a tasklet with a processor](#create-a-tasklet-with-a-processor)
   - [Java](#java)
@@ -14,9 +14,9 @@ Spring uses a reactive library called [Reactor](https://projectreactor.io/), whi
 
 A chunk-oriented step in Spring Batch consists of `ItemReader`, `ItemProcessor`, and `ItemWriter`, which are usually defined separately and then assembled to define a step. However, there are some issues with this approach: it is difficult to share data between `ItemReader`, `ItemProcessor`, and `ItemWriter`, and you need to see each respective file to understand the batch flow. Also, if the classes are not reused, they can make the elements of a job less coherent.
 
-To resolve such issues, `ItemStreamReaderProcessorWriter` provides an adapter to use `Flux` and helps you define `ItemReader`, `ItemProcessor`, and `ItemWriter` in a single file.
+To resolve such issues, `ItemStreamFluxReaderProcessorWriter` provides an adapter to use `Flux` and helps you define `ItemReader`, `ItemProcessor`, and `ItemWriter` in a single file.
 
-Because Spring Batch Plus has compileOnly dependencies on Reactor, you need to manually add them to use `ItemStreamReaderProcessorWriter`.
+Because Spring Batch Plus has compileOnly dependencies on Reactor, you need to manually add them to use `ItemStreamFluxReaderProcessorWriter`.
 
 ```kotlin
 dependencies {
@@ -26,16 +26,16 @@ dependencies {
 
 ## Create a tasklet with a processor
 
-You can use `ItemStreamReaderProcessorWriter` to define `ItemStreamReader`, `ItemProcessor`, and `ItemStreamWriter` in a single class.
+You can use `ItemStreamFluxReaderProcessorWriter` to define `ItemStreamReader`, `ItemProcessor`, and `ItemStreamWriter` in a single class.
 
 ### Java
 
-In Java, you can convert a tasklet defined using `AdaptorFactory` to `ItemStreamReader`, `ItemProcessor`, and `ItemStreamWriter`.
+In Java, you can convert a tasklet defined using `AdapterFactory` to `ItemStreamReader`, `ItemProcessor`, and `ItemStreamWriter`.
 
 ```java
 @Component
 @StepScope
-class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> {
+class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, String> {
 
     @Value("#{jobParameters['totalCount']}")
     private long totalCount;
@@ -92,12 +92,12 @@ public class TestJobConfig {
 }
 ```
 
-You can statically import the method of `AdaptorFactory` for better readability.
+You can statically import the method of `AdapterFactory` for better readability.
 
 ```java
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemProcessor;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemProcessor;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
 
 ...
 
@@ -133,7 +133,7 @@ In Kotlin, you can convert a tasklet defined using an extension function to `Ite
 @StepScope
 open class SampleTasklet(
     @Value("#{jobParameters['totalCount']}") private var totalCount: Long
-) : ItemStreamReaderProcessorWriter<Int, String> {
+) : ItemStreamFluxReaderProcessorWriter<Int, String> {
     private var count = 0
 
     override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
@@ -183,16 +183,16 @@ open class TestJobConfig(
 
 ## Create a tasklet without a processor
 
-If you need only `ItemStreamReader` and `ItemStreamWriter` without a processor, you can inherit `ItemStreamReaderWriter` to define `ItemStreamReader` and `ItemStreamWriter` in a single class.
+If you need only `ItemStreamReader` and `ItemStreamWriter` without a processor, you can inherit `ItemStreamFluxReaderWriter` to define `ItemStreamReader` and `ItemStreamWriter` in a single class.
 
 ### Java
 
-In Java, you can convert a tasklet defined using `AdaptorFactory` to `ItemStreamReader` and `ItemStreamWriter`.
+In Java, you can convert a tasklet defined using `AdapterFactory` to `ItemStreamReader` and `ItemStreamWriter`.
 
 ```java
 @Component
 @StepScope
-class SampleTasklet implements ItemStreamReaderWriter<Integer> {
+class SampleTasklet implements ItemStreamFluxReaderWriter<Integer> {
 
     @Value("#{jobParameters['totalCount']}")
     private long totalCount;
@@ -234,8 +234,8 @@ public class TestJobConfig {
             .start(
                 new StepBuilder("testStep", jobRepository)
                     .<Integer, Integer>chunk(3, transactionManager)
-                    .reader(AdaptorFactory.itemStreamReader(sampleTasklet))
-                    .writer(AdaptorFactory.itemStreamWriter(sampleTasklet))
+                    .reader(AdapterFactory.itemStreamReader(sampleTasklet))
+                    .writer(AdapterFactory.itemStreamWriter(sampleTasklet))
                     .build()
             )
             .build();
@@ -243,11 +243,11 @@ public class TestJobConfig {
 }
 ```
 
-You can statically import the method of `AdaptorFactory` for better readability.
+You can statically import the method of `AdapterFactory` for better readability.
 
 ```java
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.item.AdaptorFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
 
 ...
 
@@ -282,7 +282,7 @@ In Kotlin, you can easily convert a tasklet defined using an extension function 
 @StepScope
 open class SampleTasklet(
     @Value("#{jobParameters['totalCount']}") private var totalCount: Long
-) : ItemStreamReaderWriter<Int> {
+) : ItemStreamFluxReaderWriter<Int> {
     private var count = 0
 
     override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
@@ -328,14 +328,14 @@ open class TestJobConfig(
 
 ## Use a callback
 
-You can define a callback method for `ItemStream` of `ItemStreamWriter` in `ItemStreamReaderProcessorWriter` and `ItemStreamReaderWriter`. You can selectively define a callback method.
+You can define a callback method for `ItemStream` of `ItemStreamWriter` in `ItemStreamFluxReaderProcessorWriter` and `ItemStreamFluxReaderWriter`. You can selectively define a callback method.
 
 ### Java
 
 ```java
 @Component
 @StepScope
-public class SampleTasklet implements ItemStreamReaderProcessorWriter<Integer, String> {
+public class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, String> {
 
     @Value("#{jobParameters['totalCount']}")
     private long totalCount;
@@ -430,7 +430,7 @@ public class TestJobConfig {
 @StepScope
 open class SampleTasklet(
     @Value("#{jobParameters['totalCount']}") private var totalCount: Long
-) : ItemStreamReaderProcessorWriter<Int, String> {
+) : ItemStreamFluxReaderProcessorWriter<Int, String> {
     private var count = 0
 
     override fun onOpenRead(executionContext: ExecutionContext) {
