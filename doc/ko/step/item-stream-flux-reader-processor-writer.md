@@ -30,7 +30,7 @@ dependencies {
 
 ### Java
 
-Java의 경우 `AdaptorFactery`를 이용해서 정의한 Tasklet을 `ItemStreamReader`, `ItemProcessor`, `ItemStreamWriter`로 변환하여 사용할 수 있습니다.
+Java의 경우 `AdapterFactery`를 이용해서 정의한 Tasklet을 `ItemStreamReader`, `ItemProcessor`, `ItemStreamWriter`로 변환하여 사용할 수 있습니다.
 
 ```java
 @Component
