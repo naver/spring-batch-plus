@@ -57,8 +57,8 @@ open class TestJobConfig(
     @Bean
     open fun testJob(): Job = batch {
         job("testJob") {
-            observationConvention(DefaultBatchJobObservationConvention())
             step("testStep") {
+                observationConvention(DefaultBatchStepObservationConvention())
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
