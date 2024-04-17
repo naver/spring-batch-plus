@@ -43,9 +43,9 @@ public final class AdapterFactory {
 	 * Create an adapter which adapt {@link ItemStreamFluxReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
+	 * @param <T> a read item type
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
-	 * @param <T> a read item type
 	 */
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamFluxReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
@@ -56,9 +56,9 @@ public final class AdapterFactory {
 	 * Create an adapter which adapt {@link ItemStreamIterableReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
+	 * @param <T> a read item type
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
-	 * @param <T> a read item type
 	 */
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamIterableReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
@@ -69,9 +69,9 @@ public final class AdapterFactory {
 	 * Create an adapter which adapt {@link ItemStreamIteratorReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
+	 * @param <T> a read item type
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
-	 * @param <T> a read item type
 	 */
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamIteratorReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
@@ -82,9 +82,9 @@ public final class AdapterFactory {
 	 * Create an adapter which adapt {@link ItemStreamSimpleReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
+	 * @param <T> a read item type
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
-	 * @param <T> a read item type
 	 */
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamSimpleReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
@@ -94,10 +94,10 @@ public final class AdapterFactory {
 	/**
 	 * Create an adapter which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
 	 *
-	 * @param delegate a delegate
-	 * @return an adapted ItemProcessor
 	 * @param <I> an item type to process
 	 * @param <O> a processed item type
+	 * @param delegate a delegate
+	 * @return an adapted ItemProcessor
 	 */
 	public static <I, O> ItemProcessor<I, O> itemProcessor(@NonNull ItemProcessorDelegate<I, O> delegate) {
 		return ItemProcessorAdapter.of(delegate);
@@ -106,9 +106,9 @@ public final class AdapterFactory {
 	/**
 	 * Create an adapter which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
 	 *
+	 * @param <T> an item type to write
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamWriter
-	 * @param <T> an item type to write
 	 */
 	public static <T> ItemStreamWriter<T> itemStreamWriter(@NonNull ItemStreamWriterDelegate<T> delegate) {
 		return ItemStreamWriterAdapter.of(delegate);

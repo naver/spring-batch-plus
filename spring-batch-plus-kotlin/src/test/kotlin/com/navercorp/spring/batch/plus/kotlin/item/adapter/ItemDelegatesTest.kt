@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.navercorp.spring.batch.plus.kotlin.item.adapter
 
 import com.navercorp.spring.batch.plus.item.adapter.ItemProcessorAdapter

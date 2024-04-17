@@ -42,9 +42,12 @@ public final class AdapterFactory {
 	 * Create an adapter which adapt {@link ItemStreamReaderDelegate} to {@link ItemStreamReader}
 	 * with {@link StepScope} bound proxy implementation. It creates new instance for every {@link StepScope}.
 	 *
-	 * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemStreamReader(ItemStreamFluxReaderDelegate)} instead.
-	 * @return an adapted ItemStreamReader
+	 * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemStreamReader(
+	 *ItemStreamFluxReaderDelegate)} instead.
+	 *
 	 * @param <T> a read item type
+	 * @param delegate a delegate
+	 * @return an adapted ItemStreamReader
 	 */
 	@Deprecated
 	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamReaderDelegate<T> delegate) {
@@ -55,11 +58,14 @@ public final class AdapterFactory {
 	/**
 	 * Create an adapter which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
 	 *
-	 * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemProcessor(com.navercorp.spring.batch.plus.step.adapter.ItemProcessorDelegate)} instead.
-	 * @param delegate a delegate
-	 * @return an adapted ItemProcessor
+	 * @deprecated use
+	 * {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemProcessor(
+	 *com.navercorp.spring.batch.plus.step.adapter.ItemProcessorDelegate)} instead.
+	 *
 	 * @param <I> an item type to process
 	 * @param <O> a processed item type
+	 * @param delegate a delegate
+	 * @return an adapted ItemProcessor
 	 */
 	@Deprecated
 	public static <I, O> ItemProcessor<I, O> itemProcessor(@NonNull ItemProcessorDelegate<I, O> delegate) {
@@ -69,10 +75,12 @@ public final class AdapterFactory {
 	/**
 	 * Create an adapter which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
 	 *
-	 * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemStreamWriter(com.navercorp.spring.batch.plus.step.adapter.ItemStreamWriterDelegate)} instead.
+	 * @deprecated use {@link com.navercorp.spring.batch.plus.step.adapter.AdapterFactory#itemStreamWriter(
+	 *com.navercorp.spring.batch.plus.step.adapter.ItemStreamWriterDelegate)} instead.
+	 *
+	 * @param <T> an item type to write
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamWriter
-	 * @param <T> an item type to write
 	 */
 	@Deprecated
 	public static <T> ItemStreamWriter<T> itemStreamWriter(@NonNull ItemStreamWriterDelegate<T> delegate) {

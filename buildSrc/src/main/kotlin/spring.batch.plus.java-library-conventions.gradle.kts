@@ -29,6 +29,12 @@ tasks.compileJava {
     options.encoding = "UTF-8"
 }
 
+tasks.javadoc {
+    options {
+        (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
+    }
+}
+
 sourceSets {
     create("integrationTest") {
         compileClasspath += sourceSets.main.get().output
