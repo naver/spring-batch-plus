@@ -16,6 +16,20 @@
 
 ## 1.1.x
 
+### 1.1.1-SNAPSHOT
+
+#### New Features
+
+- None
+
+#### Changes
+
+- None
+
+#### Bug fixes & Improvements
+
+- None
+
 ### 1.1.0
 
 #### New Features
