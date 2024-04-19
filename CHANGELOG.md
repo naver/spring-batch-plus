@@ -16,7 +16,7 @@
 
 ## 1.1.x
 
-### 1.1.0-SNAPSHOT
+### 1.1.0
 
 #### New Features
 

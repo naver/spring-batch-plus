@@ -45,14 +45,19 @@ fun subJob2(batch: BatchDsl, transactionManager: PlatformTransactionManager): Jo
 
 ### Single class reader-processor-writer
 
+- ItemStreamFluxReaderProcessorWriter
+- ItemStreamIterableReaderProcessorWriter
+- ItemStreamIterableReaderProcessorWriter
+- ItemStreamSimpleReaderProcessorWriter
+
 ```kotlin
 // single class
 @Component
 @StepScope
-class SampleTasklet : ItemStreamReaderProcessorWriter<Int, String> {
+class SampleTasklet : ItemStreamFluxReaderProcessorWriter<Int, String> {
     private var count = 0
 
-    override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
+    override fun readFlux(executionContext: ExecutionContext): Flux<out Int> {
         return Flux.generate { sink ->
             if (count < 20) {
                 sink.next(count)
@@ -101,6 +106,7 @@ We've tested following versions only. Other versions may not work.
 
 | Batch Plus (Latest) | Batch | Boot Starter  | Kotlin        | Java          | Status     | Samples                                                                                    |
 |---------------------|-------|---------------|---------------|---------------|------------|--------------------------------------------------------------------------------------------|
+| 1.1.x (1.1.0)       | 5.1.x | 3.2.x ~ 3.2.x | 1.5 or higher | 17 or higher  | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/main/spring-batch-plus-sample)   |
 | 1.0.x (1.0.1)       | 5.0.x | 3.0.x ~ 3.1.x | 1.5 or higher | 17 or higher  | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/1.0.x/spring-batch-plus-sample)  |
 | 0.3.x (0.3.1)       | 4.3.x | 2.4.x ~ 2.7.x | 1.5 or higher | 1.8 or higher | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/0.3.x/spring-batch-plus-sample)  |
 | 0.2.x (0.2.0)       | 4.3.x | 2.4.x ~ 2.7.x | 1.5 or higher | 1.8 or higher | Freezed    | [Samples](https://github.com/naver/spring-batch-plus/tree/v0.2.0/spring-batch-plus-sample) |
