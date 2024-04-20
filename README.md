@@ -168,6 +168,9 @@ Java
 
 ## User Guide
 
+- 1.1.x
+  - [Korean](https://github.com/naver/spring-batch-plus/tree/main/doc/ko)
+  - [English](https://github.com/naver/spring-batch-plus/tree/main/doc/en)
 - 1.0.x
   - [Korean](https://github.com/naver/spring-batch-plus/tree/1.0.x/doc/ko)
   - [English](https://github.com/naver/spring-batch-plus/tree/1.0.x/doc/en)
