@@ -6,6 +6,7 @@ buildscript {
 
 plugins {
     java
+    id("io.spring.dependency-management") version "1.1.6"
 }
 
 repositories {
@@ -19,9 +20,22 @@ java {
     }
 }
 
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.2.0")
+    }
+}
+
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-batch:3.2.0")
+    implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation(project(":spring-boot-starter-batch-plus"))
     implementation("io.projectreactor:reactor-core:3.5.0")
     runtimeOnly("com.h2database:h2:2.1.214")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
