@@ -13,7 +13,7 @@ kotlin {
             "-Xjsr305=strict", // enable jsr305 null-safety in kotlin
         )
         jvmTarget = JvmTarget.JVM_17 // make class files for this version
-        languageVersion = KotlinVersion.KOTLIN_1_6 // code level
-        apiVersion = KotlinVersion.KOTLIN_1_6 // runtime level
+        languageVersion = KotlinVersion.KOTLIN_1_6 // language feature level
+        apiVersion = KotlinVersion.KOTLIN_1_6 // std api level
     }
 }
