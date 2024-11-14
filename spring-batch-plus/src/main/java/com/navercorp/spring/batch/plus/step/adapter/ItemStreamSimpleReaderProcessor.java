@@ -25,7 +25,7 @@ import org.springframework.batch.item.ItemStreamReader;
  * An item ({@link I}) based adapter for stream reader, processor. It can represent
  * {@link ItemStreamReader}, {@link ItemProcessor} in a single class.
  *
- * @since 1.1.1
+ * @since 1.2.0
  */
 public interface ItemStreamSimpleReaderProcessor<I, O>
 	extends ItemStreamSimpleReaderDelegate<I>, ItemProcessorDelegate<I, O> {

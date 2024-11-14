@@ -26,7 +26,7 @@ import reactor.core.publisher.Flux;
  * A {@link Flux<I>} based adapter for stream reader, processor. It can represent
  * {@link ItemStreamReader}, {@link ItemProcessor} in a single class.
  *
- * @since 1.1.1
+ * @since 1.2.0
  */
 public interface ItemStreamFluxReaderProcessor<I, O>
 	extends ItemStreamFluxReaderDelegate<I>, ItemProcessorDelegate<I, O> {
