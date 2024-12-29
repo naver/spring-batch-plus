@@ -33,7 +33,7 @@ tasks.named<Test>("test") {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.3.0")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.0")
     }
 }
 
