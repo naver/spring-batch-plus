@@ -74,3 +74,8 @@ tasks.register<Test>("integrationTest") {
     testClassesDirs = sourceSets["integrationTest"].output.classesDirs
     classpath = sourceSets["integrationTest"].runtimeClasspath
 }
+
+// task to show all dependencies in all subprojects
+// e.g. ./gradlew allDeps
+tasks.register<DependencyReportTask>("allDeps") {
+}
