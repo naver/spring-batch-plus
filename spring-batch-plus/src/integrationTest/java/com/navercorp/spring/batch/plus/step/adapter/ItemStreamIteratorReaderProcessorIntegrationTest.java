@@ -18,11 +18,25 @@
 
 package com.navercorp.spring.batch.plus.step.adapter;
 
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemProcessor;
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamReader;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Iterator;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+import javax.sql.DataSource;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -39,14 +53,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.TransactionManager;
-
-import javax.sql.DataSource;
-import java.util.Iterator;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-
-import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.*;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("unchecked")
 class ItemStreamIteratorReaderProcessorIntegrationTest {
