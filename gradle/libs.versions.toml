@@ -1,6 +1,6 @@
 [versions]
-spring-boot = "3.2.0"
-spring-batch = "5.1.0"
+spring-boot = "3.4.0"
+spring-batch = "5.2.0"
 slf4j = "1.7.36"
 reactor-core = "3.5.0"
 findbugs-jsr305 = "3.0.2"
