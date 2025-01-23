@@ -11,9 +11,7 @@ dependencies {
     compileOnly(libs.spring.batch.core)
     implementation(libs.slf4j)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.assertj)
-    testImplementation(libs.mockk)
+    testImplementation(libs.bundles.test.kotlin)
     testImplementation(libs.spring.batch.core)
     testImplementation(libs.spring.jdbc)
     testImplementation(libs.reactor.core)
