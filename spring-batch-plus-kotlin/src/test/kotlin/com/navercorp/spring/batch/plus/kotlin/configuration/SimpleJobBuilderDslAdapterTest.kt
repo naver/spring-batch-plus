@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.repeat.RepeatStatus
@@ -32,7 +32,7 @@ internal class SimpleJobBuilderDslAdapterTest {
     @Test
     fun testUnsupportedCall() {
         // given
-        val simpleJobBuilderDsl = SimpleJobBuilderDsl(DslContext(mock(), mock()), mock())
+        val simpleJobBuilderDsl = SimpleJobBuilderDsl(DslContext(mockk(), mockk()), mockk())
         val simpleJobBuilderDslAdapter = SimpleJobBuilderDslAdapter(simpleJobBuilderDsl)
 
         // when, then
@@ -52,7 +52,7 @@ internal class SimpleJobBuilderDslAdapterTest {
             ) {}
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
-            simpleJobBuilderDslAdapter.step(mock<Step>()) {
+            simpleJobBuilderDslAdapter.step(mockk<Step>()) {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
 
@@ -64,7 +64,7 @@ internal class SimpleJobBuilderDslAdapterTest {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
-            simpleJobBuilderDslAdapter.flow(mock())
+            simpleJobBuilderDslAdapter.flow(mockk())
         }.isInstanceOf(UnsupportedOperationException::class.java)
 
         assertThatThrownBy {
@@ -76,7 +76,7 @@ internal class SimpleJobBuilderDslAdapterTest {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
-            simpleJobBuilderDslAdapter.flow(mock<Flow>()) {
+            simpleJobBuilderDslAdapter.flow(mockk<Flow>()) {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
 
@@ -85,12 +85,12 @@ internal class SimpleJobBuilderDslAdapterTest {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
         assertThatThrownBy {
-            simpleJobBuilderDslAdapter.decider(mock()) {
+            simpleJobBuilderDslAdapter.decider(mockk()) {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
 
         assertThatThrownBy {
-            simpleJobBuilderDslAdapter.split(mock()) {
+            simpleJobBuilderDslAdapter.split(mockk()) {
             }
         }.isInstanceOf(UnsupportedOperationException::class.java)
     }

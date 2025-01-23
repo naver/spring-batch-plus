@@ -25,7 +25,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ChunkListener
 import org.springframework.batch.core.ItemProcessListener
@@ -355,7 +354,7 @@ internal class SimpleStepBuilderDslTest {
             var stepOperationCallCount = 0
             var taskExecutorCallCount = 0
             var exceptionHandlerCallCount = 0
-            val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mock())
+            val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
 
             // when
             val step = stepBuilder
@@ -409,7 +408,7 @@ internal class SimpleStepBuilderDslTest {
             var readCallCount = 0
             var processCallCount = 0
             var writeCallCount = 0
-            val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mock())
+            val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
 
             // when
             val step = stepBuilder

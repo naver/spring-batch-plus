@@ -21,11 +21,10 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.observation.ObservationRegistry
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.atLeastOnce
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.spy
-import org.mockito.kotlin.verify
 import org.springframework.batch.core.JobExecutionListener
 import org.springframework.batch.core.JobParametersIncrementer
 import org.springframework.batch.core.JobParametersValidator
@@ -39,116 +38,107 @@ import java.util.UUID
  */
 internal class JobBuilderDslHelperTest {
 
-    private fun jobBuilderDsl(jobBuilder: JobBuilder): JobBuilderDsl {
-        val dslContext = DslContext(
-            beanFactory = mock(),
-            jobRepository = mock(),
-        )
-
-        return JobBuilderDsl(dslContext, jobBuilder)
-    }
-
     @Test
     fun testValidator() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        val jobParametersValidator = mock<JobParametersValidator>()
+        val jobParametersValidator = mockk<JobParametersValidator>()
         jobBuilderDsl.apply {
             validator(jobParametersValidator)
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).validator(jobParametersValidator)
+        verify(exactly = 1) { jobBuilder.validator(jobParametersValidator) }
     }
 
     @Test
     fun testIncrementer() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        val jobParametersIncrementer = mock<JobParametersIncrementer>()
+        val jobParametersIncrementer = mockk<JobParametersIncrementer>()
         jobBuilderDsl.apply {
             incrementer(jobParametersIncrementer)
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).incrementer(jobParametersIncrementer)
+        verify(exactly = 1) { jobBuilder.incrementer(jobParametersIncrementer) }
     }
 
     @Test
     fun testObservationConvention() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        val observationConvention = mock<BatchJobObservationConvention>()
+        val observationConvention = mockk<BatchJobObservationConvention>()
         jobBuilderDsl.apply {
             observationConvention(observationConvention)
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).observationConvention(observationConvention)
+        verify(exactly = 1) { jobBuilder.observationConvention(observationConvention) }
     }
 
     @Test
     fun testObservationRegistry() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        val observationRegistry = mock<ObservationRegistry>()
+        val observationRegistry = mockk<ObservationRegistry>()
         jobBuilderDsl.apply {
             observationRegistry(observationRegistry)
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).observationRegistry(observationRegistry)
+        verify(exactly = 1) { jobBuilder.observationRegistry(observationRegistry) }
     }
 
     @Test
     fun testMeterRegistry() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        val meterRegistry = mock<MeterRegistry>()
+        val meterRegistry = mockk<MeterRegistry>()
         jobBuilderDsl.apply {
             meterRegistry(meterRegistry)
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).meterRegistry(meterRegistry)
+        verify(exactly = 1) { jobBuilder.meterRegistry(meterRegistry) }
     }
 
     @Suppress("DEPRECATION")
     @Test
     fun testRepository() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        val jobRepository = mock<JobRepository>()
+        val jobRepository = mockk<JobRepository>()
         jobBuilderDsl.apply {
             repository(jobRepository)
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).repository(jobRepository)
+        verify(exactly = 1) { jobBuilder.repository(jobRepository) }
     }
 
     @Test
     fun testObjectListener() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         class TestListener
@@ -160,29 +150,29 @@ internal class JobBuilderDslHelperTest {
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).listener(testListener)
+        verify(exactly = 1) { jobBuilder.listener(testListener) }
     }
 
     @Test
     fun testJobExecutionListener() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        val jobExecutionListener = mock<JobExecutionListener>()
+        val jobExecutionListener = mockk<JobExecutionListener>()
         jobBuilderDsl.apply {
             listener(jobExecutionListener)
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).listener(jobExecutionListener)
+        verify(exactly = 1) { jobBuilder.listener(jobExecutionListener) }
     }
 
     @Test
     fun testPreventRestart() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
@@ -191,23 +181,32 @@ internal class JobBuilderDslHelperTest {
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).preventRestart()
+        verify(exactly = 1) { jobBuilder.preventRestart() }
     }
 
     @Test
     fun testConfigurationAfterStep() {
         // given
-        val jobBuilder = spy(JobBuilder(UUID.randomUUID().toString(), mock()))
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        val jobParametersValidator = mock<JobParametersValidator>()
+        val jobParametersValidator = mockk<JobParametersValidator>()
         jobBuilderDsl.apply {
-            step(mock())
+            step(mockk())
             validator(jobParametersValidator)
         }.build()
 
         // then
-        verify(jobBuilder, atLeastOnce()).validator(jobParametersValidator)
+        verify(exactly = 1) { jobBuilder.validator(jobParametersValidator) }
+    }
+
+    private fun jobBuilderDsl(jobBuilder: JobBuilder): JobBuilderDsl {
+        val dslContext = DslContext(
+            beanFactory = mockk(),
+            jobRepository = mockk(),
+        )
+
+        return JobBuilderDsl(dslContext, jobBuilder)
     }
 }

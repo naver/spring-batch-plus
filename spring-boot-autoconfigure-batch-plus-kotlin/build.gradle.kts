@@ -14,7 +14,7 @@ dependencies {
     testImplementation(project(":spring-batch-plus-kotlin"))
     testImplementation(libs.junit)
     testImplementation(libs.assertj)
-    testImplementation(libs.mockito)
+    testImplementation(libs.mockk)
     testImplementation(libs.spring.boot.autoconfigure)
     testImplementation(libs.spring.boot.test)
     testImplementation(libs.spring.batch.core)
