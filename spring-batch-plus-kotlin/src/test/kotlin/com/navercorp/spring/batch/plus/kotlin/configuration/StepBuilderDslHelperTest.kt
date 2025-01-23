@@ -21,17 +21,14 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.observation.ObservationRegistry
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.atLeastOnce
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.spy
-import org.mockito.kotlin.verify
 import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.core.observability.BatchStepObservationConvention
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.transaction.PlatformTransactionManager
-import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 /**
@@ -39,100 +36,91 @@ import java.util.concurrent.ThreadLocalRandom
  */
 internal class StepBuilderDslHelperTest {
 
-    private fun stepBuilderDsl(stepBuilder: StepBuilder): StepBuilderDsl {
-        val dslContext = DslContext(
-            beanFactory = mock(),
-            jobRepository = mock(),
-        )
-
-        return StepBuilderDsl(dslContext, stepBuilder)
-    }
-
     @Suppress("DEPRECATION")
     @Test
     fun testRepository() {
         // given
-        val stepBuilder = spy(StepBuilder(UUID.randomUUID().toString(), mock()))
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         // when
-        val jobRepository = mock<JobRepository>()
+        val jobRepository = mockk<JobRepository>()
         stepBuilderDsl.apply {
             repository(jobRepository)
-        }.tasklet(mock(), mock<PlatformTransactionManager>())
+        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
-        verify(stepBuilder, atLeastOnce()).repository(jobRepository)
+        verify(exactly = 1) { stepBuilderDsl.repository(jobRepository) }
     }
 
     @Test
     fun testObservationConvention() {
         // given
-        val stepBuilder = spy(StepBuilder(UUID.randomUUID().toString(), mock()))
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         // when
-        val observationConvention = mock<BatchStepObservationConvention>()
+        val observationConvention = mockk<BatchStepObservationConvention>()
         stepBuilderDsl.apply {
             observationConvention(observationConvention)
-        }.tasklet(mock(), mock<PlatformTransactionManager>())
+        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
-        verify(stepBuilder, atLeastOnce()).observationConvention(observationConvention)
+        verify(exactly = 1) { stepBuilderDsl.observationConvention(observationConvention) }
     }
 
     @Test
     fun testObservationRegistry() {
         // given
-        val stepBuilder = spy(StepBuilder(UUID.randomUUID().toString(), mock()))
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         // when
-        val observationRegistry = mock<ObservationRegistry>()
+        val observationRegistry = mockk<ObservationRegistry>()
         stepBuilderDsl.apply {
             observationRegistry(observationRegistry)
-        }.tasklet(mock(), mock<PlatformTransactionManager>())
+        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
-        verify(stepBuilder, atLeastOnce()).observationRegistry(observationRegistry)
+        verify(exactly = 1) { stepBuilderDsl.observationRegistry(observationRegistry) }
     }
 
     @Test
     fun testMeterRegistry() {
         // given
-        val stepBuilder = spy(StepBuilder(UUID.randomUUID().toString(), mock()))
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         // when
-        val meterRegistry = mock<MeterRegistry>()
+        val meterRegistry = mockk<MeterRegistry>()
         stepBuilderDsl.apply {
             meterRegistry(meterRegistry)
-        }.tasklet(mock(), mock<PlatformTransactionManager>())
+        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
-        verify(stepBuilder, atLeastOnce()).meterRegistry(meterRegistry)
+        verify(exactly = 1) { stepBuilderDsl.meterRegistry(meterRegistry) }
     }
 
     @Test
     fun testStartLimit() {
         // given
-        val stepBuilder = spy(StepBuilder(UUID.randomUUID().toString(), mock()))
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         // when
         val startLimit = ThreadLocalRandom.current().nextInt()
         stepBuilderDsl.apply {
             startLimit(startLimit)
-        }.tasklet(mock(), mock<PlatformTransactionManager>())
+        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
-        verify(stepBuilder, atLeastOnce()).startLimit(startLimit)
+        verify(exactly = 1) { stepBuilderDsl.startLimit(startLimit) }
     }
 
     @Test
     fun testObjectListener() {
         // given
-        val stepBuilder = spy(StepBuilder(UUID.randomUUID().toString(), mock()))
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         class TestListener
@@ -141,41 +129,50 @@ internal class StepBuilderDslHelperTest {
         val testListener = TestListener()
         stepBuilderDsl.apply {
             listener(testListener)
-        }.tasklet(mock(), mock<PlatformTransactionManager>())
+        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
-        verify(stepBuilder, atLeastOnce()).listener(testListener)
+        verify(exactly = 1) { stepBuilderDsl.listener(testListener) }
     }
 
     @Test
     fun testStepExecutionListener() {
         // given
-        val stepBuilder = spy(StepBuilder(UUID.randomUUID().toString(), mock()))
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         // when
-        val stepExecutionListener = mock<StepExecutionListener>()
+        val stepExecutionListener = mockk<StepExecutionListener>()
         stepBuilderDsl.apply {
             listener(stepExecutionListener)
-        }.tasklet(mock(), mock<PlatformTransactionManager>())
+        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
-        verify(stepBuilder, atLeastOnce()).listener(stepExecutionListener)
+        verify(exactly = 1) { stepBuilderDsl.listener(stepExecutionListener) }
     }
 
     @Test
     fun testAllowStartIfComplete() {
         // given
-        val stepBuilder = spy(StepBuilder(UUID.randomUUID().toString(), mock()))
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         // when
         val allowStartIfComplete = ThreadLocalRandom.current().nextBoolean()
         stepBuilderDsl.apply {
             allowStartIfComplete(allowStartIfComplete)
-        }.tasklet(mock(), mock<PlatformTransactionManager>())
+        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
-        verify(stepBuilder, atLeastOnce()).allowStartIfComplete(allowStartIfComplete)
+        verify(exactly = 1) { stepBuilderDsl.allowStartIfComplete(allowStartIfComplete) }
+    }
+
+    private fun stepBuilderDsl(stepBuilder: StepBuilder): StepBuilderDsl {
+        val dslContext = DslContext(
+            beanFactory = mockk(),
+            jobRepository = mockk(),
+        )
+
+        return StepBuilderDsl(dslContext, stepBuilder)
     }
 }

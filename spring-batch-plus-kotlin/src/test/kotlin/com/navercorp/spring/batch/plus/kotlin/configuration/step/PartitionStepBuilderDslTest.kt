@@ -19,11 +19,12 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.JobExecution
@@ -33,6 +34,7 @@ import org.springframework.batch.core.Step
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.partition.PartitionHandler
 import org.springframework.batch.core.partition.StepExecutionSplitter
+import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.PartitionStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.item.ExecutionContext
@@ -43,16 +45,6 @@ internal class PartitionStepBuilderDslTest {
 
     private val jobParameters = JobParameters()
 
-    private fun partitionStepBuilderDsl(init: PartitionStepBuilderDsl.() -> Unit): Step {
-        val dslContext = DslContext(
-            beanFactory = mock(),
-            jobRepository = mock(),
-        )
-        val stepBuilder = StepBuilder("testStep", mock())
-
-        return PartitionStepBuilderDsl(dslContext, PartitionStepBuilder(stepBuilder)).apply(init).build()
-    }
-
     @Nested
     inner class PartitionHandlerTest {
 
@@ -61,7 +53,7 @@ internal class PartitionStepBuilderDslTest {
             // given
             var partitionHandlerCallCount = 0
             var taskExecutorCallCount = 0
-            val stepBuilder = StepBuilder("testStep", mock())
+            val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val partitionStepBuilder = PartitionStepBuilder(stepBuilder)
 
             // when
@@ -422,7 +414,7 @@ internal class PartitionStepBuilderDslTest {
             var splitterCallCount = 0
             val dummyStepName = "dummyStepName"
             var partitionerCallCount = 0
-            val stepBuilder = StepBuilder("testStep", mock())
+            val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val partitionStepBuilder = PartitionStepBuilder(stepBuilder)
 
             // when
@@ -583,8 +575,8 @@ internal class PartitionStepBuilderDslTest {
             aggregator { _, _ ->
                 ++aggregatorCallCount
             }
-            partitionHandler(mock<PartitionHandler>())
-            splitter(mock())
+            partitionHandler(mockk<PartitionHandler>(relaxed = true))
+            splitter(mockk())
         }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
@@ -593,5 +585,18 @@ internal class PartitionStepBuilderDslTest {
         // then
         assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(aggregatorCallCount).isEqualTo(1)
+    }
+
+    private fun partitionStepBuilderDsl(init: PartitionStepBuilderDsl.() -> Unit): Step {
+        val dslContext = DslContext(
+            beanFactory = mockk(),
+            jobRepository = mockk(),
+        )
+        val mockk = mockk<JobRepository>(relaxed = true) {
+            every { getLastStepExecution(any(), any()) } returns null
+        }
+        val stepBuilder = StepBuilder("testStep", mockk)
+
+        return PartitionStepBuilderDsl(dslContext, PartitionStepBuilder(stepBuilder)).apply(init).build()
     }
 }

@@ -19,10 +19,10 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ChunkListener
 import org.springframework.batch.core.JobExecution
@@ -56,20 +56,6 @@ internal class FaultTolerantStepBuilderDslTest {
     private val jobInstance = JobInstance(0L, "testJob")
 
     private val jobParameters = JobParameters()
-
-    private fun <I : Any, O : Any> simpleStepBuilderDsl(
-        chunkSize: Int,
-        init: SimpleStepBuilderDsl<I, O>.() -> Unit,
-    ): Step {
-        val dslContext = DslContext(
-            beanFactory = mock(),
-            jobRepository = mock(),
-        )
-        val stepBuilder = StepBuilder("testStep", mock())
-        val simpleStepBuilder = stepBuilder.chunk<I, O>(chunkSize, ResourcelessTransactionManager())
-
-        return SimpleStepBuilderDsl(dslContext, simpleStepBuilder).apply(init).build()
-    }
 
     @Test
     fun testSkipListener() {
@@ -741,7 +727,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var tryCount = 0
             var onSkipInReadCallCount = 0
 
-            val stepBuilder = StepBuilder("testStep", mock())
+            val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestListener {
@@ -796,7 +782,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var tryCount = 0
             var onSkipInReadCallCount = 0
 
-            val stepBuilder = StepBuilder("testStep", mock())
+            val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestListener {
@@ -946,7 +932,7 @@ internal class FaultTolerantStepBuilderDslTest {
         @Test
         fun testDelegateListenerIsInvokedWhenCalledWithFaultTolerant() {
             // given
-            val stepBuilder = StepBuilder("testStep", mock())
+            val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             // when
@@ -1061,7 +1047,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var readCallCount = 0
             var noRollbackCallCount = 0
 
-            val stepBuilder = StepBuilder("testStep", mock())
+            val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             // when
@@ -1197,7 +1183,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var streamOpenCallCount = 0
             var readCallCount = 0
 
-            val stepBuilder = StepBuilder("testStep", mock())
+            val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestStream : ItemStream, ItemReader<Int> {
@@ -1354,5 +1340,19 @@ internal class FaultTolerantStepBuilderDslTest {
             assertThat(readCallCount).isEqualTo(readLimit)
             assertThat(streamOpenCallCount).isEqualTo(1)
         }
+    }
+
+    private fun <I : Any, O : Any> simpleStepBuilderDsl(
+        chunkSize: Int,
+        init: SimpleStepBuilderDsl<I, O>.() -> Unit,
+    ): Step {
+        val dslContext = DslContext(
+            beanFactory = mockk(),
+            jobRepository = mockk(),
+        )
+        val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
+        val simpleStepBuilder = stepBuilder.chunk<I, O>(chunkSize, ResourcelessTransactionManager())
+
+        return SimpleStepBuilderDsl(dslContext, simpleStepBuilder).apply(init).build()
     }
 }

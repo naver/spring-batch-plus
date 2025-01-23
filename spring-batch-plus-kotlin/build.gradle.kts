@@ -14,8 +14,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.assertj)
     testImplementation(libs.mockk)
-    testImplementation(libs.mockito)
-    testImplementation(libs.mockito.kotlin)
     testImplementation(libs.spring.batch.core)
     testImplementation(libs.spring.jdbc)
     testImplementation(libs.reactor.core)

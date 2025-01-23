@@ -26,7 +26,6 @@ findbugs-jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "f
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 spring-boot-test = { module = "org.springframework.boot:spring-boot-test", version.ref = "spring-boot" }
 spring-batch-test = { module = "org.springframework.batch:spring-batch-test", version.ref = "spring-batch" }
