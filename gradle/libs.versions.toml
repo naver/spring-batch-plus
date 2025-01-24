@@ -9,7 +9,6 @@ findbugs-jsr305 = "3.0.2"
 junit = "5.+"
 assertj = "3.+"
 mockito = "5.+"
-mockito-kotlin = "5.+"
 mockk = "1.+"
 spring-jdbc = "5.3.21"
 h2 = "2.1.214"
@@ -32,3 +31,7 @@ spring-batch-test = { module = "org.springframework.batch:spring-batch-test", ve
 spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring-jdbc" }
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 log4j = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
+
+[bundles]
+test-java = ["junit", "assertj", "mockito"]
+test-kotlin = ["junit", "assertj", "mockk"]
