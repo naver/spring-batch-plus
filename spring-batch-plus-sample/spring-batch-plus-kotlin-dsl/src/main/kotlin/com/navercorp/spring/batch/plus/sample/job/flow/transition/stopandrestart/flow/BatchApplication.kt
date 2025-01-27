@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.job.flow.transition.stopandrestart.flow
 
+import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
@@ -39,6 +40,9 @@ fun main() {
     val firstJobExecution = jobLauncher.run(job, jobParameters)
     val secondJobExecution = jobLauncher.run(job, jobParameters)
 
-    println("firstJobExecution: $firstJobExecution") // STOPPED
-    println("secondJobExecution: $secondJobExecution") // COMPLETED
+    assert(BatchStatus.STOPPED == firstJobExecution.status)
+    println("firstJobExecution: $firstJobExecution")
+
+    assert(BatchStatus.COMPLETED == secondJobExecution.status)
+    println("secondJobExecution: $secondJobExecution")
 }

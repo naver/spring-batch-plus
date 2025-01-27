@@ -73,7 +73,7 @@ open class TestJobConfig(
         return ItemProcessor<Int, String> { item ->
             if (item == 5 && tryCount < 3) {
                 ++tryCount
-                throw IllegalArgumentException("I cannot be retryed")
+                throw IllegalArgumentException("I cannot be retried")
             }
 
             item.toString()

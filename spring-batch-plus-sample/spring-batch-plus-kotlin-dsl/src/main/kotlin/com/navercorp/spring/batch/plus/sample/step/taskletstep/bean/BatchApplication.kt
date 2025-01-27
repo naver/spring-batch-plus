@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.bean
 
+import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
@@ -33,8 +34,11 @@ fun main() {
     val jobLauncher = applicationContext.getBean<JobLauncher>()
     val job = applicationContext.getBean<Job>()
 
-    val jobParameter = JobParametersBuilder()
+    val jobParameters = JobParametersBuilder()
         .addString("param", "I am test")
         .toJobParameters()
-    jobLauncher.run(job, jobParameter)
+    val jobExecution = jobLauncher.run(job, jobParameters)
+
+    assert(BatchStatus.COMPLETED == jobExecution.status)
+    println(jobExecution)
 }

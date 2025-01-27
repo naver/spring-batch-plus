@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.job.flow.transition.step.nested
 
+import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
@@ -36,5 +37,7 @@ fun main() {
     val jobParameters = JobParametersBuilder()
         .toJobParameters()
     val jobExecution = jobLauncher.run(job, jobParameters)
-    println("jobExecution: $jobExecution")
+
+    assert(BatchStatus.COMPLETED == jobExecution.status)
+    println(jobExecution)
 }

@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.job.split.variable
 
+import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
@@ -35,5 +36,8 @@ fun main() {
 
     val jobParameters = JobParametersBuilder()
         .toJobParameters()
-    jobLauncher.run(job, jobParameters)
+    val jobExecution = jobLauncher.run(job, jobParameters)
+
+    assert(BatchStatus.COMPLETED == jobExecution.status)
+    println(jobExecution)
 }
