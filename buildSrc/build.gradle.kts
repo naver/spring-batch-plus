@@ -3,8 +3,8 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
+    mavenLocal()
     gradlePluginPortal() // give access to gradle community plugins
 }
 

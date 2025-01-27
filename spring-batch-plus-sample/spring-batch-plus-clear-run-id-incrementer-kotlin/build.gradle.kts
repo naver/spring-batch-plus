@@ -11,8 +11,8 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
+    mavenLocal()
 }
 
 kotlin {
@@ -40,7 +40,6 @@ dependencyManagement {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation(project(":spring-boot-starter-batch-plus-kotlin"))
-    implementation("io.projectreactor:reactor-core:3.5.0")
     runtimeOnly("com.h2database:h2:2.1.214")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
