@@ -18,6 +18,9 @@
 
 package com.navercorp.spring.batch.plus.sample.clearwithid;
 
+import java.util.Objects;
+
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -37,22 +40,26 @@ public class BatchApplication {
 		JobExplorer jobExplorer = applicationContext.getBean(JobExplorer.class);
 		Job job = applicationContext.getBean(Job.class);
 
-		JobParameters firstJobParameter = new JobParametersBuilder(jobExplorer)
+		JobParameters firstJobParameters = new JobParametersBuilder(jobExplorer)
 			.getNextJobParameters(job)
 			.toJobParameters();
-		JobExecution firstJobExecution = jobLauncher.run(job, firstJobParameter);
+		JobExecution firstJobExecution = jobLauncher.run(job, firstJobParameters);
 
-		JobParameters secondJobParameter = new JobParametersBuilder(jobExplorer)
+		JobParameters secondJobParameters = new JobParametersBuilder(jobExplorer)
 			.getNextJobParameters(job)
 			.toJobParameters();
-		JobExecution secondJobExecution = jobLauncher.run(job, secondJobParameter);
+		JobExecution secondJobExecution = jobLauncher.run(job, secondJobParameters);
 
-		// first: COMPLETED, jobParameters: {testId=1}
-		System.out.printf("first: %s, jobParameters: %s%n", firstJobExecution.getExitStatus().getExitCode(),
+		// first
+		assert BatchStatus.COMPLETED.equals(firstJobExecution.getStatus());
+		assert 1L == Objects.requireNonNull(firstJobExecution.getJobParameters().getLong("testId"));
+		System.out.printf("first: %s, jobParameters: %s%n", firstJobExecution.getStatus(),
 			firstJobExecution.getJobParameters());
 
-		// second: COMPLETED, jobParameters: {testId=2}
-		System.out.printf("second: %s, jobParameters: %s%n", secondJobExecution.getExitStatus().getExitCode(),
+		// second
+		assert BatchStatus.COMPLETED.equals(secondJobExecution.getStatus());
+		assert 2L == Objects.requireNonNull(secondJobExecution.getJobParameters().getLong("testId"));
+		System.out.printf("second: %s, jobParameters: %s%n", secondJobExecution.getStatus(),
 			secondJobExecution.getJobParameters());
 	}
 }

@@ -32,7 +32,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Properties
+import java.util.*
 
 @SpringBootApplication
 open class BatchApplication : ApplicationRunner {
@@ -49,10 +49,10 @@ open class BatchApplication : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
         // run testJob 350 times
         val jobExecutions = (0L until 350L).map {
-            val jobParameter = JobParametersBuilder()
+            val jobParameters = JobParametersBuilder()
                 .addLong("longValue", it)
                 .toJobParameters()
-            jobLauncher.run(testJob, jobParameter)
+            jobLauncher.run(testJob, jobParameters)
         }
 
         // change previous execution date for test
@@ -88,8 +88,8 @@ fun main() {
     val removeJob = applicationContext.getBean<Job>("removeJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-    val jobParameter = JobParametersBuilder()
+    val jobParameters = JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobLauncher.run(removeJob, jobParameters)
 }

@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.job.configuration.incrementer
 
+import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.explore.JobExplorer
@@ -35,19 +36,23 @@ fun main() {
     val jobExplorer = applicationContext.getBean<JobExplorer>()
     val job = applicationContext.getBean<Job>()
 
-    val firstJobParameter = JobParametersBuilder(jobExplorer)
+    val firstJobParameters = JobParametersBuilder(jobExplorer)
         .getNextJobParameters(job)
         .toJobParameters()
-    val firstJobExecution = jobLauncher.run(job, firstJobParameter)
+    val firstJobExecution = jobLauncher.run(job, firstJobParameters)
 
-    val secondJobParameter = JobParametersBuilder(jobExplorer)
+    val secondJobParameters = JobParametersBuilder(jobExplorer)
         .getNextJobParameters(job)
         .toJobParameters()
-    val secondJobExecution = jobLauncher.run(job, secondJobParameter)
+    val secondJobExecution = jobLauncher.run(job, secondJobParameters)
 
-    // first: COMPLETED, jobParameters: {param=0}
+    // first
+    assert(BatchStatus.COMPLETED == firstJobExecution.status)
+    assert(0L == firstJobExecution.jobParameters.getLong("param"))
     println("first: ${firstJobExecution.exitStatus.exitCode}, jobParameters: ${firstJobExecution.jobParameters}")
 
-    // second: COMPLETED, jobParameters: {param=1}
-    println("first: ${secondJobExecution.exitStatus.exitCode}, jobParameters: ${secondJobExecution.jobParameters}")
+    // second
+    assert(BatchStatus.COMPLETED == secondJobExecution.status)
+    assert(1L == secondJobExecution.jobParameters.getLong("param"))
+    println("second: ${secondJobExecution.exitStatus.exitCode}, jobParameters: ${secondJobExecution.jobParameters}")
 }

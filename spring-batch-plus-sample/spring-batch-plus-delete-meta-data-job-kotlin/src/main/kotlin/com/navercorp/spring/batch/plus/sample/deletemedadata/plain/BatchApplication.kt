@@ -48,10 +48,10 @@ open class BatchApplication : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
         // run testJob 350 times
         val jobExecutions = (0L until 350L).map {
-            val jobParameter = JobParametersBuilder()
+            val jobParameters = JobParametersBuilder()
                 .addLong("longValue", it)
                 .toJobParameters()
-            jobLauncher.run(testJob, jobParameter)
+            jobLauncher.run(testJob, jobParameters)
         }
 
         // change previous execution date for test
@@ -80,8 +80,8 @@ fun main() {
     val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-    val jobParameter = JobParametersBuilder()
+    val jobParameters = JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobLauncher.run(removeJob, jobParameters)
 }

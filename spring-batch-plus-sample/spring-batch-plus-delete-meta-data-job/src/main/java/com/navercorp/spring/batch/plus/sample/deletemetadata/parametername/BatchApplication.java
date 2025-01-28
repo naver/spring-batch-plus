@@ -60,10 +60,10 @@ public class BatchApplication implements ApplicationRunner {
 		List<JobExecution> jobExecutions = LongStream.range(0L, 350L).boxed()
 			.map(it -> {
 				try {
-					JobParameters jobParameter = new JobParametersBuilder()
+					JobParameters jobParameters = new JobParametersBuilder()
 						.addLong("longValue", it)
 						.toJobParameters();
-					return jobLauncher.run(testJob, jobParameter);
+					return jobLauncher.run(testJob, jobParameters);
 				} catch (Exception e) {
 					throw new IllegalStateException(e);
 				}
@@ -96,9 +96,9 @@ public class BatchApplication implements ApplicationRunner {
 		Job removeJob = applicationContext.getBean("removeJob", Job.class);
 		LocalDate now = LocalDate.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-		JobParameters jobParameter = new JobParametersBuilder()
+		JobParameters jobParameters = new JobParametersBuilder()
 			.addString("base", now.format(formatter)) // custom naming
 			.toJobParameters();
-		jobLauncher.run(removeJob, jobParameter);
+		jobLauncher.run(removeJob, jobParameters);
 	}
 }

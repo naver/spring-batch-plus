@@ -18,6 +18,9 @@
 
 package com.navercorp.spring.batch.plus.sample.comparison.good;
 
+import java.util.Objects;
+
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -37,28 +40,38 @@ public class BatchApplication {
 		JobExplorer jobExplorer = applicationContext.getBean(JobExplorer.class);
 		Job job = applicationContext.getBean(Job.class);
 
-		JobParameters firstJobParameter = new JobParametersBuilder(jobExplorer)
+		JobParameters firstJobParameters = new JobParametersBuilder(jobExplorer)
 			.addString("stringValue", "1")
 			.addString("longValue", "10")
 			.getNextJobParameters(job)
 			.toJobParameters();
-		JobExecution firstJobExecution = jobLauncher.run(job, firstJobParameter);
+		JobExecution firstJobExecution = jobLauncher.run(job, firstJobParameters);
 
-		JobParameters secondJobParameter = new JobParametersBuilder(jobExplorer)
+		JobParameters secondJobParameters = new JobParametersBuilder(jobExplorer)
 			.addString("longValue", "20")
 			.getNextJobParameters(job)
 			.toJobParameters();
-		JobExecution secondJobExecution = jobLauncher.run(job, secondJobParameter);
+		JobExecution secondJobExecution = jobLauncher.run(job, secondJobParameters);
 
-		// first: COMPLETED, jobParameters: {run.id=1, stringValue=1, longValue=10}, result: 11
+		// first
+		assert BatchStatus.COMPLETED.equals(firstJobExecution.getStatus());
+		assert 1L == Objects.requireNonNull(firstJobExecution.getJobParameters().getLong("run.id"));
+		assert "1".equals(firstJobExecution.getJobParameters().getString("stringValue"));
+		assert "10".equals(firstJobExecution.getJobParameters().getString("longValue"));
+		assert 11L == firstJobExecution.getExecutionContext().getLong("result");
 		System.out.printf("first: %s, jobParameters: %s, result: %d%n",
-			firstJobExecution.getExitStatus().getExitCode(),
+			firstJobExecution.getStatus(),
 			firstJobExecution.getJobParameters(),
 			firstJobExecution.getExecutionContext().getLong("result"));
 
-		// second: COMPLETED, jobParameters: {run.id=2, longValue=20}, result: 999
+		// second
+		assert BatchStatus.COMPLETED.equals(secondJobExecution.getStatus());
+		assert 2L == Objects.requireNonNull(secondJobExecution.getJobParameters().getLong("run.id"));
+		assert null == secondJobExecution.getJobParameters().getString("stringValue");
+		assert "20".equals(secondJobExecution.getJobParameters().getString("longValue"));
+		assert 999L == secondJobExecution.getExecutionContext().getLong("result");
 		System.out.printf("second: %s, jobParameters: %s, result: %d%n",
-			secondJobExecution.getExitStatus().getExitCode(),
+			secondJobExecution.getStatus(),
 			secondJobExecution.getJobParameters(),
 			secondJobExecution.getExecutionContext().getLong("result"));
 	}

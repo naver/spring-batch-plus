@@ -18,7 +18,9 @@
 
 package com.navercorp.spring.batch.plus.sample.iterable.readerwriter;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -34,9 +36,12 @@ public class BatchApplication {
 		JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
 		Job job = applicationContext.getBean("testJob", Job.class);
 
-		JobParameters jobParameter = new JobParametersBuilder()
+		JobParameters jobParameters = new JobParametersBuilder()
 			.addLong("totalCount", 20L)
 			.toJobParameters();
-		jobLauncher.run(job, jobParameter);
+		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+
+		assert BatchStatus.COMPLETED.equals(jobExecution.getStatus());
+		System.out.printf("%s%n", jobExecution);
 	}
 }

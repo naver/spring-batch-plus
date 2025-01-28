@@ -33,11 +33,12 @@ fun main() {
     val jobLauncher = applicationContext.getBean<JobLauncher>()
     val job = applicationContext.getBean<Job>()
 
-    val jobParameter = JobParametersBuilder()
+    val jobParameters = JobParametersBuilder()
         .addLong("param", -1L)
         .toJobParameters()
     try {
-        jobLauncher.run(job, jobParameter)
+        jobLauncher.run(job, jobParameters)
+        assert(false) { "It must throw exception" }
     } catch (e: Exception) {
         // param is null or less than 0
         e.printStackTrace(System.out)

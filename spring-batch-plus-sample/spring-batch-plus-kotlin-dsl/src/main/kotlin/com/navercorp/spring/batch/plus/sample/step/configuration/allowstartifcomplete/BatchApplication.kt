@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.step.configuration.allowstartifcomplete
 
+import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.launch.JobLauncher
@@ -33,11 +34,20 @@ fun main() {
     val jobLauncher = applicationContext.getBean<JobLauncher>()
     val job = applicationContext.getBean<Job>()
 
-    val jobParameter = JobParametersBuilder()
+    val jobParameters = JobParametersBuilder()
         .toJobParameters()
 
+    val firstJobExecution = jobLauncher.run(job, jobParameters)
+    val secondJobExecution = jobLauncher.run(job, jobParameters)
+    val thirdJobExecution = jobLauncher.run(job, jobParameters)
+
     // always alwaysRunStep is invoked
-    jobLauncher.run(job, jobParameter)
-    jobLauncher.run(job, jobParameter)
-    jobLauncher.run(job, jobParameter)
+    assert(BatchStatus.FAILED == firstJobExecution.status)
+    println(firstJobExecution)
+
+    assert(BatchStatus.FAILED == secondJobExecution.status)
+    println(secondJobExecution)
+
+    assert(BatchStatus.FAILED == thirdJobExecution.status)
+    println(thirdJobExecution)
 }
