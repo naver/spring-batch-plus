@@ -33,7 +33,6 @@ dependencyManagement {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-batch")
-    implementation("org.springframework.boot:spring-boot-starter-web") // to check metadata in h2
     implementation(project(":spring-boot-starter-batch-plus"))
     runtimeOnly("com.h2database:h2:2.1.214")
 
