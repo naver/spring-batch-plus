@@ -11,3 +11,7 @@ spring:
     jdbc:
       initialize-schema: embedded
       platform: h2
+
+logging:
+  level:
+    root: WARN
