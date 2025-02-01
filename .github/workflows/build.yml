@@ -44,14 +44,8 @@ jobs:
       - name: Run check
         run: ./gradlew clean build
 
-      - name: Check coverage
-        run: ./gradlew koverMergedVerify
-
-      - name: Merge coverage reports
-        run: ./gradlew koverMergedReport
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         if: ${{ matrix.java-version == '17' && github.ref == 'refs/heads/main' }}
         with:
-          files: ./build/kover/result.xml
+          files: ./build/jacoco/result.xml
