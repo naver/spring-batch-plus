@@ -17,11 +17,11 @@ include(
     "spring-boot-starter-batch-plus-kotlin",
 
     // sample projects
-    "spring-batch-plus-sample:spring-batch-plus-kotlin-dsl",
-    "spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer",
-    "spring-batch-plus-sample:spring-batch-plus-single-class-reader-processor-writer-kotlin",
-    "spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer",
-    "spring-batch-plus-sample:spring-batch-plus-clear-run-id-incrementer-kotlin",
-    "spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job",
-    "spring-batch-plus-sample:spring-batch-plus-delete-meta-data-job-kotlin",
+    "spring-batch-plus-sample:clear-run-id-incrementer-sample",
+    "spring-batch-plus-sample:clear-run-id-incrementer-kotlin-sample",
+    "spring-batch-plus-sample:delete-meta-data-job-sample",
+    "spring-batch-plus-sample:delete-meta-data-job-kotlin-sample",
+    "spring-batch-plus-sample:kotlin-dsl-sample",
+    "spring-batch-plus-sample:single-class-reader-processor-writer-sample",
+    "spring-batch-plus-sample:single-class-reader-processor-writer-kotlin-sample",
 )

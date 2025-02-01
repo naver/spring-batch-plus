@@ -189,9 +189,7 @@ Java
 
 - Clean: `./gradlew clean`
 - Check: `./gradlew check`
-  - Check coverage: `./gradlew koverMergedVerify`
-  - Make a merged coverage report: `./gradlew koverMergedReport`
-    - Coverage report will be generated in `${projectRoot]/build/kover/html/index.html`
+  - Coverage report will be generated in `${project}/build/jacoco/html/index.html`
 - Assemble: `./gradlew build`
 - Install to local: `./gradlew install`
 - Publish: `./gradlew publish --no-parallel`

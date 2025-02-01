@@ -1,6 +1,6 @@
 # Release Process
 
-1. Make sure all build passes. You can check by `./gradlew clean build koverMergedVerify`.
+1. Make sure all build passes. You can check by `./gradlew clean build`.
 2. Make a release branch by `git switch -c release/va.b.c`.
 3. Make a prepare commit.
    - Remove `-SNAPSHOT` postfix of `gradle.properties`.

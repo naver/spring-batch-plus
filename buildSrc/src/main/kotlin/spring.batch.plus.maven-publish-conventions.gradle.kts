@@ -1,7 +1,15 @@
 plugins {
+    // to publish to maven repository
+    // https://docs.gradle.org/current/userguide/publishing_maven.html
     `maven-publish`
+
+    // to make signature to artifact
+    // https://docs.gradle.org/current/userguide/signing_plugin.html
     signing
 }
+
+
+/* maven-publish */
 
 publishing {
     publications {
@@ -58,6 +66,19 @@ publishing {
     }
 }
 
+tasks.create("install") {
+    dependsOn("publishToMavenLocal")
+}
+
+tasks.withType<PublishToMavenRepository> {
+    doFirst {
+        println("publishing to ${repository.url}")
+    }
+}
+
+
+/* signing */
+
 signing {
     // make the singing optional
     setRequired(false)
@@ -73,12 +94,3 @@ signing {
     sign(publishing.publications["maven"])
 }
 
-tasks.create("install") {
-    dependsOn("publishToMavenLocal")
-}
-
-tasks.withType<PublishToMavenRepository>() {
-    doFirst {
-        println("publishing to ${repository.url}")
-    }
-}

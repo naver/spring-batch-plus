@@ -1,7 +1,19 @@
 plugins {
+    // to use 'api(...)' for transitive dependencies
+    // https://docs.gradle.org/current/userguide/java_library_plugin.html
     `java-library`
+
+    // coverage, jacoco can cover kotlin codes
+    // https://docs.gradle.org/current/userguide/jacoco_plugin.html
+    jacoco
+
+    // linting
+    // https://docs.gradle.org/current/userguide/checkstyle_plugin.html
     checkstyle
 }
+
+
+/* java-library */
 
 java {
     toolchain {
@@ -35,6 +47,11 @@ tasks.javadoc {
     }
 }
 
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
+}
+
 sourceSets {
     create("integrationTest") {
         compileClasspath += sourceSets.main.get().output
@@ -48,6 +65,52 @@ val integrationTestRuntimeOnly: Configuration by configurations.getting {
     extendsFrom(configurations.runtimeOnly.get(), configurations.testRuntimeOnly.get())
 }
 
+tasks.register<Test>("integrationTest") {
+    // run after 'test' task
+    shouldRunAfter("test")
+
+    useJUnitPlatform()
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
+
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+}
+
+
+/* jacoco */
+
+jacoco {
+    toolVersion = "0.8.12"
+    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.withType<Test>())
+
+    // set execution data from all `.exec` files
+    executionData.setFrom(files(project.fileTree("build/jacoco").include("*.exec")))
+
+    reports {
+        html.required = true
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir("jacoco/html")
+        xml.outputLocation = layout.buildDirectory.file("jacoco/result.xml")
+    }
+
+    doLast {
+        val indexFile = project.layout.buildDirectory.dir("jacoco/html").get().file("index.html")
+        println("jacoco html report is generated to $indexFile")
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    enabled = false // disabled in subproject
+}
+
+
+/* checkstyle */
+
 tasks.withType<Checkstyle>().configureEach {
     reports {
         configFile = file("${project.rootDir}/buildSrc/config/naver-checkstyle-rules.xml")
@@ -59,21 +122,8 @@ tasks.withType<Checkstyle>().configureEach {
     }
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
-    maxParallelForks = Runtime.getRuntime().availableProcessors()
-}
 
-tasks.register<Test>("integrationTest") {
-    // run after 'test' task
-    shouldRunAfter("test")
-
-    useJUnitPlatform()
-    maxParallelForks = Runtime.getRuntime().availableProcessors()
-
-    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-    classpath = sourceSets["integrationTest"].runtimeClasspath
-}
+/* other common */
 
 // task to show all dependencies in all subprojects
 // e.g. ./gradlew allDeps
