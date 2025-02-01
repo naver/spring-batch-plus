@@ -18,8 +18,6 @@
 
 package com.navercorp.spring.batch.plus.sample.deletemetadata.formatter;
 
-import java.util.UUID;
-
 import javax.sql.DataSource;
 
 import org.springframework.boot.autoconfigure.batch.BatchDataSource;
@@ -35,9 +33,9 @@ public class JdbcConfig {
 	@Bean
 	public DataSource dataSource() {
 		return new EmbeddedDatabaseBuilder()
-			.setName(UUID.randomUUID().toString())
 			.setType(EmbeddedDatabaseType.H2)
 			.ignoreFailedDrops(true)
+			.generateUniqueName(true)
 			.build();
 	}
 }
