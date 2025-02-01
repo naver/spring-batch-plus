@@ -41,3 +41,14 @@ tab_width = 4
 
 # [no-trailing-spaces]
 trim_trailing_whitespace = true
+
+[*.md]
+# [indentation-tab]
+indent_style = space
+
+# [2-spaces-tab]
+indent_size = 2
+tab_width = 2
+
+# [no-trailing-spaces]
+trim_trailing_whitespace = true
