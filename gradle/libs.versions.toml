@@ -1,6 +1,9 @@
 [versions]
 spring-boot = "3.3.0"
 spring-batch = "5.1.0"
+# spring-jdbc version should follow minor version described in 'spring-framework.version'
+# https://github.com/spring-projects/spring-batch/blob/main/pom.xml
+spring-jdbc = "6.1.0"
 slf4j = "1.7.36"
 reactor-core = "3.5.0"
 findbugs-jsr305 = "3.0.2"
@@ -10,13 +13,13 @@ junit = "5.11.+"
 assertj = "3.27.+"
 mockito = "5.15.+"
 mockk = "1.13.+"
-spring-jdbc = "5.3.21"
 h2 = "2.3.+"
 log4j = "2.24.+"
 
 [libraries]
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot" }
 spring-batch-core = { module = "org.springframework.batch:spring-batch-core", version.ref = "spring-batch" }
+spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring-jdbc" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor-core" }
 findbugs-jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "findbugs-jsr305" }
@@ -28,7 +31,6 @@ mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 spring-boot-test = { module = "org.springframework.boot:spring-boot-test", version.ref = "spring-boot" }
 spring-batch-test = { module = "org.springframework.batch:spring-batch-test", version.ref = "spring-batch" }
-spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring-jdbc" }
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 log4j = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
 
