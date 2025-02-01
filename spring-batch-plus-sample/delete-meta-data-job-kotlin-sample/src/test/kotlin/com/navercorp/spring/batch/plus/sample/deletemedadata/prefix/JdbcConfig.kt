@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
-import java.util.UUID
 import javax.sql.DataSource
 
 @Configuration
@@ -33,10 +32,10 @@ open class JdbcConfig {
     @Bean
     open fun dataSource(): DataSource {
         return EmbeddedDatabaseBuilder()
-            .setName(UUID.randomUUID().toString())
             .setType(EmbeddedDatabaseType.H2)
             .addScript("classpath:sql/schema-h2-custom.sql")
             .ignoreFailedDrops(true)
+            .generateUniqueName(true)
             .build()
     }
 }

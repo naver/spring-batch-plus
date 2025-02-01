@@ -37,6 +37,7 @@ open class JdbcConfig {
             .setType(EmbeddedDatabaseType.H2)
             .addScript("classpath:sql/schema-h2-custom.sql")
             .ignoreFailedDrops(true)
+            .generateUniqueName(true)
             .build()
     }
 }
