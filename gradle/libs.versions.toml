@@ -6,13 +6,13 @@ reactor-core = "3.5.0"
 findbugs-jsr305 = "3.0.2"
 
 # test-only
-junit = "5.+"
-assertj = "3.+"
-mockito = "5.+"
-mockk = "1.+"
+junit = "5.11.+"
+assertj = "3.27.+"
+mockito = "5.15.+"
+mockk = "1.13.+"
 spring-jdbc = "5.3.21"
-h2 = "2.1.214"
-log4j = "2.17.2"
+h2 = "2.3.+"
+log4j = "2.24.+"
 
 [libraries]
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot" }
