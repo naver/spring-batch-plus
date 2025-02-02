@@ -18,7 +18,6 @@
 
 package com.navercorp.spring.batch.plus.job;
 
-import static com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer.DEFAULT_RUN_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -33,54 +32,45 @@ import org.springframework.batch.core.JobParametersIncrementer;
 class ClearRunIdIncrementerTest {
 
 	@Test
-	void testGetNextReturnsOneWhenNoPreviousOne() {
-		// given
+	void getNextShouldReturnOneWhenNoPreviousValue() {
 		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
 
-		// when
 		JobParameters jobParameters = clearRunIdIncrementer.getNext(new JobParameters());
 
-		// then
-		assertThat(jobParameters.getLong(DEFAULT_RUN_ID)).isEqualTo(1L);
+		assertThat(jobParameters.getLong("run.id")).isEqualTo(1L);
 	}
 
 	@Test
-	void testGetNextReturnsNextValue() {
-		// given
+	void getNextShouldReturnPlusOneWhenPreviousExists() {
 		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
 
-		// when
 		long previousId = ThreadLocalRandom.current().nextLong();
 		JobParameters parameters = new JobParametersBuilder()
-			.addLong(DEFAULT_RUN_ID, previousId)
+			.addLong("run.id", previousId)
 			.toJobParameters();
 		JobParameters jobParameters = clearRunIdIncrementer.getNext(parameters);
 
-		// then
-		assertThat(jobParameters.getLong(DEFAULT_RUN_ID)).isEqualTo(previousId + 1);
+		assertThat(jobParameters.getLong("run.id")).isEqualTo(previousId + 1);
 	}
 
 	@Test
-	void testCustomRunId() {
-		// given
+	void getNextShouldReturnPlusOneWhenPreviousExistsUsingCustomRunId() {
 		String runId = UUID.randomUUID().toString();
 		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create(runId);
 
-		// when
 		long previousId = ThreadLocalRandom.current().nextLong();
 		JobParameters parameters = new JobParametersBuilder()
 			.addLong(runId, previousId)
 			.toJobParameters();
 		JobParameters jobParameters = clearRunIdIncrementer.getNext(parameters);
 
-		// then
 		assertThat(jobParameters.getLong(runId)).isEqualTo(previousId + 1);
-		assertThat(jobParameters.getLong(DEFAULT_RUN_ID)).isNull();
+		assertThat(jobParameters.getLong("run.id")).isNull();
 	}
 
+	@SuppressWarnings("DataFlowIssue")
 	@Test
-	void testPassingNull() {
-		// when, then
+	void createShouldThrowExceptionWhenPassingNull() {
 		assertThatThrownBy(() -> ClearRunIdIncrementer.create(null));
 	}
 }

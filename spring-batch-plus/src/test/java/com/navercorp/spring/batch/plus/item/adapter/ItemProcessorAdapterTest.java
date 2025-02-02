@@ -29,7 +29,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ItemProcessor;
 
-@SuppressWarnings("unchecked")
+// note: it's deprecated. Do not change it.
+@SuppressWarnings({"unchecked", "deprecation"})
 class ItemProcessorAdapterTest {
 
 	@Test
@@ -47,7 +48,7 @@ class ItemProcessorAdapterTest {
 		assertThat(actual).isEqualTo(expected);
 	}
 
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
+	@SuppressWarnings({"ConstantConditions"})
 	@Test
 	void testPassingNull() {
 		// when, then

@@ -28,6 +28,8 @@ import org.springframework.batch.item.ItemStreamWriter;
 
 import reactor.core.publisher.Flux;
 
+// note: it's deprecated. Do not change it.
+@SuppressWarnings("deprecation")
 class AdapterFactoryTest {
 
 	@Test
@@ -61,7 +63,7 @@ class AdapterFactoryTest {
 		assertThat(actual).isInstanceOf(ItemStreamWriterAdapter.class);
 	}
 
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
+	@SuppressWarnings({"ConstantConditions"})
 	@Test
 	void testPassingNull() {
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamReaderDelegate<?>)null));

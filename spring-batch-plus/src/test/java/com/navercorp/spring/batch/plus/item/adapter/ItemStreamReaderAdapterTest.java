@@ -35,9 +35,9 @@ import org.springframework.batch.item.ItemStreamReader;
 
 import reactor.core.publisher.Flux;
 
-@SuppressWarnings("unchecked")
+// note: it's deprecated. Do not change it.
+@SuppressWarnings({"unchecked", "deprecation"})
 class ItemStreamReaderAdapterTest {
-
 
 	@Test
 	void testOpen() {
@@ -110,7 +110,7 @@ class ItemStreamReaderAdapterTest {
 		verify(delegate, times(1)).onCloseRead();
 	}
 
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
+	@SuppressWarnings({"ConstantConditions"})
 	@Test
 	void testPassingNull() {
 		// when, then

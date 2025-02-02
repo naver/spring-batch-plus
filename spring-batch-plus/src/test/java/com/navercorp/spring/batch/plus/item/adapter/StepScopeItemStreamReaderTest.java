@@ -35,7 +35,8 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.test.MetaDataInstanceFactory;
 import org.springframework.batch.test.StepScopeTestUtils;
 
-@SuppressWarnings("unchecked")
+// note: it's deprecated. Do not change it.
+@SuppressWarnings({"unchecked", "deprecation"})
 class StepScopeItemStreamReaderTest {
 
 	@Test

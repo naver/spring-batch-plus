@@ -37,79 +37,64 @@ import org.springframework.batch.item.ItemStreamReader;
 class ItemStreamIteratorReaderAdapterTest {
 
 	@Test
-	void testOpen() {
-		// given
+	void openShouldInvokeProperDelegateMethods() {
 		ItemStreamIteratorReaderDelegate<Integer> delegate = mock(ItemStreamIteratorReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIteratorReaderAdapter.of(delegate);
 
-		// when
 		itemStreamReader.open(new ExecutionContext());
 
-		// then
 		verify(delegate, times(1)).onOpenRead(any());
 		verify(delegate, times(1)).readIterator(any());
 	}
 
 	@Test
-	void testRead() throws Exception {
-		// given
+	void readShouldReturnValuesFromDelegate() throws Exception {
 		List<Integer> expected = List.of(1, 2, 3);
 		ItemStreamIteratorReaderDelegate<Integer> delegate = mock(ItemStreamIteratorReaderDelegate.class);
 		when(delegate.readIterator(any())).thenAnswer($ -> expected.iterator());
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIteratorReaderAdapter.of(delegate);
-
-		// when
 		itemStreamReader.open(new ExecutionContext());
+
 		List<Integer> items = new ArrayList<>();
 		Integer item;
 		while ((item = itemStreamReader.read()) != null) {
 			items.add(item);
 		}
 
-		// then
 		assertThat(items).isEqualTo(expected);
 	}
 
 	@Test
-	void testReadWithOpenShouldThrowsException() {
-		// given
+	void readShouldThrowExceptionWhenNoOpenInvoked() {
 		ItemStreamIteratorReaderDelegate<Integer> delegate = mock(ItemStreamIteratorReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIteratorReaderAdapter.of(delegate);
 
-		// when, then
 		assertThatThrownBy(itemStreamReader::read).isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
-	void testUpdate() {
-		// given
+	void updateShouldInvokeProperDelegateMethod() {
 		ItemStreamIteratorReaderDelegate<Integer> delegate = mock(ItemStreamIteratorReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIteratorReaderAdapter.of(delegate);
 
-		// when
 		itemStreamReader.update(new ExecutionContext());
 
-		// then
 		verify(delegate, times(1)).onUpdateRead(any());
 	}
 
 	@Test
-	void testClose() {
-		// given
+	void closeShouldInvokeProperDelegateMethod() {
 		ItemStreamIteratorReaderDelegate<Integer> delegate = mock(ItemStreamIteratorReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIteratorReaderAdapter.of(delegate);
 
-		// when
 		itemStreamReader.close();
 
-		// then
 		verify(delegate, times(1)).onCloseRead();
 	}
 
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
+	@SuppressWarnings({"ConstantConditions"})
 	@Test
-	void testPassingNull() {
-		// when, then
+	void createShouldThrowExceptionWhenPassingNull() {
 		assertThatThrownBy(() -> ItemStreamIteratorReaderAdapter.of(null));
 	}
 }

@@ -34,75 +34,57 @@ import reactor.core.publisher.Flux;
 class AdapterFactoryTest {
 
 	@Test
-	void testItemReaderWithFlux() {
-		// when
+	void itemStreamReaderShouldReturnStepScopedOneWhenPassingItemReaderWithFluxDelegate() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = executionContext -> Flux.empty();
-		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(
-			delegate);
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
-		// then
 		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
 	}
 
 	@Test
-	void testItemReaderWithIterable() {
-		// when
+	void itemStreamReaderShouldReturnStepScopedOneWhenPassingItemReaderWithIterableDelegate() {
 		ItemStreamIterableReaderDelegate<Integer> delegate = executionContext -> List.of();
-		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(
-			delegate);
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
-		// then
 		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
 	}
 
 	@Test
-	void testItemReaderWithIterator() {
-		// when
+	void itemStreamReaderShouldReturnStepScopedOneWhenPassingItemReaderWithIteratorDelegate() {
 		ItemStreamIteratorReaderDelegate<Integer> delegate = executionContext -> Collections.emptyIterator();
-		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(
-			delegate);
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
-		// then
 		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
 	}
 
 	@Test
-	void testItemReaderWithSimple() {
-		// when
+	void itemStreamReaderShouldReturnStepScopedOneWhenPassingItemReaderWithSimpleDelegate() {
 		ItemStreamSimpleReaderDelegate<Integer> delegate = () -> null;
-		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(
-			delegate);
+		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
-		// then
 		assertThat(actual).isInstanceOf(StepScopeItemStreamReader.class);
 	}
 
 	@Test
-	void testItemProcessor() {
-		// when
+	void itemProcessorShouldReturnAdapterWhenPassingProcessorDelegate() {
 		ItemProcessorDelegate<Integer, Integer> delegate = item -> null;
-		ItemProcessor<Integer, Integer> actual = AdapterFactory.itemProcessor(
-			delegate);
+		ItemProcessor<Integer, Integer> actual = AdapterFactory.itemProcessor(delegate);
 
-		// then
 		assertThat(actual).isInstanceOf(ItemProcessorAdapter.class);
 	}
 
 	@Test
-	void testItemWriter() {
-		// when
+	void itemStreamWriterShouldReturnAdapterWhenPassingWriterDelegate() {
 		ItemStreamWriterDelegate<Integer> delegate = items -> {
 		};
-		ItemStreamWriter<Integer> actual = AdapterFactory.itemStreamWriter(
-			delegate);
+		ItemStreamWriter<Integer> actual = AdapterFactory.itemStreamWriter(delegate);
 
-		// then
 		assertThat(actual).isInstanceOf(ItemStreamWriterAdapter.class);
 	}
 
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
+	@SuppressWarnings({"ConstantConditions"})
 	@Test
-	void testPassingNull() {
+	void createShouldThrowExceptionWhenPassingNull() {
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamFluxReaderDelegate<?>)null));
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamIterableReaderDelegate<?>)null));
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamIteratorReaderDelegate<?>)null));

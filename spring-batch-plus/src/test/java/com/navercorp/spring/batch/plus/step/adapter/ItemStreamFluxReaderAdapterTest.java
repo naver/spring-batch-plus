@@ -39,79 +39,64 @@ import reactor.core.publisher.Flux;
 class ItemStreamFluxReaderAdapterTest {
 
 	@Test
-	void testOpen() {
-		// given
+	void openShouldInvokeProperDelegateMethods() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
 
-		// when
 		itemStreamReader.open(new ExecutionContext());
 
-		// then
 		verify(delegate, times(1)).onOpenRead(any());
 		verify(delegate, times(1)).readFlux(any());
 	}
 
 	@Test
-	void testRead() throws Exception {
-		// given
+	void readShouldReturnValuesFromDelegate() throws Exception {
 		List<Integer> expected = List.of(1, 2, 3);
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		when(delegate.readFlux(any())).thenAnswer($ -> Flux.fromIterable(expected));
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
-
-		// when
 		itemStreamReader.open(new ExecutionContext());
+
 		List<Integer> items = new ArrayList<>();
 		Integer item;
 		while ((item = itemStreamReader.read()) != null) {
 			items.add(item);
 		}
 
-		// then
 		assertThat(items).isEqualTo(expected);
 	}
 
 	@Test
-	void testReadWithOpenShouldThrowsException() {
-		// given
+	void readShouldThrowExceptionWhenNoOpenInvoked() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
 
-		// when, then
 		assertThatThrownBy(itemStreamReader::read).isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
-	void testUpdate() {
-		// given
+	void updateShouldInvokeProperDelegateMethod() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
 
-		// when
 		itemStreamReader.update(new ExecutionContext());
 
-		// then
 		verify(delegate, times(1)).onUpdateRead(any());
 	}
 
 	@Test
-	void testClose() {
-		// given
+	void closeShouldInvokeProperDelegateMethod() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
 
-		// when
 		itemStreamReader.close();
 
-		// then
 		verify(delegate, times(1)).onCloseRead();
 	}
 
 	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
-	void testPassingNull() {
-		// when, then
+	void createShouldThrowExceptionWhenPassingNull() {
 		assertThatThrownBy(() -> ItemStreamFluxReaderAdapter.of(null));
 	}
 }

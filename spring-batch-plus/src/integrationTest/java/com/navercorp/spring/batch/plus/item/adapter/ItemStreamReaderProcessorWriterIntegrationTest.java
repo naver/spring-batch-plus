@@ -18,9 +18,6 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
-import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemProcessor;
-import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.item.adapter.AdapterFactory.itemStreamWriter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -56,7 +53,8 @@ import org.springframework.transaction.TransactionManager;
 
 import reactor.core.publisher.Flux;
 
-@SuppressWarnings("unchecked")
+// note: it's deprecated. Do not change it.
+@SuppressWarnings({"unchecked", "deprecation"})
 class ItemStreamReaderProcessorWriterIntegrationTest {
 
 	private static final int TEST_REPEAT_COUNT = 5;
@@ -112,9 +110,9 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 			.start(
 				new StepBuilder("testStep", jobRepository)
 					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
-					.reader(itemStreamReader(testTasklet))
-					.processor(itemProcessor(testTasklet))
-					.writer(itemStreamWriter(testTasklet))
+					.reader(AdapterFactory.itemStreamReader(testTasklet))
+					.processor(AdapterFactory.itemProcessor(testTasklet))
+					.writer(AdapterFactory.itemStreamWriter(testTasklet))
 					.build()
 			)
 			.build();
@@ -157,9 +155,9 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 			.start(
 				new StepBuilder("testStep", jobRepository)
 					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
-					.reader(itemStreamReader(testTasklet))
-					.processor(itemProcessor(testTasklet))
-					.writer(itemStreamWriter(testTasklet))
+					.reader(AdapterFactory.itemStreamReader(testTasklet))
+					.processor(AdapterFactory.itemProcessor(testTasklet))
+					.writer(AdapterFactory.itemStreamWriter(testTasklet))
 					.build()
 			)
 			.build();
@@ -198,9 +196,9 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 			.start(
 				new StepBuilder("testStep", jobRepository)
 					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
-					.reader(itemStreamReader(testTasklet))
-					.processor(itemProcessor(testTasklet))
-					.writer(itemStreamWriter(testTasklet))
+					.reader(AdapterFactory.itemStreamReader(testTasklet))
+					.processor(AdapterFactory.itemProcessor(testTasklet))
+					.writer(AdapterFactory.itemStreamWriter(testTasklet))
 					.build()
 			)
 			.build();
@@ -243,9 +241,9 @@ class ItemStreamReaderProcessorWriterIntegrationTest {
 			.start(
 				new StepBuilder("testStep", jobRepository)
 					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
-					.reader(itemStreamReader(testTasklet))
-					.processor(itemProcessor(testTasklet))
-					.writer(itemStreamWriter(testTasklet))
+					.reader(AdapterFactory.itemStreamReader(testTasklet))
+					.processor(AdapterFactory.itemProcessor(testTasklet))
+					.writer(AdapterFactory.itemStreamWriter(testTasklet))
 					.build()
 			)
 			.build();
