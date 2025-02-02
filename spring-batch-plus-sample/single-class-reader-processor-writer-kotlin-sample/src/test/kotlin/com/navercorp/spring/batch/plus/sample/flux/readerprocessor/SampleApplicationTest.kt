@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.simple.readerprocessorwriter
+package com.navercorp.spring.batch.plus.sample.flux.readerprocessor
 
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
