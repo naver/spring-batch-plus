@@ -30,6 +30,7 @@ import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.lang.NonNull;
 
 /**
  * A {@link StepScope} bound proxy implementation.
@@ -60,9 +61,8 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 		this.delegateSupplier = Objects.requireNonNull(readerGenerator, "Reader generator must not be null");
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public void open(ExecutionContext executionContext) throws ItemStreamException {
+	public void open(@NonNull ExecutionContext executionContext) throws ItemStreamException {
 		getDelegate().open(executionContext);
 	}
 
@@ -71,9 +71,8 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 		return getDelegate().read();
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public void update(ExecutionContext executionContext) throws ItemStreamException {
+	public void update(@NonNull ExecutionContext executionContext) throws ItemStreamException {
 		getDelegate().update(executionContext);
 	}
 
