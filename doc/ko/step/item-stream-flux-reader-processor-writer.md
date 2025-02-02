@@ -6,9 +6,12 @@
 - [Processor 없이 Tasklet 작성하기](#processor-없이-tasklet-작성하기)
   - [Java](#java-1)
   - [Kotlin](#kotlin-1)
-- [Callback 사용하기](#callback-사용하기)
+- [Writer 없이 Tasklet 작성하기](#writer-없이-tasklet-작성하기)
   - [Java](#java-2)
   - [Kotlin](#kotlin-2)
+- [Callback 사용하기](#callback-사용하기)
+  - [Java](#java-3)
+  - [Kotlin](#kotlin-3)
 
 Spring 진영에서는 Reactive library로 [Reactor](https://projectreactor.io/)를 사용하고 있습니다. Reactor에서는 여러 데이터에 대한 stream을 `Flux`로 제공합니다. `Flux`로 읽은 데이터를 Spring Batch의 `ItemReader`에서 사용하기 위해서는 `Flux`에서 단일 Item씩 뽑아내서 리턴하는 작업이 필요합니다.
 
@@ -326,9 +329,156 @@ open class TestJobConfig(
 }
 ```
 
+## Writer 없이 Tasklet 작성하기
+
+`ItemStreamReader` 와 `ItemProcessor` 만 묶어서 사용하고 싶은 경우 `ItemStreamFluxReaderProcessor`를 상속하여 단일 class에서 `ItemStreamReader`, `ItemProcessor`를 정의할 수 있습니다.
+
+### Java
+
+Java의 경우 `AdapterFactory`를 이용해서 정의한 Tasklet을 `ItemStreamReader`, `ItemProcessor`로 변환하여 사용할 수 있습니다.
+
+```java
+@Component
+@StepScope
+class SampleTasklet implements ItemStreamFluxReaderProcessor<Integer, String> {
+
+	@Value("#{jobParameters['totalCount']}")
+	private long totalCount;
+
+	private int count = 0;
+
+	@NonNull
+	@Override
+	public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
+		System.out.println("totalCount: " + totalCount);
+		return Flux.generate(sink -> {
+			if (count < totalCount) {
+				sink.next(count);
+				++count;
+			} else {
+				sink.complete();
+			}
+		});
+	}
+
+	@Override
+	public String process(@NonNull Integer item) {
+		return "'" + item.toString() + "'";
+	}
+}
+```
+
+```java
+@Configuration
+public class TestJobConfig {
+
+	@Bean
+	public Job testJob(
+		SampleTasklet sampleTasklet,
+		JobRepository jobRepository,
+		PlatformTransactionManager transactionManager
+	) {
+		return new JobBuilder("testJob", jobRepository)
+			.start(
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, String>chunk(3, transactionManager)
+					.reader(AdapterFactory.itemStreamReader(sampleTasklet))
+					.processor(AdapterFactory.itemProcessor(sampleTasklet))
+					.writer(chunk -> System.out.println(chunk.getItems()))
+					.build()
+			)
+			.build();
+	}
+}
+```
+
+이 경우 `AdapterFactory`의 method를 static import를 해서 사용하는게 미관상 보기 더 좋습니다.
+
+```java
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
+
+...
+
+@Configuration
+public class TestJobConfig {
+
+	@Bean
+	public Job testJob(
+		SampleTasklet sampleTasklet,
+		JobRepository jobRepository,
+		PlatformTransactionManager transactionManager
+	) {
+		return new JobBuilder("testJob", jobRepository)
+			.start(
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, String>chunk(3, transactionManager)
+					.reader(itemStreamReader(sampleTasklet))
+					.processor(itemProcessor(sampleTasklet))
+					.writer(chunk -> System.out.println(chunk.getItems()))
+					.build()
+			)
+			.build();
+	}
+}
+```
+
+### Kotlin
+
+Kotlin 사용시에는 Spring Batch Plus가 제공하는 extension function 을 사용하여 정의한 Tasklet을 `ItemStreamReader`, `ItemProcessor`로 편리하게 변환할 수 있습니다.
+
+```Kotlin
+@Component
+@StepScope
+open class SampleTasklet(
+    @Value("#{jobParameters['totalCount']}") private var totalCount: Long,
+) : ItemStreamFluxReaderProcessor<Int, String> {
+    private var count = 0
+
+    override fun readFlux(executionContext: ExecutionContext): Flux<out Int> {
+        println("totalCount: $totalCount")
+        return Flux.generate { sink ->
+            if (count < totalCount) {
+                sink.next(count)
+                ++count
+            } else {
+                sink.complete()
+            }
+        }
+    }
+
+    override fun process(item: Int): String? {
+        return "'$item'"
+    }
+}
+```
+
+```Kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(
+        sampleTasklet: SampleTasklet,
+    ): Job = batch {
+        job("testJob") {
+            step("testStep") {
+                chunk<Int, String>(3, transactionManager) {
+                    reader(sampleTasklet.asItemStreamReader())
+                    processor(sampleTasklet.asItemProcessor())
+                    writer { chunk -> println(chunk.items) }
+                }
+            }
+        }
+    }
+}
+```
+
 ## Callback 사용하기
 
-`ItemStreamFluxReaderProcessorWriter`, `ItemStreamFluxReaderWriter` 에는 `ItemStreamReader`, `ItemStreamWriter`의 `ItemStream`에 대한 callback method도 같이 정의할 수 있습니다. Callback method는 선택적으로 정의할 수 있습니다.
+각 Adapter 에는 `ItemStream`에 대한 callback method도 같이 정의할 수 있습니다. Callback method는 선택적으로 정의할 수 있습니다.
 
 ### Java
 

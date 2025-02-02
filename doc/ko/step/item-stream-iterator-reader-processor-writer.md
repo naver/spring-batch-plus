@@ -6,9 +6,12 @@
 - [Processor 없이 Tasklet 작성하기](#processor-없이-tasklet-작성하기)
   - [Java](#java-1)
   - [Kotlin](#kotlin-1)
-- [Callback 사용하기](#callback-사용하기)
+- [Writer 없이 Tasklet 작성하기](#writer-없이-tasklet-작성하기)
   - [Java](#java-2)
   - [Kotlin](#kotlin-2)
+- [Callback 사용하기](#callback-사용하기)
+  - [Java](#java-3)
+  - [Kotlin](#kotlin-3)
 
 Spring Batch의 Chunk-oriented Step은 `ItemReader`, `ItemProcessor`, `ItemWriter`로 구성됩니다. Spring Batch에서는 일반적으로 `ItemReader`, `ItemProcessor`, `ItemWriter`를 각각 정의하고 이를 Step을 정의할 때 조립해서 사용합니다. 그런데 이 경우 `ItemReader`, `ItemProcessor`, `ItemWriter`간에 데이터 공유가 힘들고 배치의 흐름을 알기 위해서는 `ItemReader`, `ItemProcessor`, `ItemWriter`파일 각각을 살펴봐야 한다는 문제점이 있습니다. 또한 해당 클래스들이 재활용 되지 않는 케이스라면 Job의 응집도를 해치는 요소가 될 수 있습니다.
 
@@ -324,9 +327,160 @@ open class TestJobConfig(
 }
 ```
 
+## Writer 없이 Tasklet 작성하기
+
+`ItemStreamReader` 와 `ItemProcessor` 만 묶어서 사용하고 싶은 경우 `ItemStreamIteratorReaderProcessor`를 상속하여 단일 class에서 `ItemStreamReader`, `ItemProcessor`를 정의할 수 있습니다.
+
+### Java
+
+Java의 경우 `AdapterFactory`를 이용해서 정의한 Tasklet을 `ItemStreamReader`, `ItemProcessor`로 변환하여 사용할 수 있습니다.
+
+```java
+@Component
+@StepScope
+class SampleTasklet implements ItemStreamIteratorReaderProcessor<Integer, String> {
+
+	@Value("#{jobParameters['totalCount']}")
+	private long totalCount;
+
+	private int count = 0;
+
+	@NonNull
+	@Override
+	public Iterator<? extends Integer> readIterator(@NonNull ExecutionContext executionContext) {
+		System.out.println("totalCount: " + totalCount);
+		return new Iterator<>() {
+			@Override
+			public boolean hasNext() {
+				return count < totalCount;
+			}
+
+			@Override
+			public Integer next() {
+				return count++;
+			}
+		};
+	}
+
+	@Override
+	public String process(@NonNull Integer item) {
+		return "'" + item.toString() + "'";
+	}
+}
+```
+
+```java
+@Configuration
+public class TestJobConfig {
+
+	@Bean
+	public Job testJob(
+		SampleTasklet sampleTasklet,
+		JobRepository jobRepository,
+		PlatformTransactionManager transactionManager
+	) {
+		return new JobBuilder("testJob", jobRepository)
+			.start(
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, String>chunk(3, transactionManager)
+					.reader(AdapterFactory.itemStreamReader(sampleTasklet))
+					.processor(AdapterFactory.itemProcessor(sampleTasklet))
+					.writer(chunk -> System.out.println(chunk.getItems()))
+					.build()
+			)
+			.build();
+	}
+}
+```
+
+이 경우 `AdapterFactory`의 method를 static import를 해서 사용하는게 미관상 보기 더 좋습니다.
+
+```java
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
+
+...
+
+@Configuration
+public class TestJobConfig {
+
+	@Bean
+	public Job testJob(
+		SampleTasklet sampleTasklet,
+		JobRepository jobRepository,
+		PlatformTransactionManager transactionManager
+	) {
+		return new JobBuilder("testJob", jobRepository)
+			.start(
+				new StepBuilder("testStep", jobRepository)
+					.<Integer, String>chunk(3, transactionManager)
+					.reader(itemStreamReader(sampleTasklet))
+					.processor(itemProcessor(sampleTasklet))
+					.writer(chunk -> System.out.println(chunk.getItems()))
+					.build()
+			)
+			.build();
+	}
+}
+```
+
+### Kotlin
+
+Kotlin 사용시에는 Spring Batch Plus가 제공하는 extension function 을 사용하여 정의한 Tasklet을 `ItemStreamReader`, `ItemProcessor`로 편리하게 변환할 수 있습니다.
+
+```Kotlin
+@Component
+@StepScope
+open class SampleTasklet(
+    @Value("#{jobParameters['totalCount']}") private var totalCount: Long,
+) : ItemStreamIteratorReaderProcessor<Int, String> {
+    private var count = 0
+
+    override fun readIterator(executionContext: ExecutionContext): Iterator<Int> {
+        println("totalCount: $totalCount")
+        return object : Iterator<Int> {
+            override fun hasNext(): Boolean {
+                return count < totalCount
+            }
+
+            override fun next(): Int {
+                return count++
+            }
+        }
+    }
+
+    override fun process(item: Int): String? {
+        return "'$item'"
+    }
+}
+```
+
+```Kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(
+        sampleTasklet: SampleTasklet,
+    ): Job = batch {
+        job("testJob") {
+            step("testStep") {
+                chunk<Int, String>(3, transactionManager) {
+                    reader(sampleTasklet.asItemStreamReader())
+                    processor(sampleTasklet.asItemProcessor())
+                    writer { chunk -> println(chunk.items) }
+                }
+            }
+        }
+    }
+}
+```
+
 ## Callback 사용하기
 
-`ItemStreamIteratorReaderProcessorWriter`, `ItemStreamIteratorReaderWriter` 에는 `ItemStreamReader`, `ItemStreamWriter`의 `ItemStream`에 대한 callback method도 같이 정의할 수 있습니다. Callback method는 선택적으로 정의할 수 있습니다.
+각 Adapter 에는 `ItemStream`에 대한 callback method도 같이 정의할 수 있습니다. Callback method는 선택적으로 정의할 수 있습니다.
 
 ### Java
 
