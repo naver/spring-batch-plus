@@ -49,21 +49,18 @@ public class ItemStreamWriterAdapter<T> implements ItemStreamWriter<T> {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate writer must not be null");
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public void open(ExecutionContext executionContext) {
+	public void open(@NonNull ExecutionContext executionContext) {
 		this.delegate.onOpenWrite(executionContext);
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public void write(Chunk<? extends T> chunk) {
+	public void write(@NonNull Chunk<? extends T> chunk) {
 		this.delegate.write(chunk);
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public void update(ExecutionContext executionContext) {
+	public void update(@NonNull ExecutionContext executionContext) {
 		this.delegate.onUpdateWrite(executionContext);
 	}
 

@@ -48,9 +48,8 @@ public class ItemProcessorAdapter<I, O> implements ItemProcessor<I, O> {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate processor must not be null");
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public O process(I item) {
+	public O process(@NonNull I item) {
 		return this.delegate.process(item);
 	}
 }

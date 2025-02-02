@@ -51,9 +51,8 @@ public class ItemStreamIteratorReaderAdapter<T> implements ItemStreamReader<T> {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate reader must not be null");
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public void open(ExecutionContext executionContext) {
+	public void open(@NonNull ExecutionContext executionContext) {
 		this.delegate.onOpenRead(executionContext);
 		this.iterator = this.delegate.readIterator(executionContext);
 	}
@@ -68,9 +67,8 @@ public class ItemStreamIteratorReaderAdapter<T> implements ItemStreamReader<T> {
 		}
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public void update(ExecutionContext executionContext) {
+	public void update(@NonNull ExecutionContext executionContext) {
 		this.delegate.onUpdateRead(executionContext);
 	}
 
