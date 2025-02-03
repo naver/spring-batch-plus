@@ -169,14 +169,14 @@ Java
 ## User Guide
 
 - 1.1.x
-  - [Korean](https://github.com/naver/spring-batch-plus/tree/main/doc/ko)
-  - [English](https://github.com/naver/spring-batch-plus/tree/main/doc/en)
+    - [Korean](https://github.com/naver/spring-batch-plus/tree/1.1.x/doc/ko)
+    - [English](https://github.com/naver/spring-batch-plus/tree/1.1.x/doc/en)
 - 1.0.x
-  - [Korean](https://github.com/naver/spring-batch-plus/tree/1.0.x/doc/ko)
-  - [English](https://github.com/naver/spring-batch-plus/tree/1.0.x/doc/en)
+    - [Korean](https://github.com/naver/spring-batch-plus/tree/1.0.x/doc/ko)
+    - [English](https://github.com/naver/spring-batch-plus/tree/1.0.x/doc/en)
 - 0.3.x
-  - [Korean](https://github.com/naver/spring-batch-plus/tree/0.3.x/doc/ko)
-  - [English](https://github.com/naver/spring-batch-plus/tree/0.3.x/doc/en)
+    - [Korean](https://github.com/naver/spring-batch-plus/tree/0.3.x/doc/ko)
+    - [English](https://github.com/naver/spring-batch-plus/tree/0.3.x/doc/en)
 
 ## Build from source
 
@@ -189,7 +189,7 @@ Java
 
 - Clean: `./gradlew clean`
 - Check: `./gradlew check`
-  - Coverage report will be generated in `${project}/build/jacoco/html/index.html`
+    - Coverage report will be generated in `${project}/build/jacoco/html/index.html`
 - Assemble: `./gradlew build`
 - Install to local: `./gradlew install`
 - Publish: `./gradlew publish --no-parallel`
