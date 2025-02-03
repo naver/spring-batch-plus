@@ -36,84 +36,84 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
-internal class BatchPlusAutoConfigurationTest {
+private class BatchPlusAutoConfigurationIT {
 
     private val contextRunner = ApplicationContextRunner()
         .withConfiguration(AutoConfigurations.of(BatchPlusAutoConfiguration::class.java))
 
     @Test
-    fun testRegister() {
+    fun autoConfigure() {
+        @EnableBatchProcessing(
+            dataSourceRef = "metadataDataSource",
+            transactionManagerRef = "metadataTransactionManager",
+        )
+        class BatchConfiguration {
+
+            @Bean
+            fun metadataTransactionManager(): TransactionManager {
+                return DataSourceTransactionManager(metadataDataSource())
+            }
+
+            @Bean
+            fun metadataDataSource(): DataSource {
+                return EmbeddedDatabaseBuilder()
+                    .setType(EmbeddedDatabaseType.H2)
+                    .addScript("/org/springframework/batch/core/schema-h2.sql")
+                    .generateUniqueName(true)
+                    .build()
+            }
+        }
+
         contextRunner.withUserConfiguration(BatchConfiguration::class.java)
-            .run { context: AssertableApplicationContext? ->
+            .run { context: AssertableApplicationContext ->
                 assertThat(context).hasSingleBean(BatchDsl::class.java)
             }
     }
 
     @Test
-    fun testNotRegisterWhenAlreadyRegistered() {
-        contextRunner.withUserConfiguration(BatchDslConfiguration::class.java)
-            .run { context: AssertableApplicationContext? ->
+    fun autoConfigureShouldNotRegisterWhenAlreadyRegisteredOneExists() {
+        @EnableBatchProcessing(
+            dataSourceRef = "metadataDataSource",
+            transactionManagerRef = "metadataTransactionManager",
+        )
+        class BatchConfiguration {
+            @Bean
+            fun batchDsl(
+                beanFactory: BeanFactory,
+                jobRepository: JobRepository,
+            ): BatchDsl {
+                return BatchDsl(
+                    beanFactory,
+                    jobRepository,
+                )
+            }
+
+            @Bean
+            fun metadataTransactionManager(): TransactionManager {
+                return DataSourceTransactionManager(metadataDataSource())
+            }
+
+            @Bean
+            fun metadataDataSource(): DataSource {
+                return EmbeddedDatabaseBuilder()
+                    .setType(EmbeddedDatabaseType.H2)
+                    .addScript("/org/springframework/batch/core/schema-h2.sql")
+                    .generateUniqueName(true)
+                    .build()
+            }
+        }
+
+        contextRunner.withUserConfiguration(BatchConfiguration::class.java)
+            .run { context: AssertableApplicationContext ->
                 assertThat(context).hasSingleBean(BatchDsl::class.java)
             }
     }
 
     @Test
-    fun testNotRegisterOnNoRequiredBeans() {
+    fun autoConfigureShouldNotRegisterWhenNoRequiredBeans() {
         contextRunner.run { context: AssertableApplicationContext ->
             assertThatThrownBy { context.getBean<BatchDsl>() }
                 .hasMessageContaining("No qualifying bean")
-        }
-    }
-
-    @EnableBatchProcessing(
-        dataSourceRef = "metadataDataSource",
-        transactionManagerRef = "metadataTransactionManager",
-    )
-    class BatchConfiguration {
-
-        @Bean
-        fun metadataTransactionManager(): TransactionManager {
-            return DataSourceTransactionManager(metadataDataSource())
-        }
-
-        @Bean
-        fun metadataDataSource(): DataSource {
-            return EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.H2)
-                .addScript("/org/springframework/batch/core/schema-h2.sql")
-                .generateUniqueName(true)
-                .build()
-        }
-    }
-
-    @EnableBatchProcessing(
-        dataSourceRef = "metadataDataSource",
-        transactionManagerRef = "metadataTransactionManager",
-    )
-    class BatchDslConfiguration {
-        @Bean
-        fun batchDsl(
-            beanFactory: BeanFactory,
-            jobRepository: JobRepository,
-        ): BatchDsl {
-            return BatchDsl(
-                beanFactory,
-                jobRepository,
-            )
-        }
-
-        @Bean
-        fun metadataTransactionManager(): TransactionManager {
-            return DataSourceTransactionManager(metadataDataSource())
-        }
-
-        @Bean
-        fun metadataDataSource(): DataSource {
-            return EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.H2)
-                .addScript("/org/springframework/batch/core/schema-h2.sql")
-                .generateUniqueName(true)
-                .build()
         }
     }
 }
