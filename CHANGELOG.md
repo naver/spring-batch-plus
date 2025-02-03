@@ -1,9 +1,8 @@
 # ChangeLog
 
 - [1.1.x](#11x)
-  - [1.1.0-SNAPSHOT](#110-snapshot)
+  - [1.1.0](#110)
 - [1.0.x](#10x)
-  - [1.0.2-SNAPSHOT](#102-snapshot)
   - [1.0.1](#101)
   - [1.0.0](#100)
 - [0.3.x](#03x)
@@ -15,20 +14,6 @@
   - [0.1.0](#010)
 
 ## 1.1.x
-
-### 1.1.1-SNAPSHOT
-
-#### New Features
-
-- None
-
-#### Changes
-
-- None
-
-#### Bug fixes & Improvements
-
-- None
 
 ### 1.1.0
 
@@ -50,20 +35,6 @@
 - None
 
 ## 1.0.x
-
-### 1.0.2-SNAPSHOT
-
-#### New Features
-
-- None
-
-#### Changes
-
-- None
-
-#### Bug fixes & Improvements
-
-- None
 
 ### 1.0.1
 
