@@ -1,6 +1,5 @@
 # Step Configuration
 
-- [Job Repository 설정](#job-repository-설정)
 - [BatchStepObservationConvention 설정](#batchstepobservationconvention-설정)
 - [ObservationRegistry 설정](#observationregistry-설정)
 - [MeterRegistry 설정](#meterregistry-설정)
@@ -11,37 +10,6 @@
 - [allowStartIfComplete 설정](#allowstartifcomplete-설정)
 
 Kotlin DSL에서는 `StepBuilder`에서 설정할 수 있는 기능을 모두 제공합니다. 이 문서에서는 Kotlin DSL을 활용해서 `Step` 관련 설정들을 하는 방법에 대해서 다룹니다.
-
-## Job Repository 설정
-
-Kotlin DSL은 `StepBuilder`를 사용하여 `JobRepository`를 설정하는 방법을 제공합니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-    private val jobRepository: JobRepository,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                repository(
-                    object : JobRepository by jobRepository {
-                        override fun update(stepExecution: StepExecution) {
-                            println("update stepExecution to $stepExecution")
-                            jobRepository.update(stepExecution)
-                        }
-                    },
-                )
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-        }
-    }
-}
-```
 
 ## BatchStepObservationConvention 설정
 
