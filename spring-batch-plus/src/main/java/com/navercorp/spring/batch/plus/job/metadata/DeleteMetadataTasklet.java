@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
@@ -35,7 +35,7 @@ import org.springframework.batch.repeat.RepeatStatus;
  * A tasklet to delete metadata of Spring Batch.
  * This tasklet must be executed after execution of {@link CheckMaxJobInstanceIdToDeleteTasklet}
  */
-class DeleteMetadataTasklet extends StepExecutionListenerSupport implements Tasklet {
+class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 
 	static final String LOW_ID_KEY = "lowJobInstanceId";
 
