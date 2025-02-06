@@ -33,69 +33,48 @@ import org.springframework.batch.item.ItemStreamWriter;
 class ItemStreamWriterAdapterTest {
 
 	@Test
-	void testOpen() {
-		// given
-		ItemStreamWriterDelegate<Integer> delegate = mock(
-			ItemStreamWriterDelegate.class);
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
-			delegate);
+	void openShouldInvokeProperDelegateMethod() {
+		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
-		// when
 		itemStreamWriterAdaptor.open(new ExecutionContext());
 
-		// then
 		verify(delegate, times(1)).onOpenWrite(any());
 	}
 
 	@Test
-	void testWrite() throws Exception {
-		// given
-		ItemStreamWriterDelegate<Integer> delegate = mock(
-			ItemStreamWriterDelegate.class);
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
-			delegate);
+	void writeShouldInvokeProperDelegateMethod() throws Exception {
+		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
-		// when
 		itemStreamWriterAdaptor.write(Chunk.of());
 
-		// then
 		verify(delegate, times(1)).write(any());
 	}
 
 	@Test
-	void testUpdate() {
-		// given
-		ItemStreamWriterDelegate<Integer> delegate = mock(
-			ItemStreamWriterDelegate.class);
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
-			delegate);
+	void updateShouldInvokeProperDelegateMethod() {
+		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
-		// when
 		itemStreamWriterAdaptor.update(new ExecutionContext());
 
-		// then
 		verify(delegate, times(1)).onUpdateWrite(any());
 	}
 
 	@Test
-	void testClose() {
-		// given
-		ItemStreamWriterDelegate<Integer> delegate = mock(
-			ItemStreamWriterDelegate.class);
-		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(
-			delegate);
+	void closeShouldInvokeProperDelegateMethod() {
+		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
+		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
-		// when
 		itemStreamWriterAdaptor.close();
 
-		// then
 		verify(delegate, times(1)).onCloseWrite();
 	}
 
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
+	@SuppressWarnings({"ConstantConditions"})
 	@Test
-	void testPassingNull() {
-		// when, then
+	void createShouldThrowExceptionWhenPassingNull() {
 		assertThatThrownBy(() -> ItemStreamWriterAdapter.of(null));
 	}
 }

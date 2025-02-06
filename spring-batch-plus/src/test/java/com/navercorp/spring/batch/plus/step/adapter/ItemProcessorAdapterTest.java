@@ -33,26 +33,20 @@ import org.springframework.batch.item.ItemProcessor;
 class ItemProcessorAdapterTest {
 
 	@Test
-	void testProcess() throws Exception {
-		// given
+	void processShouldReturnValueFromDelegate() throws Exception {
 		Integer expected = ThreadLocalRandom.current().nextInt();
-		ItemProcessorDelegate<Integer, Integer> delegate = mock(
-			ItemProcessorDelegate.class);
+		ItemProcessorDelegate<Integer, Integer> delegate = mock(ItemProcessorDelegate.class);
 		when(delegate.process(any())).thenReturn(expected);
-		ItemProcessor<Integer, Integer> itemProcessorAdaptor = ItemProcessorAdapter.of(
-			delegate);
+		ItemProcessor<Integer, Integer> itemProcessorAdaptor = ItemProcessorAdapter.of(delegate);
 
-		// when
 		Integer actual = itemProcessorAdaptor.process(ThreadLocalRandom.current().nextInt());
 
-		// then
 		assertThat(actual).isEqualTo(expected);
 	}
 
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
+	@SuppressWarnings({"ConstantConditions"})
 	@Test
-	void testPassingNull() {
-		// when, then
+	void createShouldThrowExceptionWhenPassingNull() {
 		assertThatThrownBy(() -> ItemProcessorAdapter.of(null));
 	}
 }

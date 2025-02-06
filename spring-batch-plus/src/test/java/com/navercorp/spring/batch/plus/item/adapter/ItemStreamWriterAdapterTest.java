@@ -29,7 +29,8 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
 
-@SuppressWarnings("unchecked")
+// note: it's deprecated. Do not change it.
+@SuppressWarnings({"unchecked", "deprecation"})
 class ItemStreamWriterAdapterTest {
 
 	@Test
@@ -84,7 +85,7 @@ class ItemStreamWriterAdapterTest {
 		verify(delegate, times(1)).onCloseWrite();
 	}
 
-	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
+	@SuppressWarnings({"ConstantConditions"})
 	@Test
 	void testPassingNull() {
 		// when, then

@@ -39,84 +39,65 @@ import org.springframework.batch.test.StepScopeTestUtils;
 class StepScopeItemStreamReaderTest {
 
 	@Test
-	void testOpen() throws Exception {
-		// given
+	void openShouldInvokeProperDelegateMethod() throws Exception {
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
-		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
 		StepScopeTestUtils.doInStepScope(stepExecution, () -> {
 			itemStreamReader.open(new ExecutionContext());
 			return null;
 		});
 
-		// then
 		verify(delegate, times(1)).open(any());
 	}
 
 	@Test
-	void testRead() throws Exception {
-		// given
+	void readShouldReturnValueFromDelegate() throws Exception {
 		Integer expected = ThreadLocalRandom.current().nextInt();
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
 		when(delegate.read()).thenReturn(expected);
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
-		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
 		Integer actual = StepScopeTestUtils.doInStepScope(stepExecution, itemStreamReader::read);
 
-		// then
 		assertThat(actual).isEqualTo(expected);
 	}
 
 	@Test
-	void testUpdate() throws Exception {
-		// given
+	void updateShouldInvokeProperDelegateMethod() throws Exception {
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
-		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
 		StepScopeTestUtils.doInStepScope(stepExecution, () -> {
 			itemStreamReader.update(new ExecutionContext());
 			return null;
 		});
 
-		// then
 		verify(delegate, times(1)).update(any());
 	}
 
 	@Test
-	void testClose() throws Exception {
-		// given
+	void closeShouldInvokeProperDelegateMethod() throws Exception {
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
-		// when
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
 		StepScopeTestUtils.doInStepScope(stepExecution, () -> {
 			itemStreamReader.close();
 			return null;
 		});
 
-		// then
 		verify(delegate, times(1)).close();
 	}
 
 	@Test
-	void testInvokeShouldThrowsExceptionWhenNoStepScope() {
-		// given
+	void invokeShouldThrowExceptionWhenNoStepScope() {
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
-		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(
-			() -> delegate);
+		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
-		// when
 		assertThatThrownBy(
 			() -> itemStreamReader.open(new ExecutionContext())
 		).hasMessageContaining("No step context is set. Make sure if it's invoked in a stepScope.");
@@ -132,8 +113,7 @@ class StepScopeItemStreamReaderTest {
 	}
 
 	@Test
-	void testPassingNull() {
-		// when, then
+	void createShouldThrowExceptionWhenPassingNull() {
 		assertThatThrownBy(() -> StepScopeItemStreamReader.of(null));
 	}
 }
