@@ -30,7 +30,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -40,7 +40,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 /**
  * A tasklet to check metadata of job instances to delete.
  */
-class CheckMaxJobInstanceIdToDeleteTasklet extends StepExecutionListenerSupport implements Tasklet {
+class CheckMaxJobInstanceIdToDeleteTasklet implements Tasklet, StepExecutionListener {
 
 	static final String MAX_ID_KEY = "maxJobInstanceId";
 
