@@ -8,7 +8,6 @@
 - [BatchJobObservationConvention 설정하기](#batchjobobservationconvention-설정하기)
 - [ObservationRegistry 설정하기](#observationregistry-설정하기)
 - [PreventRestart 설정하기](#preventrestart-설정하기)
-- [Repository 설정하기](#repository-설정하기)
 - [JobParametersValidator 설정하기](#jobparametersvalidator-설정하기)
 
 Kotlin DSL은 `JobBuilder`에서 설정할 수 있는 기능을 모두 제공합니다. 이 문서에서는 Kotlin DSL을 활용해서 `Job` 을 설정하는 방법에 대해서 다룹니다.
@@ -241,36 +240,6 @@ open class TestJobConfig(
                     },
                     transactionManager,
                 )
-            }
-        }
-    }
-}
-```
-
-## Repository 설정하기
-
-Kotlin DSL은 `JobBuilder`를 사용해서 `JobRepository` 설정을 하는 방법을 제공합니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(jobRepository: JobRepository): Job = batch {
-        job("testJob") {
-            repository(
-                object : JobRepository by jobRepository {
-                    override fun update(jobExecution: JobExecution) {
-                        println("update jobExecution to $jobExecution")
-                        jobRepository.update(jobExecution)
-                    }
-                },
-            )
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }

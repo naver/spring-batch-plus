@@ -8,7 +8,6 @@
 - [Set a BatchJobObservationConvention](#set-a-batchjobobservationconvention)
 - [Set a ObservationRegistry](#set-a-observationregistry)
 - [Set preventRestart](#set-preventrestart)
-- [Set a Repository](#set-a-repository)
 - [Set a JobParametersValidator](#set-a-jobparametersvalidator)
 
 The functions that can be set with `JobBuilder` are also available with the Kotlin DSL. In this page, you will learn how to set a `Job` using the Kotlin DSL.
@@ -240,36 +239,6 @@ open class TestJobConfig(
                     },
                     transactionManager,
                 )
-            }
-        }
-    }
-}
-```
-
-## Set a Repository
-
-The Kotlin DSL helps you set a `JobRepository` using `JobBuilder`.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(jobRepository: JobRepository): Job = batch {
-        job("testJob") {
-            repository(
-                object : JobRepository by jobRepository {
-                    override fun update(jobExecution: JobExecution) {
-                        println("update jobExecution to $jobExecution")
-                        jobRepository.update(jobExecution)
-                    }
-                },
-            )
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
     }
