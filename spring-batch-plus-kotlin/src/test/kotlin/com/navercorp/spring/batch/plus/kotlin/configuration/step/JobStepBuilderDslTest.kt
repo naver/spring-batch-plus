@@ -31,47 +31,38 @@ import org.springframework.batch.core.step.job.JobParametersExtractor
 internal class JobStepBuilderDslTest {
 
     @Test
-    fun testLauncher() {
-        // given
+    fun launcherShouldInvokeDelegate() {
         val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true)
 
-        // when
         val jobLauncher = mockk<JobLauncher>()
         JobStepBuilderDsl(mockk(), jobStepBuilder).apply {
             launcher(jobLauncher)
         }.build()
 
-        // then
         verify(exactly = 1) { jobStepBuilder.launcher(jobLauncher) }
     }
 
     @Test
-    fun testParametersExtractor() {
-        // given
+    fun parametersExtractorShouldInvokeDelegate() {
         val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true)
 
-        // when
         val jobParametersExtractor = mockk<JobParametersExtractor>()
         JobStepBuilderDsl(mockk(), jobStepBuilder).apply {
             parametersExtractor(jobParametersExtractor)
         }.build()
 
-        // then
         verify(exactly = 1) { jobStepBuilder.parametersExtractor(jobParametersExtractor) }
     }
 
     @Test
-    fun testBuild() {
-        // given
+    fun buildShouldReturnValueFromDelegate() {
         val mockStep = mockk<Step>()
         val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true) {
             every { build() } returns mockStep
         }
 
-        // when
         val actual = JobStepBuilderDsl(mockk(), jobStepBuilder).build()
 
-        // then
         assertThat(actual).isEqualTo(mockStep)
     }
 }

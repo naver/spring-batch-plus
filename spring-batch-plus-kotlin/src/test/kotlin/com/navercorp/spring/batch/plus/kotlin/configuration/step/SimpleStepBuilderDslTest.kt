@@ -55,178 +55,143 @@ import java.util.concurrent.ThreadLocalRandom
 internal class SimpleStepBuilderDslTest {
 
     @Test
-    fun testReader() {
-        // given
+    fun readerShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val itemReader = mockk<ItemReader<Int>>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             reader(itemReader)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.reader(itemReader) }
     }
 
     @Test
-    fun testProcessor() {
-        // given
+    fun processorShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val itemProcessor = mockk<ItemProcessor<Int, Int>>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             processor(itemProcessor)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.processor(itemProcessor) }
     }
 
     @Test
-    fun testWriter() {
-        // given
+    fun writerShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val itemWriter = mockk<ItemWriter<Int>>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             writer(itemWriter)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.writer(itemWriter) }
     }
 
     @Test
-    fun testReaderIsTransactionalQueue() {
-        // given
+    fun readerIsTransactionalQueueShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             readerIsTransactionalQueue()
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.readerIsTransactionalQueue() }
     }
 
     @Test
-    fun testObjectListener() {
-        // given
+    fun objectListenerShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
         class TestListener
 
-        // when
         val testListener = TestListener()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             listener(testListener)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.listener(testListener) }
     }
 
     @Test
-    fun testReadListener() {
-        // given
+    fun readListenerShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val itemReadListener = mockk<ItemReadListener<Int>>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             listener(itemReadListener)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.listener(itemReadListener) }
     }
 
     @Test
-    fun testWriteListener() {
-        // given
+    fun writeListenerShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val itemWriteListener = mockk<ItemWriteListener<Int>>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             listener(itemWriteListener)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.listener(itemWriteListener) }
     }
 
     @Test
-    fun testProcessListener() {
-        // given
+    fun processListenerShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val itemProcessListener = mockk<ItemProcessListener<Int, Int>>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             listener(itemProcessListener)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.listener(itemProcessListener) }
     }
 
     @Test
-    fun testChunkListener() {
-        // given
+    fun chunkListenerShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val chunkListener = mockk<ChunkListener>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             listener(chunkListener)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.listener(chunkListener) }
     }
 
     @Test
-    fun testStream() {
-        // given
+    fun streamShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val itemStream = mockk<ItemStream>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             stream(itemStream)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.stream(itemStream) }
     }
 
     @Test
-    fun testTaskExecutor() {
-        // given
+    fun taskExecutorShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val taskExecutor = mockk<TaskExecutor>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             taskExecutor(taskExecutor)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.taskExecutor(taskExecutor) }
     }
 
     @Suppress("DEPRECATION")
     @Test
-    fun testThrottleLimit() {
-        // given
+    fun throttleLimitShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val taskExecutor = mockk<TaskExecutor>()
         val limit = ThreadLocalRandom.current().nextInt()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
@@ -234,76 +199,61 @@ internal class SimpleStepBuilderDslTest {
             throttleLimit(limit)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.throttleLimit(limit) }
     }
 
     @Test
-    fun testExceptionHandler() {
-        // given
+    fun exceptionHandlerShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val exceptionHandler = mockk<ExceptionHandler>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             exceptionHandler(exceptionHandler)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.exceptionHandler(exceptionHandler) }
     }
 
     @Test
-    fun testStepOperations() {
-        // given
+    fun stepOperationsShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val repeatOperations = mockk<RepeatOperations>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             stepOperations(repeatOperations)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.stepOperations(repeatOperations) }
     }
 
     @Test
-    fun testTransactionAttribute() {
-        // given
+    fun transactionAttributeShouldInvokeDelegate() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when
         val transactionAttribute = mockk<TransactionAttribute>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
             transactionAttribute(transactionAttribute)
         }.build()
 
-        // then
         verify(exactly = 1) { simpleStepBuilder.transactionAttribute(transactionAttribute) }
     }
 
     @Test
-    fun testBuild() {
-        // given
+    fun buildShouldReturnValueFromDelegate() {
         val mockStep = mockk<TaskletStep>()
         val taskletStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true) {
             every { build() } returns mockStep
         }
 
-        // when
         val actual = SimpleStepBuilderDsl(mockk(), taskletStepBuilder).build()
 
-        // then
         assertThat(actual).isEqualTo(mockStep)
     }
 
     @Test
-    fun testBuildWithSettingStepOperationsAndTaskExecutor() {
-        // given
+    fun buildWithSettingStepOperationsAndTaskExecutorShouldThrowException() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when, then
         assertThatThrownBy {
             SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
                 stepOperations(RepeatTemplate())
@@ -313,11 +263,9 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testBuildWithSettingStepOperationsAndExceptionHandler() {
-        // given
+    fun buildWithSettingStepOperationsAndExceptionHandlerShouldThrowException() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when, then
         assertThatThrownBy {
             SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
                 stepOperations(RepeatTemplate())
@@ -330,11 +278,9 @@ internal class SimpleStepBuilderDslTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun testBuildWithSettingThrottleLimitWhenNoTaskExecutor() {
-        // given
+    fun throttleLimitWithoutTaskExecutorShouldThrowException() {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
-        // when, then
         assertThatThrownBy {
             SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
                 throttleLimit(3)
@@ -346,8 +292,7 @@ internal class SimpleStepBuilderDslTest {
     inner class RedundancyCheck {
 
         @Test
-        fun testStepOperationsAndRedundantSettings() {
-            // given
+        fun stepOperationsShouldMakeSomeSettingsRedundant() {
             val chunkSize = 3
             val readLimit = 20
             var readCallCount = 0
@@ -356,7 +301,6 @@ internal class SimpleStepBuilderDslTest {
             var exceptionHandlerCallCount = 0
             val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
 
-            // when
             val step = stepBuilder
                 .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
                 .reader {
@@ -391,7 +335,6 @@ internal class SimpleStepBuilderDslTest {
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
 
-            // then
             assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
             assertThat(stepOperationCallCount).isEqualTo(1)
             assertThat(readCallCount).isEqualTo(readLimit)
@@ -401,8 +344,7 @@ internal class SimpleStepBuilderDslTest {
 
         @Suppress("DEPRECATION")
         @Test
-        fun testThrottleLimitAndRedundantSettings() {
-            // given
+        fun throttleLimitShouldNotAppliedWhenNoTaskExecutor() {
             val readLimit = 10000
             val chunkSize = 1
             var readCallCount = 0
@@ -410,7 +352,6 @@ internal class SimpleStepBuilderDslTest {
             var writeCallCount = 0
             val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
 
-            // when
             val step = stepBuilder
                 .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
                 .reader {
@@ -435,7 +376,6 @@ internal class SimpleStepBuilderDslTest {
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
 
-            // then
             assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
             // if throttleLimit is applied to executor, it should be different by race condition
             assertThat(readCallCount).isEqualTo(readLimit)

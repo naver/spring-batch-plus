@@ -24,28 +24,23 @@ import org.junit.jupiter.api.Test
 internal class LazyConfigurerTest {
 
     @Test
-    fun testAdd() {
-        // given
+    fun invokeShouldApplySingleAddedConfigurer() {
         var configurerCallCount = 0
 
-        // when
         val lazyConfigurer = LazyConfigurer<String>()
         lazyConfigurer.add {
             ++configurerCallCount
         }
         "test".apply(lazyConfigurer)
 
-        // then
         assertThat(configurerCallCount).isEqualTo(1)
     }
 
     @Test
-    fun testAddOther() {
-        // given
+    fun invokeShouldApplySeveralAddedConfigurer() {
         var configurer1CallCount = 0
         var configurer2CallCount = 0
 
-        // when
         val lazyConfigurer = LazyConfigurer<String>()
         lazyConfigurer.add(
             LazyConfigurer<String>().apply {
@@ -59,7 +54,6 @@ internal class LazyConfigurerTest {
         )
         "test".apply(lazyConfigurer)
 
-        // then
         assertThat(configurer1CallCount).isEqualTo(1)
         assertThat(configurer2CallCount).isEqualTo(1)
     }

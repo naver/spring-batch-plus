@@ -30,12 +30,10 @@ import org.springframework.batch.support.transaction.ResourcelessTransactionMana
 internal class SimpleJobBuilderDslAdapterTest {
 
     @Test
-    fun testUnsupportedCall() {
-        // given
+    fun flowJobMethodShouldThrowException() {
         val simpleJobBuilderDsl = SimpleJobBuilderDsl(DslContext(mockk(), mockk()), mockk())
         val simpleJobBuilderDslAdapter = SimpleJobBuilderDslAdapter(simpleJobBuilderDsl)
 
-        // when, then
         assertThatThrownBy {
             simpleJobBuilderDslAdapter.stepBean("testStep") {
             }

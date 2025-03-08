@@ -39,165 +39,135 @@ import java.util.UUID
 internal class JobBuilderDslHelperTest {
 
     @Test
-    fun testValidator() {
-        // given
+    fun validatorShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         val jobParametersValidator = mockk<JobParametersValidator>()
         jobBuilderDsl.apply {
             validator(jobParametersValidator)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.validator(jobParametersValidator) }
     }
 
     @Test
-    fun testIncrementer() {
-        // given
+    fun incrementerShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         val jobParametersIncrementer = mockk<JobParametersIncrementer>()
         jobBuilderDsl.apply {
             incrementer(jobParametersIncrementer)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.incrementer(jobParametersIncrementer) }
     }
 
     @Test
-    fun testObservationConvention() {
-        // given
+    fun observationConventionShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         val observationConvention = mockk<BatchJobObservationConvention>()
         jobBuilderDsl.apply {
             observationConvention(observationConvention)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.observationConvention(observationConvention) }
     }
 
     @Test
-    fun testObservationRegistry() {
-        // given
+    fun observationRegistryShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         val observationRegistry = mockk<ObservationRegistry>()
         jobBuilderDsl.apply {
             observationRegistry(observationRegistry)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.observationRegistry(observationRegistry) }
     }
 
     @Test
-    fun testMeterRegistry() {
-        // given
+    fun meterRegistryShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         val meterRegistry = mockk<MeterRegistry>()
         jobBuilderDsl.apply {
             meterRegistry(meterRegistry)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.meterRegistry(meterRegistry) }
     }
 
     @Suppress("DEPRECATION")
     @Test
-    fun testRepository() {
-        // given
+    fun repositoryShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         val jobRepository = mockk<JobRepository>()
         jobBuilderDsl.apply {
             repository(jobRepository)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.repository(jobRepository) }
     }
 
     @Test
-    fun testObjectListener() {
-        // given
+    fun objectListenerShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         class TestListener
 
-        // when
         val testListener = TestListener()
         jobBuilderDsl.apply {
             listener(testListener)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.listener(testListener) }
     }
 
     @Test
-    fun testJobExecutionListener() {
-        // given
+    fun jobExecutionListenerShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         val jobExecutionListener = mockk<JobExecutionListener>()
         jobBuilderDsl.apply {
             listener(jobExecutionListener)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.listener(jobExecutionListener) }
     }
 
     @Test
-    fun testPreventRestart() {
-        // given
+    fun preventRestartShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         jobBuilderDsl.apply {
             preventRestart()
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.preventRestart() }
     }
 
     @Test
-    fun testConfigurationAfterStep() {
-        // given
+    fun configurationAfterStepShouldInvokeProperDelegate() {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
-        // when
         val jobParametersValidator = mockk<JobParametersValidator>()
         jobBuilderDsl.apply {
             step(mockk())
             validator(jobParametersValidator)
         }.build()
 
-        // then
         verify(exactly = 1) { jobBuilder.validator(jobParametersValidator) }
     }
 

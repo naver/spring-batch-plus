@@ -38,132 +38,108 @@ internal class StepBuilderDslHelperTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun testRepository() {
-        // given
+    fun repositoryShouldInvokeProperDelegate() {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
-        // when
         val jobRepository = mockk<JobRepository>()
         stepBuilderDsl.apply {
             repository(jobRepository)
         }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
-        // then
         verify(exactly = 1) { stepBuilderDsl.repository(jobRepository) }
     }
 
     @Test
-    fun testObservationConvention() {
-        // given
+    fun observationConventionShouldInvokeProperDelegate() {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
-        // when
         val observationConvention = mockk<BatchStepObservationConvention>()
         stepBuilderDsl.apply {
             observationConvention(observationConvention)
         }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
-        // then
         verify(exactly = 1) { stepBuilderDsl.observationConvention(observationConvention) }
     }
 
     @Test
-    fun testObservationRegistry() {
-        // given
+    fun observationRegistryShouldInvokeProperDelegate() {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
-        // when
         val observationRegistry = mockk<ObservationRegistry>()
         stepBuilderDsl.apply {
             observationRegistry(observationRegistry)
         }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
-        // then
         verify(exactly = 1) { stepBuilderDsl.observationRegistry(observationRegistry) }
     }
 
     @Test
-    fun testMeterRegistry() {
-        // given
+    fun meterRegistryShouldInvokeProperDelegate() {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
-        // when
         val meterRegistry = mockk<MeterRegistry>()
         stepBuilderDsl.apply {
             meterRegistry(meterRegistry)
         }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
-        // then
         verify(exactly = 1) { stepBuilderDsl.meterRegistry(meterRegistry) }
     }
 
     @Test
-    fun testStartLimit() {
-        // given
+    fun startLimitShouldInvokeProperDelegate() {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
-        // when
         val startLimit = ThreadLocalRandom.current().nextInt()
         stepBuilderDsl.apply {
             startLimit(startLimit)
         }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
-        // then
         verify(exactly = 1) { stepBuilderDsl.startLimit(startLimit) }
     }
 
     @Test
-    fun testObjectListener() {
-        // given
+    fun objectListenerShouldInvokeProperDelegate() {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
         class TestListener
 
-        // when
         val testListener = TestListener()
         stepBuilderDsl.apply {
             listener(testListener)
         }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
-        // then
         verify(exactly = 1) { stepBuilderDsl.listener(testListener) }
     }
 
     @Test
-    fun testStepExecutionListener() {
-        // given
+    fun stepExecutionListenerShouldInvokeProperDelegate() {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
-        // when
         val stepExecutionListener = mockk<StepExecutionListener>()
         stepBuilderDsl.apply {
             listener(stepExecutionListener)
         }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
-        // then
         verify(exactly = 1) { stepBuilderDsl.listener(stepExecutionListener) }
     }
 
     @Test
-    fun testAllowStartIfComplete() {
-        // given
+    fun allowStartIfCompleteShouldInvokeProperDelegate() {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
 
-        // when
         val allowStartIfComplete = ThreadLocalRandom.current().nextBoolean()
         stepBuilderDsl.apply {
             allowStartIfComplete(allowStartIfComplete)
         }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
-        // then
         verify(exactly = 1) { stepBuilderDsl.allowStartIfComplete(allowStartIfComplete) }
     }
 

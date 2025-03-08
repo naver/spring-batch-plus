@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package com.navercorp.spring.batch.plus.kotlin.item.adapter
 
 import com.navercorp.spring.batch.plus.item.adapter.ItemProcessorAdapter
@@ -30,6 +28,7 @@ import org.springframework.batch.item.Chunk
 import org.springframework.batch.item.ExecutionContext
 import reactor.core.publisher.Flux
 
+@Suppress("DEPRECATION")
 internal class ItemDelegatesTest {
 
     @Test
