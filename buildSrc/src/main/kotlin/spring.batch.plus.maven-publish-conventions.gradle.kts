@@ -66,7 +66,7 @@ publishing {
     }
 }
 
-tasks.create("install") {
+tasks.register("install") {
     dependsOn("publishToMavenLocal")
 }
 
@@ -81,7 +81,7 @@ tasks.withType<PublishToMavenRepository> {
 
 signing {
     // make the singing optional
-    setRequired(false)
+    isRequired = false
 
     // in '.envrc'
     // export ORG_GRADLE_PROJECT_signingKeyId=xxx
