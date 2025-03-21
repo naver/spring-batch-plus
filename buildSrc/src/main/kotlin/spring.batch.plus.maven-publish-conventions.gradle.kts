@@ -80,16 +80,22 @@ tasks.withType<PublishToMavenRepository> {
 /* signing */
 
 signing {
-    // make the singing optional
-    isRequired = false
+    // enable signing only when publishing to maven central
+    // return true to enable for all
+    setRequired {
+        gradle.taskGraph.allTasks.any { it is PublishToMavenRepository }
+    }
 
     // in '.envrc'
-    // export ORG_GRADLE_PROJECT_signingKeyId=xxx
-    // export ORG_GRADLE_PROJECT_signingKey=xxx
-    // export ORG_GRADLE_PROJECT_signingPassword=xxx
-    val signingKeyId: String? by project
-    val signingKey: String? by project
-    val signingPassword: String? by project
+    // export SIGNING_KEY_ID=xxx
+    // export SIGNING_KEY=xxx
+    // export SIGNING_PASSWORD=xxx
+    // note that we don't use official one
+    // (ORG_GRADLE_PROJECT_signingKeyId, ORG_GRADLE_PROJECT_signingKey, ORG_GRADLE_PROJECT_signingPassword)
+    // since the github secret doesn't support lower case environment variable
+    val signingKeyId: String? = System.getenv("SIGNING_KEY_ID")
+    val signingKey: String? = System.getenv("SIGNING_KEY")
+    val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign(publishing.publications["maven"])
 }
