@@ -1,5 +1,7 @@
 # ChangeLog
 
+- [1.2.x](#12x)
+  - [1.2.0](#120)
 - [1.1.x](#11x)
   - [1.1.0](#110)
 - [1.0.x](#10x)
@@ -13,9 +15,29 @@
 - [0.1.x](#01x)
   - [0.1.0](#010)
 
+## 1.2.x
+
+### 1.2.0
+
+Support for Spring Batch 5.2.x
+
+#### New Features
+
+- Add adapter for processor-writer pair
+
+#### Changes
+
+- Bump up minimum kotlin compatibility to 1.6
+
+#### Bug fixes & Improvements
+
+- Remove usage of StepExecutionListenerSupport
+
 ## 1.1.x
 
 ### 1.1.0
+
+Support for Spring Batch 5.1.x
 
 #### New Features
 
@@ -52,7 +74,7 @@
 
 ### 1.0.0
 
-Support for [Spring Batch 5.0.0](https://github.com/spring-projects/spring-batch/releases/tag/v5.0.0).
+Support for Spring Batch 5.0.x
 
 #### New Features
 
