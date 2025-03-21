@@ -35,7 +35,7 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.jdbc.BadSqlGrammarException;
 
-class DeleteMetadataJobBuilderTest {
+class DeleteMetadataJobBuilderIT {
 	TestJobRepositoryConfig config = new TestJobRepositoryConfig();
 
 	@Test

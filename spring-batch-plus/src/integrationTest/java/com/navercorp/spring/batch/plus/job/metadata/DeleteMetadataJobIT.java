@@ -45,7 +45,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(TestJobRepositoryConfig.class)
-class DeleteMetadataJobTest {
+class DeleteMetadataJobIT {
 
 	@Autowired
 	JobRepository jobRepository;

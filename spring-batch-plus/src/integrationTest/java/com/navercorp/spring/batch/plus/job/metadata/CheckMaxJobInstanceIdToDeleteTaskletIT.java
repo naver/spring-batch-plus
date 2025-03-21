@@ -45,7 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(TestJobRepositoryConfig.class)
-class CheckMaxJobInstanceIdToDeleteTaskletTest {
+class CheckMaxJobInstanceIdToDeleteTaskletIT {
 
 	@Autowired
 	JobRepository jobRepository;
