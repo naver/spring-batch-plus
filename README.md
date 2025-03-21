@@ -169,6 +169,9 @@ Java
 
 ## User Guide
 
+- 1.2.x
+    - [Korean](https://github.com/naver/spring-batch-plus/tree/main/doc/ko)
+    - [English](https://github.com/naver/spring-batch-plus/tree/main/doc/en)
 - 1.1.x
     - [Korean](https://github.com/naver/spring-batch-plus/tree/1.1.x/doc/ko)
     - [English](https://github.com/naver/spring-batch-plus/tree/1.1.x/doc/en)
@@ -184,7 +187,6 @@ Java
 ### Prerequisites
 
 - Jdk 17 or higher
-- Kotlin 1.5 or higher
 
 ### Build
 
