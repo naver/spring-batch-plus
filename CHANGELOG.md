@@ -23,7 +23,7 @@ Support for Spring Batch 5.2.x
 
 #### New Features
 
-- Add adapter for processor-writer pair
+- Add adapter for reader processor pair
 
 #### Changes
 
