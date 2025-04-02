@@ -3,6 +3,10 @@ plugins {
     // https://docs.gradle.org/current/userguide/java_library_plugin.html
     `java-library`
 
+    // for managing custom test suite
+    // https://docs.gradle.org/current/userguide/jvm_test_suite_plugin.html
+    `jvm-test-suite`
+
     // coverage, jacoco can cover kotlin codes
     // https://docs.gradle.org/current/userguide/jacoco_plugin.html
     jacoco
@@ -48,33 +52,48 @@ tasks.javadoc {
     }
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
-    maxParallelForks = Runtime.getRuntime().availableProcessors()
-}
+testing {
+    suites {
+        // reference to test task which is automatically created
+        val test by getting(JvmTestSuite::class) {
+            targets {
+                all {
+                    testTask.configure {
+                        useJUnitPlatform()
+                        maxParallelForks = Runtime.getRuntime().availableProcessors()
+                    }
+                }
+            }
+        }
 
-sourceSets {
-    create("integrationTest") {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
+        register<JvmTestSuite>("integrationTest") {
+            dependencies {
+                // add dependency of project itself
+                implementation(project())
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        // run after 'test' task
+                        shouldRunAfter(test)
+
+                        useJUnitPlatform()
+                        maxParallelForks = Runtime.getRuntime().availableProcessors()
+                    }
+                }
+            }
+        }
     }
 }
+
+// configure dependencies integrationTest from project itself
+// see also: https://github.com/gradle/gradle/issues/19870
 val integrationTestImplementation: Configuration by configurations.getting {
     extendsFrom(configurations.implementation.get(), configurations.testImplementation.get())
 }
 val integrationTestRuntimeOnly: Configuration by configurations.getting {
     extendsFrom(configurations.runtimeOnly.get(), configurations.testRuntimeOnly.get())
-}
-
-tasks.register<Test>("integrationTest") {
-    // run after 'test' task
-    shouldRunAfter("test")
-
-    useJUnitPlatform()
-    maxParallelForks = Runtime.getRuntime().availableProcessors()
-
-    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-    classpath = sourceSets["integrationTest"].runtimeClasspath
 }
 
 
