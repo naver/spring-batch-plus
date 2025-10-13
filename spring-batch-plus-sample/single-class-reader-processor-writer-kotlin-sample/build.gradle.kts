@@ -33,7 +33,7 @@ tasks.named<Test>("test") {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.0")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.5.0")
     }
 }
 
@@ -44,4 +44,5 @@ dependencies {
     runtimeOnly("com.h2database:h2:2.1.214")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
