@@ -18,8 +18,8 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
-import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderWriter;
 

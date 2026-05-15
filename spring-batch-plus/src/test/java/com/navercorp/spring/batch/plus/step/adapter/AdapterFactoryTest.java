@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 
 import reactor.core.publisher.Flux;
 

@@ -20,8 +20,8 @@ package com.navercorp.spring.batch.plus.step.adapter;
 
 import java.util.Objects;
 
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.lang.NonNull;
 
 /**

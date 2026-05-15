@@ -18,9 +18,9 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
 
 /**

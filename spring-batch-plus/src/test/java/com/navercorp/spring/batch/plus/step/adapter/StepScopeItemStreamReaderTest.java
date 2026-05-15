@@ -29,9 +29,9 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.core.step.StepExecution;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.batch.test.MetaDataInstanceFactory;
 import org.springframework.batch.test.StepScopeTestUtils;
 

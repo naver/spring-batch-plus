@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
 
 // note: it's deprecated. Do not change it.
 @SuppressWarnings({"unchecked", "deprecation"})

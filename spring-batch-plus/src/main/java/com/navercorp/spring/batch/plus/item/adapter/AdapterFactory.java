@@ -21,9 +21,9 @@ package com.navercorp.spring.batch.plus.item.adapter;
 import java.util.Objects;
 
 import org.springframework.batch.core.scope.StepScope;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 import org.springframework.lang.NonNull;
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderDelegate;

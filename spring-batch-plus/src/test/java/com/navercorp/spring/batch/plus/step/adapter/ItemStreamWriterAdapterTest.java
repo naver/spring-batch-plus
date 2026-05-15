@@ -25,9 +25,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 
 @SuppressWarnings("unchecked")
 class ItemStreamWriterAdapterTest {

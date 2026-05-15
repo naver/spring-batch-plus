@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.springframework.batch.core.scope.StepScope;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemStreamException;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
 /**
  * A {@link StepScope} bound proxy implementation.
