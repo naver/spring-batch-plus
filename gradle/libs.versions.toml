@@ -1,11 +1,11 @@
 [versions]
-spring-boot = "3.4.0"
-spring-batch = "5.2.0"
+spring-boot = "4.0.5"
+spring-batch = "6.0.3"
 # spring-jdbc version should follow minor version described in 'spring-framework.version'
 # https://github.com/spring-projects/spring-batch/blob/main/pom.xml
-spring-jdbc = "6.2.0"
+spring-jdbc = "7.0.6"
 slf4j = "2.0.17"
-reactor-core = "3.5.0"
+reactor-core = "3.8.4"
 findbugs-jsr305 = "3.0.2"
 
 # test-only
