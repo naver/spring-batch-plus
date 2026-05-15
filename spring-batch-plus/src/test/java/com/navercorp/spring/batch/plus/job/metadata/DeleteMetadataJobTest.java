@@ -19,6 +19,8 @@
 package com.navercorp.spring.batch.plus.job.metadata;
 
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createJobExecution;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createStepExecution;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateFrom;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateTo;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.randomBetween;
@@ -32,14 +34,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
-import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -60,8 +61,7 @@ class DeleteMetadataJobTest {
 	@BeforeEach
 	void setUp(
 		@Autowired DataSource dataSource,
-		@Autowired String tablePrefix,
-		@Autowired JobRepositoryTestUtils testUtils
+		@Autowired String tablePrefix
 	) {
 		TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
 		jobLauncher.setJobRepository(this.jobRepository);
@@ -72,7 +72,13 @@ class DeleteMetadataJobTest {
 			.tablePrefix(tablePrefix)
 			.build();
 
-		testUtils.removeJobExecutions();
+		// JobLauncher.run() in Spring Batch 6.0 creates the JobInstance before validating parameters,
+		// so failed validations leave orphan instances. Delete by instance to also drop their executions.
+		for (String jobName : this.jobRepository.getJobNames()) {
+			for (JobInstance instance : this.jobRepository.findJobInstances(jobName)) {
+				this.jobRepository.deleteJobInstance(instance);
+			}
+		}
 	}
 
 	@Test
@@ -95,10 +101,10 @@ class DeleteMetadataJobTest {
 		// given
 		int countToCreate = randomBetween(10, 50);
 		for (int i = 0; i < countToCreate; ++i) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJobToRemove" + i, buildJobParams());
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJobToRemove" + i, buildJobParams());
 			jobExecution.setCreateTime(dateFrom(2022, 3, 15));
 			jobRepository.update(jobExecution);
-			jobRepository.add(new StepExecution("testStep", jobExecution));
+			createStepExecution(jobRepository, "testStep", jobExecution);
 		}
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString("baseDate", "2022/03/15")
@@ -127,17 +133,17 @@ class DeleteMetadataJobTest {
 		// given
 		int countToCreateBeforeBaseDate = randomBetween(10, 50);
 		for (int i = 0; i < countToCreateBeforeBaseDate; ++i) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJobToRemove" + i, buildJobParams());
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJobToRemove" + i, buildJobParams());
 			jobExecution.setCreateTime(dateTo(2022, 3, 14));
 			jobRepository.update(jobExecution);
-			jobRepository.add(new StepExecution("testStep", jobExecution));
+			createStepExecution(jobRepository, "testStep", jobExecution);
 		}
 		int countToCreateAfterBaseDate = randomBetween(10, 50);
 		for (int i = 0; i < countToCreateAfterBaseDate; ++i) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJobToRemains" + i, buildJobParams());
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJobToRemains" + i, buildJobParams());
 			jobExecution.setCreateTime(dateFrom(2022, 3, 15));
 			jobRepository.update(jobExecution);
-			jobRepository.add(new StepExecution("testStep", jobExecution));
+			createStepExecution(jobRepository, "testStep", jobExecution);
 		}
 
 		// when
@@ -166,10 +172,10 @@ class DeleteMetadataJobTest {
 		// given
 		int countToCreate = randomBetween(10, 50);
 		for (int i = 0; i < countToCreate; ++i) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJobToRemove" + i, buildJobParams());
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJobToRemove" + i, buildJobParams());
 			jobExecution.setCreateTime(dateTo(2022, 3, 14));
 			jobRepository.update(jobExecution);
-			jobRepository.add(new StepExecution("testStep", jobExecution));
+			createStepExecution(jobRepository, "testStep", jobExecution);
 		}
 
 		// when

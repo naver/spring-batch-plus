@@ -31,13 +31,14 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.RepeatedTest;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -146,7 +147,8 @@ class ItemStreamSimpleReaderProcessorIT {
 		assertThat(invokeCountContext.processCallCount).isEqualTo(itemCount);
 	}
 
-	@EnableBatchProcessing(
+	@EnableBatchProcessing
+	@EnableJdbcJobRepository(
 		dataSourceRef = "metadataDataSource",
 		transactionManagerRef = "metadataTransactionManager"
 	)
@@ -173,7 +175,8 @@ class ItemStreamSimpleReaderProcessorIT {
 		}
 	}
 
-	@EnableBatchProcessing(
+	@EnableBatchProcessing
+	@EnableJdbcJobRepository(
 		dataSourceRef = "metadataDataSource",
 		transactionManagerRef = "metadataTransactionManager"
 	)

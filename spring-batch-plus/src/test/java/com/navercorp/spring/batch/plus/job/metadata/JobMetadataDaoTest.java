@@ -19,6 +19,8 @@
 package com.navercorp.spring.batch.plus.job.metadata;
 
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createJobExecution;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createStepExecution;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateFrom;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateTo;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,8 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
-import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -53,7 +55,7 @@ class JobMetadataDaoTest {
 	@Test
 	void selectMaxJobInstanceIdLessThanCreateTimeWhenEmpty() throws Exception {
 		// given
-		JobExecution execution = jobRepository.createJobExecution("testJob1", buildJobParams());
+		JobExecution execution = createJobExecution(jobRepository, "testJob1", buildJobParams());
 		execution.setCreateTime(dateFrom(2022, 3, 14));
 		jobRepository.update(execution);
 
@@ -67,11 +69,11 @@ class JobMetadataDaoTest {
 	@Test
 	void selectMaxJobInstanceIdLessThanCreateTimeWhenExists() throws Exception {
 		// given
-		JobExecution execution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
+		JobExecution execution1 = createJobExecution(jobRepository, "testJob1", buildJobParams());
 		execution1.setCreateTime(dateTo(2022, 3, 14));
 		jobRepository.update(execution1);
 
-		JobExecution execution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
+		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
 		execution2.setCreateTime(dateFrom(2022, 3, 15));
 		jobRepository.update(execution2);
 
@@ -80,7 +82,7 @@ class JobMetadataDaoTest {
 
 		// then
 		assertThat(maxJobInstanceId).isPresent();
-		assertThat(maxJobInstanceId.get()).isEqualTo(execution1.getJobId());
+		assertThat(maxJobInstanceId.get()).isEqualTo(execution1.getJobInstanceId());
 	}
 
 	@Test
@@ -112,10 +114,10 @@ class JobMetadataDaoTest {
 	@Test
 	void testDeleteJobExecutionsParamsByJobInstanceIdRange() throws Exception {
 		// given
-		JobExecution execution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
-		JobExecution execution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
-		long lowJobInstanceId = execution1.getJobId();
-		long highJobInstanceId = execution2.getJobId();
+		JobExecution execution1 = createJobExecution(jobRepository, "testJob1", buildJobParams());
+		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
+		long lowJobInstanceId = execution1.getJobInstanceId();
+		long highJobInstanceId = execution2.getJobInstanceId();
 
 		// when
 		int deletedCount = dao.deleteJobExecutionParamsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
@@ -127,10 +129,10 @@ class JobMetadataDaoTest {
 	@Test
 	void testDeleteJobExecutionContextsByJobInstanceIdRange() throws Exception {
 		// given
-		JobExecution execution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
-		JobExecution execution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
-		long lowJobInstanceId = execution1.getJobId();
-		long highJobInstanceId = execution2.getJobId();
+		JobExecution execution1 = createJobExecution(jobRepository, "testJob1", buildJobParams());
+		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
+		long lowJobInstanceId = execution1.getJobInstanceId();
+		long highJobInstanceId = execution2.getJobInstanceId();
 
 		// when
 		int deletedCount = dao.deleteJobExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
@@ -142,12 +144,12 @@ class JobMetadataDaoTest {
 	@Test
 	void testDeleteJobExecutionsByJobInstanceIdRange() throws Exception {
 		// given
-		JobExecution execution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
-		JobExecution execution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
-		jobRepository.createJobExecution("testJob3", buildJobParams());
+		JobExecution execution1 = createJobExecution(jobRepository, "testJob1", buildJobParams());
+		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
+		createJobExecution(jobRepository, "testJob3", buildJobParams());
 
-		long lowJobInstanceId = execution1.getJobId();
-		long highJobInstanceId = execution2.getJobId();
+		long lowJobInstanceId = execution1.getJobInstanceId();
+		long highJobInstanceId = execution2.getJobInstanceId();
 		dao.deleteJobExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 		dao.deleteJobExecutionParamsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 
@@ -161,17 +163,15 @@ class JobMetadataDaoTest {
 	@Test
 	void testDeleteStepExecutionContextsByJobInstanceIdRange() throws Exception {
 		// given
-		JobExecution jobExecution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
-		jobExecution1.createStepExecution("testStep1");
-		jobExecution1.createStepExecution("testStep2");
-		jobRepository.add(new StepExecution("testStep1", jobExecution1));
-		jobRepository.add(new StepExecution("testStep2", jobExecution1));
+		JobExecution jobExecution1 = createJobExecution(jobRepository, "testJob1", buildJobParams());
+		createStepExecution(jobRepository, "testStep1", jobExecution1);
+		createStepExecution(jobRepository, "testStep2", jobExecution1);
 
-		JobExecution jobExecution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
-		jobRepository.add(new StepExecution("testStep3", jobExecution2));
+		JobExecution jobExecution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
+		createStepExecution(jobRepository, "testStep3", jobExecution2);
 
-		long lowJobInstanceId = jobExecution1.getJobId();
-		long highJobInstanceId = jobExecution2.getJobId();
+		long lowJobInstanceId = jobExecution1.getJobInstanceId();
+		long highJobInstanceId = jobExecution2.getJobInstanceId();
 
 		// when
 		int deletedCount = dao.deleteStepExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
@@ -183,20 +183,18 @@ class JobMetadataDaoTest {
 	@Test
 	void testDeleteStepExecutionsByJobInstanceIdRange() throws Exception {
 		// given
-		JobExecution jobExecution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
-		jobExecution1.createStepExecution("testStep1");
-		jobExecution1.createStepExecution("testStep2");
-		jobRepository.add(new StepExecution("testStep1", jobExecution1));
-		jobRepository.add(new StepExecution("testStep2", jobExecution1));
+		JobExecution jobExecution1 = createJobExecution(jobRepository, "testJob1", buildJobParams());
+		createStepExecution(jobRepository, "testStep1", jobExecution1);
+		createStepExecution(jobRepository, "testStep2", jobExecution1);
 
-		JobExecution jobExecution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
-		jobRepository.add(new StepExecution("testStep3", jobExecution2));
+		JobExecution jobExecution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
+		createStepExecution(jobRepository, "testStep3", jobExecution2);
 
-		JobExecution jobExecution3 = jobRepository.createJobExecution("testJob3", buildJobParams());
-		jobRepository.add(new StepExecution("testStep4", jobExecution3));
+		JobExecution jobExecution3 = createJobExecution(jobRepository, "testJob3", buildJobParams());
+		createStepExecution(jobRepository, "testStep4", jobExecution3);
 
-		long lowJobInstanceId = jobExecution1.getJobId();
-		long highJobInstanceId = jobExecution2.getJobId();
+		long lowJobInstanceId = jobExecution1.getJobInstanceId();
+		long highJobInstanceId = jobExecution2.getJobInstanceId();
 		dao.deleteStepExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 
 		// when

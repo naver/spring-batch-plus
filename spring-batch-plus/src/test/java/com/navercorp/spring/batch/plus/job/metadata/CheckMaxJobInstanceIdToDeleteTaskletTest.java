@@ -20,6 +20,8 @@ package com.navercorp.spring.batch.plus.job.metadata;
 
 import static com.navercorp.spring.batch.plus.job.metadata.CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createJobExecution;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createStepExecution;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateFrom;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateTo;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,11 +34,11 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.step.StepContribution;
-import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.step.StepContribution;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.batch.test.JobRepositoryTestUtils;
@@ -81,11 +83,11 @@ class CheckMaxJobInstanceIdToDeleteTaskletTest {
 	@Test
 	void testExecuteWhenNeedToDelete() throws Exception {
 		// given
-		JobExecution execution1 = jobRepository.createJobExecution("testJob1", buildJobParams());
+		JobExecution execution1 = createJobExecution(jobRepository, "testJob1", buildJobParams());
 		execution1.setCreateTime(dateTo(2022, 3, 14));
 		jobRepository.update(execution1);
 
-		JobExecution execution2 = jobRepository.createJobExecution("testJob2", buildJobParams());
+		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
 		execution2.setCreateTime(dateFrom(2022, 3, 15));
 		jobRepository.update(execution2);
 
@@ -105,13 +107,13 @@ class CheckMaxJobInstanceIdToDeleteTaskletTest {
 		assertThat(exitStatus).isEqualTo(ExitStatus.COMPLETED);
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		long maxJobInstanceId = jobExecutionContext.getLong(MAX_ID_KEY);
-		assertThat(maxJobInstanceId).isEqualTo(execution1.getJobId());
+		assertThat(maxJobInstanceId).isEqualTo(execution1.getJobInstanceId());
 	}
 
 	@Test
 	void testExecuteWhenNoNeedToDelete() throws Exception {
 		// given
-		JobExecution execution = jobRepository.createJobExecution("testJob2", buildJobParams());
+		JobExecution execution = createJobExecution(jobRepository, "testJob2", buildJobParams());
 		execution.setCreateTime(dateFrom(2022, 2, 15));
 		jobRepository.update(execution);
 
