@@ -18,8 +18,8 @@
 
 package com.navercorp.spring.batch.plus.step.adapter;
 
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -41,7 +41,7 @@ public interface ItemStreamSimpleReaderDelegate<T> {
 	/**
 	 * Read each item.
 	 * @return an item to read. null if it's end of data.
-	 *         Return contract is same as {@link org.springframework.batch.item.ItemReader<T>}
+	 *         Return contract is same as {@link org.springframework.batch.infrastructure.item.ItemReader<T>}
 	 */
 	@Nullable
 	T read();

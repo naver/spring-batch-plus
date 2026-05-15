@@ -20,7 +20,7 @@ package com.navercorp.spring.batch.plus.step.adapter;
 
 import java.util.Objects;
 
-import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.lang.NonNull;
 
 /**

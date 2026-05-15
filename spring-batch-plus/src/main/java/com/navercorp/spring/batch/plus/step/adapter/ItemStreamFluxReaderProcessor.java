@@ -18,8 +18,8 @@
 
 package com.navercorp.spring.batch.plus.step.adapter;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
 import reactor.core.publisher.Flux;
 

@@ -18,8 +18,8 @@
 
 package com.navercorp.spring.batch.plus.item.adapter;
 
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
