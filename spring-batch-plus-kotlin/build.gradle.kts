@@ -14,6 +14,7 @@ dependencies {
     testImplementation(libs.spring.batch.core)
     testImplementation(libs.spring.jdbc)
     testImplementation(libs.reactor.core)
+    testRuntimeOnly(libs.junit.platform.launcher)
     testRuntimeOnly(libs.h2)
     testRuntimeOnly(libs.log4j)
 }

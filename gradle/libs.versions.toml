@@ -9,12 +9,12 @@ reactor-core = "3.8.4"
 findbugs-jsr305 = "3.0.2"
 
 # test-only
-junit = "5.11.+"
+junit = "6.0.+"
 assertj = "3.27.+"
-mockito = "5.15.+"
-mockk = "1.13.+"
-h2 = "2.3.+"
-log4j = "2.24.+"
+mockito = "5.20.+"
+mockk = "1.14.+"
+h2 = "2.4.+"
+log4j = "2.25.+"
 
 [libraries]
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot" }
@@ -26,6 +26,7 @@ findbugs-jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "f
 
 # test-only
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
