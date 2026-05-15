@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.job.metadata;
 
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createJobExecution;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -51,7 +52,7 @@ class DeleteMetadataJobBuilderTest {
 			.toJobParameters();
 
 		Job job = new DeleteMetadataJobBuilder(jobRepository, dataSource).build();
-		JobExecution jobExecution = jobRepository.createJobExecution("deleteMetadataJob", jobParams);
+		JobExecution jobExecution = createJobExecution(jobRepository, "deleteMetadataJob", jobParams);
 		job.execute(jobExecution);
 
 		// then
@@ -76,7 +77,7 @@ class DeleteMetadataJobBuilderTest {
 			.addString("baseDate", "2022/03/14")
 			.toJobParameters();
 
-		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
+		JobExecution jobExecution = createJobExecution(jobRepository, "testJob", jobParams);
 		job.execute(jobExecution);
 
 		// then
@@ -102,7 +103,7 @@ class DeleteMetadataJobBuilderTest {
 			.addString(baseDateParameterName, "2022/03/14")
 			.toJobParameters();
 
-		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
+		JobExecution jobExecution = createJobExecution(jobRepository, "testJob", jobParams);
 		job.execute(jobExecution);
 
 		// then
@@ -128,7 +129,7 @@ class DeleteMetadataJobBuilderTest {
 			.addString("baseDate", "2022-03-14")
 			.toJobParameters();
 
-		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
+		JobExecution jobExecution = createJobExecution(jobRepository, "testJob", jobParams);
 		job.execute(jobExecution);
 
 		// then
@@ -155,7 +156,7 @@ class DeleteMetadataJobBuilderTest {
 			.addString(dryRunParameterName, "true")
 			.toJobParameters();
 
-		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
+		JobExecution jobExecution = createJobExecution(jobRepository, "testJob", jobParams);
 		job.execute(jobExecution);
 
 		// then
@@ -179,7 +180,7 @@ class DeleteMetadataJobBuilderTest {
 			.tablePrefix("WRONG_")
 			.build();
 
-		JobExecution jobExecution = jobRepository.createJobExecution("testJob", jobParams);
+		JobExecution jobExecution = createJobExecution(jobRepository, "testJob", jobParams);
 		job.execute(jobExecution);
 
 		// then

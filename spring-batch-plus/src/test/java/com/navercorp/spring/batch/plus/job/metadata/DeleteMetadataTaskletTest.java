@@ -21,6 +21,8 @@ package com.navercorp.spring.batch.plus.job.metadata;
 import static com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataTasklet.DELETION_RANGE_LENGTH;
 import static com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataTasklet.LOW_ID_KEY;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createJobExecution;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createStepExecution;
 import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.randomBetween;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,11 +33,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.step.StepContribution;
-import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.step.StepContribution;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.batch.test.JobRepositoryTestUtils;
@@ -67,9 +69,9 @@ class DeleteMetadataTaskletTest {
 		int countToDelete = countToCreate - randomBetween(1, countToCreate - 1);
 		long lastJobInstanceId = 0;
 		for (int i = 0; i < countToCreate; i++) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJob" + i, buildJobParams());
-			jobRepository.add(new StepExecution("testStep", jobExecution));
-			lastJobInstanceId = jobExecution.getJobId();
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJob" + i, buildJobParams());
+			createStepExecution(jobRepository, "testStep", jobExecution);
+			lastJobInstanceId = jobExecution.getJobInstanceId();
 		}
 
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -108,8 +110,8 @@ class DeleteMetadataTaskletTest {
 		// given
 		int countToCreate = randomBetween(10, 300);
 		for (int i = 0; i < countToCreate; i++) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJob" + i, buildJobParams());
-			jobRepository.add(new StepExecution("testStep", jobExecution));
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJob" + i, buildJobParams());
+			createStepExecution(jobRepository, "testStep", jobExecution);
 		}
 
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -147,9 +149,9 @@ class DeleteMetadataTaskletTest {
 		int countToCreate = randomBetween(10, 300);
 		long lastJobInstanceId = 0;
 		for (int i = 0; i < countToCreate; i++) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJob" + i, buildJobParams());
-			jobRepository.add(new StepExecution("testStep", jobExecution));
-			lastJobInstanceId = jobExecution.getJobId();
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJob" + i, buildJobParams());
+			createStepExecution(jobRepository, "testStep", jobExecution);
+			lastJobInstanceId = jobExecution.getJobInstanceId();
 		}
 
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
@@ -185,9 +187,9 @@ class DeleteMetadataTaskletTest {
 		int countToCreate = randomBetween(1, 10);
 		long lastJobInstanceId = 0;
 		for (int i = 0; i < countToCreate; i++) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJob" + i, buildJobParams());
-			jobRepository.add(new StepExecution("testStep", jobExecution));
-			lastJobInstanceId = jobExecution.getJobId();
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJob" + i, buildJobParams());
+			createStepExecution(jobRepository, "testStep", jobExecution);
+			lastJobInstanceId = jobExecution.getJobInstanceId();
 		}
 
 		JobParameters jobParameters = new JobParametersBuilder()
@@ -229,9 +231,9 @@ class DeleteMetadataTaskletTest {
 		int countToCreate = randomBetween(1, 10);
 		long lastJobInstanceId = 0;
 		for (int i = 0; i < countToCreate; i++) {
-			JobExecution jobExecution = jobRepository.createJobExecution("testJob" + i, buildJobParams());
-			jobRepository.add(new StepExecution("testStep", jobExecution));
-			lastJobInstanceId = jobExecution.getJobId();
+			JobExecution jobExecution = createJobExecution(jobRepository, "testJob" + i, buildJobParams());
+			createStepExecution(jobRepository, "testStep", jobExecution);
+			lastJobInstanceId = jobExecution.getJobInstanceId();
 		}
 
 		JobParameters jobParameters = new JobParametersBuilder()

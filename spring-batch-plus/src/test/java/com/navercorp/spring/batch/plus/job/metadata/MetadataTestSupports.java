@@ -23,10 +23,25 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.StepExecution;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
 
 class MetadataTestSupports {
+
+	static JobExecution createJobExecution(JobRepository jobRepository, String jobName, JobParameters parameters) {
+		JobInstance jobInstance = jobRepository.createJobInstance(jobName, parameters);
+		return jobRepository.createJobExecution(jobInstance, parameters, new ExecutionContext());
+	}
+
+	static StepExecution createStepExecution(JobRepository jobRepository, String stepName, JobExecution jobExecution) {
+		return jobRepository.createStepExecution(stepName, jobExecution);
+	}
+
 
 	static LocalDateTime dateTo(int year, int month, int day) {
 		LocalDate to = LocalDate.of(year, month, day);
