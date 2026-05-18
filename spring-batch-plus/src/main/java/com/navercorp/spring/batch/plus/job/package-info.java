@@ -19,4 +19,7 @@
 /**
  * An extensions for spring batch job concerns.
  */
+@NullMarked
 package com.navercorp.spring.batch.plus.job;
+
+import org.jspecify.annotations.NullMarked;

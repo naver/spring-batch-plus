@@ -49,7 +49,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.lang.NonNull;
 import org.springframework.transaction.TransactionManager;
 
 import reactor.core.publisher.Flux;
@@ -290,13 +289,12 @@ class ItemStreamReaderWriterIntegrationTest {
 				private int count = 0;
 
 				@Override
-				public void onOpenRead(@NonNull ExecutionContext executionContext) {
+				public void onOpenRead(ExecutionContext executionContext) {
 					++onOpenReadCallCount;
 				}
 
-				@NonNull
 				@Override
-				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(ExecutionContext executionContext) {
 					++readContextCallCount;
 					return Flux.generate(sink -> {
 						if (count < itemCount) {
@@ -309,7 +307,7 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void onUpdateRead(@NonNull ExecutionContext executionContext) {
+				public void onUpdateRead(ExecutionContext executionContext) {
 					++onUpdateReadCallCount;
 				}
 
@@ -319,17 +317,17 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
+				public void onOpenWrite(ExecutionContext executionContext) {
 					++onOpenWriteCallCount;
 				}
 
 				@Override
-				public void write(@NonNull Chunk<? extends Integer> chunk) {
+				public void write(Chunk<? extends Integer> chunk) {
 					++writeCallCount;
 				}
 
 				@Override
-				public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
+				public void onUpdateWrite(ExecutionContext executionContext) {
 					++onUpdateWriteCallCount;
 				}
 
@@ -348,13 +346,12 @@ class ItemStreamReaderWriterIntegrationTest {
 				private int count = 0;
 
 				@Override
-				public void onOpenRead(@NonNull ExecutionContext executionContext) {
+				public void onOpenRead(ExecutionContext executionContext) {
 					++onOpenReadCallCount;
 				}
 
-				@NonNull
 				@Override
-				public Flux<Integer> readFlux(@NonNull ExecutionContext executionContext) {
+				public Flux<Integer> readFlux(ExecutionContext executionContext) {
 					++readContextCallCount;
 					return Flux.generate(sink -> {
 						if (count < itemCount) {
@@ -367,7 +364,7 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void onUpdateRead(@NonNull ExecutionContext executionContext) {
+				public void onUpdateRead(ExecutionContext executionContext) {
 					++onUpdateReadCallCount;
 				}
 
@@ -377,17 +374,17 @@ class ItemStreamReaderWriterIntegrationTest {
 				}
 
 				@Override
-				public void onOpenWrite(@NonNull ExecutionContext executionContext) {
+				public void onOpenWrite(ExecutionContext executionContext) {
 					++onOpenWriteCallCount;
 				}
 
 				@Override
-				public void write(@NonNull Chunk<? extends Integer> chunk) {
+				public void write(Chunk<? extends Integer> chunk) {
 					++writeCallCount;
 				}
 
 				@Override
-				public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
+				public void onUpdateWrite(ExecutionContext executionContext) {
 					++onUpdateWriteCallCount;
 				}
 

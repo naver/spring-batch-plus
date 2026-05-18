@@ -49,7 +49,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.lang.NonNull;
 import org.springframework.transaction.TransactionManager;
 
 @SuppressWarnings({"unchecked", "unused"})
@@ -214,7 +213,7 @@ class ItemStreamSimpleReaderProcessorIT {
 		}
 
 		@Override
-		public void onOpenRead(@NonNull ExecutionContext executionContext) {
+		public void onOpenRead(ExecutionContext executionContext) {
 			this.invokeCountContext.onOpenReadCallCount++;
 		}
 
@@ -228,7 +227,7 @@ class ItemStreamSimpleReaderProcessorIT {
 		}
 
 		@Override
-		public void onUpdateRead(@NonNull ExecutionContext executionContext) {
+		public void onUpdateRead(ExecutionContext executionContext) {
 			this.invokeCountContext.onUpdateReadCallCount++;
 		}
 
@@ -238,7 +237,7 @@ class ItemStreamSimpleReaderProcessorIT {
 		}
 
 		@Override
-		public Integer process(@NonNull Integer item) {
+		public Integer process(Integer item) {
 			this.invokeCountContext.processCallCount++;
 			return item;
 		}

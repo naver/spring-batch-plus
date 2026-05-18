@@ -7,6 +7,7 @@ spring-jdbc = "7.0.6"
 slf4j = "2.0.17"
 reactor-core = "3.8.4"
 findbugs-jsr305 = "3.0.2"
+jspecify = "1.0.0"
 
 # test-only
 junit = "6.0.+"
@@ -23,6 +24,7 @@ spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "sprin
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor-core" }
 findbugs-jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "findbugs-jsr305" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 
 # test-only
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }

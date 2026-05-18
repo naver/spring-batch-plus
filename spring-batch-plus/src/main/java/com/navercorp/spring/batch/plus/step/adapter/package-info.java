@@ -19,4 +19,7 @@
 /**
  * An extensions for spring batch step adapter concerns.
  */
+@NullMarked
 package com.navercorp.spring.batch.plus.step.adapter;
+
+import org.jspecify.annotations.NullMarked;

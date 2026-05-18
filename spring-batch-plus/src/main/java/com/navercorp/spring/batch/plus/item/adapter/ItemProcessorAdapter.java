@@ -21,7 +21,6 @@ package com.navercorp.spring.batch.plus.item.adapter;
 import java.util.Objects;
 
 import org.springframework.batch.infrastructure.item.ItemProcessor;
-import org.springframework.lang.NonNull;
 
 /**
  * An adapter which adapt {@link ItemProcessorDelegate} to {@link ItemProcessor}.
@@ -40,7 +39,7 @@ public class ItemProcessorAdapter<I, O> implements ItemProcessor<I, O> {
 	 * @param <I> an item type to process
 	 * @param <O> a processed item type
 	 */
-	public static <I, O> ItemProcessor<I, O> of(@NonNull ItemProcessorDelegate<I, O> delegate) {
+	public static <I, O> ItemProcessor<I, O> of(ItemProcessorDelegate<I, O> delegate) {
 		return new ItemProcessorAdapter<>(delegate);
 	}
 

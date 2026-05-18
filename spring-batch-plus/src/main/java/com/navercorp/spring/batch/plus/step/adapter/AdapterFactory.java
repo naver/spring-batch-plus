@@ -24,7 +24,6 @@ import org.springframework.batch.core.scope.StepScope;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.batch.infrastructure.item.ItemStreamWriter;
-import org.springframework.lang.NonNull;
 
 /**
  * An adapter factory for these interfaces
@@ -47,7 +46,7 @@ public final class AdapterFactory {
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
 	 */
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamFluxReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> itemStreamReader(ItemStreamFluxReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
 		return StepScopeItemStreamReader.of(() -> ItemStreamFluxReaderAdapter.of(delegate));
 	}
@@ -60,7 +59,7 @@ public final class AdapterFactory {
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
 	 */
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamIterableReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> itemStreamReader(ItemStreamIterableReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
 		return StepScopeItemStreamReader.of(() -> ItemStreamIterableReaderAdapter.of(delegate));
 	}
@@ -73,7 +72,7 @@ public final class AdapterFactory {
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
 	 */
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamIteratorReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> itemStreamReader(ItemStreamIteratorReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
 		return StepScopeItemStreamReader.of(() -> ItemStreamIteratorReaderAdapter.of(delegate));
 	}
@@ -86,7 +85,7 @@ public final class AdapterFactory {
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamReader
 	 */
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamSimpleReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> itemStreamReader(ItemStreamSimpleReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
 		return StepScopeItemStreamReader.of(() -> ItemStreamSimpleReaderAdapter.of(delegate));
 	}
@@ -99,7 +98,7 @@ public final class AdapterFactory {
 	 * @param delegate a delegate
 	 * @return an adapted ItemProcessor
 	 */
-	public static <I, O> ItemProcessor<I, O> itemProcessor(@NonNull ItemProcessorDelegate<I, O> delegate) {
+	public static <I, O> ItemProcessor<I, O> itemProcessor(ItemProcessorDelegate<I, O> delegate) {
 		return ItemProcessorAdapter.of(delegate);
 	}
 
@@ -110,7 +109,7 @@ public final class AdapterFactory {
 	 * @param delegate a delegate
 	 * @return an adapted ItemStreamWriter
 	 */
-	public static <T> ItemStreamWriter<T> itemStreamWriter(@NonNull ItemStreamWriterDelegate<T> delegate) {
+	public static <T> ItemStreamWriter<T> itemStreamWriter(ItemStreamWriterDelegate<T> delegate) {
 		return ItemStreamWriterAdapter.of(delegate);
 	}
 

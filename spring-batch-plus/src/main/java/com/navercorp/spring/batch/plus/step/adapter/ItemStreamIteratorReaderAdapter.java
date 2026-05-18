@@ -23,7 +23,6 @@ import java.util.Objects;
 
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
 
 /**
  * An adapter which adapt {@link ItemStreamIteratorReaderDelegate} to {@link ItemStreamReader}.
@@ -39,7 +38,7 @@ public class ItemStreamIteratorReaderAdapter<T> implements ItemStreamReader<T> {
 	 * @return an adapted ItemStreamReader
 	 * @param <T> a read item type
 	 */
-	public static <T> ItemStreamReader<T> of(@NonNull ItemStreamIteratorReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> of(ItemStreamIteratorReaderDelegate<T> delegate) {
 		return new ItemStreamIteratorReaderAdapter<>(delegate);
 	}
 
@@ -52,7 +51,7 @@ public class ItemStreamIteratorReaderAdapter<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public void open(@NonNull ExecutionContext executionContext) {
+	public void open(ExecutionContext executionContext) {
 		this.delegate.onOpenRead(executionContext);
 		this.iterator = this.delegate.readIterator(executionContext);
 	}
@@ -68,7 +67,7 @@ public class ItemStreamIteratorReaderAdapter<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public void update(@NonNull ExecutionContext executionContext) {
+	public void update(ExecutionContext executionContext) {
 		this.delegate.onUpdateRead(executionContext);
 	}
 

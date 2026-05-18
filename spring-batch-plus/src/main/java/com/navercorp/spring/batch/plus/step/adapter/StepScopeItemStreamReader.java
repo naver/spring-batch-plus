@@ -30,7 +30,6 @@ import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamException;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
 
 /**
  * A {@link StepScope} bound proxy implementation.
@@ -62,7 +61,7 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public void open(@NonNull ExecutionContext executionContext) throws ItemStreamException {
+	public void open(ExecutionContext executionContext) throws ItemStreamException {
 		getDelegate().open(executionContext);
 	}
 
@@ -72,7 +71,7 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public void update(@NonNull ExecutionContext executionContext) throws ItemStreamException {
+	public void update(ExecutionContext executionContext) throws ItemStreamException {
 		getDelegate().update(executionContext);
 	}
 

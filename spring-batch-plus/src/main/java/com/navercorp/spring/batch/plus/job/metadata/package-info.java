@@ -19,4 +19,7 @@
 /**
  * The job to delete old Spring Batch metadata
  */
+@NullMarked
 package com.navercorp.spring.batch.plus.job.metadata;
+
+import org.jspecify.annotations.NullMarked;

@@ -24,7 +24,6 @@ import java.util.Optional;
 
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
@@ -42,7 +41,7 @@ public class ItemStreamFluxReaderAdapter<T> implements ItemStreamReader<T> {
 	 * @return an adapted ItemStreamReader
 	 * @param <T> a read item type
 	 */
-	public static <T> ItemStreamReader<T> of(@NonNull ItemStreamFluxReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> of(ItemStreamFluxReaderDelegate<T> delegate) {
 		return new ItemStreamFluxReaderAdapter<>(delegate);
 	}
 
@@ -59,7 +58,7 @@ public class ItemStreamFluxReaderAdapter<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public void open(@NonNull ExecutionContext executionContext) {
+	public void open(ExecutionContext executionContext) {
 		this.delegate.onOpenRead(executionContext);
 		this.flux = this.delegate.readFlux(executionContext);
 	}
@@ -75,7 +74,7 @@ public class ItemStreamFluxReaderAdapter<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public void update(@NonNull ExecutionContext executionContext) {
+	public void update(ExecutionContext executionContext) {
 		this.delegate.onUpdateRead(executionContext);
 	}
 
