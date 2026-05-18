@@ -20,7 +20,6 @@ package com.navercorp.spring.batch.plus.step.adapter;
 
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
@@ -36,7 +35,7 @@ public interface ItemStreamFluxReaderDelegate<T> {
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onOpenRead(@NonNull ExecutionContext executionContext) {
+	default void onOpenRead(ExecutionContext executionContext) {
 	}
 
 	/**
@@ -45,15 +44,14 @@ public interface ItemStreamFluxReaderDelegate<T> {
 	 * @param executionContext an execution context
 	 * @return a flux to read item
 	 */
-	@NonNull
-	Flux<? extends T> readFlux(@NonNull ExecutionContext executionContext);
+	Flux<? extends T> readFlux(ExecutionContext executionContext);
 
 	/**
 	 * A delegate method for {@link ItemStreamReader#update(ExecutionContext)}.
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onUpdateRead(@NonNull ExecutionContext executionContext) {
+	default void onUpdateRead(ExecutionContext executionContext) {
 	}
 
 	/**

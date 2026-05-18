@@ -22,7 +22,6 @@ import java.util.Iterator;
 
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
 
 /**
  * A delegate for {@link ItemStreamReader} which uses {@link Iterator<T>}.
@@ -36,7 +35,7 @@ public interface ItemStreamIteratorReaderDelegate<T> {
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onOpenRead(@NonNull ExecutionContext executionContext) {
+	default void onOpenRead(ExecutionContext executionContext) {
 	}
 
 	/**
@@ -45,15 +44,14 @@ public interface ItemStreamIteratorReaderDelegate<T> {
 	 * @param executionContext an execution context
 	 * @return an iterator to read item
 	 */
-	@NonNull
-	Iterator<? extends T> readIterator(@NonNull ExecutionContext executionContext);
+	Iterator<? extends T> readIterator(ExecutionContext executionContext);
 
 	/**
 	 * A delegate method for {@link ItemStreamReader#update(ExecutionContext)}.
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onUpdateRead(@NonNull ExecutionContext executionContext) {
+	default void onUpdateRead(ExecutionContext executionContext) {
 	}
 
 	/**

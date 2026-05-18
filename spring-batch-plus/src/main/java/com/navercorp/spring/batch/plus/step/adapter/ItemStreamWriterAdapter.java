@@ -23,7 +23,6 @@ import java.util.Objects;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamWriter;
-import org.springframework.lang.NonNull;
 
 /**
  * An adapter which adapt {@link ItemStreamWriterDelegate} to {@link ItemStreamWriter}.
@@ -39,7 +38,7 @@ public class ItemStreamWriterAdapter<T> implements ItemStreamWriter<T> {
 	 * @return an adapted ItemStreamWriter
 	 * @param <T> an item type to write
 	 */
-	public static <T> ItemStreamWriter<T> of(@NonNull ItemStreamWriterDelegate<T> delegate) {
+	public static <T> ItemStreamWriter<T> of(ItemStreamWriterDelegate<T> delegate) {
 		return new ItemStreamWriterAdapter<>(delegate);
 	}
 
@@ -50,17 +49,17 @@ public class ItemStreamWriterAdapter<T> implements ItemStreamWriter<T> {
 	}
 
 	@Override
-	public void open(@NonNull ExecutionContext executionContext) {
+	public void open(ExecutionContext executionContext) {
 		this.delegate.onOpenWrite(executionContext);
 	}
 
 	@Override
-	public void write(@NonNull Chunk<? extends T> chunk) {
+	public void write(Chunk<? extends T> chunk) {
 		this.delegate.write(chunk);
 	}
 
 	@Override
-	public void update(@NonNull ExecutionContext executionContext) {
+	public void update(ExecutionContext executionContext) {
 		this.delegate.onUpdateWrite(executionContext);
 	}
 

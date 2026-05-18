@@ -18,9 +18,8 @@
 
 package com.navercorp.spring.batch.plus.step.adapter;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 /**
  * A delegate for {@link ItemProcessor}.
@@ -36,5 +35,5 @@ public interface ItemProcessorDelegate<I, O> {
 	 * @return processed item
 	 */
 	@Nullable
-	O process(@NonNull I item);
+	O process(I item);
 }

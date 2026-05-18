@@ -50,7 +50,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.lang.NonNull;
 import org.springframework.transaction.TransactionManager;
 
 @SuppressWarnings({"unchecked", "unused"})
@@ -223,13 +222,12 @@ class ItemStreamIterableReaderProcessorIT {
 		}
 
 		@Override
-		public void onOpenRead(@NonNull ExecutionContext executionContext) {
+		public void onOpenRead(ExecutionContext executionContext) {
 			this.invokeCountContext.onOpenReadCallCount++;
 		}
 
-		@NonNull
 		@Override
-		public Iterable<? extends Integer> readIterable(@NonNull ExecutionContext executionContext) {
+		public Iterable<? extends Integer> readIterable(ExecutionContext executionContext) {
 			this.invokeCountContext.readContextCallCount++;
 			return () -> new Iterator<>() {
 				@Override
@@ -249,7 +247,7 @@ class ItemStreamIterableReaderProcessorIT {
 		}
 
 		@Override
-		public void onUpdateRead(@NonNull ExecutionContext executionContext) {
+		public void onUpdateRead(ExecutionContext executionContext) {
 			this.invokeCountContext.onUpdateReadCallCount++;
 		}
 
@@ -259,7 +257,7 @@ class ItemStreamIterableReaderProcessorIT {
 		}
 
 		@Override
-		public Integer process(@NonNull Integer item) {
+		public Integer process(Integer item) {
 			this.invokeCountContext.processCallCount++;
 			return item;
 		}

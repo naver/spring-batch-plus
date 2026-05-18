@@ -23,7 +23,6 @@ import java.util.Objects;
 
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
 
 import reactor.core.publisher.Flux;
 
@@ -45,7 +44,7 @@ public class ItemStreamReaderAdapter<T> implements ItemStreamReader<T> {
 	 * @return an adapted ItemStreamReader
 	 * @param <T> a read item type
 	 */
-	public static <T> ItemStreamReader<T> of(@NonNull ItemStreamReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> of(ItemStreamReaderDelegate<T> delegate) {
 		return new ItemStreamReaderAdapter<>(delegate);
 	}
 

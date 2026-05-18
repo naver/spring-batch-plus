@@ -19,4 +19,7 @@
 /**
  * An extensions for spring batch item adapter concerns.
  */
+@NullMarked
 package com.navercorp.spring.batch.plus.item.adapter;
+
+import org.jspecify.annotations.NullMarked;

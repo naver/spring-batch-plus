@@ -18,10 +18,9 @@
 
 package com.navercorp.spring.batch.plus.step.adapter;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 /**
  * A simple delegate for {@link ItemStreamReader}.
@@ -35,7 +34,7 @@ public interface ItemStreamSimpleReaderDelegate<T> {
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onOpenRead(@NonNull ExecutionContext executionContext) {
+	default void onOpenRead(ExecutionContext executionContext) {
 	}
 
 	/**
@@ -51,7 +50,7 @@ public interface ItemStreamSimpleReaderDelegate<T> {
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onUpdateRead(@NonNull ExecutionContext executionContext) {
+	default void onUpdateRead(ExecutionContext executionContext) {
 	}
 
 	/**

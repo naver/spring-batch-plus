@@ -25,7 +25,6 @@ import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
 import org.springframework.batch.core.job.parameters.RunIdIncrementer;
-import org.springframework.lang.NonNull;
 
 /**
  * Alternative to {@link RunIdIncrementer}.
@@ -52,7 +51,7 @@ public class ClearRunIdIncrementer implements JobParametersIncrementer {
 	 * @param runId a run id
 	 * @return a new ClearRunIdIncrementer instance
 	 */
-	public static JobParametersIncrementer create(@NonNull String runId) {
+	public static JobParametersIncrementer create(String runId) {
 		return new ClearRunIdIncrementer(runId);
 	}
 
@@ -62,7 +61,6 @@ public class ClearRunIdIncrementer implements JobParametersIncrementer {
 		this.runId = Objects.requireNonNull(runId, "Run id must not be null");
 	}
 
-	@NonNull
 	@Override
 	public JobParameters getNext(JobParameters parameters) {
 		long nextId = Optional.ofNullable(parameters)

@@ -20,7 +20,6 @@ package com.navercorp.spring.batch.plus.step.adapter;
 
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.lang.NonNull;
 
 /**
  * A delegate for {@link ItemStreamReader} which uses {@link Iterable<T>}.
@@ -34,7 +33,7 @@ public interface ItemStreamIterableReaderDelegate<T> {
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onOpenRead(@NonNull ExecutionContext executionContext) {
+	default void onOpenRead(ExecutionContext executionContext) {
 	}
 
 	/**
@@ -43,15 +42,14 @@ public interface ItemStreamIterableReaderDelegate<T> {
 	 * @param executionContext an execution context
 	 * @return an iterable to read item
 	 */
-	@NonNull
-	Iterable<? extends T> readIterable(@NonNull ExecutionContext executionContext);
+	Iterable<? extends T> readIterable(ExecutionContext executionContext);
 
 	/**
 	 * A delegate method for {@link ItemStreamReader#update(ExecutionContext)}.
 	 *
 	 * @param executionContext an execution context
 	 */
-	default void onUpdateRead(@NonNull ExecutionContext executionContext) {
+	default void onUpdateRead(ExecutionContext executionContext) {
 	}
 
 	/**

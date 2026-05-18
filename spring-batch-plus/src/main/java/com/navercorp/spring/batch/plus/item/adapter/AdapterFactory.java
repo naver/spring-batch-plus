@@ -24,7 +24,6 @@ import org.springframework.batch.core.scope.StepScope;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.batch.infrastructure.item.ItemStreamWriter;
-import org.springframework.lang.NonNull;
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderDelegate;
 
@@ -50,7 +49,7 @@ public final class AdapterFactory {
 	 * @return an adapted ItemStreamReader
 	 */
 	@Deprecated
-	public static <T> ItemStreamReader<T> itemStreamReader(@NonNull ItemStreamReaderDelegate<T> delegate) {
+	public static <T> ItemStreamReader<T> itemStreamReader(ItemStreamReaderDelegate<T> delegate) {
 		Objects.requireNonNull(delegate, "ItemStreamReader delegate is null");
 		return StepScopeItemStreamReader.of(() -> ItemStreamReaderAdapter.of(delegate));
 	}
@@ -68,7 +67,7 @@ public final class AdapterFactory {
 	 * @return an adapted ItemProcessor
 	 */
 	@Deprecated
-	public static <I, O> ItemProcessor<I, O> itemProcessor(@NonNull ItemProcessorDelegate<I, O> delegate) {
+	public static <I, O> ItemProcessor<I, O> itemProcessor(ItemProcessorDelegate<I, O> delegate) {
 		return ItemProcessorAdapter.of(delegate);
 	}
 
@@ -83,7 +82,7 @@ public final class AdapterFactory {
 	 * @return an adapted ItemStreamWriter
 	 */
 	@Deprecated
-	public static <T> ItemStreamWriter<T> itemStreamWriter(@NonNull ItemStreamWriterDelegate<T> delegate) {
+	public static <T> ItemStreamWriter<T> itemStreamWriter(ItemStreamWriterDelegate<T> delegate) {
 		return ItemStreamWriterAdapter.of(delegate);
 	}
 
