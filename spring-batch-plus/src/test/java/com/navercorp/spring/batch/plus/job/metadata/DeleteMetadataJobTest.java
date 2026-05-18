@@ -38,8 +38,8 @@ import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.support.TaskExecutorJobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -56,23 +56,23 @@ class DeleteMetadataJobTest {
 
 	Job job;
 
-	JobLauncher jobLauncher;
+	JobOperator jobOperator;
 
 	@BeforeEach
 	void setUp(
 		@Autowired DataSource dataSource,
 		@Autowired String tablePrefix
 	) {
-		TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-		jobLauncher.setJobRepository(this.jobRepository);
-		jobLauncher.setTaskExecutor(new SyncTaskExecutor());
-		this.jobLauncher = jobLauncher;
+		TaskExecutorJobOperator jobOperator = new TaskExecutorJobOperator();
+		jobOperator.setJobRepository(this.jobRepository);
+		jobOperator.setTaskExecutor(new SyncTaskExecutor());
+		this.jobOperator = jobOperator;
 
 		this.job = new DeleteMetadataJobBuilder(this.jobRepository, dataSource)
 			.tablePrefix(tablePrefix)
 			.build();
 
-		// JobLauncher.run() in Spring Batch 6.0 creates the JobInstance before validating parameters,
+		// JobOperator.start() in Spring Batch 6.0 creates the JobInstance before validating parameters,
 		// so failed validations leave orphan instances. Delete by instance to also drop their executions.
 		for (String jobName : this.jobRepository.getJobNames()) {
 			for (JobInstance instance : this.jobRepository.findJobInstances(jobName)) {
@@ -91,7 +91,7 @@ class DeleteMetadataJobTest {
 		// when, then
 		assertThatExceptionOfType(InvalidJobParametersException.class)
 			.isThrownBy(() ->
-				jobLauncher.run(job, jobParameters)
+				jobOperator.start(job, jobParameters)
 			)
 			.withMessageContaining("do not contain required keys: [baseDate]");
 	}
@@ -111,7 +111,7 @@ class DeleteMetadataJobTest {
 			.toJobParameters();
 
 		// when
-		JobExecution actualExecution = jobLauncher.run(job, jobParameters);
+		JobExecution actualExecution = jobOperator.start(job, jobParameters);
 
 		// then
 		assertThat(actualExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
@@ -150,7 +150,7 @@ class DeleteMetadataJobTest {
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString("baseDate", "2022/03/15")
 			.toJobParameters();
-		JobExecution actualExecution = jobLauncher.run(job, jobParameters);
+		JobExecution actualExecution = jobOperator.start(job, jobParameters);
 
 		// then
 		assertThat(actualExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
@@ -183,7 +183,7 @@ class DeleteMetadataJobTest {
 			.addString("baseDate", "2022/03/15")
 			.addString("dryRun", "true")
 			.toJobParameters();
-		JobExecution actualExecution = jobLauncher.run(job, jobParameters);
+		JobExecution actualExecution = jobOperator.start(job, jobParameters);
 
 		// then
 		assertThat(actualExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);

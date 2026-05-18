@@ -38,7 +38,7 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.Chunk;
@@ -105,19 +105,20 @@ class ItemStreamReaderWriterIntegrationTest {
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
+					.<Integer, Integer>chunk(chunkCount)
+					.transactionManager(new ResourcelessTransactionManager())
 					.reader(AdapterFactory.itemStreamReader(testTasklet))
 					.writer(AdapterFactory.itemStreamWriter(testTasklet))
 					.build()
 			)
 			.build();
-		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		JobOperator jobOperator = context.getBean(JobOperator.class);
 		int beforeRepeatCount = ThreadLocalRandom.current().nextInt(0, 3);
 		for (int i = 0; i < beforeRepeatCount; ++i) {
 			JobParameters jobParameters = new JobParametersBuilder()
 				.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 				.toJobParameters();
-			jobLauncher.run(job, jobParameters);
+			jobOperator.start(job, jobParameters);
 		}
 		logger.debug("beforeRepeatCount: {}", beforeRepeatCount);
 
@@ -125,7 +126,7 @@ class ItemStreamReaderWriterIntegrationTest {
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 			.toJobParameters();
-		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+		JobExecution jobExecution = jobOperator.start(job, jobParameters);
 
 		// then
 		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
@@ -149,19 +150,20 @@ class ItemStreamReaderWriterIntegrationTest {
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
+					.<Integer, Integer>chunk(chunkCount)
+					.transactionManager(new ResourcelessTransactionManager())
 					.reader(AdapterFactory.itemStreamReader(testTasklet))
 					.writer(AdapterFactory.itemStreamWriter(testTasklet))
 					.build()
 			)
 			.build();
-		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		JobOperator jobOperator = context.getBean(JobOperator.class);
 		int beforeRepeatCount = ThreadLocalRandom.current().nextInt(0, 3);
 		for (int i = 0; i < beforeRepeatCount; ++i) {
 			JobParameters jobParameters = new JobParametersBuilder()
 				.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 				.toJobParameters();
-			jobLauncher.run(job, jobParameters);
+			jobOperator.start(job, jobParameters);
 		}
 		logger.debug("beforeRepeatCount: {}", beforeRepeatCount);
 
@@ -169,7 +171,7 @@ class ItemStreamReaderWriterIntegrationTest {
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 			.toJobParameters();
-		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+		JobExecution jobExecution = jobOperator.start(job, jobParameters);
 
 		// then
 		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
@@ -188,19 +190,20 @@ class ItemStreamReaderWriterIntegrationTest {
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
+					.<Integer, Integer>chunk(chunkCount)
+					.transactionManager(new ResourcelessTransactionManager())
 					.reader(AdapterFactory.itemStreamReader(testTasklet))
 					.writer(AdapterFactory.itemStreamWriter(testTasklet))
 					.build()
 			)
 			.build();
-		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		JobOperator jobOperator = context.getBean(JobOperator.class);
 		int beforeRepeatCount = ThreadLocalRandom.current().nextInt(0, 3);
 		for (int i = 0; i < beforeRepeatCount; ++i) {
 			JobParameters jobParameters = new JobParametersBuilder()
 				.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 				.toJobParameters();
-			jobLauncher.run(job, jobParameters);
+			jobOperator.start(job, jobParameters);
 		}
 		logger.debug("beforeRepeatCount: {}", beforeRepeatCount);
 
@@ -208,7 +211,7 @@ class ItemStreamReaderWriterIntegrationTest {
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 			.toJobParameters();
-		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+		JobExecution jobExecution = jobOperator.start(job, jobParameters);
 
 		// then
 		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
@@ -232,19 +235,20 @@ class ItemStreamReaderWriterIntegrationTest {
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(chunkCount, new ResourcelessTransactionManager())
+					.<Integer, Integer>chunk(chunkCount)
+					.transactionManager(new ResourcelessTransactionManager())
 					.reader(AdapterFactory.itemStreamReader(testTasklet))
 					.writer(AdapterFactory.itemStreamWriter(testTasklet))
 					.build()
 			)
 			.build();
-		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		JobOperator jobOperator = context.getBean(JobOperator.class);
 		int beforeRepeatCount = ThreadLocalRandom.current().nextInt(0, 3);
 		for (int i = 0; i < beforeRepeatCount; ++i) {
 			JobParameters jobParameters = new JobParametersBuilder()
 				.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 				.toJobParameters();
-			jobLauncher.run(job, jobParameters);
+			jobOperator.start(job, jobParameters);
 		}
 		logger.debug("beforeRepeatCount: {}", beforeRepeatCount);
 
@@ -252,7 +256,7 @@ class ItemStreamReaderWriterIntegrationTest {
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 			.toJobParameters();
-		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+		JobExecution jobExecution = jobOperator.start(job, jobParameters);
 
 		// then
 		assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);

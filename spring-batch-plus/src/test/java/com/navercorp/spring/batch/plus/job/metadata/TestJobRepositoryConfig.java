@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
+import org.springframework.batch.core.repository.support.JdbcJobRepositoryFactoryBean;
 import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
@@ -70,7 +70,7 @@ public class TestJobRepositoryConfig {
 
 	@Bean
 	JobRepository jobRepository(DataSource dataSource, String tablePrefix) throws Exception {
-		JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
+		JdbcJobRepositoryFactoryBean factory = new JdbcJobRepositoryFactoryBean();
 		factory.setDataSource(dataSource);
 		factory.setTransactionManager(new DataSourceTransactionManager(dataSource));
 		factory.setTablePrefix(tablePrefix);
