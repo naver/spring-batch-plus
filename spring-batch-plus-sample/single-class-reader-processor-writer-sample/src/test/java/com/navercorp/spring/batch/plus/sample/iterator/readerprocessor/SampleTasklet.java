@@ -21,7 +21,7 @@ package com.navercorp.spring.batch.plus.sample.iterator.readerprocessor;
 import java.util.Iterator;
 
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;

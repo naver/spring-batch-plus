@@ -22,58 +22,69 @@ import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
+/**
+ * Demonstrates the residual {@link org.springframework.batch.core.job.parameters.RunIdIncrementer}
+ * behavior that {@link com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer} was designed to
+ * address: previous identifying parameters are copied forward into each new JobInstance.
+ *
+ * <p>The Spring Batch 6.0 standard flow ({@code JobOperator.start} + {@code startNextInstance})
+ * never produces a prev JobExecution whose JobParameters contain keys other than {@code run.id},
+ * so the difference between {@code RunIdIncrementer} and {@code ClearRunIdIncrementer} is
+ * invisible in a clean 6.0 project. The legacy state seeded here reproduces a 5.x &rarr; 6.0
+ * migration: prior executions populated {@code BATCH_JOB_EXECUTION_PARAMS} via the now-removed
+ * {@code JobParametersBuilder.getNextJobParameters} pattern, leaving non-runId keys on the
+ * latest JobInstance. When the upgraded application then calls {@code startNextInstance},
+ * {@code RunIdIncrementer} keeps those legacy keys alive on every subsequent JobInstance
+ * forever. The companion {@code good} sample uses {@code ClearRunIdIncrementer} to cut that
+ * chain.
+ */
 @SpringBootApplication
 public class SampleApplicationTest {
 	@Test
 	void run() throws Exception {
 		ApplicationContext applicationContext = SpringApplication.run(SampleApplicationTest.class);
-		JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
-		JobExplorer jobExplorer = applicationContext.getBean(JobExplorer.class);
+		JobRepository jobRepository = applicationContext.getBean(JobRepository.class);
+		JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 		Job job = applicationContext.getBean(Job.class);
 
-		JobParameters firstJobParameters = new JobParametersBuilder(jobExplorer)
+		// Seed the legacy state a 5.x project would leave behind after upgrading to 6.0.
+		// See the class-level Javadoc for the migration context.
+		JobParameters legacyParams = new JobParametersBuilder()
 			.addString("stringValue", "1")
 			.addString("longValue", "10")
-			.getNextJobParameters(job)
+			.addLong("run.id", 5L)
 			.toJobParameters();
-		JobExecution firstJobExecution = jobLauncher.run(job, firstJobParameters);
+		JobInstance legacyInstance = jobRepository.createJobInstance(job.getName(), legacyParams);
+		JobExecution legacyExecution = jobRepository.createJobExecution(legacyInstance, legacyParams,
+			new ExecutionContext());
+		legacyExecution.setStatus(BatchStatus.COMPLETED);
+		legacyExecution.setExitStatus(ExitStatus.COMPLETED);
+		jobRepository.update(legacyExecution);
 
-		JobParameters secondJobParameters = new JobParametersBuilder(jobExplorer)
-			.addString("longValue", "20")
-			.getNextJobParameters(job)
-			.toJobParameters();
-		JobExecution secondJobExecution = jobLauncher.run(job, secondJobParameters);
+		// Launch the next instance: incrementer.getNext(legacyParams) is invoked under the hood.
+		JobExecution nextExecution = jobOperator.startNextInstance(job);
 
-		// first
-		assert BatchStatus.COMPLETED.equals(firstJobExecution.getStatus());
-		assert 1L == Objects.requireNonNull(firstJobExecution.getJobParameters().getLong("run.id"));
-		assert "1".equals(firstJobExecution.getJobParameters().getString("stringValue"));
-		assert "10".equals(firstJobExecution.getJobParameters().getString("longValue"));
-		assert 11L == firstJobExecution.getExecutionContext().getLong("result");
-		System.out.printf("first: %s, jobParameters: %s, result: %d%n",
-			firstJobExecution.getStatus(),
-			firstJobExecution.getJobParameters(),
-			firstJobExecution.getExecutionContext().getLong("result"));
+		assert BatchStatus.COMPLETED.equals(nextExecution.getStatus());
+		JobParameters nextParams = nextExecution.getJobParameters();
 
-		// second
-		assert BatchStatus.COMPLETED.equals(secondJobExecution.getStatus());
-		assert 2L == Objects.requireNonNull(secondJobExecution.getJobParameters().getLong("run.id"));
-		assert "1".equals(secondJobExecution.getJobParameters().getString("stringValue"));
-		assert "20".equals(secondJobExecution.getJobParameters().getString("longValue"));
-		assert 21L == secondJobExecution.getExecutionContext().getLong("result");
-		System.out.printf("second: %s, jobParameters: %s, result: %d%n",
-			secondJobExecution.getStatus(),
-			secondJobExecution.getJobParameters(),
-			secondJobExecution.getExecutionContext().getLong("result"));
+		// RunIdIncrementer copies the entire previous parameter set, so non-runId identifying
+		// keys persist into every subsequent JobInstance.
+		assert 6L == Objects.requireNonNull(nextParams.getLong("run.id"));
+		assert "1".equals(nextParams.getString("stringValue"));
+		assert "10".equals(nextParams.getString("longValue"));
+		System.out.printf("bad: params=%s%n", nextParams);
 	}
 }

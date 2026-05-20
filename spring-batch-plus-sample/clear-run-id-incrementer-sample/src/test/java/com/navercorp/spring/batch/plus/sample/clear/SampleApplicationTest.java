@@ -22,12 +22,9 @@ import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -37,19 +34,11 @@ public class SampleApplicationTest {
 	@Test
 	void run() throws Exception {
 		ApplicationContext applicationContext = SpringApplication.run(SampleApplicationTest.class);
-		JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
-		JobExplorer jobExplorer = applicationContext.getBean(JobExplorer.class);
+		JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 		Job job = applicationContext.getBean(Job.class);
 
-		JobParameters firstJobParameters = new JobParametersBuilder(jobExplorer)
-			.getNextJobParameters(job)
-			.toJobParameters();
-		JobExecution firstJobExecution = jobLauncher.run(job, firstJobParameters);
-
-		JobParameters secondJobParameters = new JobParametersBuilder(jobExplorer)
-			.getNextJobParameters(job)
-			.toJobParameters();
-		JobExecution secondJobExecution = jobLauncher.run(job, secondJobParameters);
+		JobExecution firstJobExecution = jobOperator.startNextInstance(job);
+		JobExecution secondJobExecution = jobOperator.startNextInstance(job);
 
 		// first
 		assert BatchStatus.COMPLETED.equals(firstJobExecution.getStatus());
@@ -57,7 +46,7 @@ public class SampleApplicationTest {
 		System.out.printf("first: %s, jobParameters: %s%n", firstJobExecution.getStatus(),
 			firstJobExecution.getJobParameters());
 
-		// second)
+		// second
 		assert BatchStatus.COMPLETED.equals(secondJobExecution.getStatus());
 		assert 2L == Objects.requireNonNull(secondJobExecution.getJobParameters().getLong("run.id"));
 		System.out.printf("second: %s, jobParameters: %s%n", secondJobExecution.getStatus(),
