@@ -20,8 +20,8 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
-import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
+import org.springframework.batch.core.step.Step
 
 /**
  * A dsl for step transition.
@@ -42,23 +42,29 @@ class StepTransitionBuilderDsl<T : Any> internal constructor(
      *
      * @see [org.springframework.batch.core.job.builder.FlowBuilder.on]
      */
-    fun on(pattern: String, init: TransitionBuilderDsl<T>.() -> Unit) {
+    fun on(
+        pattern: String,
+        init: TransitionBuilderDsl<T>.() -> Unit,
+    ) {
         val flowBuilder = this.flowBuilder
 
-        val transitionBuilder = if (flowBuilder == null) {
-            this.baseFlowBuilder.on(pattern)
-        } else {
-            flowBuilder.from(this.step)
-                .on(pattern)
-        }
+        val transitionBuilder =
+            if (flowBuilder == null) {
+                this.baseFlowBuilder.on(pattern)
+            } else {
+                flowBuilder
+                    .from(this.step)
+                    .on(pattern)
+            }
 
-        this.flowBuilder = TransitionBuilderDsl(this.dslContext, transitionBuilder).apply(init)
-            .build()
+        this.flowBuilder =
+            TransitionBuilderDsl(this.dslContext, transitionBuilder)
+                .apply(init)
+                .build()
     }
 
-    internal fun build(): FlowBuilder<T> {
-        return checkNotNull(this.flowBuilder) {
+    internal fun build(): FlowBuilder<T> =
+        checkNotNull(this.flowBuilder) {
             "should set transition for step ${step.name}."
         }
-    }
 }

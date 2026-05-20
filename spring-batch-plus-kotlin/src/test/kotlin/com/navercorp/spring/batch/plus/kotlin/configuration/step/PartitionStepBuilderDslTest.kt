@@ -30,24 +30,22 @@ import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.job.JobExecution
 import org.springframework.batch.core.job.JobInstance
 import org.springframework.batch.core.job.parameters.JobParameters
-import org.springframework.batch.core.step.Step
-import org.springframework.batch.core.step.StepExecution
 import org.springframework.batch.core.partition.PartitionHandler
 import org.springframework.batch.core.partition.StepExecutionSplitter
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.core.step.Step
+import org.springframework.batch.core.step.StepExecution
 import org.springframework.batch.core.step.builder.PartitionStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.infrastructure.item.ExecutionContext
 
 internal class PartitionStepBuilderDslTest {
-
     private val jobInstance = JobInstance(0L, "testJob")
 
     private val jobParameters = JobParameters()
 
     @Nested
     inner class PartitionHandlerTest {
-
         @Test
         fun testPartitionHandlerAndDummySettings() {
             // given
@@ -57,37 +55,28 @@ internal class PartitionStepBuilderDslTest {
             val partitionStepBuilder = PartitionStepBuilder(stepBuilder)
 
             // when
-            val step = partitionStepBuilder
-                .partitionHandler { _, _ ->
-                    ++partitionHandlerCallCount
-                    listOf()
-                }
-                // dummy
-                .step(
-                    object : Step {
-                        override fun getName(): String {
-                            throw RuntimeException("Should not be called")
-                        }
+            val step =
+                partitionStepBuilder
+                    .partitionHandler { _, _ ->
+                        ++partitionHandlerCallCount
+                        listOf()
+                    }
+                    // dummy
+                    .step(
+                        object : Step {
+                            override fun getName(): String = throw RuntimeException("Should not be called")
 
-                        override fun isAllowStartIfComplete(): Boolean {
-                            throw RuntimeException("Should not be called")
-                        }
+                            override fun isAllowStartIfComplete(): Boolean = throw RuntimeException("Should not be called")
 
-                        override fun getStartLimit(): Int {
-                            throw RuntimeException("Should not be called")
-                        }
+                            override fun getStartLimit(): Int = throw RuntimeException("Should not be called")
 
-                        override fun execute(stepExecution: StepExecution) {
-                            throw RuntimeException("Should not be called")
-                        }
-                    },
-                )
-                .taskExecutor { task ->
-                    ++taskExecutorCallCount
-                    task.run()
-                }
-                .gridSize(3)
-                .build()
+                            override fun execute(stepExecution: StepExecution): Unit = throw RuntimeException("Should not be called")
+                        },
+                    ).taskExecutor { task ->
+                        ++taskExecutorCallCount
+                        task.run()
+                    }.gridSize(3)
+                    .build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -103,33 +92,38 @@ internal class PartitionStepBuilderDslTest {
             // given
             val gridSize = 4
             var partitionHandlerCallCount = 0
-            val splitter = object : StepExecutionSplitter {
-                override fun getStepName(): String = "splitStep"
+            val splitter =
+                object : StepExecutionSplitter {
+                    override fun getStepName(): String = "splitStep"
 
-                override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                    val jobExecution = stepExecution.jobExecution
-                    return (0 until gridSize)
-                        .map {
-                            jobExecution.createStepExecution("${stepName}$it")
-                        }
-                        .toSet()
+                    override fun split(
+                        stepExecution: StepExecution,
+                        gridSize: Int,
+                    ): Set<StepExecution> {
+                        val jobExecution = stepExecution.jobExecution
+                        return (0 until gridSize)
+                            .map {
+                                jobExecution.createStepExecution("${stepName}$it")
+                            }.toSet()
+                    }
                 }
-            }
 
             // when
-            val step = partitionStepBuilderDsl {
-                partitionHandler { splitter, stepExecution ->
-                    ++partitionHandlerCallCount
-                    splitter.split(stepExecution, gridSize)
-                        .map {
-                            it.apply {
-                                exitStatus = ExitStatus.COMPLETED
-                                status = BatchStatus.COMPLETED
+            val step =
+                partitionStepBuilderDsl {
+                    partitionHandler { splitter, stepExecution ->
+                        ++partitionHandlerCallCount
+                        splitter
+                            .split(stepExecution, gridSize)
+                            .map {
+                                it.apply {
+                                    exitStatus = ExitStatus.COMPLETED
+                                    status = BatchStatus.COMPLETED
+                                }
                             }
-                        }
+                    }
+                    splitter(splitter)
                 }
-                splitter(splitter)
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -152,53 +146,51 @@ internal class PartitionStepBuilderDslTest {
             var stepExecuteCallCount = 0
             var taskExecutorCallCount = 0
             val gridSize = 4
-            val splitter = object : StepExecutionSplitter {
-                override fun getStepName(): String = "splitStep"
+            val splitter =
+                object : StepExecutionSplitter {
+                    override fun getStepName(): String = "splitStep"
 
-                override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                    val jobExecution = stepExecution.jobExecution
-                    return (0 until gridSize)
-                        .map {
-                            jobExecution.createStepExecution("${stepName}$it")
-                        }
-                        .toSet()
+                    override fun split(
+                        stepExecution: StepExecution,
+                        gridSize: Int,
+                    ): Set<StepExecution> {
+                        val jobExecution = stepExecution.jobExecution
+                        return (0 until gridSize)
+                            .map {
+                                jobExecution.createStepExecution("${stepName}$it")
+                            }.toSet()
+                    }
                 }
-            }
 
             // when
-            val step = partitionStepBuilderDsl {
-                partitionHandler {
-                    step(
-                        object : Step {
-                            override fun getName(): String {
-                                throw RuntimeException("Should not be called")
-                            }
+            val step =
+                partitionStepBuilderDsl {
+                    partitionHandler {
+                        step(
+                            object : Step {
+                                override fun getName(): String = throw RuntimeException("Should not be called")
 
-                            override fun isAllowStartIfComplete(): Boolean {
-                                throw RuntimeException("Should not be called")
-                            }
+                                override fun isAllowStartIfComplete(): Boolean = throw RuntimeException("Should not be called")
 
-                            override fun getStartLimit(): Int {
-                                throw RuntimeException("Should not be called")
-                            }
+                                override fun getStartLimit(): Int = throw RuntimeException("Should not be called")
 
-                            override fun execute(stepExecution: StepExecution) {
-                                ++stepExecuteCallCount
-                                stepExecution.apply {
-                                    status = BatchStatus.COMPLETED
-                                    exitStatus = ExitStatus.COMPLETED
+                                override fun execute(stepExecution: StepExecution) {
+                                    ++stepExecuteCallCount
+                                    stepExecution.apply {
+                                        status = BatchStatus.COMPLETED
+                                        exitStatus = ExitStatus.COMPLETED
+                                    }
                                 }
-                            }
-                        },
-                    )
-                    taskExecutor { task ->
-                        ++taskExecutorCallCount
-                        task.run()
+                            },
+                        )
+                        taskExecutor { task ->
+                            ++taskExecutorCallCount
+                            task.run()
+                        }
+                        gridSize(gridSize)
                     }
-                    gridSize(gridSize)
+                    splitter(splitter)
                 }
-                splitter(splitter)
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -221,49 +213,47 @@ internal class PartitionStepBuilderDslTest {
             // given
             var stepExecuteCallCount = 0
             val gridSize = 4
-            val splitter = object : StepExecutionSplitter {
-                override fun getStepName(): String = "splitStep"
+            val splitter =
+                object : StepExecutionSplitter {
+                    override fun getStepName(): String = "splitStep"
 
-                override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                    val jobExecution = stepExecution.jobExecution
-                    return (0 until gridSize)
-                        .map {
-                            jobExecution.createStepExecution("${stepName}$it")
-                        }
-                        .toSet()
+                    override fun split(
+                        stepExecution: StepExecution,
+                        gridSize: Int,
+                    ): Set<StepExecution> {
+                        val jobExecution = stepExecution.jobExecution
+                        return (0 until gridSize)
+                            .map {
+                                jobExecution.createStepExecution("${stepName}$it")
+                            }.toSet()
+                    }
                 }
-            }
 
             // when
-            val step = partitionStepBuilderDsl {
-                partitionHandler {
-                    step(
-                        object : Step {
-                            override fun getName(): String {
-                                throw RuntimeException("Should not be called")
-                            }
+            val step =
+                partitionStepBuilderDsl {
+                    partitionHandler {
+                        step(
+                            object : Step {
+                                override fun getName(): String = throw RuntimeException("Should not be called")
 
-                            override fun isAllowStartIfComplete(): Boolean {
-                                throw RuntimeException("Should not be called")
-                            }
+                                override fun isAllowStartIfComplete(): Boolean = throw RuntimeException("Should not be called")
 
-                            override fun getStartLimit(): Int {
-                                throw RuntimeException("Should not be called")
-                            }
+                                override fun getStartLimit(): Int = throw RuntimeException("Should not be called")
 
-                            override fun execute(stepExecution: StepExecution) {
-                                ++stepExecuteCallCount
-                                stepExecution.apply {
-                                    status = BatchStatus.COMPLETED
-                                    exitStatus = ExitStatus.COMPLETED
+                                override fun execute(stepExecution: StepExecution) {
+                                    ++stepExecuteCallCount
+                                    stepExecution.apply {
+                                        status = BatchStatus.COMPLETED
+                                        exitStatus = ExitStatus.COMPLETED
+                                    }
                                 }
-                            }
-                        },
-                    )
-                    gridSize(gridSize)
+                            },
+                        )
+                        gridSize(gridSize)
+                    }
+                    splitter(splitter)
                 }
-                splitter(splitter)
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -285,54 +275,52 @@ internal class PartitionStepBuilderDslTest {
             // given
             var stepExecuteCallCount = 0
             var taskExecutorCallCount = 0
-            val splitter = object : StepExecutionSplitter {
-                override fun getStepName(): String = "splitStep"
+            val splitter =
+                object : StepExecutionSplitter {
+                    override fun getStepName(): String = "splitStep"
 
-                override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                    val jobExecution = stepExecution.jobExecution
-                    return (0 until gridSize)
-                        .map {
-                            jobExecution.createStepExecution("${stepName}$it")
-                        }
-                        .toSet()
+                    override fun split(
+                        stepExecution: StepExecution,
+                        gridSize: Int,
+                    ): Set<StepExecution> {
+                        val jobExecution = stepExecution.jobExecution
+                        return (0 until gridSize)
+                            .map {
+                                jobExecution.createStepExecution("${stepName}$it")
+                            }.toSet()
+                    }
                 }
-            }
             // org.springframework.batch.core.step.builder.PartitionStepBuilder.DEFAULT_GRID_SIZE
             val defaultGridSize = 6
 
             // when
-            val step = partitionStepBuilderDsl {
-                partitionHandler {
-                    step(
-                        object : Step {
-                            override fun getName(): String {
-                                throw RuntimeException("Should not be called")
-                            }
+            val step =
+                partitionStepBuilderDsl {
+                    partitionHandler {
+                        step(
+                            object : Step {
+                                override fun getName(): String = throw RuntimeException("Should not be called")
 
-                            override fun isAllowStartIfComplete(): Boolean {
-                                throw RuntimeException("Should not be called")
-                            }
+                                override fun isAllowStartIfComplete(): Boolean = throw RuntimeException("Should not be called")
 
-                            override fun getStartLimit(): Int {
-                                throw RuntimeException("Should not be called")
-                            }
+                                override fun getStartLimit(): Int = throw RuntimeException("Should not be called")
 
-                            override fun execute(stepExecution: StepExecution) {
-                                ++stepExecuteCallCount
-                                stepExecution.apply {
-                                    status = BatchStatus.COMPLETED
-                                    exitStatus = ExitStatus.COMPLETED
+                                override fun execute(stepExecution: StepExecution) {
+                                    ++stepExecuteCallCount
+                                    stepExecution.apply {
+                                        status = BatchStatus.COMPLETED
+                                        exitStatus = ExitStatus.COMPLETED
+                                    }
                                 }
-                            }
-                        },
-                    )
-                    taskExecutor { task ->
-                        ++taskExecutorCallCount
-                        task.run()
+                            },
+                        )
+                        taskExecutor { task ->
+                            ++taskExecutorCallCount
+                            task.run()
+                        }
                     }
+                    splitter(splitter)
                 }
-                splitter(splitter)
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -353,18 +341,21 @@ internal class PartitionStepBuilderDslTest {
         @Test
         fun testPartitionHandlerWithTaskExecutorPartitionHandlerWithoutStep() {
             // given
-            val splitter = object : StepExecutionSplitter {
-                override fun getStepName(): String = "splitStep"
+            val splitter =
+                object : StepExecutionSplitter {
+                    override fun getStepName(): String = "splitStep"
 
-                override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                    val jobExecution = stepExecution.jobExecution
-                    return (0 until gridSize)
-                        .map {
-                            jobExecution.createStepExecution("${stepName}$it")
-                        }
-                        .toSet()
+                    override fun split(
+                        stepExecution: StepExecution,
+                        gridSize: Int,
+                    ): Set<StepExecution> {
+                        val jobExecution = stepExecution.jobExecution
+                        return (0 until gridSize)
+                            .map {
+                                jobExecution.createStepExecution("${stepName}$it")
+                            }.toSet()
+                    }
                 }
-            }
 
             // when, then
             assertThatThrownBy {
@@ -383,18 +374,21 @@ internal class PartitionStepBuilderDslTest {
         @Test
         fun testWithoutPartitionHandler() {
             // given
-            val splitter = object : StepExecutionSplitter {
-                override fun getStepName(): String = "splitStep"
+            val splitter =
+                object : StepExecutionSplitter {
+                    override fun getStepName(): String = "splitStep"
 
-                override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                    val jobExecution = stepExecution.jobExecution
-                    return (0 until gridSize)
-                        .map {
-                            jobExecution.createStepExecution("${stepName}$it")
-                        }
-                        .toSet()
+                    override fun split(
+                        stepExecution: StepExecution,
+                        gridSize: Int,
+                    ): Set<StepExecution> {
+                        val jobExecution = stepExecution.jobExecution
+                        return (0 until gridSize)
+                            .map {
+                                jobExecution.createStepExecution("${stepName}$it")
+                            }.toSet()
+                    }
                 }
-            }
 
             // when, then
             assertThatThrownBy {
@@ -407,7 +401,6 @@ internal class PartitionStepBuilderDslTest {
 
     @Nested
     inner class SplitterTest {
-
         @Test
         fun testSplitterAndDummySettings() {
             // given
@@ -418,28 +411,28 @@ internal class PartitionStepBuilderDslTest {
             val partitionStepBuilder = PartitionStepBuilder(stepBuilder)
 
             // when
-            val step = partitionStepBuilder
-                .partitionHandler { stepSplitter, stepExecution ->
-                    stepSplitter.split(stepExecution, 1)
-                }
-                .splitter(
-                    object : StepExecutionSplitter {
-                        override fun getStepName(): String {
-                            return "testStep"
-                        }
+            val step =
+                partitionStepBuilder
+                    .partitionHandler { stepSplitter, stepExecution ->
+                        stepSplitter.split(stepExecution, 1)
+                    }.splitter(
+                        object : StepExecutionSplitter {
+                            override fun getStepName(): String = "testStep"
 
-                        override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                            ++splitterCallCount
-                            return setOf()
-                        }
-                    },
-                )
-                // dummy
-                .partitioner(dummyStepName) {
-                    ++partitionerCallCount
-                    mapOf()
-                }
-                .build()
+                            override fun split(
+                                stepExecution: StepExecution,
+                                gridSize: Int,
+                            ): Set<StepExecution> {
+                                ++splitterCallCount
+                                return setOf()
+                            }
+                        },
+                    )
+                    // dummy
+                    .partitioner(dummyStepName) {
+                        ++partitionerCallCount
+                        mapOf()
+                    }.build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -456,36 +449,40 @@ internal class PartitionStepBuilderDslTest {
             // given
             var splitterCallCount = 0
             val gridSize = 4
-            val partitionHandler = PartitionHandler { stepSplitter, stepExecution ->
-                stepSplitter.split(stepExecution, gridSize)
-                    .map {
-                        it.apply {
-                            exitStatus = ExitStatus.COMPLETED
-                            status = BatchStatus.COMPLETED
+            val partitionHandler =
+                PartitionHandler { stepSplitter, stepExecution ->
+                    stepSplitter
+                        .split(stepExecution, gridSize)
+                        .map {
+                            it.apply {
+                                exitStatus = ExitStatus.COMPLETED
+                                status = BatchStatus.COMPLETED
+                            }
                         }
-                    }
-            }
+                }
 
             // when
-            val step = partitionStepBuilderDsl {
-                partitionHandler(partitionHandler)
-                splitter(
+            val step =
+                partitionStepBuilderDsl {
+                    partitionHandler(partitionHandler)
+                    splitter(
+                        object : StepExecutionSplitter {
+                            override fun getStepName(): String = "splitStep"
 
-                    object : StepExecutionSplitter {
-                        override fun getStepName(): String = "splitStep"
-
-                        override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                            ++splitterCallCount
-                            val jobExecution = stepExecution.jobExecution
-                            return (0 until gridSize)
-                                .map {
-                                    jobExecution.createStepExecution("${stepName}$it")
-                                }
-                                .toSet()
-                        }
-                    },
-                )
-            }
+                            override fun split(
+                                stepExecution: StepExecution,
+                                gridSize: Int,
+                            ): Set<StepExecution> {
+                                ++splitterCallCount
+                                val jobExecution = stepExecution.jobExecution
+                                return (0 until gridSize)
+                                    .map {
+                                        jobExecution.createStepExecution("${stepName}$it")
+                                    }.toSet()
+                            }
+                        },
+                    )
+                }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -507,26 +504,30 @@ internal class PartitionStepBuilderDslTest {
             // given
             var partitionerCallCount = 0
             val gridSize = 4
-            val partitionHandler = PartitionHandler { stepSplitter, stepExecution ->
-                stepSplitter.split(stepExecution, gridSize)
-                    .map {
-                        it.apply {
-                            exitStatus = ExitStatus.COMPLETED
-                            status = BatchStatus.COMPLETED
+            val partitionHandler =
+                PartitionHandler { stepSplitter, stepExecution ->
+                    stepSplitter
+                        .split(stepExecution, gridSize)
+                        .map {
+                            it.apply {
+                                exitStatus = ExitStatus.COMPLETED
+                                status = BatchStatus.COMPLETED
+                            }
                         }
-                    }
-            }
+                }
 
             // when
-            val step = partitionStepBuilderDsl {
-                partitionHandler(partitionHandler)
-                splitter("splitStep") { gridSize ->
-                    ++partitionerCallCount
-                    (0 until gridSize).map {
-                        "$it" to ExecutionContext()
-                    }.toMap()
+            val step =
+                partitionStepBuilderDsl {
+                    partitionHandler(partitionHandler)
+                    splitter("splitStep") { gridSize ->
+                        ++partitionerCallCount
+                        (0 until gridSize)
+                            .map {
+                                "$it" to ExecutionContext()
+                            }.toMap()
+                    }
                 }
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -546,15 +547,17 @@ internal class PartitionStepBuilderDslTest {
         @Test
         fun testWithoutSplitter() {
             // given
-            val partitionHandler = PartitionHandler { stepSplitter, stepExecution ->
-                stepSplitter.split(stepExecution, 2_000_000_000)
-                    .map {
-                        it.apply {
-                            exitStatus = ExitStatus.COMPLETED
-                            status = BatchStatus.COMPLETED
+            val partitionHandler =
+                PartitionHandler { stepSplitter, stepExecution ->
+                    stepSplitter
+                        .split(stepExecution, 2_000_000_000)
+                        .map {
+                            it.apply {
+                                exitStatus = ExitStatus.COMPLETED
+                                status = BatchStatus.COMPLETED
+                            }
                         }
-                    }
-            }
+                }
 
             // when, then
             assertThatThrownBy {
@@ -571,13 +574,14 @@ internal class PartitionStepBuilderDslTest {
         var aggregatorCallCount = 0
 
         // when
-        val step = partitionStepBuilderDsl {
-            aggregator { _, _ ->
-                ++aggregatorCallCount
+        val step =
+            partitionStepBuilderDsl {
+                aggregator { _, _ ->
+                    ++aggregatorCallCount
+                }
+                partitionHandler(mockk<PartitionHandler>(relaxed = true))
+                splitter(mockk())
             }
-            partitionHandler(mockk<PartitionHandler>(relaxed = true))
-            splitter(mockk())
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -588,13 +592,15 @@ internal class PartitionStepBuilderDslTest {
     }
 
     private fun partitionStepBuilderDsl(init: PartitionStepBuilderDsl.() -> Unit): Step {
-        val dslContext = DslContext(
-            beanFactory = mockk(),
-            jobRepository = mockk(),
-        )
-        val mockk = mockk<JobRepository>(relaxed = true) {
-            every { getLastStepExecution(any(), any()) } returns null
-        }
+        val dslContext =
+            DslContext(
+                beanFactory = mockk(),
+                jobRepository = mockk(),
+            )
+        val mockk =
+            mockk<JobRepository>(relaxed = true) {
+                every { getLastStepExecution(any(), any()) } returns null
+            }
         val stepBuilder = StepBuilder("testStep", mockk)
 
         return PartitionStepBuilderDsl(dslContext, PartitionStepBuilder(stepBuilder)).apply(init).build()

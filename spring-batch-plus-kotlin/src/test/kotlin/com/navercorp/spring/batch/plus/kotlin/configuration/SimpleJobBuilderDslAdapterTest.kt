@@ -22,13 +22,12 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.job.flow.Flow
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
 
 internal class SimpleJobBuilderDslAdapterTest {
-
     @Test
     fun testUnsupportedCall() {
         // given

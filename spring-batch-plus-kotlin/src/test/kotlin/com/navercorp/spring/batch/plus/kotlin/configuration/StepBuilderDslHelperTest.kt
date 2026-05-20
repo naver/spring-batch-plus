@@ -35,7 +35,6 @@ import java.util.concurrent.ThreadLocalRandom
  * org.springframework.batch.core.step.builder.StepBuilderHelper related tests
  */
 internal class StepBuilderDslHelperTest {
-
     @Suppress("DEPRECATION")
     @Test
     fun testRepository() {
@@ -45,9 +44,10 @@ internal class StepBuilderDslHelperTest {
 
         // when
         val jobRepository = mockk<JobRepository>()
-        stepBuilderDsl.apply {
-            repository(jobRepository)
-        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+        stepBuilderDsl
+            .apply {
+                repository(jobRepository)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
         verify(exactly = 1) { stepBuilderDsl.repository(jobRepository) }
@@ -61,9 +61,10 @@ internal class StepBuilderDslHelperTest {
 
         // when
         val observationConvention = mockk<BatchStepObservationConvention>()
-        stepBuilderDsl.apply {
-            observationConvention(observationConvention)
-        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+        stepBuilderDsl
+            .apply {
+                observationConvention(observationConvention)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
         verify(exactly = 1) { stepBuilderDsl.observationConvention(observationConvention) }
@@ -77,9 +78,10 @@ internal class StepBuilderDslHelperTest {
 
         // when
         val observationRegistry = mockk<ObservationRegistry>()
-        stepBuilderDsl.apply {
-            observationRegistry(observationRegistry)
-        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+        stepBuilderDsl
+            .apply {
+                observationRegistry(observationRegistry)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
         verify(exactly = 1) { stepBuilderDsl.observationRegistry(observationRegistry) }
@@ -93,9 +95,10 @@ internal class StepBuilderDslHelperTest {
 
         // when
         val meterRegistry = mockk<MeterRegistry>()
-        stepBuilderDsl.apply {
-            meterRegistry(meterRegistry)
-        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+        stepBuilderDsl
+            .apply {
+                meterRegistry(meterRegistry)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
         verify(exactly = 1) { stepBuilderDsl.meterRegistry(meterRegistry) }
@@ -109,9 +112,10 @@ internal class StepBuilderDslHelperTest {
 
         // when
         val startLimit = ThreadLocalRandom.current().nextInt()
-        stepBuilderDsl.apply {
-            startLimit(startLimit)
-        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+        stepBuilderDsl
+            .apply {
+                startLimit(startLimit)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
         verify(exactly = 1) { stepBuilderDsl.startLimit(startLimit) }
@@ -127,9 +131,10 @@ internal class StepBuilderDslHelperTest {
 
         // when
         val testListener = TestListener()
-        stepBuilderDsl.apply {
-            listener(testListener)
-        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+        stepBuilderDsl
+            .apply {
+                listener(testListener)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
         verify(exactly = 1) { stepBuilderDsl.listener(testListener) }
@@ -143,9 +148,10 @@ internal class StepBuilderDslHelperTest {
 
         // when
         val stepExecutionListener = mockk<StepExecutionListener>()
-        stepBuilderDsl.apply {
-            listener(stepExecutionListener)
-        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+        stepBuilderDsl
+            .apply {
+                listener(stepExecutionListener)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
         verify(exactly = 1) { stepBuilderDsl.listener(stepExecutionListener) }
@@ -159,19 +165,21 @@ internal class StepBuilderDslHelperTest {
 
         // when
         val allowStartIfComplete = ThreadLocalRandom.current().nextBoolean()
-        stepBuilderDsl.apply {
-            allowStartIfComplete(allowStartIfComplete)
-        }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+        stepBuilderDsl
+            .apply {
+                allowStartIfComplete(allowStartIfComplete)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
 
         // then
         verify(exactly = 1) { stepBuilderDsl.allowStartIfComplete(allowStartIfComplete) }
     }
 
     private fun stepBuilderDsl(stepBuilder: StepBuilder): StepBuilderDsl {
-        val dslContext = DslContext(
-            beanFactory = mockk(),
-            jobRepository = mockk(),
-        )
+        val dslContext =
+            DslContext(
+                beanFactory = mockk(),
+                jobRepository = mockk(),
+            )
 
         return StepBuilderDsl(dslContext, stepBuilder)
     }

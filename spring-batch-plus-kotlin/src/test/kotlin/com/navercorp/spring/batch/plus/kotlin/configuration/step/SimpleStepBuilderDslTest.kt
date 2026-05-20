@@ -26,13 +26,13 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
+import org.springframework.batch.core.job.JobExecution
+import org.springframework.batch.core.job.JobInstance
+import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.listener.ChunkListener
 import org.springframework.batch.core.listener.ItemProcessListener
 import org.springframework.batch.core.listener.ItemReadListener
 import org.springframework.batch.core.listener.ItemWriteListener
-import org.springframework.batch.core.job.JobExecution
-import org.springframework.batch.core.job.JobInstance
-import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.step.builder.SimpleStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.tasklet.TaskletStep
@@ -53,7 +53,6 @@ import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 internal class SimpleStepBuilderDslTest {
-
     @Test
     fun testReader() {
         // given
@@ -61,9 +60,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val itemReader = mockk<ItemReader<Int>>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            reader(itemReader)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                reader(itemReader)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.reader(itemReader) }
@@ -76,9 +76,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val itemProcessor = mockk<ItemProcessor<Int, Int>>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            processor(itemProcessor)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                processor(itemProcessor)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.processor(itemProcessor) }
@@ -91,9 +92,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val itemWriter = mockk<ItemWriter<Int>>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            writer(itemWriter)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                writer(itemWriter)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.writer(itemWriter) }
@@ -105,9 +107,10 @@ internal class SimpleStepBuilderDslTest {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
         // when
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            readerIsTransactionalQueue()
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                readerIsTransactionalQueue()
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.readerIsTransactionalQueue() }
@@ -122,9 +125,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val testListener = TestListener()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            listener(testListener)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                listener(testListener)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.listener(testListener) }
@@ -137,9 +141,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val itemReadListener = mockk<ItemReadListener<Int>>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            listener(itemReadListener)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                listener(itemReadListener)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.listener(itemReadListener) }
@@ -152,9 +157,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val itemWriteListener = mockk<ItemWriteListener<Int>>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            listener(itemWriteListener)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                listener(itemWriteListener)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.listener(itemWriteListener) }
@@ -167,9 +173,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val itemProcessListener = mockk<ItemProcessListener<Int, Int>>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            listener(itemProcessListener)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                listener(itemProcessListener)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.listener(itemProcessListener) }
@@ -182,9 +189,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val chunkListener = mockk<ChunkListener>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            listener(chunkListener)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                listener(chunkListener)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.listener(chunkListener) }
@@ -197,9 +205,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val itemStream = mockk<ItemStream>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            stream(itemStream)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                stream(itemStream)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.stream(itemStream) }
@@ -212,9 +221,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val taskExecutor = mockk<TaskExecutor>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            taskExecutor(taskExecutor)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                taskExecutor(taskExecutor)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.taskExecutor(taskExecutor) }
@@ -229,10 +239,11 @@ internal class SimpleStepBuilderDslTest {
         // when
         val taskExecutor = mockk<TaskExecutor>()
         val limit = ThreadLocalRandom.current().nextInt()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            taskExecutor(taskExecutor)
-            throttleLimit(limit)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                taskExecutor(taskExecutor)
+                throttleLimit(limit)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.throttleLimit(limit) }
@@ -245,9 +256,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val exceptionHandler = mockk<ExceptionHandler>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            exceptionHandler(exceptionHandler)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                exceptionHandler(exceptionHandler)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.exceptionHandler(exceptionHandler) }
@@ -260,9 +272,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val repeatOperations = mockk<RepeatOperations>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            stepOperations(repeatOperations)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                stepOperations(repeatOperations)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.stepOperations(repeatOperations) }
@@ -275,9 +288,10 @@ internal class SimpleStepBuilderDslTest {
 
         // when
         val transactionAttribute = mockk<TransactionAttribute>()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-            transactionAttribute(transactionAttribute)
-        }.build()
+        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+            .apply {
+                transactionAttribute(transactionAttribute)
+            }.build()
 
         // then
         verify(exactly = 1) { simpleStepBuilder.transactionAttribute(transactionAttribute) }
@@ -287,9 +301,10 @@ internal class SimpleStepBuilderDslTest {
     fun testBuild() {
         // given
         val mockStep = mockk<TaskletStep>()
-        val taskletStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true) {
-            every { build() } returns mockStep
-        }
+        val taskletStepBuilder =
+            mockk<SimpleStepBuilder<Int, Int>>(relaxed = true) {
+                every { build() } returns mockStep
+            }
 
         // when
         val actual = SimpleStepBuilderDsl(mockk(), taskletStepBuilder).build()
@@ -305,10 +320,11 @@ internal class SimpleStepBuilderDslTest {
 
         // when, then
         assertThatThrownBy {
-            SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-                stepOperations(RepeatTemplate())
-                taskExecutor(SyncTaskExecutor())
-            }.build()
+            SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+                .apply {
+                    stepOperations(RepeatTemplate())
+                    taskExecutor(SyncTaskExecutor())
+                }.build()
         }.hasMessageContaining("taskExecutor is redundant")
     }
 
@@ -319,12 +335,13 @@ internal class SimpleStepBuilderDslTest {
 
         // when, then
         assertThatThrownBy {
-            SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-                stepOperations(RepeatTemplate())
-                exceptionHandler { _, e ->
-                    throw e
-                }
-            }.build()
+            SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+                .apply {
+                    stepOperations(RepeatTemplate())
+                    exceptionHandler { _, e ->
+                        throw e
+                    }
+                }.build()
         }.hasMessageContaining("exceptionHandler is redundant")
     }
 
@@ -336,15 +353,15 @@ internal class SimpleStepBuilderDslTest {
 
         // when, then
         assertThatThrownBy {
-            SimpleStepBuilderDsl(mockk(), simpleStepBuilder).apply {
-                throttleLimit(3)
-            }.build()
+            SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
+                .apply {
+                    throttleLimit(3)
+                }.build()
         }.hasMessageContaining("throttleLimit is redundant")
     }
 
     @Nested
     inner class RedundancyCheck {
-
         @Test
         fun testStepOperationsAndRedundantSettings() {
             // given
@@ -357,35 +374,33 @@ internal class SimpleStepBuilderDslTest {
             val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
 
             // when
-            val step = stepBuilder
-                .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
-                .reader {
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
-                    }
-                }
-                .writer { }
-                .stepOperations(
-                    object : RepeatTemplate() {
-                        override fun iterate(callback: RepeatCallback): RepeatStatus {
-                            ++stepOperationCallCount
-                            return super.iterate(callback)
+            val step =
+                stepBuilder
+                    .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
+                    .reader {
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
                         }
-                    },
-                )
-                // redundant
-                .taskExecutor { task ->
-                    ++taskExecutorCallCount
-                    task.run()
-                }
-                .exceptionHandler { _, e ->
-                    ++exceptionHandlerCallCount
-                    throw e
-                }
-                .build()
+                    }.writer { }
+                    .stepOperations(
+                        object : RepeatTemplate() {
+                            override fun iterate(callback: RepeatCallback): RepeatStatus {
+                                ++stepOperationCallCount
+                                return super.iterate(callback)
+                            }
+                        },
+                    )
+                    // redundant
+                    .taskExecutor { task ->
+                        ++taskExecutorCallCount
+                        task.run()
+                    }.exceptionHandler { _, e ->
+                        ++exceptionHandlerCallCount
+                        throw e
+                    }.build()
             val jobInstance = JobInstance(ThreadLocalRandom.current().nextLong(), UUID.randomUUID().toString())
             val jobExecution = JobExecution(jobInstance, JobParameters())
             val stepExecution = jobExecution.createStepExecution(step.name)
@@ -411,25 +426,23 @@ internal class SimpleStepBuilderDslTest {
             val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
 
             // when
-            val step = stepBuilder
-                .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
-                .reader {
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
-                    }
-                }
-                .processor {
-                    ++processCallCount
-                    it
-                }
-                .writer {
-                    ++writeCallCount
-                }
-                .throttleLimit(100)
-                .build()
+            val step =
+                stepBuilder
+                    .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
+                    .reader {
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
+                        }
+                    }.processor {
+                        ++processCallCount
+                        it
+                    }.writer {
+                        ++writeCallCount
+                    }.throttleLimit(100)
+                    .build()
             val jobInstance = JobInstance(ThreadLocalRandom.current().nextLong(), UUID.randomUUID().toString())
             val jobExecution = JobExecution(jobInstance, JobParameters())
             val stepExecution = jobExecution.createStepExecution(step.name)

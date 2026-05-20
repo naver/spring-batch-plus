@@ -24,8 +24,8 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
-import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
+import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
@@ -42,7 +42,6 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class FlowTransitionBuilderDslIntegrationTest {
-
     @RepeatedTest(10)
     fun testFlowWithMultipleTransition() {
         // given
@@ -51,34 +50,36 @@ internal class FlowTransitionBuilderDslIntegrationTest {
         val batch = context.getBean<BatchDsl>()
         val expectedExitStatus = randomExitStatus()
         var testStep1CallCount = 0
-        val testFlow1 = batch {
-            flow("testFlow1") {
-                step("testStep1") {
-                    tasklet(
-                        { contribution, _ ->
-                            ++testStep1CallCount
-                            contribution.exitStatus = expectedExitStatus
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
+        val testFlow1 =
+            batch {
+                flow("testFlow1") {
+                    step("testStep1") {
+                        tasklet(
+                            { contribution, _ ->
+                                ++testStep1CallCount
+                                contribution.exitStatus = expectedExitStatus
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager(),
+                        )
+                    }
                 }
             }
-        }
 
         // when
-        val job = batch {
-            job("testJob") {
-                flow(testFlow1) {
-                    on("COMPLETED") {
-                        end()
-                    }
-                    on("*") {
-                        fail()
+        val job =
+            batch {
+                job("testJob") {
+                    flow(testFlow1) {
+                        on("COMPLETED") {
+                            end()
+                        }
+                        on("*") {
+                            fail()
+                        }
                     }
                 }
             }
-        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -101,18 +102,19 @@ internal class FlowTransitionBuilderDslIntegrationTest {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val batch = context.getBean<BatchDsl>()
-        val testFlow1 = batch {
-            flow("testFlow1") {
-                step("testStep1") {
-                    tasklet(
-                        { _, _ ->
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
+        val testFlow1 =
+            batch {
+                flow("testFlow1") {
+                    step("testStep1") {
+                        tasklet(
+                            { _, _ ->
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager(),
+                        )
+                    }
                 }
             }
-        }
 
         // when, then
         assertThatThrownBy {
@@ -126,8 +128,8 @@ internal class FlowTransitionBuilderDslIntegrationTest {
         }.hasMessageContaining("should set transition for flow")
     }
 
-    private fun randomExitStatus(): ExitStatus {
-        return listOf(
+    private fun randomExitStatus(): ExitStatus =
+        listOf(
             ExitStatus.UNKNOWN,
             ExitStatus.NOOP,
             ExitStatus.FAILED,
@@ -135,7 +137,6 @@ internal class FlowTransitionBuilderDslIntegrationTest {
             ExitStatus.COMPLETED,
             // ExitStatus.EXECUTING, // why considered ExitStatus.COMPLETE?
         ).random()
-    }
 
     @Configuration
     @EnableBatchProcessing(
@@ -143,28 +144,25 @@ internal class FlowTransitionBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
-
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,
             jobRepository: JobRepository,
-        ): BatchDsl = BatchDsl(
-            beanFactory,
-            jobRepository,
-        )
+        ): BatchDsl =
+            BatchDsl(
+                beanFactory,
+                jobRepository,
+            )
 
         @Bean
-        open fun metadataTransactionManager(): TransactionManager {
-            return DataSourceTransactionManager(metadataDataSource())
-        }
+        open fun metadataTransactionManager(): TransactionManager = DataSourceTransactionManager(metadataDataSource())
 
         @Bean
-        open fun metadataDataSource(): DataSource {
-            return EmbeddedDatabaseBuilder()
+        open fun metadataDataSource(): DataSource =
+            EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")
                 .generateUniqueName(true)
                 .build()
-        }
     }
 }

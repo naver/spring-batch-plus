@@ -37,8 +37,8 @@ class FlowStepBuilderDsl internal constructor(
 ) {
     private val lazyConfigurer = LazyConfigurer<FlowStepBuilder>()
 
-    internal fun build(): Step {
-        return this.flowStepBuilder.apply(this.lazyConfigurer)
+    internal fun build(): Step =
+        this.flowStepBuilder
+            .apply(this.lazyConfigurer)
             .build()
-    }
 }

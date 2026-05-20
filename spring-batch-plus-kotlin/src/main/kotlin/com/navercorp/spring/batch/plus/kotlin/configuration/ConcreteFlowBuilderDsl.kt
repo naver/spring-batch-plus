@@ -20,10 +20,10 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
-import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.JobExecutionDecider
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.getBean
 import org.springframework.core.task.TaskExecutor
@@ -49,7 +49,10 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
     /**
      * Add step.
      */
-    override fun step(name: String, stepInit: StepBuilderDsl.() -> Step) {
+    override fun step(
+        name: String,
+        stepInit: StepBuilderDsl.() -> Step,
+    ) {
         val stepBuilder = StepBuilder(name, this.dslContext.jobRepository)
         val step = StepBuilderDsl(this.dslContext, stepBuilder).let(stepInit)
         step(step)
@@ -59,12 +62,13 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
      * Add step.
      */
     override fun step(step: Step) {
-        val baseFlowBuilder = if (!this.started) {
-            this.started = true
-            this.flowBuilder.start(step)
-        } else {
-            this.flowBuilder.next(step)
-        }
+        val baseFlowBuilder =
+            if (!this.started) {
+                this.started = true
+                this.flowBuilder.start(step)
+            } else {
+                this.flowBuilder.next(step)
+            }
 
         this.flowBuilder = baseFlowBuilder
     }
@@ -72,7 +76,10 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
     /**
      * Add step by bean name with transition.
      */
-    override fun stepBean(name: String, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
+    override fun stepBean(
+        name: String,
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit,
+    ) {
         val step = this.dslContext.beanFactory.getBean<Step>(name)
         step(step, stepTransitionInit)
     }
@@ -93,17 +100,22 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
     /**
      * Add step with transition.
      */
-    override fun step(step: Step, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit) {
-        val baseFlowBuilder = if (!this.started) {
-            this.started = true
-            this.flowBuilder.start(step)
-        } else {
-            this.flowBuilder.next(step)
-        }
+    override fun step(
+        step: Step,
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit,
+    ) {
+        val baseFlowBuilder =
+            if (!this.started) {
+                this.started = true
+                this.flowBuilder.start(step)
+            } else {
+                this.flowBuilder.next(step)
+            }
 
-        this.flowBuilder = StepTransitionBuilderDsl<T>(this.dslContext, step, baseFlowBuilder)
-            .apply(stepTransitionInit)
-            .build()
+        this.flowBuilder =
+            StepTransitionBuilderDsl<T>(this.dslContext, step, baseFlowBuilder)
+                .apply(stepTransitionInit)
+                .build()
     }
 
     /**
@@ -117,10 +129,15 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
     /**
      * Add flow.
      */
-    override fun flow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit) {
+    override fun flow(
+        name: String,
+        flowInit: FlowBuilderDsl<Flow>.() -> Unit,
+    ) {
         val flowBuilder = FlowBuilder<Flow>(name)
-        val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
-            .build()
+        val flow =
+            ConcreteFlowBuilderDsl(this.dslContext, flowBuilder)
+                .apply(flowInit)
+                .build()
         flow(flow)
     }
 
@@ -128,12 +145,13 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
      * Add flow.
      */
     override fun flow(flow: Flow) {
-        val baseFlowBuilder = if (!this.started) {
-            this.started = true
-            this.flowBuilder.start(flow)
-        } else {
-            this.flowBuilder.next(flow)
-        }
+        val baseFlowBuilder =
+            if (!this.started) {
+                this.started = true
+                this.flowBuilder.start(flow)
+            } else {
+                this.flowBuilder.next(flow)
+            }
 
         this.flowBuilder = baseFlowBuilder
     }
@@ -141,7 +159,10 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
     /**
      * Add flow by bean name with transition.
      */
-    override fun flowBean(name: String, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
+    override fun flowBean(
+        name: String,
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit,
+    ) {
         val flow = this.dslContext.beanFactory.getBean<Flow>(name)
         flow(flow, flowTransitionInit)
     }
@@ -155,25 +176,32 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
         flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit,
     ) {
         val flowBuilder = FlowBuilder<Flow>(name)
-        val flow = ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(flowInit)
-            .build()
+        val flow =
+            ConcreteFlowBuilderDsl(this.dslContext, flowBuilder)
+                .apply(flowInit)
+                .build()
         flow(flow, flowTransitionInit)
     }
 
     /**
      * Add flow with transition.
      */
-    override fun flow(flow: Flow, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit) {
-        val baseFlowBuilder = if (!this.started) {
-            this.started = true
-            this.flowBuilder.start(flow)
-        } else {
-            this.flowBuilder.next(flow)
-        }
+    override fun flow(
+        flow: Flow,
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit,
+    ) {
+        val baseFlowBuilder =
+            if (!this.started) {
+                this.started = true
+                this.flowBuilder.start(flow)
+            } else {
+                this.flowBuilder.next(flow)
+            }
 
-        this.flowBuilder = FlowTransitionBuilderDsl<T>(this.dslContext, flow, baseFlowBuilder)
-            .apply(flowTransitionInit)
-            .build()
+        this.flowBuilder =
+            FlowTransitionBuilderDsl<T>(this.dslContext, flow, baseFlowBuilder)
+                .apply(flowTransitionInit)
+                .build()
     }
 
     /**
@@ -194,16 +222,18 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
         decider: JobExecutionDecider,
         deciderTransitionInit: DeciderTransitionBuilderDsl<T>.() -> Unit,
     ) {
-        val baseUnterminatedFlowBuilder = if (!started) {
-            this.started = true
-            this.flowBuilder.start(decider)
-        } else {
-            this.flowBuilder.next(decider)
-        }
+        val baseUnterminatedFlowBuilder =
+            if (!started) {
+                this.started = true
+                this.flowBuilder.start(decider)
+            } else {
+                this.flowBuilder.next(decider)
+            }
 
-        this.flowBuilder = DeciderTransitionBuilderDsl<T>(this.dslContext, decider, baseUnterminatedFlowBuilder)
-            .apply(deciderTransitionInit)
-            .build()
+        this.flowBuilder =
+            DeciderTransitionBuilderDsl<T>(this.dslContext, decider, baseUnterminatedFlowBuilder)
+                .apply(deciderTransitionInit)
+                .build()
     }
 
     /**
@@ -211,10 +241,15 @@ internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(
      *
      * @see [FlowBuilder.split][org.springframework.batch.core.job.builder.FlowBuilder.split]
      */
-    override fun split(taskExecutor: TaskExecutor, splitInit: SplitBuilderDsl<T>.() -> Unit) {
+    override fun split(
+        taskExecutor: TaskExecutor,
+        splitInit: SplitBuilderDsl<T>.() -> Unit,
+    ) {
         val splitBuilder = this.flowBuilder.split(taskExecutor)
-        this.flowBuilder = SplitBuilderDsl<T>(this.dslContext, splitBuilder).apply(splitInit)
-            .build()
+        this.flowBuilder =
+            SplitBuilderDsl<T>(this.dslContext, splitBuilder)
+                .apply(splitInit)
+                .build()
     }
 
     internal fun build(): T = this.flowBuilder.build()

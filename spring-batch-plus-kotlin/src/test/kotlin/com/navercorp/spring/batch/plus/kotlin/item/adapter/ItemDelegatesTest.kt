@@ -31,7 +31,6 @@ import org.springframework.batch.infrastructure.item.ExecutionContext
 import reactor.core.publisher.Flux
 
 internal class ItemDelegatesTest {
-
     @Test
     fun testExtensions() {
         // when
@@ -47,14 +46,9 @@ internal class ItemDelegatesTest {
     }
 
     internal open class TestClass : ItemStreamReaderProcessorWriter<Int, String> {
+        override fun readFlux(executionContext: ExecutionContext): Flux<Int> = Flux.empty()
 
-        override fun readFlux(executionContext: ExecutionContext): Flux<Int> {
-            return Flux.empty()
-        }
-
-        override fun process(item: Int): String {
-            return item.toString()
-        }
+        override fun process(item: Int): String = item.toString()
 
         override fun write(chunk: Chunk<out String>) {
         }

@@ -23,8 +23,8 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
-import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
+import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
@@ -43,7 +43,6 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class SplitBuilderDslIntegrationTest {
-
     @Test
     fun testFlowBean() {
         // given
@@ -52,42 +51,45 @@ internal class SplitBuilderDslIntegrationTest {
         val batch = context.getBean<BatchDsl>()
         val callerThread = Thread.currentThread().name
         var taskExecutorCallCount = 0
-        val taskExecutor = object : ThreadPoolTaskExecutor() {
-            override fun execute(task: Runnable) {
-                ++taskExecutorCallCount
-                super.execute(task)
-            }
-        }.apply { initialize() }
+        val taskExecutor =
+            object : ThreadPoolTaskExecutor() {
+                override fun execute(task: Runnable) {
+                    ++taskExecutorCallCount
+                    super.execute(task)
+                }
+            }.apply { initialize() }
         var testStep1CallCount = 0
         var testStep2CallCount = 0
-        val testFlow1 = batch {
-            flow("testFlow1") {
-                step("testStep1") {
-                    tasklet(
-                        { _, _ ->
-                            ++testStep1CallCount
-                            assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
+        val testFlow1 =
+            batch {
+                flow("testFlow1") {
+                    step("testStep1") {
+                        tasklet(
+                            { _, _ ->
+                                ++testStep1CallCount
+                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager(),
+                        )
+                    }
                 }
             }
-        }
-        val testFlow2 = batch {
-            flow("testFlow2") {
-                step("testStep2") {
-                    tasklet(
-                        { _, _ ->
-                            ++testStep2CallCount
-                            assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
+        val testFlow2 =
+            batch {
+                flow("testFlow2") {
+                    step("testStep2") {
+                        tasklet(
+                            { _, _ ->
+                                ++testStep2CallCount
+                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager(),
+                        )
+                    }
                 }
             }
-        }
         context.apply {
             registerBean("testFlow1") {
                 testFlow1
@@ -98,14 +100,15 @@ internal class SplitBuilderDslIntegrationTest {
         }
 
         // when
-        val job = batch {
-            job("testJob") {
-                split(taskExecutor) {
-                    flowBean("testFlow1")
-                    flowBean("testFlow2")
+        val job =
+            batch {
+                job("testJob") {
+                    split(taskExecutor) {
+                        flowBean("testFlow1")
+                        flowBean("testFlow2")
+                    }
                 }
             }
-        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -126,44 +129,46 @@ internal class SplitBuilderDslIntegrationTest {
         var testStep1CallCount = 0
         var testStep2CallCount = 0
         val callerThread = Thread.currentThread().name
-        val taskExecutor = object : ThreadPoolTaskExecutor() {
-            override fun execute(task: Runnable) {
-                ++taskExecutorCallCount
-                super.execute(task)
-            }
-        }.apply { initialize() }
+        val taskExecutor =
+            object : ThreadPoolTaskExecutor() {
+                override fun execute(task: Runnable) {
+                    ++taskExecutorCallCount
+                    super.execute(task)
+                }
+            }.apply { initialize() }
 
         // when
-        val job = batch {
-            job("testJob") {
-                split(taskExecutor) {
-                    flow("testFlow1") {
-                        step("testStep1") {
-                            tasklet(
-                                { _, _ ->
-                                    ++testStep1CallCount
-                                    assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                    RepeatStatus.FINISHED
-                                },
-                                ResourcelessTransactionManager(),
-                            )
+        val job =
+            batch {
+                job("testJob") {
+                    split(taskExecutor) {
+                        flow("testFlow1") {
+                            step("testStep1") {
+                                tasklet(
+                                    { _, _ ->
+                                        ++testStep1CallCount
+                                        assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                        RepeatStatus.FINISHED
+                                    },
+                                    ResourcelessTransactionManager(),
+                                )
+                            }
                         }
-                    }
-                    flow("testFlow2") {
-                        step("testStep2") {
-                            tasklet(
-                                { _, _ ->
-                                    ++testStep2CallCount
-                                    assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                    RepeatStatus.FINISHED
-                                },
-                                ResourcelessTransactionManager(),
-                            )
+                        flow("testFlow2") {
+                            step("testStep2") {
+                                tasklet(
+                                    { _, _ ->
+                                        ++testStep2CallCount
+                                        assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                        RepeatStatus.FINISHED
+                                    },
+                                    ResourcelessTransactionManager(),
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -182,52 +187,56 @@ internal class SplitBuilderDslIntegrationTest {
         val batch = context.getBean<BatchDsl>()
         val callerThread = Thread.currentThread().name
         var taskExecutorCallCount = 0
-        val taskExecutor = object : ThreadPoolTaskExecutor() {
-            override fun execute(task: Runnable) {
-                ++taskExecutorCallCount
-                super.execute(task)
-            }
-        }.apply { initialize() }
+        val taskExecutor =
+            object : ThreadPoolTaskExecutor() {
+                override fun execute(task: Runnable) {
+                    ++taskExecutorCallCount
+                    super.execute(task)
+                }
+            }.apply { initialize() }
         var testStep1CallCount = 0
         var testStep2CallCount = 0
-        val testFlow1 = batch {
-            flow("testFlow1") {
-                step("testStep1") {
-                    tasklet(
-                        { _, _ ->
-                            ++testStep1CallCount
-                            assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
+        val testFlow1 =
+            batch {
+                flow("testFlow1") {
+                    step("testStep1") {
+                        tasklet(
+                            { _, _ ->
+                                ++testStep1CallCount
+                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager(),
+                        )
+                    }
                 }
             }
-        }
-        val testFlow2 = batch {
-            flow("testFlow2") {
-                step("testStep2") {
-                    tasklet(
-                        { _, _ ->
-                            ++testStep2CallCount
-                            assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
+        val testFlow2 =
+            batch {
+                flow("testFlow2") {
+                    step("testStep2") {
+                        tasklet(
+                            { _, _ ->
+                                ++testStep2CallCount
+                                assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager(),
+                        )
+                    }
                 }
             }
-        }
 
         // when
-        val job = batch {
-            job("testJob") {
-                split(taskExecutor) {
-                    flow(testFlow1)
-                    flow(testFlow2)
+        val job =
+            batch {
+                job("testJob") {
+                    split(taskExecutor) {
+                        flow(testFlow1)
+                        flow(testFlow2)
+                    }
                 }
             }
-        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -243,9 +252,10 @@ internal class SplitBuilderDslIntegrationTest {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val batch = context.getBean<BatchDsl>()
-        val taskExecutor = ThreadPoolTaskExecutor().apply {
-            initialize()
-        }
+        val taskExecutor =
+            ThreadPoolTaskExecutor().apply {
+                initialize()
+            }
 
         // when, then
         assertThatThrownBy {
@@ -264,28 +274,25 @@ internal class SplitBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
-
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,
             jobRepository: JobRepository,
-        ): BatchDsl = BatchDsl(
-            beanFactory,
-            jobRepository,
-        )
+        ): BatchDsl =
+            BatchDsl(
+                beanFactory,
+                jobRepository,
+            )
 
         @Bean
-        open fun metadataTransactionManager(): TransactionManager {
-            return DataSourceTransactionManager(metadataDataSource())
-        }
+        open fun metadataTransactionManager(): TransactionManager = DataSourceTransactionManager(metadataDataSource())
 
         @Bean
-        open fun metadataDataSource(): DataSource {
-            return EmbeddedDatabaseBuilder()
+        open fun metadataDataSource(): DataSource =
+            EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")
                 .generateUniqueName(true)
                 .build()
-        }
     }
 }
