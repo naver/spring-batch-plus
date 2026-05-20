@@ -18,15 +18,11 @@
 
 package com.navercorp.spring.batch.plus.sample.comparison.good;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -42,37 +38,15 @@ public class TestJobConfig {
 		PlatformTransactionManager transactionManager
 	) {
 		return new JobBuilder("testJob", jobRepository)
-			.incrementer(ClearRunIdIncrementer.create()) // use ClearRunIdIncrementer
+			.incrementer(ClearRunIdIncrementer.create())
 			.start(
 				new StepBuilder("testStep", jobRepository)
 					.tasklet(
-						testTasklet(null, null),
+						(contribution, chunkContext) -> RepeatStatus.FINISHED,
 						transactionManager
 					)
 					.build()
 			)
 			.build();
-	}
-
-	@StepScope
-	@Bean
-	public Tasklet testTasklet(
-		@Value("#{jobParameters['longValue']}") Long longValue,
-		@Value("#{jobParameters['stringValue']}") String stringValue
-	) {
-		return (contribution, chunkContext) -> {
-			Long result;
-			if (stringValue != null) {
-				result = longValue + Long.parseLong(stringValue);
-			} else {
-				result = 999L;
-			}
-
-			ExecutionContext jobExecutionContext = contribution.getStepExecution()
-				.getJobExecution()
-				.getExecutionContext();
-			jobExecutionContext.putLong("result", result);
-			return RepeatStatus.FINISHED;
-		};
 	}
 }

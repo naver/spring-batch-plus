@@ -20,7 +20,7 @@ package com.navercorp.spring.batch.plus.sample.deletemetadata.plain;
 
 import javax.sql.DataSource;
 
-import org.springframework.boot.autoconfigure.batch.BatchDataSource;
+import org.springframework.boot.batch.jdbc.autoconfigure.BatchDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;

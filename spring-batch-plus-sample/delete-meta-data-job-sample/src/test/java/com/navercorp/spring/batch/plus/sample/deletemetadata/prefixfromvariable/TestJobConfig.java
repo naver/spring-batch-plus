@@ -20,14 +20,14 @@ package com.navercorp.spring.batch.plus.sample.deletemetadata.prefixfromvariable
 
 import javax.sql.DataSource;
 
-import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.job.parameters.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.boot.autoconfigure.batch.BatchDataSource;
-import org.springframework.boot.autoconfigure.batch.BatchProperties;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
+import org.springframework.boot.batch.jdbc.autoconfigure.BatchDataSource;
+import org.springframework.boot.batch.jdbc.autoconfigure.BatchJdbcProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -41,9 +41,9 @@ public class TestJobConfig {
 	public Job removeJob(
 		@BatchDataSource DataSource dataSource,
 		JobRepository jobRepository,
-		BatchProperties properties
+		BatchJdbcProperties properties
 	) {
-		String tablePrefix = properties.getJdbc().getTablePrefix();
+		String tablePrefix = properties.getTablePrefix();
 		return new DeleteMetadataJobBuilder(jobRepository, dataSource)
 			.name("removeJob")
 			.tablePrefix(tablePrefix)
