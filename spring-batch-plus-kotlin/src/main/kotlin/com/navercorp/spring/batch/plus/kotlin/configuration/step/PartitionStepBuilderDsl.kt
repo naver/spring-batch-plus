@@ -22,11 +22,11 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMark
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.Configurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.partition.PartitionHandler
 import org.springframework.batch.core.partition.StepExecutionSplitter
-import org.springframework.batch.core.partition.support.Partitioner
-import org.springframework.batch.core.partition.support.StepExecutionAggregator
+import org.springframework.batch.core.partition.Partitioner
+import org.springframework.batch.core.partition.StepExecutionAggregator
 import org.springframework.batch.core.step.builder.PartitionStepBuilder
 import org.springframework.core.task.TaskExecutor
 

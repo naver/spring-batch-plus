@@ -25,9 +25,9 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.JobExecutionListener
-import org.springframework.batch.core.JobParametersIncrementer
-import org.springframework.batch.core.JobParametersValidator
+import org.springframework.batch.core.listener.JobExecutionListener
+import org.springframework.batch.core.job.parameters.JobParametersIncrementer
+import org.springframework.batch.core.job.parameters.JobParametersValidator
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.observability.BatchJobObservationConvention
 import org.springframework.batch.core.repository.JobRepository

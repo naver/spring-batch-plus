@@ -26,8 +26,8 @@ import com.navercorp.spring.batch.plus.item.adapter.ItemStreamWriterAdapter
 import com.navercorp.spring.batch.plus.item.adapter.StepScopeItemStreamReader
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.batch.item.Chunk
-import org.springframework.batch.item.ExecutionContext
+import org.springframework.batch.infrastructure.item.Chunk
+import org.springframework.batch.infrastructure.item.ExecutionContext
 import reactor.core.publisher.Flux
 
 internal class ItemDelegatesTest {

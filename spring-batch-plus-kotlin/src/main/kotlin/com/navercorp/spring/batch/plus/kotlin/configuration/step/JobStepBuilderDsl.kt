@@ -21,7 +21,7 @@ package com.navercorp.spring.batch.plus.kotlin.configuration.step
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.step.builder.JobStepBuilder
 import org.springframework.batch.core.step.job.JobParametersExtractor

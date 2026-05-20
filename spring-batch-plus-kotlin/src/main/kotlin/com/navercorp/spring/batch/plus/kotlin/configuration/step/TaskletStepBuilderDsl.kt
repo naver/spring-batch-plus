@@ -21,12 +21,12 @@ package com.navercorp.spring.batch.plus.kotlin.configuration.step
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
-import org.springframework.batch.core.ChunkListener
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.listener.ChunkListener
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.TaskletStepBuilder
-import org.springframework.batch.item.ItemStream
-import org.springframework.batch.repeat.RepeatOperations
-import org.springframework.batch.repeat.exception.ExceptionHandler
+import org.springframework.batch.infrastructure.item.ItemStream
+import org.springframework.batch.infrastructure.repeat.RepeatOperations
+import org.springframework.batch.infrastructure.repeat.exception.ExceptionHandler
 import org.springframework.core.task.TaskExecutor
 import org.springframework.transaction.interceptor.TransactionAttribute
 
