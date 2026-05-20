@@ -21,7 +21,6 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
-import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.observation.ObservationRegistry
 import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.builder.FlowJobBuilder
@@ -34,8 +33,6 @@ import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer
 import org.springframework.batch.core.job.parameters.JobParametersValidator
 import org.springframework.batch.core.listener.JobExecutionListener
-import org.springframework.batch.core.observability.BatchJobObservationConvention
-import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.Step
 import org.springframework.core.task.TaskExecutor
 
@@ -74,42 +71,11 @@ class JobBuilderDsl internal constructor(
     }
 
     /**
-     * Set for [JobBuilder.observationConvention][org.springframework.batch.core.job.builder.JobBuilderHelper.observationConvention].
-     */
-    fun observationConvention(observationConvention: BatchJobObservationConvention) {
-        lazyConfigurer.add {
-            it.observationConvention(observationConvention)
-        }
-    }
-
-    /**
      * Set for [JobBuilder.observationRegistry][org.springframework.batch.core.job.builder.JobBuilderHelper.observationRegistry].
      */
     fun observationRegistry(observationRegistry: ObservationRegistry) {
         lazyConfigurer.add {
             it.observationRegistry(observationRegistry)
-        }
-    }
-
-    /**
-     * Set for [JobBuilder.meterRegistry][org.springframework.batch.core.job.builder.JobBuilderHelper.meterRegistry].
-     */
-    fun meterRegistry(meterRegistry: MeterRegistry) {
-        lazyConfigurer.add {
-            it.meterRegistry(meterRegistry)
-        }
-    }
-
-    /**
-     * Set for [JobBuilder.repository][org.springframework.batch.core.job.builder.JobBuilderHelper.repository].
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.1.0 deprecates this",
-    )
-    fun repository(jobRepository: JobRepository) {
-        lazyConfigurer.add {
-            it.repository(jobRepository)
         }
     }
 
