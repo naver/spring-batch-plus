@@ -26,10 +26,10 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.listener.ChunkListener
 import org.springframework.batch.core.job.JobExecution
 import org.springframework.batch.core.job.JobInstance
 import org.springframework.batch.core.job.parameters.JobParameters
+import org.springframework.batch.core.listener.ChunkListener
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.builder.TaskletStepBuilder
 import org.springframework.batch.core.step.tasklet.TaskletStep
@@ -46,7 +46,6 @@ import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 internal class TaskletStepBuilderDslTest {
-
     @Test
     fun testChunkListener() {
         // given
@@ -54,9 +53,10 @@ internal class TaskletStepBuilderDslTest {
 
         // when
         val chunkListener = mockk<ChunkListener>()
-        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-            listener(chunkListener)
-        }.build()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+            .apply {
+                listener(chunkListener)
+            }.build()
 
         // then
         verify(exactly = 1) { taskletStepBuilder.listener(chunkListener) }
@@ -71,9 +71,10 @@ internal class TaskletStepBuilderDslTest {
 
         // when
         val testListener = TestListener()
-        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-            listener(testListener)
-        }.build()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+            .apply {
+                listener(testListener)
+            }.build()
 
         // then
         verify(exactly = 1) { taskletStepBuilder.listener(testListener) }
@@ -86,9 +87,10 @@ internal class TaskletStepBuilderDslTest {
 
         // when
         val itemStream = mockk<ItemStream>()
-        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-            stream(itemStream)
-        }.build()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+            .apply {
+                stream(itemStream)
+            }.build()
 
         // then
         verify(exactly = 1) { taskletStepBuilder.stream(itemStream) }
@@ -101,9 +103,10 @@ internal class TaskletStepBuilderDslTest {
 
         // when
         val taskExecutor = mockk<TaskExecutor>()
-        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-            taskExecutor(taskExecutor)
-        }.build()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+            .apply {
+                taskExecutor(taskExecutor)
+            }.build()
 
         // then
         verify(exactly = 1) { taskletStepBuilder.taskExecutor(taskExecutor) }
@@ -116,9 +119,10 @@ internal class TaskletStepBuilderDslTest {
 
         // when
         val exceptionHandler = mockk<ExceptionHandler>()
-        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-            exceptionHandler(exceptionHandler)
-        }.build()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+            .apply {
+                exceptionHandler(exceptionHandler)
+            }.build()
 
         // then
         verify(exactly = 1) { taskletStepBuilder.exceptionHandler(exceptionHandler) }
@@ -131,9 +135,10 @@ internal class TaskletStepBuilderDslTest {
 
         // when
         val repeatOperations = mockk<RepeatOperations>()
-        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-            stepOperations(repeatOperations)
-        }.build()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+            .apply {
+                stepOperations(repeatOperations)
+            }.build()
 
         // then
         verify(exactly = 1) { taskletStepBuilder.stepOperations(repeatOperations) }
@@ -146,9 +151,10 @@ internal class TaskletStepBuilderDslTest {
 
         // when
         val transactionAttribute = mockk<TransactionAttribute>()
-        TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-            transactionAttribute(transactionAttribute)
-        }.build()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+            .apply {
+                transactionAttribute(transactionAttribute)
+            }.build()
 
         // then
         verify(exactly = 1) { taskletStepBuilder.transactionAttribute(transactionAttribute) }
@@ -158,9 +164,10 @@ internal class TaskletStepBuilderDslTest {
     fun testBuild() {
         // given
         val mockStep = mockk<TaskletStep>()
-        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true) {
-            every { build() } returns mockStep
-        }
+        val taskletStepBuilder =
+            mockk<TaskletStepBuilder>(relaxed = true) {
+                every { build() } returns mockStep
+            }
 
         // when
         val actual = TaskletStepBuilderDsl(mockk(), taskletStepBuilder).build()
@@ -178,10 +185,11 @@ internal class TaskletStepBuilderDslTest {
         val repeatOperations = mockk<RepeatOperations>()
         val taskExecutor = mockk<TaskExecutor>()
         assertThatThrownBy {
-            TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-                stepOperations(repeatOperations)
-                taskExecutor(taskExecutor)
-            }.build()
+            TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+                .apply {
+                    stepOperations(repeatOperations)
+                    taskExecutor(taskExecutor)
+                }.build()
         }.hasMessageContaining("taskExecutor is redundant")
     }
 
@@ -194,16 +202,16 @@ internal class TaskletStepBuilderDslTest {
         val repeatOperations = mockk<RepeatOperations>()
         val exceptionHandler = mockk<ExceptionHandler>()
         assertThatThrownBy {
-            TaskletStepBuilderDsl(mockk(), taskletStepBuilder).apply {
-                stepOperations(repeatOperations)
-                exceptionHandler(exceptionHandler)
-            }.build()
+            TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+                .apply {
+                    stepOperations(repeatOperations)
+                    exceptionHandler(exceptionHandler)
+                }.build()
         }.hasMessageContaining("exceptionHandler is redundant")
     }
 
     @Nested
     inner class RedundancyCheck {
-
         @Test
         fun testStepOperationsAndRedundantSettings() {
             // given
@@ -213,26 +221,25 @@ internal class TaskletStepBuilderDslTest {
             val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
 
             // when
-            val step = stepBuilder
-                .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
-                .stepOperations(
-                    object : RepeatTemplate() {
-                        override fun iterate(callback: RepeatCallback): RepeatStatus {
-                            ++iterateCount
-                            return super.iterate(callback)
-                        }
-                    },
-                )
-                // redundant
-                .taskExecutor { task ->
-                    ++taskExecutorCallCount
-                    task.run()
-                }
-                .exceptionHandler { _, e ->
-                    ++exceptionHandlerCallCount
-                    throw e
-                }
-                .build()
+            val step =
+                stepBuilder
+                    .tasklet({ _, _ -> RepeatStatus.FINISHED }, ResourcelessTransactionManager())
+                    .stepOperations(
+                        object : RepeatTemplate() {
+                            override fun iterate(callback: RepeatCallback): RepeatStatus {
+                                ++iterateCount
+                                return super.iterate(callback)
+                            }
+                        },
+                    )
+                    // redundant
+                    .taskExecutor { task ->
+                        ++taskExecutorCallCount
+                        task.run()
+                    }.exceptionHandler { _, e ->
+                        ++exceptionHandlerCallCount
+                        throw e
+                    }.build()
             val jobInstance = JobInstance(ThreadLocalRandom.current().nextLong(), UUID.randomUUID().toString())
             val jobExecution = JobExecution(jobInstance, JobParameters())
             val stepExecution = jobExecution.createStepExecution(step.name)

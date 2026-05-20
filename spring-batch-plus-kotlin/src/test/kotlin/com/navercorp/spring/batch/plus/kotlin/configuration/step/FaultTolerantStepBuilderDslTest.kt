@@ -24,15 +24,15 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.listener.ChunkListener
+import org.springframework.batch.core.annotation.OnSkipInRead
 import org.springframework.batch.core.job.JobExecution
 import org.springframework.batch.core.job.JobInstance
 import org.springframework.batch.core.job.parameters.JobParameters
+import org.springframework.batch.core.listener.ChunkListener
 import org.springframework.batch.core.listener.SkipListener
-import org.springframework.batch.core.step.Step
-import org.springframework.batch.core.annotation.OnSkipInRead
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.FatalStepExecutionException
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.SimpleStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy
@@ -52,7 +52,6 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute
  * Separated from SimpleStepBuilderDslTest since it's too big.
  */
 internal class FaultTolerantStepBuilderDslTest {
-
     private val jobInstance = JobInstance(0L, "testJob")
 
     private val jobParameters = JobParameters()
@@ -68,41 +67,48 @@ internal class FaultTolerantStepBuilderDslTest {
         var onSkipInReadCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (tryCount < skipLimit) {
-                    ++tryCount
-                    throw IllegalStateException("Error")
-                }
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (tryCount < skipLimit) {
+                        ++tryCount
+                        throw IllegalStateException("Error")
+                    }
 
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {}
+                faultTolerant {
+                    skipLimit(skipLimit)
+                    skip<IllegalStateException>()
+                    listener(
+                        object : SkipListener<Number, Number> {
+                            override fun onSkipInRead(t: Throwable) {
+                                ++onSkipInReadCallCount
+                            }
+
+                            override fun onSkipInProcess(
+                                item: Number,
+                                t: Throwable,
+                            ) {
+                                // no need to test. we are just testing if listener is invoked
+                            }
+
+                            override fun onSkipInWrite(
+                                item: Number,
+                                t: Throwable,
+                            ) {
+                                // no need to test. we are just testing if listener is invoked
+                            }
+                        },
+                    )
                 }
             }
-            writer {}
-            faultTolerant {
-                skipLimit(skipLimit)
-                skip<IllegalStateException>()
-                listener(
-                    object : SkipListener<Number, Number> {
-                        override fun onSkipInRead(t: Throwable) {
-                            ++onSkipInReadCallCount
-                        }
-
-                        override fun onSkipInProcess(item: Number, t: Throwable) {
-                            // no need to test. we are just testing if listener is invoked
-                        }
-
-                        override fun onSkipInWrite(item: Number, t: Throwable) {
-                            // no need to test. we are just testing if listener is invoked
-                        }
-                    },
-                )
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -124,50 +130,51 @@ internal class FaultTolerantStepBuilderDslTest {
         var retryOpenCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    retryLimit(retryLimit)
+                    retry<IllegalStateException>()
+                    listener(
+                        object : RetryListener {
+                            override fun <T : Any?, E : Throwable?> open(
+                                context: RetryContext?,
+                                callback: RetryCallback<T, E>?,
+                            ): Boolean {
+                                ++retryOpenCallCount
+                                return true
+                            }
+
+                            override fun <T : Any?, E : Throwable?> close(
+                                context: RetryContext?,
+                                callback: RetryCallback<T, E>?,
+                                throwable: Throwable?,
+                            ) {
+                                // no need to test. we are just testing if listener is invoked
+                            }
+
+                            override fun <T : Any?, E : Throwable?> onError(
+                                context: RetryContext?,
+                                callback: RetryCallback<T, E>?,
+                                throwable: Throwable?,
+                            ) {
+                                // no need to test. we are just testing if listener is invoked
+                            }
+                        },
+                    )
                 }
             }
-            writer {
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                retryLimit(retryLimit)
-                retry<IllegalStateException>()
-                listener(
-                    object : RetryListener {
-                        override fun <T : Any?, E : Throwable?> open(
-                            context: RetryContext?,
-                            callback: RetryCallback<T, E>?,
-                        ): Boolean {
-                            ++retryOpenCallCount
-                            return true
-                        }
-
-                        override fun <T : Any?, E : Throwable?> close(
-                            context: RetryContext?,
-                            callback: RetryCallback<T, E>?,
-                            throwable: Throwable?,
-                        ) {
-                            // no need to test. we are just testing if listener is invoked
-                        }
-
-                        override fun <T : Any?, E : Throwable?> onError(
-                            context: RetryContext?,
-                            callback: RetryCallback<T, E>?,
-                            throwable: Throwable?,
-                        ) {
-                            // no need to test. we are just testing if listener is invoked
-                        }
-                    },
-                )
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -188,27 +195,28 @@ internal class FaultTolerantStepBuilderDslTest {
         var keyGeneratorCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    retryLimit(retryLimit)
+                    retry<IllegalStateException>()
+                    keyGenerator {
+                        ++keyGeneratorCallCount
+                        "testkey"
+                    }
                 }
             }
-            writer {
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                retryLimit(retryLimit)
-                retry<IllegalStateException>()
-                keyGenerator {
-                    ++keyGeneratorCallCount
-                    "testkey"
-                }
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -229,24 +237,25 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    ++tryCount
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    retryLimit(retryLimit)
+                    retry<RuntimeException>()
                 }
             }
-            writer {
-                ++tryCount
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                retryLimit(retryLimit)
-                retry<RuntimeException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -267,24 +276,25 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    ++tryCount
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    retryLimit(retryLimit)
+                    retry<RuntimeException>()
                 }
             }
-            writer {
-                ++tryCount
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                retryLimit(retryLimit)
-                retry<RuntimeException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -305,25 +315,26 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    ++tryCount
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    retryLimit(retryLimit)
+                    retry<RuntimeException>()
+                    noRetry<IllegalStateException>()
                 }
             }
-            writer {
-                ++tryCount
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                retryLimit(retryLimit)
-                retry<RuntimeException>()
-                noRetry<IllegalStateException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -344,24 +355,25 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    ++tryCount
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    retryPolicy(SimpleRetryPolicy(retryLimit))
+                    retry<RuntimeException>()
                 }
             }
-            writer {
-                ++tryCount
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                retryPolicy(SimpleRetryPolicy(retryLimit))
-                retry<RuntimeException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -383,32 +395,33 @@ internal class FaultTolerantStepBuilderDslTest {
         var backoffPolicyCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    ++tryCount
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    retryLimit(retryLimit)
+                    backOffPolicy(
+                        object : FixedBackOffPolicy() {
+                            override fun doBackOff() {
+                                ++backoffPolicyCallCount
+                                super.doBackOff()
+                            }
+                        },
+                    )
+                    retry<RuntimeException>()
                 }
             }
-            writer {
-                ++tryCount
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                retryLimit(retryLimit)
-                backOffPolicy(
-                    object : FixedBackOffPolicy() {
-                        override fun doBackOff() {
-                            ++backoffPolicyCallCount
-                            super.doBackOff()
-                        }
-                    },
-                )
-                retry<RuntimeException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -431,32 +444,33 @@ internal class FaultTolerantStepBuilderDslTest {
         var retryContextCacheCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    ++tryCount
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    retryLimit(retryLimit)
+                    retryContextCache(
+                        object : MapRetryContextCache() {
+                            override fun containsKey(key: Any?): Boolean {
+                                ++retryContextCacheCallCount
+                                return super.containsKey(key)
+                            }
+                        },
+                    )
+                    retry<RuntimeException>()
                 }
             }
-            writer {
-                ++tryCount
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                retryLimit(retryLimit)
-                retryContextCache(
-                    object : MapRetryContextCache() {
-                        override fun containsKey(key: Any?): Boolean {
-                            ++retryContextCacheCallCount
-                            return super.containsKey(key)
-                        }
-                    },
-                )
-                retry<RuntimeException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -478,26 +492,27 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (tryCount < skipLimit) {
-                    ++tryCount
-                    throw IllegalStateException("Error")
-                }
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (tryCount < skipLimit) {
+                        ++tryCount
+                        throw IllegalStateException("Error")
+                    }
 
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer { }
+                faultTolerant {
+                    skipLimit(skipLimit)
+                    skip<IllegalStateException>()
                 }
             }
-            writer { }
-            faultTolerant {
-                skipLimit(skipLimit)
-                skip<IllegalStateException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -518,26 +533,27 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (tryCount < skipLimit) {
-                    ++tryCount
-                    throw IllegalStateException("Error")
-                }
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (tryCount < skipLimit) {
+                        ++tryCount
+                        throw IllegalStateException("Error")
+                    }
 
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer { }
+                faultTolerant {
+                    skipLimit(skipLimit)
+                    skip<IllegalStateException>()
                 }
             }
-            writer { }
-            faultTolerant {
-                skipLimit(skipLimit)
-                skip<IllegalStateException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -558,27 +574,28 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (tryCount < skipLimit) {
-                    ++tryCount
-                    throw IllegalStateException("Error")
-                }
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (tryCount < skipLimit) {
+                        ++tryCount
+                        throw IllegalStateException("Error")
+                    }
 
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer { }
+                faultTolerant {
+                    skipLimit(skipLimit)
+                    skip<RuntimeException>()
+                    noSkip<IllegalStateException>()
                 }
             }
-            writer { }
-            faultTolerant {
-                skipLimit(skipLimit)
-                skip<RuntimeException>()
-                noSkip<IllegalStateException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -599,30 +616,31 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (tryCount < skipLimit) {
-                    ++tryCount
-                    throw IllegalStateException("Error")
-                }
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (tryCount < skipLimit) {
+                        ++tryCount
+                        throw IllegalStateException("Error")
+                    }
 
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer { }
+                faultTolerant {
+                    skipPolicy(
+                        LimitCheckingItemSkipPolicy(
+                            skipLimit,
+                            mapOf(IllegalStateException::class.java to true),
+                        ),
+                    )
                 }
             }
-            writer { }
-            faultTolerant {
-                skipPolicy(
-                    LimitCheckingItemSkipPolicy(
-                        skipLimit,
-                        mapOf(IllegalStateException::class.java to true),
-                    ),
-                )
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -641,23 +659,24 @@ internal class FaultTolerantStepBuilderDslTest {
         var readCallCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                writer {
+                    // ignored when noRollback is set
+                    throw IllegalStateException("Error")
+                }
+                faultTolerant {
+                    noRollback<IllegalStateException>()
                 }
             }
-            writer {
-                // ignored when noRollback is set
-                throw IllegalStateException("Error")
-            }
-            faultTolerant {
-                noRollback<IllegalStateException>()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -678,31 +697,32 @@ internal class FaultTolerantStepBuilderDslTest {
         var tryCount = 0
 
         // when
-        val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-            reader {
-                if (readCallCount < readLimit) {
-                    ++readCallCount
-                    1
-                } else {
-                    null
+        val step =
+            simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                reader {
+                    if (readCallCount < readLimit) {
+                        ++readCallCount
+                        1
+                    } else {
+                        null
+                    }
+                }
+                processor {
+                    ++processCallCount
+                    it
+                }
+                writer {
+                    if (tryCount < (retryLimit - 1)) {
+                        ++tryCount
+                        throw IllegalStateException("Error")
+                    }
+                }
+                faultTolerant {
+                    retryLimit(retryLimit)
+                    retry<IllegalStateException>()
+                    processorNonTransactional()
                 }
             }
-            processor {
-                ++processCallCount
-                it
-            }
-            writer {
-                if (tryCount < (retryLimit - 1)) {
-                    ++tryCount
-                    throw IllegalStateException("Error")
-                }
-            }
-            faultTolerant {
-                retryLimit(retryLimit)
-                retry<IllegalStateException>()
-                processorNonTransactional()
-            }
-        }
         val jobExecution = JobExecution(jobInstance, jobParameters)
         val stepExecution = jobExecution.createStepExecution(step.name)
         step.execute(stepExecution)
@@ -716,7 +736,6 @@ internal class FaultTolerantStepBuilderDslTest {
 
     @Nested
     inner class OverriddenMethodTest {
-
         @Test
         fun testObjectSkipListenerNotInvokedWhenCalledBeforeFaultTolerant() {
             // given
@@ -739,28 +758,28 @@ internal class FaultTolerantStepBuilderDslTest {
             }
 
             // when
-            val step = simpleStepBuilder
-                .chunk(chunkSize)
-                .transactionManager(ResourcelessTransactionManager())
-                .listener(TestListener()) // called before faultTolerant()
-                .reader {
-                    if (tryCount < skipLimit) {
-                        ++tryCount
-                        throw IllegalStateException("Error")
-                    }
+            val step =
+                simpleStepBuilder
+                    .chunk(chunkSize)
+                    .transactionManager(ResourcelessTransactionManager())
+                    .listener(TestListener()) // called before faultTolerant()
+                    .reader {
+                        if (tryCount < skipLimit) {
+                            ++tryCount
+                            throw IllegalStateException("Error")
+                        }
 
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
-                    }
-                }
-                .writer {}
-                .faultTolerant()
-                .skipLimit(skipLimit)
-                .skip(IllegalStateException::class.java)
-                .build()
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
+                        }
+                    }.writer {}
+                    .faultTolerant()
+                    .skipLimit(skipLimit)
+                    .skip(IllegalStateException::class.java)
+                    .build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -794,28 +813,28 @@ internal class FaultTolerantStepBuilderDslTest {
             }
 
             // when
-            val step = simpleStepBuilder
-                .chunk(chunkSize)
-                .transactionManager(ResourcelessTransactionManager())
-                .reader {
-                    if (tryCount < skipLimit) {
-                        ++tryCount
-                        throw IllegalStateException("Error")
-                    }
+            val step =
+                simpleStepBuilder
+                    .chunk(chunkSize)
+                    .transactionManager(ResourcelessTransactionManager())
+                    .reader {
+                        if (tryCount < skipLimit) {
+                            ++tryCount
+                            throw IllegalStateException("Error")
+                        }
 
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
-                    }
-                }
-                .writer {}
-                .faultTolerant()
-                .skipLimit(skipLimit)
-                .skip(IllegalStateException::class.java)
-                .listener(TestListener()) // called after faultTolerant()
-                .build()
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
+                        }
+                    }.writer {}
+                    .faultTolerant()
+                    .skipLimit(skipLimit)
+                    .skip(IllegalStateException::class.java)
+                    .listener(TestListener()) // called after faultTolerant()
+                    .build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -846,27 +865,28 @@ internal class FaultTolerantStepBuilderDslTest {
             }
 
             // when
-            val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-                listener(TestListener()) // called before faultTolerant
-                reader {
-                    if (tryCount < skipLimit) {
-                        ++tryCount
-                        throw IllegalStateException("Error")
-                    }
+            val step =
+                simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                    listener(TestListener()) // called before faultTolerant
+                    reader {
+                        if (tryCount < skipLimit) {
+                            ++tryCount
+                            throw IllegalStateException("Error")
+                        }
 
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
+                        }
+                    }
+                    writer {}
+                    faultTolerant {
+                        skipLimit(skipLimit)
+                        skip(IllegalStateException::class)
                     }
                 }
-                writer {}
-                faultTolerant {
-                    skipLimit(skipLimit)
-                    skip(IllegalStateException::class)
-                }
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -897,27 +917,28 @@ internal class FaultTolerantStepBuilderDslTest {
             }
 
             // when
-            val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-                reader {
-                    if (tryCount < skipLimit) {
-                        ++tryCount
-                        throw IllegalStateException("Error")
-                    }
+            val step =
+                simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                    reader {
+                        if (tryCount < skipLimit) {
+                            ++tryCount
+                            throw IllegalStateException("Error")
+                        }
 
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
+                        }
                     }
+                    writer {}
+                    faultTolerant {
+                        skipLimit(skipLimit)
+                        skip(IllegalStateException::class)
+                    }
+                    listener(TestListener()) // called before faultTolerant
                 }
-                writer {}
-                faultTolerant {
-                    skipLimit(skipLimit)
-                    skip(IllegalStateException::class)
-                }
-                listener(TestListener()) // called before faultTolerant
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -936,28 +957,26 @@ internal class FaultTolerantStepBuilderDslTest {
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             // when
-            val step = simpleStepBuilder
-                .chunk(3)
-                .transactionManager(ResourcelessTransactionManager())
-                .reader { null }
-                .faultTolerant()
-                .retryLimit(3)
-                .retry(RuntimeException::class.java)
-                .writer {}
-                .listener(
-                    object : ChunkListener {
-                        override fun beforeChunk(context: ChunkContext) {
-                            throw IllegalStateException("Error")
-                        }
+            val step =
+                simpleStepBuilder
+                    .chunk(3)
+                    .transactionManager(ResourcelessTransactionManager())
+                    .reader { null }
+                    .faultTolerant()
+                    .retryLimit(3)
+                    .retry(RuntimeException::class.java)
+                    .writer {}
+                    .listener(
+                        object : ChunkListener {
+                            override fun beforeChunk(context: ChunkContext): Unit = throw IllegalStateException("Error")
 
-                        override fun afterChunk(context: ChunkContext) {
-                        }
+                            override fun afterChunk(context: ChunkContext) {
+                            }
 
-                        override fun afterChunkError(context: ChunkContext) {
-                        }
-                    },
-                )
-                .build()
+                            override fun afterChunkError(context: ChunkContext) {
+                            }
+                        },
+                    ).build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -972,27 +991,26 @@ internal class FaultTolerantStepBuilderDslTest {
         @Test
         fun testDelegateListenerIsInvokedOnDslWhenCalledBeforeFaultTolerant() {
             // when
-            val step = simpleStepBuilderDsl<Int, Int>(3) {
-                reader { null }
-                writer {}
-                listener(
-                    object : ChunkListener {
-                        override fun beforeChunk(context: ChunkContext) {
-                            throw IllegalStateException("Error")
-                        }
+            val step =
+                simpleStepBuilderDsl<Int, Int>(3) {
+                    reader { null }
+                    writer {}
+                    listener(
+                        object : ChunkListener {
+                            override fun beforeChunk(context: ChunkContext): Unit = throw IllegalStateException("Error")
 
-                        override fun afterChunk(context: ChunkContext) {
-                        }
+                            override fun afterChunk(context: ChunkContext) {
+                            }
 
-                        override fun afterChunkError(context: ChunkContext) {
-                        }
-                    },
-                )
-                faultTolerant {
-                    retryLimit(3)
-                    retry<RuntimeException>()
+                            override fun afterChunkError(context: ChunkContext) {
+                            }
+                        },
+                    )
+                    faultTolerant {
+                        retryLimit(3)
+                        retry<RuntimeException>()
+                    }
                 }
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -1007,27 +1025,26 @@ internal class FaultTolerantStepBuilderDslTest {
         @Test
         fun testDelegateListenerIsInvokedOnDslWhenCalledAfterFaultTolerant() {
             // when
-            val step = simpleStepBuilderDsl<Int, Int>(3) {
-                reader { null }
-                writer {}
-                faultTolerant {
-                    retryLimit(3)
-                    retry<RuntimeException>()
+            val step =
+                simpleStepBuilderDsl<Int, Int>(3) {
+                    reader { null }
+                    writer {}
+                    faultTolerant {
+                        retryLimit(3)
+                        retry<RuntimeException>()
+                    }
+                    listener(
+                        object : ChunkListener {
+                            override fun beforeChunk(context: ChunkContext): Unit = throw IllegalStateException("Error")
+
+                            override fun afterChunk(context: ChunkContext) {
+                            }
+
+                            override fun afterChunkError(context: ChunkContext) {
+                            }
+                        },
+                    )
                 }
-                listener(
-                    object : ChunkListener {
-                        override fun beforeChunk(context: ChunkContext) {
-                            throw IllegalStateException("Error")
-                        }
-
-                        override fun afterChunk(context: ChunkContext) {
-                        }
-
-                        override fun afterChunkError(context: ChunkContext) {
-                        }
-                    },
-                )
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -1051,34 +1068,32 @@ internal class FaultTolerantStepBuilderDslTest {
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
             // when
-            val step = simpleStepBuilder
-                .chunk(chunkSize)
-                .transactionManager(ResourcelessTransactionManager())
-                .reader {
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
-                    }
-                }
-                .writer {
-                    throw IllegalStateException("Error")
-                }
-                .faultTolerant() // use faultTolerant
-                .noRollback(IllegalStateException::class.java) // wrapped by making it as noRollback
-                .transactionAttribute(
-                    object : DefaultTransactionAttribute() {
-                        override fun rollbackOn(ex: Throwable): Boolean {
-                            // make it always rollback (batch exit with failed)
-                            // but with faultTolerant, class defined in noRollback is considered
-                            // noRollback in transaction by wrapping transactionAttribute
-                            ++noRollbackCallCount
-                            return ex is IllegalStateException
+            val step =
+                simpleStepBuilder
+                    .chunk(chunkSize)
+                    .transactionManager(ResourcelessTransactionManager())
+                    .reader {
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
                         }
-                    },
-                )
-                .build()
+                    }.writer {
+                        throw IllegalStateException("Error")
+                    }.faultTolerant() // use faultTolerant
+                    .noRollback(IllegalStateException::class.java) // wrapped by making it as noRollback
+                    .transactionAttribute(
+                        object : DefaultTransactionAttribute() {
+                            override fun rollbackOn(ex: Throwable): Boolean {
+                                // make it always rollback (batch exit with failed)
+                                // but with faultTolerant, class defined in noRollback is considered
+                                // noRollback in transaction by wrapping transactionAttribute
+                                ++noRollbackCallCount
+                                return ex is IllegalStateException
+                            }
+                        },
+                    ).build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -1098,30 +1113,31 @@ internal class FaultTolerantStepBuilderDslTest {
             var noRollbackCallCount = 0
 
             // when
-            val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-                transactionAttribute(
-                    object : DefaultTransactionAttribute() {
-                        override fun rollbackOn(ex: Throwable): Boolean {
-                            ++noRollbackCallCount
-                            return ex is IllegalStateException
+            val step =
+                simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                    transactionAttribute(
+                        object : DefaultTransactionAttribute() {
+                            override fun rollbackOn(ex: Throwable): Boolean {
+                                ++noRollbackCallCount
+                                return ex is IllegalStateException
+                            }
+                        },
+                    )
+                    reader {
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
                         }
-                    },
-                )
-                reader {
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
+                    }
+                    writer {
+                        throw IllegalStateException("Error")
+                    }
+                    faultTolerant {
+                        noRollback<IllegalStateException>()
                     }
                 }
-                writer {
-                    throw IllegalStateException("Error")
-                }
-                faultTolerant {
-                    noRollback<IllegalStateException>()
-                }
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -1141,30 +1157,31 @@ internal class FaultTolerantStepBuilderDslTest {
             var noRollbackCallCount = 0
 
             // when
-            val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-                reader {
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
-                    }
-                }
-                writer {
-                    throw IllegalStateException("Error")
-                }
-                faultTolerant {
-                    noRollback<IllegalStateException>()
-                }
-                transactionAttribute(
-                    object : DefaultTransactionAttribute() {
-                        override fun rollbackOn(ex: Throwable): Boolean {
-                            ++noRollbackCallCount
-                            return ex is IllegalStateException
+            val step =
+                simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                    reader {
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
                         }
-                    },
-                )
-            }
+                    }
+                    writer {
+                        throw IllegalStateException("Error")
+                    }
+                    faultTolerant {
+                        noRollback<IllegalStateException>()
+                    }
+                    transactionAttribute(
+                        object : DefaultTransactionAttribute() {
+                            override fun rollbackOn(ex: Throwable): Boolean {
+                                ++noRollbackCallCount
+                                return ex is IllegalStateException
+                            }
+                        },
+                    )
+                }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -1186,10 +1203,13 @@ internal class FaultTolerantStepBuilderDslTest {
             val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
 
-            class TestStream : ItemStream, ItemReader<Int> {
+            class TestStream :
+                ItemStream,
+                ItemReader<Int> {
                 override fun open(executionContext: ExecutionContext) {
                     ++streamOpenCallCount
-                    Throwable().stackTrace
+                    Throwable()
+                        .stackTrace
                         .filter { it.className.endsWith("ChunkMonitor") }
                         .also {
                             assertThat(it).isNotEmpty
@@ -1202,27 +1222,25 @@ internal class FaultTolerantStepBuilderDslTest {
                 override fun close() {
                 }
 
-                override fun read(): Int? {
-                    return null
-                }
+                override fun read(): Int? = null
             }
 
             // when
-            val step = simpleStepBuilder
-                .chunk(chunkSize)
-                .transactionManager(ResourcelessTransactionManager())
-                .reader {
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
-                    }
-                }
-                .writer {}
-                .faultTolerant()
-                .stream(TestStream())
-                .build()
+            val step =
+                simpleStepBuilder
+                    .chunk(chunkSize)
+                    .transactionManager(ResourcelessTransactionManager())
+                    .reader {
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
+                        }
+                    }.writer {}
+                    .faultTolerant()
+                    .stream(TestStream())
+                    .build()
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -1241,11 +1259,14 @@ internal class FaultTolerantStepBuilderDslTest {
             var streamOpenCallCount = 0
             var readCallCount = 0
 
-            class TestStream : ItemStream, ItemReader<Int> {
+            class TestStream :
+                ItemStream,
+                ItemReader<Int> {
                 override fun open(executionContext: ExecutionContext) {
                     ++streamOpenCallCount
                     Throwable().printStackTrace()
-                    Throwable().stackTrace
+                    Throwable()
+                        .stackTrace
                         .filter { it.className.endsWith("ChunkMonitor") }
                         .also {
                             assertThat(it).isNotEmpty
@@ -1258,25 +1279,24 @@ internal class FaultTolerantStepBuilderDslTest {
                 override fun close() {
                 }
 
-                override fun read(): Int? {
-                    return null
-                }
+                override fun read(): Int? = null
             }
 
             // when
-            val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-                stream(TestStream())
-                reader {
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
+            val step =
+                simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                    stream(TestStream())
+                    reader {
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
+                        }
                     }
+                    writer {}
+                    faultTolerant {}
                 }
-                writer {}
-                faultTolerant {}
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -1295,10 +1315,13 @@ internal class FaultTolerantStepBuilderDslTest {
             var streamOpenCallCount = 0
             var readCallCount = 0
 
-            class TestStream : ItemStream, ItemReader<Int> {
+            class TestStream :
+                ItemStream,
+                ItemReader<Int> {
                 override fun open(executionContext: ExecutionContext) {
                     ++streamOpenCallCount
-                    Throwable().stackTrace
+                    Throwable()
+                        .stackTrace
                         .filter { it.className.endsWith("ChunkMonitor") }
                         .also {
                             assertThat(it).isNotEmpty
@@ -1311,26 +1334,25 @@ internal class FaultTolerantStepBuilderDslTest {
                 override fun close() {
                 }
 
-                override fun read(): Int? {
-                    return null
-                }
+                override fun read(): Int? = null
             }
 
             // when
-            val step = simpleStepBuilderDsl<Int, Int>(chunkSize) {
-                reader {
-                    if (readCallCount < readLimit) {
-                        ++readCallCount
-                        1
-                    } else {
-                        null
+            val step =
+                simpleStepBuilderDsl<Int, Int>(chunkSize) {
+                    reader {
+                        if (readCallCount < readLimit) {
+                            ++readCallCount
+                            1
+                        } else {
+                            null
+                        }
                     }
+                    writer {}
+                    faultTolerant {
+                    }
+                    stream(TestStream())
                 }
-                writer {}
-                faultTolerant {
-                }
-                stream(TestStream())
-            }
             val jobExecution = JobExecution(jobInstance, jobParameters)
             val stepExecution = jobExecution.createStepExecution(step.name)
             step.execute(stepExecution)
@@ -1346,10 +1368,11 @@ internal class FaultTolerantStepBuilderDslTest {
         chunkSize: Int,
         init: SimpleStepBuilderDsl<I, O>.() -> Unit,
     ): Step {
-        val dslContext = DslContext(
-            beanFactory = mockk(),
-            jobRepository = mockk(),
-        )
+        val dslContext =
+            DslContext(
+                beanFactory = mockk(),
+                jobRepository = mockk(),
+            )
         val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
         val simpleStepBuilder = stepBuilder.chunk<I, O>(chunkSize, ResourcelessTransactionManager())
 

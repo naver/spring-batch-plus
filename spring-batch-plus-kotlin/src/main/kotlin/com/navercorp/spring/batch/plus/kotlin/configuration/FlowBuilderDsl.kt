@@ -19,10 +19,10 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
-import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.JobExecutionDecider
+import org.springframework.batch.core.step.Step
 import org.springframework.core.task.TaskExecutor
 
 /**
@@ -32,7 +32,6 @@ import org.springframework.core.task.TaskExecutor
  */
 @BatchDslMarker
 interface FlowBuilderDsl<T : Any> {
-
     /**
      * Add step by bean name.
      */
@@ -41,7 +40,10 @@ interface FlowBuilderDsl<T : Any> {
     /**
      * Add step.
      */
-    fun step(name: String, stepInit: StepBuilderDsl.() -> Step)
+    fun step(
+        name: String,
+        stepInit: StepBuilderDsl.() -> Step,
+    )
 
     /**
      * Add step.
@@ -51,7 +53,10 @@ interface FlowBuilderDsl<T : Any> {
     /**
      * Add step by bean name with transition.
      */
-    fun stepBean(name: String, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit)
+    fun stepBean(
+        name: String,
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit,
+    )
 
     /**
      * Add step with transition.
@@ -65,7 +70,10 @@ interface FlowBuilderDsl<T : Any> {
     /**
      * Add step with transition.
      */
-    fun step(step: Step, stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit)
+    fun step(
+        step: Step,
+        stepTransitionInit: StepTransitionBuilderDsl<T>.() -> Unit,
+    )
 
     /**
      * Add flow by bean name.
@@ -75,7 +83,10 @@ interface FlowBuilderDsl<T : Any> {
     /**
      * Add flow.
      */
-    fun flow(name: String, flowInit: FlowBuilderDsl<Flow>.() -> Unit)
+    fun flow(
+        name: String,
+        flowInit: FlowBuilderDsl<Flow>.() -> Unit,
+    )
 
     /**
      * Add flow.
@@ -85,7 +96,10 @@ interface FlowBuilderDsl<T : Any> {
     /**
      * Add flow by bean name with transition.
      */
-    fun flowBean(name: String, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit)
+    fun flowBean(
+        name: String,
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit,
+    )
 
     /**
      * Add flow with transition.
@@ -99,7 +113,10 @@ interface FlowBuilderDsl<T : Any> {
     /**
      * Add flow with transition.
      */
-    fun flow(flow: Flow, flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit)
+    fun flow(
+        flow: Flow,
+        flowTransitionInit: FlowTransitionBuilderDsl<T>.() -> Unit,
+    )
 
     /**
      * Add decider by bean name with transition.
@@ -122,5 +139,8 @@ interface FlowBuilderDsl<T : Any> {
      *
      * @see [FlowBuilder.split][org.springframework.batch.core.job.builder.FlowBuilder.split]
      */
-    fun split(taskExecutor: TaskExecutor, splitInit: SplitBuilderDsl<T>.() -> Unit)
+    fun split(
+        taskExecutor: TaskExecutor,
+        splitInit: SplitBuilderDsl<T>.() -> Unit,
+    )
 }

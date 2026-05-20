@@ -41,23 +41,29 @@ class DeciderTransitionBuilderDsl<T : Any> internal constructor(
      *
      * @see [org.springframework.batch.core.job.builder.FlowBuilder.on]
      */
-    fun on(pattern: String, init: TransitionBuilderDsl<T>.() -> Unit) {
+    fun on(
+        pattern: String,
+        init: TransitionBuilderDsl<T>.() -> Unit,
+    ) {
         val flowBuilder = this.flowBuilder
 
-        val transitionBuilder = if (flowBuilder == null) {
-            this.baseUnterminatedFlowBuilder.on(pattern)
-        } else {
-            flowBuilder.from(this.decider)
-                .on(pattern)
-        }
+        val transitionBuilder =
+            if (flowBuilder == null) {
+                this.baseUnterminatedFlowBuilder.on(pattern)
+            } else {
+                flowBuilder
+                    .from(this.decider)
+                    .on(pattern)
+            }
 
-        this.flowBuilder = TransitionBuilderDsl(this.dslContext, transitionBuilder).apply(init)
-            .build()
+        this.flowBuilder =
+            TransitionBuilderDsl(this.dslContext, transitionBuilder)
+                .apply(init)
+                .build()
     }
 
-    internal fun build(): FlowBuilder<T> {
-        return checkNotNull(this.flowBuilder) {
+    internal fun build(): FlowBuilder<T> =
+        checkNotNull(this.flowBuilder) {
             "should set transition for decider $decider."
         }
-    }
 }

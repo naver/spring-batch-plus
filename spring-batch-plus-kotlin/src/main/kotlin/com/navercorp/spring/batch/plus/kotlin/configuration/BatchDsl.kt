@@ -21,11 +21,11 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import org.springframework.batch.core.job.Job
-import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.BeanFactory
 
@@ -53,7 +53,10 @@ class BatchDsl internal constructor(
     /**
      * Make a new job.
      */
-    fun job(name: String, init: JobBuilderDsl.() -> Unit): Job {
+    fun job(
+        name: String,
+        init: JobBuilderDsl.() -> Unit,
+    ): Job {
         val jobRepository = this.dslContext.jobRepository
         val jobBuilder = JobBuilder(name, jobRepository)
         return JobBuilderDsl(this.dslContext, jobBuilder).apply(init).build()
@@ -62,7 +65,10 @@ class BatchDsl internal constructor(
     /**
      * Make a new step.
      */
-    fun step(name: String, init: StepBuilderDsl.() -> Step): Step {
+    fun step(
+        name: String,
+        init: StepBuilderDsl.() -> Step,
+    ): Step {
         val jobRepository = this.dslContext.jobRepository
         val stepBuilder = StepBuilder(name, jobRepository)
         return StepBuilderDsl(this.dslContext, stepBuilder).let(init)
@@ -71,7 +77,10 @@ class BatchDsl internal constructor(
     /**
      * Make a new flow.
      */
-    fun flow(name: String, init: FlowBuilderDsl<Flow>.() -> Unit): Flow {
+    fun flow(
+        name: String,
+        init: FlowBuilderDsl<Flow>.() -> Unit,
+    ): Flow {
         val flowBuilder = FlowBuilder<Flow>(name)
         return ConcreteFlowBuilderDsl(this.dslContext, flowBuilder).apply(init).build()
     }

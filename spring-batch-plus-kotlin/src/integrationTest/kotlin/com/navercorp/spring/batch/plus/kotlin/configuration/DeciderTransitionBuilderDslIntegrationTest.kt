@@ -24,10 +24,10 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
-import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.job.flow.FlowExecutionStatus
 import org.springframework.batch.core.job.flow.JobExecutionDecider
+import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.BeanFactory
@@ -42,7 +42,6 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class DeciderTransitionBuilderDslIntegrationTest {
-
     @RepeatedTest(10)
     fun testDeciderWithMultipleTransition() {
         // given
@@ -51,24 +50,26 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
         val batch = context.getBean<BatchDsl>()
         val expectedFlowExecutionStatus = randomFlowExecutionStatus()
         var testDeciderCallCount = 0
-        val testDecider = JobExecutionDecider { _, _ ->
-            ++testDeciderCallCount
-            expectedFlowExecutionStatus
-        }
+        val testDecider =
+            JobExecutionDecider { _, _ ->
+                ++testDeciderCallCount
+                expectedFlowExecutionStatus
+            }
 
         // when
-        val job = batch {
-            job("testJob") {
-                decider(testDecider) {
-                    on("UNKNOWN") {
-                        end()
-                    }
-                    on("*") {
-                        fail()
+        val job =
+            batch {
+                job("testJob") {
+                    decider(testDecider) {
+                        on("UNKNOWN") {
+                            end()
+                        }
+                        on("*") {
+                            fail()
+                        }
                     }
                 }
             }
-        }
         val jobExecution = jobLauncher.run(job, JobParameters())
 
         // then
@@ -97,9 +98,10 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val batch = context.getBean<BatchDsl>()
-        val testDecider = JobExecutionDecider { _, _ ->
-            FlowExecutionStatus.COMPLETED
-        }
+        val testDecider =
+            JobExecutionDecider { _, _ ->
+                FlowExecutionStatus.COMPLETED
+            }
 
         // when, then
         assertThatThrownBy {
@@ -113,14 +115,13 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
         }.hasMessageContaining("should set transition for decider")
     }
 
-    private fun randomFlowExecutionStatus(): FlowExecutionStatus {
-        return listOf(
+    private fun randomFlowExecutionStatus(): FlowExecutionStatus =
+        listOf(
             FlowExecutionStatus.COMPLETED,
             FlowExecutionStatus.FAILED,
             FlowExecutionStatus.UNKNOWN,
             FlowExecutionStatus.STOPPED, // when stopped, just stop the job
         ).random()
-    }
 
     @Configuration
     @EnableBatchProcessing(
@@ -128,28 +129,25 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
-
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,
             jobRepository: JobRepository,
-        ): BatchDsl = BatchDsl(
-            beanFactory,
-            jobRepository,
-        )
+        ): BatchDsl =
+            BatchDsl(
+                beanFactory,
+                jobRepository,
+            )
 
         @Bean
-        open fun metadataTransactionManager(): TransactionManager {
-            return DataSourceTransactionManager(metadataDataSource())
-        }
+        open fun metadataTransactionManager(): TransactionManager = DataSourceTransactionManager(metadataDataSource())
 
         @Bean
-        open fun metadataDataSource(): DataSource {
-            return EmbeddedDatabaseBuilder()
+        open fun metadataDataSource(): DataSource =
+            EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")
                 .generateUniqueName(true)
                 .build()
-        }
     }
 }

@@ -22,11 +22,11 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMark
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.Configurer
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
-import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.partition.PartitionHandler
-import org.springframework.batch.core.partition.StepExecutionSplitter
 import org.springframework.batch.core.partition.Partitioner
 import org.springframework.batch.core.partition.StepExecutionAggregator
+import org.springframework.batch.core.partition.StepExecutionSplitter
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.PartitionStepBuilder
 import org.springframework.core.task.TaskExecutor
 
@@ -60,9 +60,10 @@ class PartitionStepBuilderDsl internal constructor(
      * for [PartitionHandler][org.springframework.batch.core.partition.PartitionHandler].
      */
     fun partitionHandler(init: TaskExecutorPartitionHandlerBuilderDsl.() -> Unit) {
-        val taskExecutorPartitionHandlerConfigurers = TaskExecutorPartitionHandlerBuilderDsl(this.dslContext)
-            .apply(init)
-            .build()
+        val taskExecutorPartitionHandlerConfigurers =
+            TaskExecutorPartitionHandlerBuilderDsl(this.dslContext)
+                .apply(init)
+                .build()
         this.lazyConfigurer.add(taskExecutorPartitionHandlerConfigurers)
         this.partitionHandlerSet = true
     }
@@ -83,7 +84,10 @@ class PartitionStepBuilderDsl internal constructor(
      *
      * @see [PartitionStepBuilder.partitioner][org.springframework.batch.core.step.builder.PartitionStepBuilder.partitioner]
      */
-    fun splitter(stepName: String, partitioner: Partitioner) {
+    fun splitter(
+        stepName: String,
+        partitioner: Partitioner,
+    ) {
         this.lazyConfigurer.add {
             it.partitioner(stepName, partitioner)
         }
@@ -108,7 +112,8 @@ class PartitionStepBuilderDsl internal constructor(
             "splitter is not set."
         }
 
-        return this.partitionStepBuilder.apply(this.lazyConfigurer)
+        return this.partitionStepBuilder
+            .apply(this.lazyConfigurer)
             .build()
     }
 

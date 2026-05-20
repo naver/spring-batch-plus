@@ -32,35 +32,29 @@ import org.springframework.batch.infrastructure.item.ItemStreamWriter
 /**
  * An extensions to invoke [AdapterFactory.itemStreamReader].
  */
-fun <T : Any> ItemStreamFluxReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdapterFactory.itemStreamReader(this)
+fun <T : Any> ItemStreamFluxReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> = AdapterFactory.itemStreamReader(this)
 
 /**
  * An extensions to invoke [AdapterFactory.itemStreamReader].
  */
-fun <T : Any> ItemStreamIterableReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdapterFactory.itemStreamReader(this)
+fun <T : Any> ItemStreamIterableReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> = AdapterFactory.itemStreamReader(this)
 
 /**
  * An extensions to invoke [AdapterFactory.itemStreamReader].
  */
-fun <T : Any> ItemStreamIteratorReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdapterFactory.itemStreamReader(this)
+fun <T : Any> ItemStreamIteratorReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> = AdapterFactory.itemStreamReader(this)
 
 /**
  * An extensions to invoke [AdapterFactory.itemStreamReader].
  */
-fun <T : Any> ItemStreamSimpleReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> =
-    AdapterFactory.itemStreamReader(this)
+fun <T : Any> ItemStreamSimpleReaderDelegate<T>.asItemStreamReader(): ItemStreamReader<T> = AdapterFactory.itemStreamReader(this)
 
 /**
  * An extensions to invoke [AdapterFactory.itemProcessor].
  */
-fun <I : Any, O : Any> ItemProcessorDelegate<I, O>.asItemProcessor(): ItemProcessor<I, O> =
-    AdapterFactory.itemProcessor(this)
+fun <I : Any, O : Any> ItemProcessorDelegate<I, O>.asItemProcessor(): ItemProcessor<I, O> = AdapterFactory.itemProcessor(this)
 
 /**
  * An extensions to invoke [AdapterFactory.itemStreamWriter].
  */
-fun <T : Any> ItemStreamWriterDelegate<T>.asItemStreamWriter(): ItemStreamWriter<T> =
-    AdapterFactory.itemStreamWriter(this)
+fun <T : Any> ItemStreamWriterDelegate<T>.asItemStreamWriter(): ItemStreamWriter<T> = AdapterFactory.itemStreamWriter(this)

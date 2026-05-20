@@ -26,14 +26,14 @@ import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.FlowStepBuilder
 
 internal class FlowStepBuilderDslTest {
-
     @Test
     fun testBuild() {
         // given
         val mockStep = mockk<Step>()
-        val flowStepBuilder = mockk<FlowStepBuilder>(relaxed = true) {
-            every { build() } returns mockStep
-        }
+        val flowStepBuilder =
+            mockk<FlowStepBuilder>(relaxed = true) {
+                every { build() } returns mockStep
+            }
 
         // when
         val actual = FlowStepBuilderDsl(mockk(), flowStepBuilder).build()

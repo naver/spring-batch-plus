@@ -70,9 +70,10 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * @see [FaultTolerantStepBuilder][org.springframework.batch.core.step.builder.FaultTolerantStepBuilder].
      */
     fun faultTolerant(init: FaultTolerantStepBuilderDsl<I, O>.() -> Unit) {
-        this.faultTolerantStepConfigurer = FaultTolerantStepBuilderDsl<I, O>(this.dslContext)
-            .apply(init)
-            .build()
+        this.faultTolerantStepConfigurer =
+            FaultTolerantStepBuilderDsl<I, O>(this.dslContext)
+                .apply(init)
+                .build()
     }
 
     /**
@@ -263,12 +264,14 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
         val faultTolerantStepConfigurer = this.faultTolerantStepConfigurer
         val simpleStepConfigurer = this.simpleStepConfigurer
         return if (faultTolerantStepConfigurer != null) {
-            this.simpleStepBuilder.faultTolerant()
+            this.simpleStepBuilder
+                .faultTolerant()
                 .apply(faultTolerantStepConfigurer)
                 .apply(simpleStepConfigurer)
                 .build()
         } else {
-            this.simpleStepBuilder.apply(simpleStepConfigurer)
+            this.simpleStepBuilder
+                .apply(simpleStepConfigurer)
                 .build()
         }
     }
@@ -457,8 +460,6 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
             }
         }
 
-        internal fun build(): Configurer<FaultTolerantStepBuilder<I, O>> {
-            return this.lazyConfigurer
-        }
+        internal fun build(): Configurer<FaultTolerantStepBuilder<I, O>> = this.lazyConfigurer
     }
 }

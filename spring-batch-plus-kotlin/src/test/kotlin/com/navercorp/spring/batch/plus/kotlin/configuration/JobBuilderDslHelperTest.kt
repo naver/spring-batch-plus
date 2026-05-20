@@ -25,10 +25,10 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.listener.JobExecutionListener
+import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer
 import org.springframework.batch.core.job.parameters.JobParametersValidator
-import org.springframework.batch.core.job.builder.JobBuilder
+import org.springframework.batch.core.listener.JobExecutionListener
 import org.springframework.batch.core.observability.BatchJobObservationConvention
 import org.springframework.batch.core.repository.JobRepository
 import java.util.UUID
@@ -37,7 +37,6 @@ import java.util.UUID
  * org.springframework.batch.core.job.builder.JobBuilderHelper related tests
  */
 internal class JobBuilderDslHelperTest {
-
     @Test
     fun testValidator() {
         // given
@@ -46,9 +45,10 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val jobParametersValidator = mockk<JobParametersValidator>()
-        jobBuilderDsl.apply {
-            validator(jobParametersValidator)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                validator(jobParametersValidator)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.validator(jobParametersValidator) }
@@ -62,9 +62,10 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val jobParametersIncrementer = mockk<JobParametersIncrementer>()
-        jobBuilderDsl.apply {
-            incrementer(jobParametersIncrementer)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                incrementer(jobParametersIncrementer)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.incrementer(jobParametersIncrementer) }
@@ -78,9 +79,10 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val observationConvention = mockk<BatchJobObservationConvention>()
-        jobBuilderDsl.apply {
-            observationConvention(observationConvention)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                observationConvention(observationConvention)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.observationConvention(observationConvention) }
@@ -94,9 +96,10 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val observationRegistry = mockk<ObservationRegistry>()
-        jobBuilderDsl.apply {
-            observationRegistry(observationRegistry)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                observationRegistry(observationRegistry)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.observationRegistry(observationRegistry) }
@@ -110,9 +113,10 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val meterRegistry = mockk<MeterRegistry>()
-        jobBuilderDsl.apply {
-            meterRegistry(meterRegistry)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                meterRegistry(meterRegistry)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.meterRegistry(meterRegistry) }
@@ -127,9 +131,10 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val jobRepository = mockk<JobRepository>()
-        jobBuilderDsl.apply {
-            repository(jobRepository)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                repository(jobRepository)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.repository(jobRepository) }
@@ -145,9 +150,10 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val testListener = TestListener()
-        jobBuilderDsl.apply {
-            listener(testListener)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                listener(testListener)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.listener(testListener) }
@@ -161,9 +167,10 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val jobExecutionListener = mockk<JobExecutionListener>()
-        jobBuilderDsl.apply {
-            listener(jobExecutionListener)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                listener(jobExecutionListener)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.listener(jobExecutionListener) }
@@ -176,9 +183,10 @@ internal class JobBuilderDslHelperTest {
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
 
         // when
-        jobBuilderDsl.apply {
-            preventRestart()
-        }.build()
+        jobBuilderDsl
+            .apply {
+                preventRestart()
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.preventRestart() }
@@ -192,20 +200,22 @@ internal class JobBuilderDslHelperTest {
 
         // when
         val jobParametersValidator = mockk<JobParametersValidator>()
-        jobBuilderDsl.apply {
-            step(mockk())
-            validator(jobParametersValidator)
-        }.build()
+        jobBuilderDsl
+            .apply {
+                step(mockk())
+                validator(jobParametersValidator)
+            }.build()
 
         // then
         verify(exactly = 1) { jobBuilder.validator(jobParametersValidator) }
     }
 
     private fun jobBuilderDsl(jobBuilder: JobBuilder): JobBuilderDsl {
-        val dslContext = DslContext(
-            beanFactory = mockk(),
-            jobRepository = mockk(),
-        )
+        val dslContext =
+            DslContext(
+                beanFactory = mockk(),
+                jobRepository = mockk(),
+            )
 
         return JobBuilderDsl(dslContext, jobBuilder)
     }

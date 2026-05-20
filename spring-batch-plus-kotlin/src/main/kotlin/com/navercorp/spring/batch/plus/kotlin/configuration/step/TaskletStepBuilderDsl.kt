@@ -132,7 +132,8 @@ class TaskletStepBuilderDsl internal constructor(
             }
         }
 
-        return this.taskletStepBuilder.apply(this.lazyConfigurer)
+        return this.taskletStepBuilder
+            .apply(this.lazyConfigurer)
             .build()
     }
 }
