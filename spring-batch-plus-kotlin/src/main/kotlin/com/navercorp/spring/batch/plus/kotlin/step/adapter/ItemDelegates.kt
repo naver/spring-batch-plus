@@ -25,9 +25,9 @@ import com.navercorp.spring.batch.plus.step.adapter.ItemStreamIterableReaderDele
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamIteratorReaderDelegate
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamSimpleReaderDelegate
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamWriterDelegate
-import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemStreamReader
-import org.springframework.batch.item.ItemStreamWriter
+import org.springframework.batch.infrastructure.item.ItemProcessor
+import org.springframework.batch.infrastructure.item.ItemStreamReader
+import org.springframework.batch.infrastructure.item.ItemStreamWriter
 
 /**
  * An extensions to invoke [AdapterFactory.itemStreamReader].

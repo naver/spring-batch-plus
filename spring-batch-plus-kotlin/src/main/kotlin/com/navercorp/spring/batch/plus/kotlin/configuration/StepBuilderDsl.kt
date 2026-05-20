@@ -27,9 +27,9 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMark
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.observation.ObservationRegistry
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.Step
-import org.springframework.batch.core.StepExecutionListener
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.step.Step
+import org.springframework.batch.core.listener.StepExecutionListener
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.observability.BatchStepObservationConvention
@@ -38,8 +38,8 @@ import org.springframework.batch.core.step.builder.PartitionStepBuilder
 import org.springframework.batch.core.step.builder.SimpleStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.CompletionPolicy
-import org.springframework.batch.repeat.RepeatOperations
+import org.springframework.batch.infrastructure.repeat.CompletionPolicy
+import org.springframework.batch.infrastructure.repeat.RepeatOperations
 import org.springframework.beans.factory.getBean
 import org.springframework.transaction.PlatformTransactionManager
 

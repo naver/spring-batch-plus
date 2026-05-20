@@ -22,7 +22,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.FlowStepBuilder
 
 internal class FlowStepBuilderDslTest {

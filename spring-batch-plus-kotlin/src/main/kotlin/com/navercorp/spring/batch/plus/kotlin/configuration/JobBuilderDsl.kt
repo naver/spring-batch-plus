@@ -23,11 +23,11 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.observation.ObservationRegistry
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobExecutionListener
-import org.springframework.batch.core.JobParametersIncrementer
-import org.springframework.batch.core.JobParametersValidator
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.listener.JobExecutionListener
+import org.springframework.batch.core.job.parameters.JobParametersIncrementer
+import org.springframework.batch.core.job.parameters.JobParametersValidator
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.job.builder.FlowJobBuilder
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.builder.JobBuilderHelper

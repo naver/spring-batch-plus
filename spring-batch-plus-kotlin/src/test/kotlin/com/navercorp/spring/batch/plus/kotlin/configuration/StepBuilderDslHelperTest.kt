@@ -24,7 +24,7 @@ import io.micrometer.observation.ObservationRegistry
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.StepExecutionListener
+import org.springframework.batch.core.listener.StepExecutionListener
 import org.springframework.batch.core.observability.BatchStepObservationConvention
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
