@@ -19,7 +19,6 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
-import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.observation.ObservationRegistry
 import io.mockk.mockk
 import io.mockk.spyk
@@ -29,8 +28,6 @@ import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer
 import org.springframework.batch.core.job.parameters.JobParametersValidator
 import org.springframework.batch.core.listener.JobExecutionListener
-import org.springframework.batch.core.observability.BatchJobObservationConvention
-import org.springframework.batch.core.repository.JobRepository
 import java.util.UUID
 
 /**
@@ -72,23 +69,6 @@ internal class JobBuilderDslHelperTest {
     }
 
     @Test
-    fun testObservationConvention() {
-        // given
-        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
-        val jobBuilderDsl = jobBuilderDsl(jobBuilder)
-
-        // when
-        val observationConvention = mockk<BatchJobObservationConvention>()
-        jobBuilderDsl
-            .apply {
-                observationConvention(observationConvention)
-            }.build()
-
-        // then
-        verify(exactly = 1) { jobBuilder.observationConvention(observationConvention) }
-    }
-
-    @Test
     fun testObservationRegistry() {
         // given
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
@@ -103,41 +83,6 @@ internal class JobBuilderDslHelperTest {
 
         // then
         verify(exactly = 1) { jobBuilder.observationRegistry(observationRegistry) }
-    }
-
-    @Test
-    fun testMeterRegistry() {
-        // given
-        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
-        val jobBuilderDsl = jobBuilderDsl(jobBuilder)
-
-        // when
-        val meterRegistry = mockk<MeterRegistry>()
-        jobBuilderDsl
-            .apply {
-                meterRegistry(meterRegistry)
-            }.build()
-
-        // then
-        verify(exactly = 1) { jobBuilder.meterRegistry(meterRegistry) }
-    }
-
-    @Suppress("DEPRECATION")
-    @Test
-    fun testRepository() {
-        // given
-        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
-        val jobBuilderDsl = jobBuilderDsl(jobBuilder)
-
-        // when
-        val jobRepository = mockk<JobRepository>()
-        jobBuilderDsl
-            .apply {
-                repository(jobRepository)
-            }.build()
-
-        // then
-        verify(exactly = 1) { jobBuilder.repository(jobRepository) }
     }
 
     @Test

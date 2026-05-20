@@ -19,14 +19,11 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
-import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.observation.ObservationRegistry
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.listener.StepExecutionListener
-import org.springframework.batch.core.observability.BatchStepObservationConvention
-import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.transaction.PlatformTransactionManager
 import java.util.concurrent.ThreadLocalRandom
@@ -35,41 +32,6 @@ import java.util.concurrent.ThreadLocalRandom
  * org.springframework.batch.core.step.builder.StepBuilderHelper related tests
  */
 internal class StepBuilderDslHelperTest {
-    @Suppress("DEPRECATION")
-    @Test
-    fun testRepository() {
-        // given
-        val stepBuilder = mockk<StepBuilder>(relaxed = true)
-        val stepBuilderDsl = stepBuilderDsl(stepBuilder)
-
-        // when
-        val jobRepository = mockk<JobRepository>()
-        stepBuilderDsl
-            .apply {
-                repository(jobRepository)
-            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
-
-        // then
-        verify(exactly = 1) { stepBuilderDsl.repository(jobRepository) }
-    }
-
-    @Test
-    fun testObservationConvention() {
-        // given
-        val stepBuilder = mockk<StepBuilder>(relaxed = true)
-        val stepBuilderDsl = stepBuilderDsl(stepBuilder)
-
-        // when
-        val observationConvention = mockk<BatchStepObservationConvention>()
-        stepBuilderDsl
-            .apply {
-                observationConvention(observationConvention)
-            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
-
-        // then
-        verify(exactly = 1) { stepBuilderDsl.observationConvention(observationConvention) }
-    }
-
     @Test
     fun testObservationRegistry() {
         // given
@@ -85,23 +47,6 @@ internal class StepBuilderDslHelperTest {
 
         // then
         verify(exactly = 1) { stepBuilderDsl.observationRegistry(observationRegistry) }
-    }
-
-    @Test
-    fun testMeterRegistry() {
-        // given
-        val stepBuilder = mockk<StepBuilder>(relaxed = true)
-        val stepBuilderDsl = stepBuilderDsl(stepBuilder)
-
-        // when
-        val meterRegistry = mockk<MeterRegistry>()
-        stepBuilderDsl
-            .apply {
-                meterRegistry(meterRegistry)
-            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
-
-        // then
-        verify(exactly = 1) { stepBuilderDsl.meterRegistry(meterRegistry) }
     }
 
     @Test

@@ -25,14 +25,11 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.step.SimpleStepBuild
 import com.navercorp.spring.batch.plus.kotlin.configuration.step.TaskletStepBuilderDsl
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
-import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.observation.ObservationRegistry
 import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.listener.StepExecutionListener
-import org.springframework.batch.core.observability.BatchStepObservationConvention
-import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.PartitionStepBuilder
 import org.springframework.batch.core.step.builder.SimpleStepBuilder
@@ -54,35 +51,10 @@ class StepBuilderDsl internal constructor(
     private val stepBuilder: StepBuilder,
 ) {
     /**
-     * Set for [StepBuilder.repository][org.springframework.batch.core.step.builder.StepBuilderHelper.repository].
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.1.0 deprecates this",
-    )
-    fun repository(jobRepository: JobRepository) {
-        this.stepBuilder.repository(jobRepository)
-    }
-
-    /**
-     * Set for [StepBuilder.observationConvention][org.springframework.batch.core.step.builder.StepBuilderHelper.observationConvention].
-     */
-    fun observationConvention(observationConvention: BatchStepObservationConvention) {
-        this.stepBuilder.observationConvention(observationConvention)
-    }
-
-    /**
      * Set for [StepBuilder.observationRegistry][org.springframework.batch.core.step.builder.StepBuilderHelper.observationRegistry].
      */
     fun observationRegistry(observationRegistry: ObservationRegistry) {
         this.stepBuilder.observationRegistry(observationRegistry)
-    }
-
-    /**
-     * Set for [StepBuilder.meterRegistry][org.springframework.batch.core.step.builder.StepBuilderHelper.meterRegistry].
-     */
-    fun meterRegistry(meterRegistry: MeterRegistry) {
-        this.stepBuilder.meterRegistry(meterRegistry)
     }
 
     /**
