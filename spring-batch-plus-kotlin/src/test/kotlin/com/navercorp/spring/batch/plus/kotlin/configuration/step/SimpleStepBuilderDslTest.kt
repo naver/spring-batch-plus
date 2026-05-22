@@ -33,6 +33,7 @@ import org.springframework.batch.core.listener.ChunkListener
 import org.springframework.batch.core.listener.ItemProcessListener
 import org.springframework.batch.core.listener.ItemReadListener
 import org.springframework.batch.core.listener.ItemWriteListener
+import org.springframework.batch.core.step.StepExecution
 import org.springframework.batch.core.step.builder.SimpleStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.tasklet.TaskletStep
@@ -369,8 +370,8 @@ internal class SimpleStepBuilderDslTest {
                         throw e
                     }.build()
             val jobInstance = JobInstance(ThreadLocalRandom.current().nextLong(), UUID.randomUUID().toString())
-            val jobExecution = JobExecution(jobInstance, JobParameters())
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, JobParameters())
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
