@@ -52,7 +52,7 @@ internal class TaskletStepBuilderDslTest {
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
         // when
-        val chunkListener = mockk<ChunkListener>()
+        val chunkListener = mockk<ChunkListener<*, *>>()
         TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
             .apply {
                 listener(chunkListener)

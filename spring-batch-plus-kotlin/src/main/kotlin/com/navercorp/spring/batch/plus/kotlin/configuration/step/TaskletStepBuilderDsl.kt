@@ -50,7 +50,7 @@ class TaskletStepBuilderDsl internal constructor(
     /**
      * Set for [TaskletStepBuilder.listener][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.listener].
      */
-    fun listener(chunkListener: ChunkListener) {
+    fun listener(chunkListener: ChunkListener<*, *>) {
         this.lazyConfigurer.add {
             it.listener(chunkListener)
         }
