@@ -60,7 +60,6 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
     private var faultTolerantStepConfigurer: Configurer<FaultTolerantStepBuilder<I, O>>? = null
 
     private var taskExecutorSet = false
-    private var throttleLimitSet = false
     private var exceptionHandlerSet = false
     private var stepOperationsSet = false
 
@@ -199,22 +198,6 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
     }
 
     /**
-     * Set for [SimpleStepBuilder.throttleLimit][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.throttleLimit].
-     * If not present, set as default value of [AbstractTaskletStepBuilder][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder].
-     * It can't be used when no [taskExecutor] is set.
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.0.0 deprecates this",
-    )
-    fun throttleLimit(throttleLimit: Int) {
-        this.simpleStepConfigurer.add {
-            it.throttleLimit(throttleLimit)
-        }
-        this.throttleLimitSet = true
-    }
-
-    /**
      * Set for [SimpleStepBuilder.exceptionHandler][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.exceptionHandler].
      * It can't be used when [stepOperations] is set.
      */
@@ -252,12 +235,6 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
             }
             check(!this.exceptionHandlerSet) {
                 "exceptionHandler is redundant when stepOperation is set."
-            }
-        }
-
-        if (!this.taskExecutorSet) {
-            check(!this.throttleLimitSet) {
-                "throttleLimit is redundant when no taskExecutor is set."
             }
         }
 
