@@ -21,9 +21,13 @@ package com.navercorp.spring.batch.plus.kotlin.configuration;
 import org.springframework.batch.core.job.builder.FlowJobBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.builder.PartitionStepBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.builder.StepBuilder;
 
 // Java bridge for Spring Batch builder constructors whose F-bounded wildcard
 // signatures cannot be matched by the Kotlin K2 compiler. See KT-66570.
+@SuppressWarnings("deprecation")
 final class BatchBuilderBridge {
 
 	static SimpleJobBuilder toSimpleJobBuilder(JobBuilder jobBuilder) {
@@ -32,6 +36,14 @@ final class BatchBuilderBridge {
 
 	static FlowJobBuilder toFlowJobBuilder(JobBuilder jobBuilder) {
 		return new FlowJobBuilder(jobBuilder);
+	}
+
+	static <I, O> SimpleStepBuilder<I, O> toSimpleStepBuilder(StepBuilder stepBuilder) {
+		return new SimpleStepBuilder<>(stepBuilder);
+	}
+
+	static PartitionStepBuilder toPartitionStepBuilder(StepBuilder stepBuilder) {
+		return new PartitionStepBuilder(stepBuilder);
 	}
 
 	private BatchBuilderBridge() {
