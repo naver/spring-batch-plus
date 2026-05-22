@@ -967,7 +967,7 @@ internal class FaultTolerantStepBuilderDslTest {
                     .retry(RuntimeException::class.java)
                     .writer {}
                     .listener(
-                        object : ChunkListener {
+                        object : ChunkListener<Int, Int> {
                             override fun beforeChunk(context: ChunkContext): Unit = throw IllegalStateException("Error")
 
                             override fun afterChunk(context: ChunkContext) {
@@ -996,7 +996,7 @@ internal class FaultTolerantStepBuilderDslTest {
                     reader { null }
                     writer {}
                     listener(
-                        object : ChunkListener {
+                        object : ChunkListener<Int, Int> {
                             override fun beforeChunk(context: ChunkContext): Unit = throw IllegalStateException("Error")
 
                             override fun afterChunk(context: ChunkContext) {
@@ -1034,7 +1034,7 @@ internal class FaultTolerantStepBuilderDslTest {
                         retry<RuntimeException>()
                     }
                     listener(
-                        object : ChunkListener {
+                        object : ChunkListener<Int, Int> {
                             override fun beforeChunk(context: ChunkContext): Unit = throw IllegalStateException("Error")
 
                             override fun afterChunk(context: ChunkContext) {

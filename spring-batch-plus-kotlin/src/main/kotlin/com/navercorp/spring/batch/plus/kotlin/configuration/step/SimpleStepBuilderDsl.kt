@@ -172,7 +172,7 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
     /**
      * Set for [SimpleStepBuilder.listener][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.listener].
      */
-    fun listener(chunkListener: ChunkListener) {
+    fun listener(chunkListener: ChunkListener<I, O>) {
         this.simpleStepConfigurer.add {
             it.listener(chunkListener)
         }

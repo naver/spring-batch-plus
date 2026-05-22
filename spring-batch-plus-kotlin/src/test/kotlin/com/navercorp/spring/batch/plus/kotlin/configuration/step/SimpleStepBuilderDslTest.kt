@@ -188,7 +188,7 @@ internal class SimpleStepBuilderDslTest {
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
         // when
-        val chunkListener = mockk<ChunkListener>()
+        val chunkListener = mockk<ChunkListener<Int, Int>>()
         SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
             .apply {
                 listener(chunkListener)
