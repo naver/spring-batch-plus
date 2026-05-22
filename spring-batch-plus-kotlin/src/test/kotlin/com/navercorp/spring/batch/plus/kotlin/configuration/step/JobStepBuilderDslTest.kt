@@ -23,26 +23,26 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.JobStepBuilder
 import org.springframework.batch.core.step.job.JobParametersExtractor
 
 internal class JobStepBuilderDslTest {
     @Test
-    fun testLauncher() {
+    fun testOperator() {
         // given
         val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true)
 
         // when
-        val jobLauncher = mockk<JobLauncher>()
+        val jobOperator = mockk<JobOperator>()
         JobStepBuilderDsl(mockk(), jobStepBuilder)
             .apply {
-                launcher(jobLauncher)
+                operator(jobOperator)
             }.build()
 
         // then
-        verify(exactly = 1) { jobStepBuilder.launcher(jobLauncher) }
+        verify(exactly = 1) { jobStepBuilder.operator(jobOperator) }
     }
 
     @Test

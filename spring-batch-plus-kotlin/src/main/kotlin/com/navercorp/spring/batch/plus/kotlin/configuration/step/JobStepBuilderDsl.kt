@@ -21,7 +21,7 @@ package com.navercorp.spring.batch.plus.kotlin.configuration.step
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.LazyConfigurer
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.JobStepBuilder
 import org.springframework.batch.core.step.job.JobParametersExtractor
@@ -40,11 +40,11 @@ class JobStepBuilderDsl internal constructor(
     private val lazyConfigurer = LazyConfigurer<JobStepBuilder>()
 
     /**
-     * Set for [JobStepBuilder.jobLauncher][org.springframework.batch.core.step.builder.JobStepBuilder.jobLauncher].
+     * Set for [JobStepBuilder.operator][org.springframework.batch.core.step.builder.JobStepBuilder.operator].
      */
-    fun launcher(jobLauncher: JobLauncher) {
+    fun operator(jobOperator: JobOperator) {
         this.lazyConfigurer.add {
-            it.launcher(jobLauncher)
+            it.operator(jobOperator)
         }
     }
 
