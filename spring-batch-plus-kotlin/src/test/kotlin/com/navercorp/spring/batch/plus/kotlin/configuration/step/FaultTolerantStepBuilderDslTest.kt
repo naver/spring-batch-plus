@@ -33,6 +33,7 @@ import org.springframework.batch.core.listener.SkipListener
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.FatalStepExecutionException
 import org.springframework.batch.core.step.Step
+import org.springframework.batch.core.step.StepExecution
 import org.springframework.batch.core.step.builder.SimpleStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy
@@ -109,8 +110,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     )
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -175,8 +176,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     )
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -217,8 +218,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     }
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -256,8 +257,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     retry<RuntimeException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -295,8 +296,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     retry<RuntimeException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -335,8 +336,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     noRetry<IllegalStateException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -374,8 +375,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     retry<RuntimeException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -422,8 +423,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     retry<RuntimeException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -471,8 +472,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     retry<RuntimeException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -513,8 +514,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     skip<IllegalStateException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -554,8 +555,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     skip<IllegalStateException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -596,8 +597,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     noSkip<IllegalStateException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -641,8 +642,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     )
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -677,8 +678,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     noRollback<IllegalStateException>()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -723,8 +724,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     processorNonTransactional()
                 }
             }
-        val jobExecution = JobExecution(jobInstance, jobParameters)
-        val stepExecution = jobExecution.createStepExecution(step.name)
+        val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+        val stepExecution = StepExecution(step.name, jobExecution)
         step.execute(stepExecution)
 
         // then
@@ -747,7 +748,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var onSkipInReadCallCount = 0
 
             val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
-            val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
+            val simpleStepBuilder = TestBuilderBridge.simpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestListener {
                 @Suppress("unused")
@@ -780,8 +781,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     .skipLimit(skipLimit)
                     .skip(IllegalStateException::class.java)
                     .build()
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -802,7 +803,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var onSkipInReadCallCount = 0
 
             val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
-            val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
+            val simpleStepBuilder = TestBuilderBridge.simpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestListener {
                 @Suppress("unused")
@@ -835,8 +836,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     .skip(IllegalStateException::class.java)
                     .listener(TestListener()) // called after faultTolerant()
                     .build()
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -887,8 +888,8 @@ internal class FaultTolerantStepBuilderDslTest {
                         skip(IllegalStateException::class)
                     }
                 }
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -939,8 +940,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     }
                     listener(TestListener()) // called before faultTolerant
                 }
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -954,7 +955,7 @@ internal class FaultTolerantStepBuilderDslTest {
         fun testDelegateListenerIsInvokedWhenCalledWithFaultTolerant() {
             // given
             val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
-            val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
+            val simpleStepBuilder = TestBuilderBridge.simpleStepBuilder<Int, Int>(stepBuilder)
 
             // when
             val step =
@@ -977,8 +978,8 @@ internal class FaultTolerantStepBuilderDslTest {
                             }
                         },
                     ).build()
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -1011,8 +1012,8 @@ internal class FaultTolerantStepBuilderDslTest {
                         retry<RuntimeException>()
                     }
                 }
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -1045,8 +1046,8 @@ internal class FaultTolerantStepBuilderDslTest {
                         },
                     )
                 }
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -1065,7 +1066,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var noRollbackCallCount = 0
 
             val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
-            val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
+            val simpleStepBuilder = TestBuilderBridge.simpleStepBuilder<Int, Int>(stepBuilder)
 
             // when
             val step =
@@ -1094,8 +1095,8 @@ internal class FaultTolerantStepBuilderDslTest {
                             }
                         },
                     ).build()
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -1138,8 +1139,8 @@ internal class FaultTolerantStepBuilderDslTest {
                         noRollback<IllegalStateException>()
                     }
                 }
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -1182,8 +1183,8 @@ internal class FaultTolerantStepBuilderDslTest {
                         },
                     )
                 }
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -1201,7 +1202,7 @@ internal class FaultTolerantStepBuilderDslTest {
             var readCallCount = 0
 
             val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
-            val simpleStepBuilder = SimpleStepBuilder<Int, Int>(stepBuilder)
+            val simpleStepBuilder = TestBuilderBridge.simpleStepBuilder<Int, Int>(stepBuilder)
 
             class TestStream :
                 ItemStream,
@@ -1241,8 +1242,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     .faultTolerant()
                     .stream(TestStream())
                     .build()
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -1297,8 +1298,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     writer {}
                     faultTolerant {}
                 }
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
@@ -1353,8 +1354,8 @@ internal class FaultTolerantStepBuilderDslTest {
                     }
                     stream(TestStream())
                 }
-            val jobExecution = JobExecution(jobInstance, jobParameters)
-            val stepExecution = jobExecution.createStepExecution(step.name)
+            val jobExecution = JobExecution(0L, jobInstance, jobParameters)
+            val stepExecution = StepExecution(step.name, jobExecution)
             step.execute(stepExecution)
 
             // then
