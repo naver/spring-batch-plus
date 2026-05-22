@@ -232,24 +232,6 @@ internal class SimpleStepBuilderDslTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun testThrottleLimit() {
-        // given
-        val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
-
-        // when
-        val taskExecutor = mockk<TaskExecutor>()
-        val limit = ThreadLocalRandom.current().nextInt()
-        SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
-            .apply {
-                taskExecutor(taskExecutor)
-                throttleLimit(limit)
-            }.build()
-
-        // then
-        verify(exactly = 1) { simpleStepBuilder.throttleLimit(limit) }
-    }
-
-    @Test
     fun testExceptionHandler() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
@@ -345,21 +327,6 @@ internal class SimpleStepBuilderDslTest {
         }.hasMessageContaining("exceptionHandler is redundant")
     }
 
-    @Suppress("DEPRECATION")
-    @Test
-    fun testBuildWithSettingThrottleLimitWhenNoTaskExecutor() {
-        // given
-        val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
-
-        // when, then
-        assertThatThrownBy {
-            SimpleStepBuilderDsl(mockk(), simpleStepBuilder)
-                .apply {
-                    throttleLimit(3)
-                }.build()
-        }.hasMessageContaining("throttleLimit is redundant")
-    }
-
     @Nested
     inner class RedundancyCheck {
         @Test
@@ -414,46 +381,5 @@ internal class SimpleStepBuilderDslTest {
             assertThat(exceptionHandlerCallCount).isEqualTo(0)
         }
 
-        @Suppress("DEPRECATION")
-        @Test
-        fun testThrottleLimitAndRedundantSettings() {
-            // given
-            val readLimit = 10000
-            val chunkSize = 1
-            var readCallCount = 0
-            var processCallCount = 0
-            var writeCallCount = 0
-            val stepBuilder = StepBuilder(UUID.randomUUID().toString(), mockk(relaxed = true))
-
-            // when
-            val step =
-                stepBuilder
-                    .chunk<Int, Int>(chunkSize, ResourcelessTransactionManager())
-                    .reader {
-                        if (readCallCount < readLimit) {
-                            ++readCallCount
-                            1
-                        } else {
-                            null
-                        }
-                    }.processor {
-                        ++processCallCount
-                        it
-                    }.writer {
-                        ++writeCallCount
-                    }.throttleLimit(100)
-                    .build()
-            val jobInstance = JobInstance(ThreadLocalRandom.current().nextLong(), UUID.randomUUID().toString())
-            val jobExecution = JobExecution(jobInstance, JobParameters())
-            val stepExecution = jobExecution.createStepExecution(step.name)
-            step.execute(stepExecution)
-
-            // then
-            assertThat(stepExecution.status).isEqualTo(BatchStatus.COMPLETED)
-            // if throttleLimit is applied to executor, it should be different by race condition
-            assertThat(readCallCount).isEqualTo(readLimit)
-            assertThat(processCallCount).isEqualTo(readLimit)
-            assertThat(writeCallCount).isEqualTo(10000)
-        }
     }
 }
