@@ -31,8 +31,6 @@ import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.listener.StepExecutionListener
 import org.springframework.batch.core.step.Step
-import org.springframework.batch.core.step.builder.PartitionStepBuilder
-import org.springframework.batch.core.step.builder.SimpleStepBuilder
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.infrastructure.repeat.CompletionPolicy
@@ -154,7 +152,7 @@ class StepBuilderDsl internal constructor(
         chunkSize: Int,
         simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
     ): Step {
-        val simpleStepBuilder = this.stepBuilder.chunk<I, O>(chunkSize)
+        val simpleStepBuilder = BatchBuilderBridge.toSimpleStepBuilder<I, O>(this.stepBuilder).chunk(chunkSize)
         return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder)
             .apply(simpleStepInit)
             .build()
@@ -172,7 +170,7 @@ class StepBuilderDsl internal constructor(
         completionPolicy: CompletionPolicy,
         simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
     ): Step {
-        val simpleStepBuilder = this.stepBuilder.chunk<I, O>(completionPolicy)
+        val simpleStepBuilder = BatchBuilderBridge.toSimpleStepBuilder<I, O>(this.stepBuilder).chunk(completionPolicy)
         return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder)
             .apply(simpleStepInit)
             .build()
@@ -189,7 +187,8 @@ class StepBuilderDsl internal constructor(
         repeatOperations: RepeatOperations,
         simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
     ): Step {
-        val simpleStepBuilder = SimpleStepBuilder<I, O>(this.stepBuilder).chunkOperations(repeatOperations)
+        val simpleStepBuilder =
+            BatchBuilderBridge.toSimpleStepBuilder<I, O>(this.stepBuilder).chunkOperations(repeatOperations)
         return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder)
             .apply(simpleStepInit)
             .build()
@@ -274,7 +273,7 @@ class StepBuilderDsl internal constructor(
         simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
     ): Step {
         val simpleStepBuilder =
-            SimpleStepBuilder<I, O>(this.stepBuilder).apply {
+            BatchBuilderBridge.toSimpleStepBuilder<I, O>(this.stepBuilder).apply {
                 transactionManager(transactionManager)
                 chunkOperations(repeatOperations)
             }
@@ -287,7 +286,7 @@ class StepBuilderDsl internal constructor(
      * Set partition step.
      */
     fun partitioner(partitionStepInit: PartitionStepBuilderDsl.() -> Unit): Step {
-        val partitionStepBuilder = PartitionStepBuilder(this.stepBuilder)
+        val partitionStepBuilder = BatchBuilderBridge.toPartitionStepBuilder(this.stepBuilder)
         return PartitionStepBuilderDsl(this.dslContext, partitionStepBuilder)
             .apply(partitionStepInit)
             .build()
