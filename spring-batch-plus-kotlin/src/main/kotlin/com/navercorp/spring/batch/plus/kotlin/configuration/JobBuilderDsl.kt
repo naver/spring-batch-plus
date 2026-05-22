@@ -27,7 +27,6 @@ import org.springframework.batch.core.job.builder.FlowJobBuilder
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.builder.JobBuilderHelper
 import org.springframework.batch.core.job.builder.JobFlowBuilder
-import org.springframework.batch.core.job.builder.SimpleJobBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer
@@ -250,13 +249,13 @@ class JobBuilderDsl internal constructor(
         this.jobBuilder.apply(this.lazyConfigurer)
 
         return if (!isFlowJob) {
-            val simpleJobBuilder = SimpleJobBuilder(this.jobBuilder)
+            val simpleJobBuilder = BatchBuilderBridge.toSimpleJobBuilder(this.jobBuilder)
             val simpleJobBuilderDsl = SimpleJobBuilderDsl(this.dslContext, simpleJobBuilder)
             SimpleJobBuilderDslAdapter(simpleJobBuilderDsl)
                 .apply(this.lazyFlowConfigurer)
                 .build()
         } else {
-            val flowJobBuilder = FlowJobBuilder(this.jobBuilder)
+            val flowJobBuilder = BatchBuilderBridge.toFlowJobBuilder(this.jobBuilder)
             val jobFlowBuilder = JobFlowBuilder(flowJobBuilder)
             val delegate = ConcreteFlowBuilderDsl(this.dslContext, jobFlowBuilder)
             FlowJobBuilderDsl(this.dslContext, delegate)
