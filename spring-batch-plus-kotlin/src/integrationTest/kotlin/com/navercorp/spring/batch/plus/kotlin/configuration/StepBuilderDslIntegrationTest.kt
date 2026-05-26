@@ -23,6 +23,7 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
+import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
 import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobLauncher
 import org.springframework.batch.core.repository.JobRepository
@@ -867,7 +868,8 @@ internal class StepBuilderDslIntegrationTest {
     }
 
     @Configuration
-    @EnableBatchProcessing(
+    @EnableBatchProcessing
+    @EnableJdbcJobRepository(
         dataSourceRef = "metadataDataSource",
         transactionManagerRef = "metadataTransactionManager",
     )
