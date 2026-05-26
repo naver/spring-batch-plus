@@ -381,6 +381,5 @@ internal class SimpleStepBuilderDslTest {
             assertThat(taskExecutorCallCount).isEqualTo(0)
             assertThat(exceptionHandlerCallCount).isEqualTo(0)
         }
-
     }
 }
