@@ -82,6 +82,10 @@ class TaskletStepBuilderDsl internal constructor(
      * Set for [TaskletStepBuilder.taskExecutor][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.taskExecutor].
      * It can't be used when [stepOperations] is set.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "Spring Batch 6.0 deprecates this.",
+    )
     fun taskExecutor(taskExecutor: TaskExecutor) {
         this.lazyConfigurer.add {
             it.taskExecutor(taskExecutor)

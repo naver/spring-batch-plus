@@ -179,6 +179,7 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a repeat operations.
      */
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "spring batch 5.0.0 deprecates this",
         replaceWith = ReplaceWith("chunk(repeatOperations, transactionManager, simpleStepInit)"),
@@ -239,6 +240,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a chunk size.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "Spring Batch 6.0 deprecates this.",
+    )
     fun <I : Any, O : Any> chunk(
         chunkSize: Int,
         transactionManager: PlatformTransactionManager,
@@ -253,6 +258,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a completion policy.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "Spring Batch 6.0 deprecates this.",
+    )
     fun <I : Any, O : Any> chunk(
         completionPolicy: CompletionPolicy,
         transactionManager: PlatformTransactionManager,
@@ -267,6 +276,10 @@ class StepBuilderDsl internal constructor(
     /**
      * Set chunk-based step with a repeat operations.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "Spring Batch 6.0 deprecates this.",
+    )
     fun <I : Any, O : Any> chunk(
         repeatOperations: RepeatOperations,
         transactionManager: PlatformTransactionManager,

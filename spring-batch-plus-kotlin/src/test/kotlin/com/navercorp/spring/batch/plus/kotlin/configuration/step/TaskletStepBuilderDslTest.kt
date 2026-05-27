@@ -97,6 +97,7 @@ internal class TaskletStepBuilderDslTest {
         verify(exactly = 1) { taskletStepBuilder.stream(itemStream) }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testTaskExecutor() {
         // given
@@ -177,6 +178,7 @@ internal class TaskletStepBuilderDslTest {
         assertThat(actual).isEqualTo(mockStep)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testBuildWithSettingStepOperationsAndTaskExecutor() {
         // given
@@ -213,6 +215,7 @@ internal class TaskletStepBuilderDslTest {
 
     @Nested
     inner class RedundancyCheck {
+        @Suppress("DEPRECATION")
         @Test
         fun testStepOperationsAndRedundantSettings() {
             // given
@@ -243,7 +246,7 @@ internal class TaskletStepBuilderDslTest {
                     }.build()
             val jobInstance = JobInstance(ThreadLocalRandom.current().nextLong(), UUID.randomUUID().toString())
             val jobExecution = JobExecution(0L, jobInstance, JobParameters())
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             step.execute(stepExecution)
 
             // then

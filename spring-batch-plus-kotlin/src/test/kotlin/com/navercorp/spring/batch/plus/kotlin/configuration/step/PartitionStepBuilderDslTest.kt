@@ -77,7 +77,7 @@ internal class PartitionStepBuilderDslTest {
                     }.gridSize(3)
                     .build()
             val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             jobExecution.addStepExecution(stepExecution)
             step.execute(stepExecution)
 
@@ -103,7 +103,7 @@ internal class PartitionStepBuilderDslTest {
                         val jobExecution = stepExecution.jobExecution
                         return (0 until gridSize)
                             .map {
-                                StepExecution("${stepName}$it", jobExecution)
+                                StepExecution(0L, "${stepName}$it", jobExecution)
                                     .also { jobExecution.addStepExecution(it) }
                             }.toSet()
                     }
@@ -126,7 +126,7 @@ internal class PartitionStepBuilderDslTest {
                     splitter(splitter)
                 }
             val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             jobExecution.addStepExecution(stepExecution)
             step.execute(stepExecution)
 
@@ -159,7 +159,7 @@ internal class PartitionStepBuilderDslTest {
                         val jobExecution = stepExecution.jobExecution
                         return (0 until gridSize)
                             .map {
-                                StepExecution("${stepName}$it", jobExecution)
+                                StepExecution(0L, "${stepName}$it", jobExecution)
                                     .also { jobExecution.addStepExecution(it) }
                             }.toSet()
                     }
@@ -195,7 +195,7 @@ internal class PartitionStepBuilderDslTest {
                     splitter(splitter)
                 }
             val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             jobExecution.addStepExecution(stepExecution)
             step.execute(stepExecution)
 
@@ -228,7 +228,7 @@ internal class PartitionStepBuilderDslTest {
                         val jobExecution = stepExecution.jobExecution
                         return (0 until gridSize)
                             .map {
-                                StepExecution("${stepName}$it", jobExecution)
+                                StepExecution(0L, "${stepName}$it", jobExecution)
                                     .also { jobExecution.addStepExecution(it) }
                             }.toSet()
                     }
@@ -260,7 +260,7 @@ internal class PartitionStepBuilderDslTest {
                     splitter(splitter)
                 }
             val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             jobExecution.addStepExecution(stepExecution)
             step.execute(stepExecution)
 
@@ -292,7 +292,7 @@ internal class PartitionStepBuilderDslTest {
                         val jobExecution = stepExecution.jobExecution
                         return (0 until gridSize)
                             .map {
-                                StepExecution("${stepName}$it", jobExecution)
+                                StepExecution(0L, "${stepName}$it", jobExecution)
                                     .also { jobExecution.addStepExecution(it) }
                             }.toSet()
                     }
@@ -329,7 +329,7 @@ internal class PartitionStepBuilderDslTest {
                     splitter(splitter)
                 }
             val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             jobExecution.addStepExecution(stepExecution)
             step.execute(stepExecution)
 
@@ -360,7 +360,7 @@ internal class PartitionStepBuilderDslTest {
                         val jobExecution = stepExecution.jobExecution
                         return (0 until gridSize)
                             .map {
-                                StepExecution("${stepName}$it", jobExecution)
+                                StepExecution(0L, "${stepName}$it", jobExecution)
                                     .also { jobExecution.addStepExecution(it) }
                             }.toSet()
                     }
@@ -394,7 +394,7 @@ internal class PartitionStepBuilderDslTest {
                         val jobExecution = stepExecution.jobExecution
                         return (0 until gridSize)
                             .map {
-                                StepExecution("${stepName}$it", jobExecution)
+                                StepExecution(0L, "${stepName}$it", jobExecution)
                                     .also { jobExecution.addStepExecution(it) }
                             }.toSet()
                     }
@@ -444,7 +444,7 @@ internal class PartitionStepBuilderDslTest {
                         mapOf()
                     }.build()
             val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             jobExecution.addStepExecution(stepExecution)
             step.execute(stepExecution)
 
@@ -488,7 +488,7 @@ internal class PartitionStepBuilderDslTest {
                                 val jobExecution = stepExecution.jobExecution
                                 return (0 until gridSize)
                                     .map {
-                                        StepExecution("${stepName}$it", jobExecution)
+                                        StepExecution(0L, "${stepName}$it", jobExecution)
                                             .also { jobExecution.addStepExecution(it) }
                                     }.toSet()
                             }
@@ -496,7 +496,7 @@ internal class PartitionStepBuilderDslTest {
                     )
                 }
             val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             jobExecution.addStepExecution(stepExecution)
             step.execute(stepExecution)
 
@@ -542,7 +542,7 @@ internal class PartitionStepBuilderDslTest {
                     }
                 }
             val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-            val stepExecution = StepExecution(step.name, jobExecution)
+            val stepExecution = StepExecution(0L, step.name, jobExecution)
             jobExecution.addStepExecution(stepExecution)
             step.execute(stepExecution)
 
@@ -597,7 +597,7 @@ internal class PartitionStepBuilderDslTest {
                 splitter(mockk())
             }
         val jobExecution = JobExecution(0L, jobInstance, jobParameters)
-        val stepExecution = StepExecution(step.name, jobExecution)
+        val stepExecution = StepExecution(0L, step.name, jobExecution)
         jobExecution.addStepExecution(stepExecution)
         step.execute(stepExecution)
 
@@ -618,7 +618,7 @@ internal class PartitionStepBuilderDslTest {
                 every { createStepExecution(any(), any()) } answers {
                     val name = firstArg<String>()
                     val jobExecution = secondArg<JobExecution>()
-                    StepExecution(name, jobExecution).also { jobExecution.addStepExecution(it) }
+                    StepExecution(0L, name, jobExecution).also { jobExecution.addStepExecution(it) }
                 }
             }
         val stepBuilder = StepBuilder("testStep", mockk)
