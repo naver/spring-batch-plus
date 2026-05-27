@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
@@ -52,6 +54,9 @@ import kotlin.reflect.KClass
  * @since 0.1.0
  */
 @BatchDslMarker
+@Deprecated(
+    message = "Spring Batch 6.0 deprecates SimpleStepBuilder, FaultTolerantStepBuilder.",
+)
 class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
     private val dslContext: DslContext,
     private val simpleStepBuilder: SimpleStepBuilder<I, O>,
@@ -259,6 +264,9 @@ class SimpleStepBuilderDsl<I : Any, O : Any> internal constructor(
      * @since 0.1.0
      */
     @BatchDslMarker
+    @Deprecated(
+        message = "Spring Batch 6.0 deprecates FaultTolerantStepBuilder.",
+    )
     class FaultTolerantStepBuilderDsl<I : Any, O : Any> internal constructor(
         @Suppress("unused")
         private val dslContext: DslContext,
