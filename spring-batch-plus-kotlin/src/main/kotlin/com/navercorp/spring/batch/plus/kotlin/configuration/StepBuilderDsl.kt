@@ -89,21 +89,11 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step by bean name.
      */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.0.0 deprecates this",
-        replaceWith = ReplaceWith("taskletBean(name, transactionManager)"),
-    )
     fun taskletBean(name: String): Step = taskletBean(name) {}
 
     /**
      * Set tasklet step by bean name.
      */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.0.0 deprecates this",
-        replaceWith = ReplaceWith("taskletBean(name, transactionManager, taskletStepInit)"),
-    )
     fun taskletBean(
         name: String,
         taskletStepInit: TaskletStepBuilderDsl.() -> Unit,
@@ -115,21 +105,11 @@ class StepBuilderDsl internal constructor(
     /**
      * Set tasklet step.
      */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.0.0 deprecates this",
-        replaceWith = ReplaceWith("tasklet(tasklet, transactionManager)"),
-    )
     fun tasklet(tasklet: Tasklet): Step = tasklet(tasklet) {}
 
     /**
      * Set tasklet step.
      */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.0.0 deprecates this",
-        replaceWith = ReplaceWith("tasklet(tasklet, transactionManager, taskletStepInit)"),
-    )
     fun tasklet(
         tasklet: Tasklet,
         taskletStepInit: TaskletStepBuilderDsl.() -> Unit,
