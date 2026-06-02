@@ -30,7 +30,6 @@ import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.repeat.policy.SimpleCompletionPolicy
-import org.springframework.batch.infrastructure.repeat.support.RepeatTemplate
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
@@ -150,112 +149,6 @@ internal class StepBuilderDslIntegrationTest {
                             taskExecutor {
                                 ++taskExecutorCallCount
                                 it.run()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun testDeprecatedChunkWithCount() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val batch = context.getBean<BatchDsl>()
-        val readLimit = 20
-        val chunkSize = 3
-        var readCallCount = 0
-        var writeCallCount = 0
-
-        // when, then
-        assertThatThrownBy {
-            batch {
-                job("testJob") {
-                    step("testStep") {
-                        chunk<Int, Int>(chunkSize) {
-                            reader {
-                                if (readCallCount < readLimit) {
-                                    ++readCallCount
-                                    1
-                                } else {
-                                    null
-                                }
-                            }
-                            writer {
-                                ++writeCallCount
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun testDeprecatedChunkWithCompletionPolicy() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val batch = context.getBean<BatchDsl>()
-        val readLimit = 20
-        val chunkSize = 3
-        var readCallCount = 0
-        var writeCallCount = 0
-
-        // when, then
-        assertThatThrownBy {
-            batch {
-                job("testJob") {
-                    step("testStep") {
-                        chunk<Int, Int>(SimpleCompletionPolicy(chunkSize)) {
-                            reader {
-                                if (readCallCount < readLimit) {
-                                    ++readCallCount
-                                    1
-                                } else {
-                                    null
-                                }
-                            }
-                            writer {
-                                ++writeCallCount
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun testDeprecatedChunkWithRepeatOperations() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val batch = context.getBean<BatchDsl>()
-        val readLimit = 20
-        val chunkSize = 3
-        var readCallCount = 0
-        var writeCallCount = 0
-
-        // when, then
-        assertThatThrownBy {
-            batch {
-                job("testJob") {
-                    step("testStep") {
-                        chunk<Int, Int>(
-                            RepeatTemplate().apply {
-                                setCompletionPolicy(SimpleCompletionPolicy(chunkSize))
-                            },
-                        ) {
-                            reader {
-                                if (readCallCount < readLimit) {
-                                    ++readCallCount
-                                    1
-                                } else {
-                                    null
-                                }
-                            }
-                            writer {
-                                ++writeCallCount
                             }
                         }
                     }
@@ -483,7 +376,7 @@ internal class StepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testChunkWithRepeatOperations() {
+    fun testChunkOriented() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobLauncher = context.getBean<JobLauncher>()
@@ -498,12 +391,8 @@ internal class StepBuilderDslIntegrationTest {
             batch {
                 job("testJob") {
                     step("testStep") {
-                        chunk<Int, Int>(
-                            RepeatTemplate().apply {
-                                setCompletionPolicy(SimpleCompletionPolicy(chunkSize))
-                            },
-                            ResourcelessTransactionManager(),
-                        ) {
+                        chunk<Int, Int>(chunkSize) {
+                            transactionManager(ResourcelessTransactionManager())
                             reader {
                                 if (readCallCount < readLimit) {
                                     ++readCallCount
@@ -515,6 +404,9 @@ internal class StepBuilderDslIntegrationTest {
                             writer {
                                 ++writeCallCount
                             }
+                            faultTolerant()
+                            skip<Throwable>()
+                            skipLimit(1L)
                         }
                     }
                 }

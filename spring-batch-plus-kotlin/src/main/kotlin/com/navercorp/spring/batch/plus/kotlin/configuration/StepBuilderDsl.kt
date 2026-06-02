@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.step.ChunkOrientedStepBuilderDsl
 import com.navercorp.spring.batch.plus.kotlin.configuration.step.FlowStepBuilderDsl
 import com.navercorp.spring.batch.plus.kotlin.configuration.step.JobStepBuilderDsl
 import com.navercorp.spring.batch.plus.kotlin.configuration.step.PartitionStepBuilderDsl
@@ -34,7 +35,6 @@ import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.infrastructure.repeat.CompletionPolicy
-import org.springframework.batch.infrastructure.repeat.RepeatOperations
 import org.springframework.beans.factory.getBean
 import org.springframework.transaction.PlatformTransactionManager
 
@@ -121,61 +121,6 @@ class StepBuilderDsl internal constructor(
     }
 
     /**
-     * Set chunk-based step with a chunk size.
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.0.0 deprecates this",
-        replaceWith = ReplaceWith("chunk(chunkSize, transactionManager, simpleStepInit)"),
-    )
-    fun <I : Any, O : Any> chunk(
-        chunkSize: Int,
-        simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
-    ): Step {
-        val simpleStepBuilder = BatchBuilderBridge.toSimpleStepBuilder<I, O>(this.stepBuilder).chunk(chunkSize)
-        return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder)
-            .apply(simpleStepInit)
-            .build()
-    }
-
-    /**
-     * Set chunk-based step with a completion policy.
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.0.0 deprecates this",
-        replaceWith = ReplaceWith("chunk(completionPolicy, transactionManager, simpleStepInit)"),
-    )
-    fun <I : Any, O : Any> chunk(
-        completionPolicy: CompletionPolicy,
-        simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
-    ): Step {
-        val simpleStepBuilder = BatchBuilderBridge.toSimpleStepBuilder<I, O>(this.stepBuilder).chunk(completionPolicy)
-        return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder)
-            .apply(simpleStepInit)
-            .build()
-    }
-
-    /**
-     * Set chunk-based step with a repeat operations.
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "spring batch 5.0.0 deprecates this",
-        replaceWith = ReplaceWith("chunk(repeatOperations, transactionManager, simpleStepInit)"),
-    )
-    fun <I : Any, O : Any> chunk(
-        repeatOperations: RepeatOperations,
-        simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
-    ): Step {
-        val simpleStepBuilder =
-            BatchBuilderBridge.toSimpleStepBuilder<I, O>(this.stepBuilder).chunkOperations(repeatOperations)
-        return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder)
-            .apply(simpleStepInit)
-            .build()
-    }
-
-    /**
      * Set tasklet step by bean name.
      */
     fun taskletBean(
@@ -236,6 +181,21 @@ class StepBuilderDsl internal constructor(
     }
 
     /**
+     * Set chunk-oriented step with a chunk size.
+     *
+     * @since 2.0.0
+     */
+    fun <I : Any, O : Any> chunk(
+        chunkSize: Int,
+        chunkOrientedStepInit: ChunkOrientedStepBuilderDsl<I, O>.() -> Unit,
+    ): Step {
+        val chunkOrientedStepBuilder = this.stepBuilder.chunk<I, O>(chunkSize)
+        return ChunkOrientedStepBuilderDsl(this.dslContext, chunkOrientedStepBuilder)
+            .apply(chunkOrientedStepInit)
+            .build()
+    }
+
+    /**
      * Set chunk-based step with a completion policy.
      */
     @Suppress("DEPRECATION")
@@ -248,28 +208,6 @@ class StepBuilderDsl internal constructor(
         simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
     ): Step {
         val simpleStepBuilder = this.stepBuilder.chunk<I, O>(completionPolicy, transactionManager)
-        return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder)
-            .apply(simpleStepInit)
-            .build()
-    }
-
-    /**
-     * Set chunk-based step with a repeat operations.
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "Spring Batch 6.0 deprecates this.",
-    )
-    fun <I : Any, O : Any> chunk(
-        repeatOperations: RepeatOperations,
-        transactionManager: PlatformTransactionManager,
-        simpleStepInit: SimpleStepBuilderDsl<I, O>.() -> Unit,
-    ): Step {
-        val simpleStepBuilder =
-            BatchBuilderBridge.toSimpleStepBuilder<I, O>(this.stepBuilder).apply {
-                transactionManager(transactionManager)
-                chunkOperations(repeatOperations)
-            }
         return SimpleStepBuilderDsl(this.dslContext, simpleStepBuilder)
             .apply(simpleStepInit)
             .build()
