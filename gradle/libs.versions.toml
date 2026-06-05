@@ -1,6 +1,6 @@
 [versions]
 spring-boot = "4.0.5"
-spring-batch = "6.0.3"
+spring-batch = "6.0.4"
 # spring-jdbc version should follow minor version described in 'spring-framework.version'
 # https://github.com/spring-projects/spring-batch/blob/main/pom.xml
 spring-jdbc = "7.0.6"
