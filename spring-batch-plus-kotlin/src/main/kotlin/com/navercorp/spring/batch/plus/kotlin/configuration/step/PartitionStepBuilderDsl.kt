@@ -33,6 +33,12 @@ import org.springframework.core.task.TaskExecutor
 /**
  * A dsl for [PartitionStepBuilder][org.springframework.batch.core.step.builder.PartitionStepBuilder].
  *
+ * Most methods wrap `PartitionStepBuilder` directly. The `step`, `taskExecutor`, and `gridSize`
+ * options apply only when a custom `PartitionHandler` is not provided. They configure the default
+ * `TaskExecutorPartitionHandler` built internally by `PartitionStepBuilder`. To make that dependency
+ * explicit, these three are exposed via the inner [TaskExecutorPartitionHandlerBuilderDsl] block
+ * inside `partitionHandler { ... }`, not at the top level.
+ *
  * @since 0.1.0
  */
 @BatchDslMarker
@@ -56,8 +62,8 @@ class PartitionStepBuilderDsl internal constructor(
     }
 
     /**
-     * Build [TaskExecutorPartitionHandler][org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler]
-     * for [PartitionHandler][org.springframework.batch.core.partition.PartitionHandler].
+     * Build the default [TaskExecutorPartitionHandler][org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler]
+     * via [TaskExecutorPartitionHandlerBuilderDsl]. See class KDoc for the scoping rationale.
      */
     fun partitionHandler(init: TaskExecutorPartitionHandlerBuilderDsl.() -> Unit) {
         val taskExecutorPartitionHandlerConfigurers =
@@ -79,10 +85,10 @@ class PartitionStepBuilderDsl internal constructor(
     }
 
     /**
-     * Build [SimpleStepExecutionSplitter][org.springframework.batch.core.partition.support.SimpleStepExecutionSplitter]
-     * for [StepExecutionSplitter][org.springframework.batch.core.partition.StepExecutionSplitter].
-     *
-     * @see [PartitionStepBuilder.partitioner][org.springframework.batch.core.step.builder.PartitionStepBuilder.partitioner]
+     * Build a [SimpleStepExecutionSplitter][org.springframework.batch.core.partition.support.SimpleStepExecutionSplitter]
+     * from a worker step name and [Partitioner]. Maps to
+     * [PartitionStepBuilder.partitioner][org.springframework.batch.core.step.builder.PartitionStepBuilder.partitioner],
+     * which internally constructs the splitter and sets it.
      */
     fun splitter(
         stepName: String,
@@ -118,7 +124,8 @@ class PartitionStepBuilderDsl internal constructor(
     }
 
     /**
-     * A dsl for building [TaskExecutorPartitionHandler][org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler].
+     * A dsl for building the default [TaskExecutorPartitionHandler][org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler].
+     * See [PartitionStepBuilderDsl] KDoc for the scoping rationale.
      *
      * @since 0.1.0
      */
