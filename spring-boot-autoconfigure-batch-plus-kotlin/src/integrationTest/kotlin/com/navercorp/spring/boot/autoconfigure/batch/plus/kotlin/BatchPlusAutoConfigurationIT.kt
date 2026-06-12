@@ -23,6 +23,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
+import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
+import org.springframework.batch.core.configuration.annotation.EnableMongoJobRepository
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
@@ -30,41 +32,76 @@ import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import org.springframework.context.annotation.Bean
+import org.springframework.data.mongodb.MongoDatabaseFactory
+import org.springframework.data.mongodb.MongoTransactionManager
+import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.TransactionManager
+import java.lang.reflect.Proxy
 import javax.sql.DataSource
 
 private class BatchPlusAutoConfigurationIT {
-
-    private val contextRunner = ApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(BatchPlusAutoConfiguration::class.java))
+    private val contextRunner =
+        ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(BatchPlusAutoConfiguration::class.java))
 
     @Test
-    fun autoConfigure() {
-        @EnableBatchProcessing(
+    fun autoConfigureWithJdbcJobRepository() {
+        @EnableBatchProcessing
+        @EnableJdbcJobRepository(
             dataSourceRef = "metadataDataSource",
             transactionManagerRef = "metadataTransactionManager",
         )
         class BatchConfiguration {
+            @Bean
+            fun metadataTransactionManager(): TransactionManager = DataSourceTransactionManager(metadataDataSource())
 
             @Bean
-            fun metadataTransactionManager(): TransactionManager {
-                return DataSourceTransactionManager(metadataDataSource())
-            }
-
-            @Bean
-            fun metadataDataSource(): DataSource {
-                return EmbeddedDatabaseBuilder()
+            fun metadataDataSource(): DataSource =
+                EmbeddedDatabaseBuilder()
                     .setType(EmbeddedDatabaseType.H2)
                     .addScript("/org/springframework/batch/core/schema-h2.sql")
                     .generateUniqueName(true)
                     .build()
+        }
+
+        contextRunner
+            .withUserConfiguration(BatchConfiguration::class.java)
+            .run { context: AssertableApplicationContext ->
+                assertThat(context).hasSingleBean(BatchDsl::class.java)
+            }
+    }
+
+    @Test
+    fun autoConfigureWithMongoJobRepository() {
+        @EnableBatchProcessing
+        @EnableMongoJobRepository(
+            mongoOperationsRef = "metadataMongoOperations",
+            transactionManagerRef = "metadataMongoTransactionManager",
+        )
+        class BatchConfiguration {
+            @Bean
+            fun metadataMongoOperations(): MongoOperations =
+                Proxy.newProxyInstance(
+                    MongoOperations::class.java.classLoader,
+                    arrayOf(MongoOperations::class.java),
+                ) { _, _, _ -> null } as MongoOperations
+
+            @Bean
+            fun metadataMongoTransactionManager(): MongoTransactionManager {
+                val factory =
+                    Proxy.newProxyInstance(
+                        MongoDatabaseFactory::class.java.classLoader,
+                        arrayOf(MongoDatabaseFactory::class.java),
+                    ) { _, _, _ -> null } as MongoDatabaseFactory
+                return MongoTransactionManager(factory)
             }
         }
 
-        contextRunner.withUserConfiguration(BatchConfiguration::class.java)
+        contextRunner
+            .withUserConfiguration(BatchConfiguration::class.java)
             .run { context: AssertableApplicationContext ->
                 assertThat(context).hasSingleBean(BatchDsl::class.java)
             }
@@ -72,7 +109,8 @@ private class BatchPlusAutoConfigurationIT {
 
     @Test
     fun autoConfigureShouldNotRegisterWhenAlreadyRegisteredOneExists() {
-        @EnableBatchProcessing(
+        @EnableBatchProcessing
+        @EnableJdbcJobRepository(
             dataSourceRef = "metadataDataSource",
             transactionManagerRef = "metadataTransactionManager",
         )
@@ -81,29 +119,26 @@ private class BatchPlusAutoConfigurationIT {
             fun batchDsl(
                 beanFactory: BeanFactory,
                 jobRepository: JobRepository,
-            ): BatchDsl {
-                return BatchDsl(
+            ): BatchDsl =
+                BatchDsl(
                     beanFactory,
                     jobRepository,
                 )
-            }
 
             @Bean
-            fun metadataTransactionManager(): TransactionManager {
-                return DataSourceTransactionManager(metadataDataSource())
-            }
+            fun metadataTransactionManager(): TransactionManager = DataSourceTransactionManager(metadataDataSource())
 
             @Bean
-            fun metadataDataSource(): DataSource {
-                return EmbeddedDatabaseBuilder()
+            fun metadataDataSource(): DataSource =
+                EmbeddedDatabaseBuilder()
                     .setType(EmbeddedDatabaseType.H2)
                     .addScript("/org/springframework/batch/core/schema-h2.sql")
                     .generateUniqueName(true)
                     .build()
-            }
         }
 
-        contextRunner.withUserConfiguration(BatchConfiguration::class.java)
+        contextRunner
+            .withUserConfiguration(BatchConfiguration::class.java)
             .run { context: AssertableApplicationContext ->
                 assertThat(context).hasSingleBean(BatchDsl::class.java)
             }
