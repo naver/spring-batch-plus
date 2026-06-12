@@ -4,6 +4,10 @@ spring-batch = "6.0.4"
 # spring-jdbc version should follow minor version described in 'spring-framework.version'
 # https://github.com/spring-projects/spring-batch/blob/main/pom.xml
 spring-jdbc = "7.0.6"
+# spring-data-mongodb / mongodb-driver versions should follow what 'spring-batch.version' pins
+# https://github.com/spring-projects/spring-batch/blob/main/pom.xml
+spring-data-mongodb = "5.0.6"
+mongodb-driver = "5.6.5"
 slf4j = "2.0.17"
 reactor-core = "3.8.4"
 findbugs-jsr305 = "3.0.2"
@@ -19,6 +23,9 @@ log4j = "2.25.+"
 
 [libraries]
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot" }
+spring-boot-batch-jdbc = { module = "org.springframework.boot:spring-boot-batch-jdbc", version.ref = "spring-boot" }
+spring-data-mongodb = { module = "org.springframework.data:spring-data-mongodb", version.ref = "spring-data-mongodb" }
+mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongodb-driver" }
 spring-batch-core = { module = "org.springframework.batch:spring-batch-core", version.ref = "spring-batch" }
 spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring-jdbc" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
