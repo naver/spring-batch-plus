@@ -40,7 +40,7 @@ open class TestJobConfig(
                 step("testStep") {
                     tasklet(testTasklet(), transactionManager) {
                         listener(
-                            object : ChunkListener {
+                            object : ChunkListener<Any, Any> {
                                 override fun beforeChunk(context: ChunkContext) {
                                     println("beforeChunk: $context")
                                 }
