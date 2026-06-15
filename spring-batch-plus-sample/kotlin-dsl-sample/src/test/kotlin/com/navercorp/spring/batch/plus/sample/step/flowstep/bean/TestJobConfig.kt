@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.step.flowstep.bean
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.flow.Flow
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,22 +31,23 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                flowBean("anotherFlow")
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    flowBean("anotherFlow")
+                }
             }
         }
-    }
 
     @Bean
-    open fun anotherFlow(): Flow = batch {
-        flow("anotherFlow") {
-            step("anotherFlowStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun anotherFlow(): Flow =
+        batch {
+            flow("anotherFlow") {
+                step("anotherFlowStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }

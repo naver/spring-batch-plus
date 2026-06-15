@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.job.flow.transition.stopandrestart.flow
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.Step
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.step.Step
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,31 +31,32 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step(testStep()) {
-                on("COMPLETED") {
-                    stopAndRestartToFlow("restartFlow") {
-                        flow("restartFlow") {
-                            step("restartStep") {
-                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step(testStep()) {
+                    on("COMPLETED") {
+                        stopAndRestartToFlow("restartFlow") {
+                            flow("restartFlow") {
+                                step("restartStep") {
+                                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                                }
                             }
                         }
                     }
-                }
-                on("*") {
-                    stop()
+                    on("*") {
+                        stop()
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testStep(): Step = batch {
-        step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testStep(): Step =
+        batch {
+            step("testStep") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
         }
-    }
 }

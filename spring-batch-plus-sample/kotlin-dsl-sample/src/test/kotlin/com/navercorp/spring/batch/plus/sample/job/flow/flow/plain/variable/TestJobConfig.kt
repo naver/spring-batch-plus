@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.job.flow.flow.plain.variable
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.flow.Flow
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,42 +31,45 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                val testFlow3 =
+                    batch {
+                        flow("testFlow3") {
+                            step("testFlow3Step1") {
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                            }
+                        }
+                    }
+
+                flow(testFlow1())
+                flow(testFlow2())
+                flow(testFlow3)
+            }
+        }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            val testFlow3 = batch {
-                flow("testFlow3") {
-                    step("testFlow3Step1") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-                    }
+    open fun testFlow1(): Flow =
+        batch {
+            flow("testFlow1") {
+                step("testFlow1Step1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+                step("testFlow1Step2") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
-
-            flow(testFlow1())
-            flow(testFlow2())
-            flow(testFlow3)
         }
-    }
 
     @Bean
-    open fun testFlow1(): Flow = batch {
-        flow("testFlow1") {
-            step("testFlow1Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-            step("testFlow1Step2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-        }
-    }
-
-    @Bean
-    open fun testFlow2(): Flow = batch {
-        flow("testFlow2") {
-            step("testFlow2Step1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow2(): Flow =
+        batch {
+            flow("testFlow2") {
+                step("testFlow2Step1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }

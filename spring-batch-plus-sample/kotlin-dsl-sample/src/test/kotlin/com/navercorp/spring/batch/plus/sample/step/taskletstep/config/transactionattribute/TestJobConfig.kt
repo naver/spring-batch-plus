@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.transactionattribute
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -33,27 +33,28 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    transactionAttribute(
-                        DefaultTransactionAttribute().apply {
-                            setName("test-tx")
-                        },
-                    )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        transactionAttribute(
+                            DefaultTransactionAttribute().apply {
+                                setName("test-tx")
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        // print false
-        val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
-        println("run testTasklet (transactionName: $transactionName}")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            // print false
+            val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
+            println("run testTasklet (transactionName: $transactionName}")
+            RepeatStatus.FINISHED
+        }
 }

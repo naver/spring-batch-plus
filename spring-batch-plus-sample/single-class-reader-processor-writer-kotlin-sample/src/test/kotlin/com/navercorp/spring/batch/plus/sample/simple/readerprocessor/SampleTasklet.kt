@@ -30,15 +30,12 @@ open class SampleTasklet(
 ) : ItemStreamSimpleReaderProcessor<Int, String> {
     private var count = 0
 
-    override fun read(): Int? {
-        return if (count < totalCount) {
+    override fun read(): Int? =
+        if (count < totalCount) {
             count++
         } else {
             null
         }
-    }
 
-    override fun process(item: Int): String? {
-        return "'$item'"
-    }
+    override fun process(item: Int): String? = "'$item'"
 }

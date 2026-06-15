@@ -19,10 +19,10 @@
 package com.navercorp.spring.batch.plus.sample.job.configuration.incrementer
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParameters
-import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.parameters.JobParameters
+import org.springframework.batch.core.job.parameters.JobParametersBuilder
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -32,30 +32,30 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            incrementer {
-                val nextValue = it?.getLong("param")?.plus(1L) ?: 0L
-                JobParametersBuilder(it ?: JobParameters())
-                    .addLong("param", nextValue)
-                    .toJobParameters()
-            }
-            // same as
-            // incrementer(
-            //     object : JobParametersIncrementer {
-            //         override fun getNext(parameters: JobParameters?): JobParameters {
-            //             val nextValue = parameters?.getLong("param")?.plus(1L) ?: 0L
-            //             return JobParametersBuilder(parameters ?: JobParameters())
-            //                 .addLong("param", nextValue)
-            //                 .toJobParameters()
-            //         }
-            //     }
-            // )
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                incrementer {
+                    val nextValue = it?.getLong("param")?.plus(1L) ?: 0L
+                    JobParametersBuilder(it ?: JobParameters())
+                        .addLong("param", nextValue)
+                        .toJobParameters()
+                }
+                // same as
+                // incrementer(
+                //     object : JobParametersIncrementer {
+                //         override fun getNext(parameters: JobParameters?): JobParameters {
+                //             val nextValue = parameters?.getLong("param")?.plus(1L) ?: 0L
+                //             return JobParametersBuilder(parameters ?: JobParameters())
+                //                 .addLong("param", nextValue)
+                //                 .toJobParameters()
+                //         }
+                //     }
+                // )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }

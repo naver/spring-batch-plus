@@ -19,13 +19,13 @@
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.listenerannotation
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
 import org.springframework.batch.core.annotation.AfterChunk
 import org.springframework.batch.core.annotation.AfterChunkError
 import org.springframework.batch.core.annotation.BeforeChunk
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -35,7 +35,6 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @BeforeChunk
         fun beforeChunk(context: ChunkContext) {
@@ -53,19 +52,21 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    listener(TestListener())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        listener(TestListener())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }

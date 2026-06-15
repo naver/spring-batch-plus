@@ -18,12 +18,12 @@
 
 package com.navercorp.spring.batch.plus.sample.job.flow.step.comparison.before
 
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.StepBuilder
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -33,40 +33,40 @@ open class TestJobConfig(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job {
-        return JobBuilder("testJob", jobRepository)
-            .start(testStep1()).on("COMPLETED").to(successStep())
-            .from(testStep1()).on("FAILED").to(failureStep())
-            .from(testStep1()).on("*").stop()
+    open fun testJob(): Job =
+        JobBuilder("testJob", jobRepository)
+            .start(testStep1())
+            .on("COMPLETED")
+            .to(successStep())
+            .from(testStep1())
+            .on("FAILED")
+            .to(failureStep())
+            .from(testStep1())
+            .on("*")
+            .stop()
             .build()
             .build()
-    }
 
     @Bean
-    open fun testStep1(): Step {
-        return StepBuilder("testStep1", jobRepository)
+    open fun testStep1(): Step =
+        StepBuilder("testStep1", jobRepository)
             .tasklet(
                 { _, _ ->
                     throw IllegalStateException("step failed")
                 },
                 transactionManager,
-            )
-            .build()
-    }
+            ).build()
 
     @Bean
-    open fun successStep(): Step {
-        return StepBuilder("successStep", jobRepository)
+    open fun successStep(): Step =
+        StepBuilder("successStep", jobRepository)
             .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
-    }
 
     @Bean
-    open fun failureStep(): Step {
-        return StepBuilder("failureStep", jobRepository)
+    open fun failureStep(): Step =
+        StepBuilder("failureStep", jobRepository)
             .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
-    }
 }

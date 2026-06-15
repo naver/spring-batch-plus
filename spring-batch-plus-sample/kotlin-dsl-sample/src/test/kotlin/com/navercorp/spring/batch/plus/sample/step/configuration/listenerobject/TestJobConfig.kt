@@ -20,10 +20,10 @@ package com.navercorp.spring.batch.plus.sample.step.configuration.listenerobject
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.ExitStatus
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.StepExecution
-import org.springframework.batch.core.StepExecutionListener
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.listener.StepExecutionListener
+import org.springframework.batch.core.step.StepExecution
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -33,25 +33,25 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                listener(
-                    object : StepExecutionListener {
-                        override fun beforeStep(stepExecution: StepExecution) {
-                            println("beforeStep")
-                        }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    listener(
+                        object : StepExecutionListener {
+                            override fun beforeStep(stepExecution: StepExecution) {
+                                println("beforeStep")
+                            }
 
-                        override fun afterStep(stepExecution: StepExecution): ExitStatus? {
-                            println("afterStep")
-                            return null
-                        }
-                    },
-                )
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                            override fun afterStep(stepExecution: StepExecution): ExitStatus? {
+                                println("afterStep")
+                                return null
+                            }
+                        },
+                    )
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }

@@ -20,7 +20,7 @@ package com.navercorp.spring.batch.plus.sample.iterator.readerprocessor
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamIteratorReaderProcessor
 import org.springframework.batch.core.configuration.annotation.StepScope
-import org.springframework.batch.item.ExecutionContext
+import org.springframework.batch.infrastructure.item.ExecutionContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -34,17 +34,11 @@ open class SampleTasklet(
     override fun readIterator(executionContext: ExecutionContext): Iterator<Int> {
         println("totalCount: $totalCount")
         return object : Iterator<Int> {
-            override fun hasNext(): Boolean {
-                return count < totalCount
-            }
+            override fun hasNext(): Boolean = count < totalCount
 
-            override fun next(): Int {
-                return count++
-            }
+            override fun next(): Int = count++
         }
     }
 
-    override fun process(item: Int): String? {
-        return "'$item'"
-    }
+    override fun process(item: Int): String? = "'$item'"
 }

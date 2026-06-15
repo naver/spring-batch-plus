@@ -18,7 +18,7 @@
 
 package com.navercorp.spring.batch.plus.sample.deletemedadata.prefix
 
-import org.springframework.boot.autoconfigure.batch.BatchDataSource
+import org.springframework.boot.batch.jdbc.autoconfigure.BatchDataSource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
@@ -27,15 +27,13 @@ import javax.sql.DataSource
 
 @Configuration
 open class JdbcConfig {
-
     @BatchDataSource
     @Bean
-    open fun dataSource(): DataSource {
-        return EmbeddedDatabaseBuilder()
+    open fun dataSource(): DataSource =
+        EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
             .addScript("classpath:sql/schema-h2-custom.sql")
             .ignoreFailedDrops(true)
             .generateUniqueName(true)
             .build()
-    }
 }

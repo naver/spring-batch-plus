@@ -20,11 +20,11 @@ package com.navercorp.spring.batch.plus.sample.deletemedadata.prefixfromvariable
 
 import com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataJobBuilder
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.repository.JobRepository
-import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.boot.autoconfigure.batch.BatchDataSource
-import org.springframework.boot.autoconfigure.batch.BatchProperties
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
+import org.springframework.boot.batch.jdbc.autoconfigure.BatchDataSource
+import org.springframework.boot.batch.jdbc.autoconfigure.BatchJdbcProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -35,14 +35,13 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
     open fun removeJob(
         @BatchDataSource dataSource: DataSource,
         jobRepository: JobRepository,
-        properties: BatchProperties,
+        properties: BatchJdbcProperties,
     ): Job {
-        val tablePrefix = properties.jdbc.tablePrefix
+        val tablePrefix = properties.tablePrefix!!
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
             .name("removeJob")
             .tablePrefix(tablePrefix)
@@ -50,14 +49,15 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(
-                    { _, _ -> RepeatStatus.FINISHED },
-                    transactionManager,
-                )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(
+                        { _, _ -> RepeatStatus.FINISHED },
+                        transactionManager,
+                    )
+                }
             }
         }
-    }
 }

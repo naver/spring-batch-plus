@@ -19,9 +19,8 @@
 package com.navercorp.spring.batch.plus.sample.step.jobstep.config.launcher
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.launch.JobLauncher
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -30,38 +29,39 @@ import org.springframework.transaction.PlatformTransactionManager
 open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
-    private val jobLauncher: JobLauncher,
+    private val jobOperator: JobLauncher,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                job(anotherJob()) {
-                    launcher { job, jobParameters ->
-                        println("launch anotherJob!!!")
-                        jobLauncher.run(job, jobParameters)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    job(anotherJob()) {
+                        launcher { job, jobParameters ->
+                            println("launch anotherJob!!!")
+                            jobOperator.start(job, jobParameters)
+                        }
+                        // same as
+                        // launcher(
+                        //     object : JobLauncher {
+                        //         override fun run(job: Job, jobParameters: JobParameters): JobExecution {
+                        //             println("launch anotherJob!!!")
+                        //             return jobOperator.start(job, jobParameters)
+                        //         }
+                        //     }
+                        // )
                     }
-                    // same as
-                    // launcher(
-                    //     object : JobLauncher {
-                    //         override fun run(job: Job, jobParameters: JobParameters): JobExecution {
-                    //             println("launch anotherJob!!!")
-                    //             return jobLauncher.run(job, jobParameters)
-                    //         }
-                    //     }
-                    // )
                 }
             }
         }
-    }
 
     @Bean
-    open fun anotherJob() = batch {
-        job("anotherJob") {
-            step("anotherJobStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun anotherJob() =
+        batch {
+            job("anotherJob") {
+                step("anotherJobStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }

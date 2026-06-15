@@ -19,11 +19,11 @@
 package com.navercorp.spring.batch.plus.sample.job.flow.transition.decider.bean
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.flow.FlowExecutionStatus
 import org.springframework.batch.core.job.flow.JobExecutionDecider
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.step.Step
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -33,53 +33,56 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step(testStep()) {
-                on("COMPLETED") {
-                    end()
-                }
-                on("FAILED") {
-                    deciderBean("testDecider") {
-                        on("COMPLETED") {
-                            stop()
-                        }
-                        on("BATCH TEST") {
-                            step(transitionStep())
-                        }
-                        on("*") {
-                            fail()
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step(testStep()) {
+                    on("COMPLETED") {
+                        end()
+                    }
+                    on("FAILED") {
+                        deciderBean("testDecider") {
+                            on("COMPLETED") {
+                                stop()
+                            }
+                            on("BATCH TEST") {
+                                step(transitionStep())
+                            }
+                            on("*") {
+                                fail()
+                            }
                         }
                     }
-                }
-                on("*") {
-                    stop()
+                    on("*") {
+                        stop()
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testStep(): Step = batch {
-        step("testStep") {
-            tasklet(
-                { _, _ -> throw IllegalStateException("testStep failed") },
-                transactionManager,
-            )
+    open fun testStep(): Step =
+        batch {
+            step("testStep") {
+                tasklet(
+                    { _, _ -> throw IllegalStateException("testStep failed") },
+                    transactionManager,
+                )
+            }
         }
-    }
 
     @Bean
-    open fun testDecider(): JobExecutionDecider = JobExecutionDecider { _, _ ->
-        FlowExecutionStatus("BATCH TEST")
-    }
-
-    @Bean
-    open fun transitionStep(): Step = batch {
-        step("transitionStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testDecider(): JobExecutionDecider =
+        JobExecutionDecider { _, _ ->
+            FlowExecutionStatus("BATCH TEST")
         }
-    }
+
+    @Bean
+    open fun transitionStep(): Step =
+        batch {
+            step("transitionStep") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
+        }
 }

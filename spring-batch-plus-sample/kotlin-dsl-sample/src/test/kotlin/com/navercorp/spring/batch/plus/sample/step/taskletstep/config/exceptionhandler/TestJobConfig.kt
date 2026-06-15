@@ -19,7 +19,7 @@
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.exceptionhandler
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,32 +30,33 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    exceptionHandler { _, throwable ->
-                        println("handle exception ${throwable.message}")
-                        throw throwable
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        exceptionHandler { _, throwable ->
+                            println("handle exception ${throwable.message}")
+                            throw throwable
+                        }
+                        // same as
+                        // exceptionHandler(
+                        //     object : ExceptionHandler {
+                        //         override fun handleException(context: RepeatContext, throwable: Throwable) {
+                        //             println("handle exception ${throwable.message}")
+                        //             throw throwable
+                        //         }
+                        //     }
+                        // )
                     }
-                    // same as
-                    // exceptionHandler(
-                    //     object : ExceptionHandler {
-                    //         override fun handleException(context: RepeatContext, throwable: Throwable) {
-                    //             println("handle exception ${throwable.message}")
-                    //             throw throwable
-                    //         }
-                    //     }
-                    // )
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        throw IllegalStateException("testTasklet error")
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            throw IllegalStateException("testTasklet error")
+        }
 }

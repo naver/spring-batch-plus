@@ -19,11 +19,11 @@
 package com.navercorp.spring.batch.plus.sample.step.chunkorientedstep.faulttolerant.skiplistener
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.SkipListener
-import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.listener.SkipListener
+import org.springframework.batch.infrastructure.item.ItemProcessor
+import org.springframework.batch.infrastructure.item.ItemReader
+import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -33,36 +33,42 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        listener(
-                            object : SkipListener<Int, String> {
-                                override fun onSkipInRead(t: Throwable) {
-                                    println("Ignore exception of read (exception: ${t.message})")
-                                }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3, transactionManager) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant {
+                            listener(
+                                object : SkipListener<Int, String> {
+                                    override fun onSkipInRead(t: Throwable) {
+                                        println("Ignore exception of read (exception: ${t.message})")
+                                    }
 
-                                override fun onSkipInProcess(item: Int, t: Throwable) {
-                                }
+                                    override fun onSkipInProcess(
+                                        item: Int,
+                                        t: Throwable,
+                                    ) {
+                                    }
 
-                                override fun onSkipInWrite(item: String, t: Throwable) {
-                                }
-                            },
-                        )
-                        skip<IllegalStateException>()
-                        skipLimit(1)
+                                    override fun onSkipInWrite(
+                                        item: String,
+                                        t: Throwable,
+                                    ) {
+                                    }
+                                },
+                            )
+                            skip<IllegalStateException>()
+                            skipLimit(1)
+                        }
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -86,16 +92,14 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }

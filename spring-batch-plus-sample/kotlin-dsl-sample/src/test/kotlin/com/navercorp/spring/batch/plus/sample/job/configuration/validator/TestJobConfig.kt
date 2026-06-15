@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.job.configuration.validator
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParametersInvalidException
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.parameters.InvalidJobParametersException
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,30 +31,30 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            validator {
-                val value = it?.getLong("param")
-                if (value == null || value < 0L) {
-                    throw JobParametersInvalidException("param is null or less than 0")
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                validator {
+                    val value = it?.getLong("param")
+                    if (value == null || value < 0L) {
+                        throw InvalidJobParametersException("param is null or less than 0")
+                    }
+                }
+                // same as
+                // validator(
+                //     object : JobParametersValidator {
+                //         override fun validate(parameters: JobParameters?) {
+                //             val value = parameters?.getLong("param")
+                //             if (value == null || value < 0L) {
+                //                 throw InvalidJobParametersException("param is < 0")
+                //             }
+                //         }
+                //     }
+                // )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
-            // same as
-            // validator(
-            //     object : JobParametersValidator {
-            //         override fun validate(parameters: JobParameters?) {
-            //             val value = parameters?.getLong("param")
-            //             if (value == null || value < 0L) {
-            //                 throw JobParametersInvalidException("param is < 0")
-            //             }
-            //         }
-            //     }
-            // )
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
         }
-    }
 }

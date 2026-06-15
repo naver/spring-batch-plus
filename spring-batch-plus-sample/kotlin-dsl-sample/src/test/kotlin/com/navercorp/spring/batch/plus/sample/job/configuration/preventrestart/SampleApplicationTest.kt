@@ -20,9 +20,9 @@ package com.navercorp.spring.batch.plus.sample.job.configuration.preventrestart
 
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.parameters.JobParametersBuilder
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -32,19 +32,20 @@ open class SampleApplicationTest {
     @Test
     fun run() {
         val applicationContext = runApplication<SampleApplicationTest>()
-        val jobLauncher = applicationContext.getBean<JobLauncher>()
+        val jobOperator = applicationContext.getBean<JobOperator>()
         val job = applicationContext.getBean<Job>()
 
-        val jobParameters = JobParametersBuilder()
-            .toJobParameters()
+        val jobParameters =
+            JobParametersBuilder()
+                .toJobParameters()
 
-        val firstJobExecution = jobLauncher.run(job, jobParameters)
+        val firstJobExecution = jobOperator.start(job, jobParameters)
 
         assert(BatchStatus.FAILED == firstJobExecution.status)
         println(firstJobExecution)
 
         try {
-            jobLauncher.run(job, jobParameters)
+            jobOperator.start(job, jobParameters)
             assert(false) { "It must throw exception" }
         } catch (e: Exception) {
             // JobInstance already exists and is not restartable

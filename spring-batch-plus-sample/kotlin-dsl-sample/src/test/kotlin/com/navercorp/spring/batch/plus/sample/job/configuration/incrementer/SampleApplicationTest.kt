@@ -20,10 +20,8 @@ package com.navercorp.spring.batch.plus.sample.job.configuration.incrementer
 
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.explore.JobExplorer
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -33,19 +31,11 @@ open class SampleApplicationTest {
     @Test
     fun run() {
         val applicationContext = runApplication<SampleApplicationTest>()
-        val jobLauncher = applicationContext.getBean<JobLauncher>()
-        val jobExplorer = applicationContext.getBean<JobExplorer>()
+        val jobOperator = applicationContext.getBean<JobOperator>()
         val job = applicationContext.getBean<Job>()
 
-        val firstJobParameters = JobParametersBuilder(jobExplorer)
-            .getNextJobParameters(job)
-            .toJobParameters()
-        val firstJobExecution = jobLauncher.run(job, firstJobParameters)
-
-        val secondJobParameters = JobParametersBuilder(jobExplorer)
-            .getNextJobParameters(job)
-            .toJobParameters()
-        val secondJobExecution = jobLauncher.run(job, secondJobParameters)
+        val firstJobExecution = jobOperator.startNextInstance(job)
+        val secondJobExecution = jobOperator.startNextInstance(job)
 
         // first
         assert(BatchStatus.COMPLETED == firstJobExecution.status)

@@ -19,8 +19,8 @@
 package com.navercorp.spring.batch.plus.sample.step.configuration.allowstartifcomplete
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -30,28 +30,28 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("alwaysRunStep") {
-                allowStartIfComplete(true)
-                tasklet(
-                    { _, _ ->
-                        println("always run")
-                        RepeatStatus.FINISHED
-                    },
-                    transactionManager,
-                )
-            }
-            step("alwaysFailsStep") {
-                tasklet(
-                    { _, _ ->
-                        throw IllegalStateException("always failed")
-                    },
-                    transactionManager,
-                )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("alwaysRunStep") {
+                    allowStartIfComplete(true)
+                    tasklet(
+                        { _, _ ->
+                            println("always run")
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager,
+                    )
+                }
+                step("alwaysFailsStep") {
+                    tasklet(
+                        { _, _ ->
+                            throw IllegalStateException("always failed")
+                        },
+                        transactionManager,
+                    )
+                }
             }
         }
-    }
 }

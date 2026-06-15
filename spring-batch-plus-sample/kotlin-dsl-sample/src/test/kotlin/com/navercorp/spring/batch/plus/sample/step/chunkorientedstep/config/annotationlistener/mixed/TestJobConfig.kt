@@ -19,14 +19,14 @@
 package com.navercorp.spring.batch.plus.sample.step.chunkorientedstep.config.annotationlistener.mixed
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
 import org.springframework.batch.core.annotation.AfterProcess
 import org.springframework.batch.core.annotation.AfterRead
 import org.springframework.batch.core.annotation.BeforeWrite
-import org.springframework.batch.item.Chunk
-import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.item.Chunk
+import org.springframework.batch.infrastructure.item.ItemProcessor
+import org.springframework.batch.infrastructure.item.ItemReader
+import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -36,7 +36,6 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @AfterRead
         fun afterRead(item: Any) {
@@ -44,7 +43,10 @@ open class TestJobConfig(
         }
 
         @AfterProcess
-        fun afterProcess(item: Any, result: Any?) {
+        fun afterProcess(
+            item: Any,
+            result: Any?,
+        ) {
             println("afterProcess: $item, result: $result")
         }
 
@@ -55,45 +57,42 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(TestListener())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3, transactionManager) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(TestListener())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("[${Thread.currentThread().name}] write $items")
         }
-    }
 }

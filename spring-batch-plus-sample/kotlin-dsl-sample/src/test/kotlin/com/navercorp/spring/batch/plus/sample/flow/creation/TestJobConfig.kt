@@ -19,10 +19,10 @@
 package com.navercorp.spring.batch.plus.sample.flow.creation
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.flow.Flow
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.step.Step
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -32,32 +32,34 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            flow(testFlow())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                flow(testFlow())
+            }
         }
-    }
 
     @Bean
-    open fun testFlow(): Flow = batch {
-        flow("testFlow") {
-            step(testStep()) {
-                on("COMPLETED") {
-                    stop()
-                }
-                on("*") {
-                    fail()
+    open fun testFlow(): Flow =
+        batch {
+            flow("testFlow") {
+                step(testStep()) {
+                    on("COMPLETED") {
+                        stop()
+                    }
+                    on("*") {
+                        fail()
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testStep(): Step = batch {
-        step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testStep(): Step =
+        batch {
+            step("testStep") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
         }
-    }
 }

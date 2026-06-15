@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.step.chunkorientedstep.config.transactionattribute
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.item.ItemReader
+import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -33,44 +33,41 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, Int>(3, transactionManager) {
-                    reader(testItemReader())
-                    writer(testItemWriter())
-                    transactionAttribute(
-                        DefaultTransactionAttribute().apply {
-                            setName("test-tx")
-                        },
-                    )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, Int>(3, transactionManager) {
+                        reader(testItemReader())
+                        writer(testItemWriter())
+                        transactionAttribute(
+                            DefaultTransactionAttribute().apply {
+                                setName("test-tx")
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 20) {
+            override fun read(): Int? =
+                if (count < 20) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<Int> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<Int> =
+        ItemWriter { items ->
             val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
             println("write $items (transactionName: $transactionName)")
         }
-    }
 }
