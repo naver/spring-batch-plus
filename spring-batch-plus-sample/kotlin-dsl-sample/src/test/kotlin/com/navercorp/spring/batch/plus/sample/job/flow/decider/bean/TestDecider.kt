@@ -18,15 +18,16 @@
 
 package com.navercorp.spring.batch.plus.sample.job.flow.decider.bean
 
-import org.springframework.batch.core.JobExecution
-import org.springframework.batch.core.StepExecution
+import org.springframework.batch.core.job.JobExecution
 import org.springframework.batch.core.job.flow.FlowExecutionStatus
 import org.springframework.batch.core.job.flow.JobExecutionDecider
+import org.springframework.batch.core.step.StepExecution
 import org.springframework.stereotype.Component
 
 @Component
 class TestDecider : JobExecutionDecider {
-    override fun decide(jobExecution: JobExecution, stepExecution: StepExecution?): FlowExecutionStatus {
-        return FlowExecutionStatus.FAILED
-    }
+    override fun decide(
+        jobExecution: JobExecution,
+        stepExecution: StepExecution?,
+    ): FlowExecutionStatus = FlowExecutionStatus.FAILED
 }

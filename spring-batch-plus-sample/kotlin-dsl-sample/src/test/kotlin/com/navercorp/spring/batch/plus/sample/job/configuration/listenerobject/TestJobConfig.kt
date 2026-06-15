@@ -19,10 +19,10 @@
 package com.navercorp.spring.batch.plus.sample.job.configuration.listenerobject
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobExecution
-import org.springframework.batch.core.JobExecutionListener
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.JobExecution
+import org.springframework.batch.core.listener.JobExecutionListener
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -32,24 +32,24 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            listener(
-                object : JobExecutionListener {
-                    override fun beforeJob(jobExecution: JobExecution) {
-                        println("before $jobExecution")
-                    }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                listener(
+                    object : JobExecutionListener {
+                        override fun beforeJob(jobExecution: JobExecution) {
+                            println("before $jobExecution")
+                        }
 
-                    override fun afterJob(jobExecution: JobExecution) {
-                        println("after $jobExecution")
-                    }
-                },
-            )
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        override fun afterJob(jobExecution: JobExecution) {
+                            println("after $jobExecution")
+                        }
+                    },
+                )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }

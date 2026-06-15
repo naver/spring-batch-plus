@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.executor
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
@@ -33,31 +33,31 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun customExecutor(): TaskExecutor {
-        return object : SimpleAsyncTaskExecutor() {
+    open fun customExecutor(): TaskExecutor =
+        object : SimpleAsyncTaskExecutor() {
             override fun execute(task: Runnable) {
                 println("run in custom executor")
                 super.execute(task)
             }
         }
-    }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    taskExecutor(customExecutor())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        taskExecutor(customExecutor())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }

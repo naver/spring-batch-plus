@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.deletemedadata.customdryrun
 
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.parameters.JobParametersBuilder
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -34,19 +34,20 @@ open class SampleApplicationTest {
     @Test
     fun run() {
         val applicationContext = runApplication<SampleApplicationTest>()
-        val jobLauncher = applicationContext.getBean<JobLauncher>()
+        val jobOperator = applicationContext.getBean<JobOperator>()
         val jobRepository = applicationContext.getBean<JobRepository>()
 
         // prepare job instances
         val testJob = applicationContext.getBean<Job>("testJob")
-        val testJobParameterList = (0L..250L).map {
-            JobParametersBuilder()
-                .addLong("longValue", it)
-                .toJobParameters()
-        }
+        val testJobParameterList =
+            (0L..250L).map {
+                JobParametersBuilder()
+                    .addLong("longValue", it)
+                    .toJobParameters()
+            }
         for (testJobParameters in testJobParameterList) {
             // change create time date for test
-            val jobExecution = jobLauncher.run(testJob, testJobParameters)
+            val jobExecution = jobOperator.start(testJob, testJobParameters)
             jobExecution.createTime = jobExecution.createTime.minusDays(1)
             jobRepository.update(jobExecution)
         }
@@ -55,11 +56,12 @@ open class SampleApplicationTest {
         val removeJob = applicationContext.getBean<Job>("removeJob")
         val now = LocalDate.now()
         val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-        val jobParameters = JobParametersBuilder()
-            .addString("baseDate", now.format(formatter))
-            .addString("customDryRunParam", "true") // set dryRun to 'true'
-            .toJobParameters()
-        jobLauncher.run(removeJob, jobParameters)
+        val jobParameters =
+            JobParametersBuilder()
+                .addString("baseDate", now.format(formatter))
+                .addString("customDryRunParam", "true") // set dryRun to 'true'
+                .toJobParameters()
+        jobOperator.start(removeJob, jobParameters)
 
         // all instances should not be removed
         for (testJobParameters in testJobParameterList) {

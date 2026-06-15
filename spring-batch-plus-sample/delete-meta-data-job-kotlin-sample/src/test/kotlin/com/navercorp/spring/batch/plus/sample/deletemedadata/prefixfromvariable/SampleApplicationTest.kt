@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.deletemedadata.prefixfromvariable
 
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.parameters.JobParametersBuilder
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.SpringApplication
@@ -35,26 +35,29 @@ open class SampleApplicationTest {
     @Test
     fun run() {
         // launch with custom prefix
-        val application = SpringApplication(SampleApplicationTest::class.java).apply {
-            val properties = Properties().apply {
-                this["spring.batch.jdbc.table-prefix"] = "CUSTOM_"
+        val application =
+            SpringApplication(SampleApplicationTest::class.java).apply {
+                val properties =
+                    Properties().apply {
+                        this["spring.batch.jdbc.table-prefix"] = "CUSTOM_"
+                    }
+                setDefaultProperties(properties)
             }
-            setDefaultProperties(properties)
-        }
         val applicationContext = application.run()
-        val jobLauncher = applicationContext.getBean<JobLauncher>()
+        val jobOperator = applicationContext.getBean<JobOperator>()
         val jobRepository = applicationContext.getBean<JobRepository>()
 
         // prepare job instances
         val testJob = applicationContext.getBean<Job>("testJob")
-        val testJobParameterList = (0L..250L).map {
-            JobParametersBuilder()
-                .addLong("longValue", it)
-                .toJobParameters()
-        }
+        val testJobParameterList =
+            (0L..250L).map {
+                JobParametersBuilder()
+                    .addLong("longValue", it)
+                    .toJobParameters()
+            }
         for (testJobParameters in testJobParameterList) {
             // change create time date for test
-            val jobExecution = jobLauncher.run(testJob, testJobParameters)
+            val jobExecution = jobOperator.start(testJob, testJobParameters)
             jobExecution.createTime = jobExecution.createTime.minusDays(1)
             jobRepository.update(jobExecution)
         }
@@ -63,10 +66,11 @@ open class SampleApplicationTest {
         val removeJob = applicationContext.getBean<Job>("removeJob")
         val now = LocalDate.now()
         val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-        val jobParameters = JobParametersBuilder()
-            .addString("baseDate", now.format(formatter))
-            .toJobParameters()
-        jobLauncher.run(removeJob, jobParameters)
+        val jobParameters =
+            JobParametersBuilder()
+                .addString("baseDate", now.format(formatter))
+                .toJobParameters()
+        jobOperator.start(removeJob, jobParameters)
 
         // all instances are removed
         for (testJobParameters in testJobParameterList) {

@@ -19,10 +19,10 @@
 package com.navercorp.spring.batch.plus.sample.step.chunkorientedstep.faulttolerant.retrylistener
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.item.ItemProcessor
+import org.springframework.batch.infrastructure.item.ItemReader
+import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.retry.RetryCallback
@@ -35,50 +35,50 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        listener(
-                            object : RetryListener {
-                                override fun <T : Any?, E : Throwable?> open(
-                                    context: RetryContext?,
-                                    callback: RetryCallback<T, E>?,
-                                ): Boolean {
-                                    println("RetryListener::open (context: $context")
-                                    return true
-                                }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3, transactionManager) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant {
+                            listener(
+                                object : RetryListener {
+                                    override fun <T : Any?, E : Throwable?> open(
+                                        context: RetryContext?,
+                                        callback: RetryCallback<T, E>?,
+                                    ): Boolean {
+                                        println("RetryListener::open (context: $context")
+                                        return true
+                                    }
 
-                                override fun <T : Any?, E : Throwable?> close(
-                                    context: RetryContext?,
-                                    callback: RetryCallback<T, E>?,
-                                    throwable: Throwable?,
-                                ) {
-                                    println("RetryListener::close (error: ${throwable?.message})")
-                                }
+                                    override fun <T : Any?, E : Throwable?> close(
+                                        context: RetryContext?,
+                                        callback: RetryCallback<T, E>?,
+                                        throwable: Throwable?,
+                                    ) {
+                                        println("RetryListener::close (error: ${throwable?.message})")
+                                    }
 
-                                override fun <T : Any?, E : Throwable?> onError(
-                                    context: RetryContext?,
-                                    callback: RetryCallback<T, E>?,
-                                    throwable: Throwable?,
-                                ) {
-                                    println("RetryListener::onError (error: ${throwable?.message})")
-                                }
-                            },
-                        )
-                        retry<IllegalStateException>()
-                        retryLimit(4)
+                                    override fun <T : Any?, E : Throwable?> onError(
+                                        context: RetryContext?,
+                                        callback: RetryCallback<T, E>?,
+                                        throwable: Throwable?,
+                                    ) {
+                                        println("RetryListener::onError (error: ${throwable?.message})")
+                                    }
+                                },
+                            )
+                            retry<IllegalStateException>()
+                            retryLimit(4)
+                        }
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -110,9 +110,8 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }

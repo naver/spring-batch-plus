@@ -19,10 +19,10 @@
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.bean
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
 import org.springframework.batch.core.configuration.annotation.StepScope
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -33,22 +33,23 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                taskletBean("testTasklet", transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    taskletBean("testTasklet", transactionManager)
+                }
             }
         }
-    }
 
     @Bean
     @StepScope
     open fun testTasklet(
         @Value("#{jobParameters['param']}") paramValue: String,
-    ): Tasklet = Tasklet { _, _ ->
-        println("param is '$paramValue'")
-        RepeatStatus.FINISHED
-    }
+    ): Tasklet =
+        Tasklet { _, _ ->
+            println("param is '$paramValue'")
+            RepeatStatus.FINISHED
+        }
 }

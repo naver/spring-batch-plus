@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.step.jobstep.config.extractor
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.parameters.JobParametersBuilder
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,38 +31,39 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                job(anotherJob()) {
-                    parametersExtractor { _, _ ->
-                        JobParametersBuilder()
-                            .addString("extra", "value")
-                            .toJobParameters()
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    job(anotherJob()) {
+                        parametersExtractor { _, _ ->
+                            JobParametersBuilder()
+                                .addString("extra", "value")
+                                .toJobParameters()
+                        }
+                        // same as
+                        // parametersExtractor(
+                        //     object : JobParametersExtractor {
+                        //         override fun getJobParameters(job: Job, stepExecution: StepExecution): JobParameters {
+                        //             return JobParametersBuilder()
+                        //                 .addString("extra", "value")
+                        //                 .toJobParameters()
+                        //         }
+                        //     }
+                        // )
                     }
-                    // same as
-                    // parametersExtractor(
-                    //     object : JobParametersExtractor {
-                    //         override fun getJobParameters(job: Job, stepExecution: StepExecution): JobParameters {
-                    //             return JobParametersBuilder()
-                    //                 .addString("extra", "value")
-                    //                 .toJobParameters()
-                    //         }
-                    //     }
-                    // )
                 }
             }
         }
-    }
 
     @Bean
-    open fun anotherJob() = batch {
-        job("anotherJob") {
-            step("anotherJobStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun anotherJob() =
+        batch {
+            job("anotherJob") {
+                step("anotherJobStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }

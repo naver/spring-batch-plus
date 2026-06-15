@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.variable
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,19 +31,20 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager)
+                }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }

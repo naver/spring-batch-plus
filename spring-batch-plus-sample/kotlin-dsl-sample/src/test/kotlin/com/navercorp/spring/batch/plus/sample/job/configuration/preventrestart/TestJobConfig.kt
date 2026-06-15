@@ -19,8 +19,8 @@
 package com.navercorp.spring.batch.plus.sample.job.configuration.preventrestart
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -30,25 +30,25 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        var isFirst = true
+    open fun testJob(): Job =
+        batch {
+            var isFirst = true
 
-        job("testJob") {
-            preventRestart()
-            step("testStep") {
-                tasklet(
-                    { _, _ ->
-                        if (isFirst) {
-                            isFirst = false
-                            throw RuntimeException("First try should be failed")
-                        }
-                        RepeatStatus.FINISHED
-                    },
-                    transactionManager,
-                )
+            job("testJob") {
+                preventRestart()
+                step("testStep") {
+                    tasklet(
+                        { _, _ ->
+                            if (isFirst) {
+                                isFirst = false
+                                throw RuntimeException("First try should be failed")
+                            }
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager,
+                    )
+                }
             }
         }
-    }
 }

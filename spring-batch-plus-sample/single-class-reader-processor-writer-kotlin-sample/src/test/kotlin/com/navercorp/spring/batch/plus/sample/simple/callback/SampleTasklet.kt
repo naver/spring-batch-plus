@@ -20,8 +20,8 @@ package com.navercorp.spring.batch.plus.sample.simple.callback
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamSimpleReaderProcessorWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
-import org.springframework.batch.item.Chunk
-import org.springframework.batch.item.ExecutionContext
+import org.springframework.batch.infrastructure.item.Chunk
+import org.springframework.batch.infrastructure.item.ExecutionContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -36,13 +36,12 @@ open class SampleTasklet(
         println("onOpenRead")
     }
 
-    override fun read(): Int? {
-        return if (count < totalCount) {
+    override fun read(): Int? =
+        if (count < totalCount) {
             count++
         } else {
             null
         }
-    }
 
     override fun onUpdateRead(executionContext: ExecutionContext) {
         println("onUpdateRead")
@@ -52,9 +51,7 @@ open class SampleTasklet(
         println("onCloseRead")
     }
 
-    override fun process(item: Int): String? {
-        return "'$item'"
-    }
+    override fun process(item: Int): String? = "'$item'"
 
     override fun onOpenWrite(executionContext: ExecutionContext) {
         println("onOpenWrite")

@@ -20,8 +20,8 @@ package com.navercorp.spring.batch.plus.sample.step.configuration.observationreg
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import io.micrometer.observation.ObservationRegistry
-import org.springframework.batch.core.Job
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,14 +31,14 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                observationRegistry(ObservationRegistry.create())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    observationRegistry(ObservationRegistry.create())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }

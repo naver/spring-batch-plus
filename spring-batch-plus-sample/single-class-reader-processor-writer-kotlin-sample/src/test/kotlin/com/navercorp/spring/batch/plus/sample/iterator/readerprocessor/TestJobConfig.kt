@@ -21,7 +21,7 @@ package com.navercorp.spring.batch.plus.sample.iterator.readerprocessor
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import com.navercorp.spring.batch.plus.kotlin.step.adapter.asItemProcessor
 import com.navercorp.spring.batch.plus.kotlin.step.adapter.asItemStreamReader
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -32,17 +32,16 @@ open class TestJobConfig(
     private val transactionManager: PlatformTransactionManager,
 ) {
     @Bean
-    open fun testJob(
-        sampleTasklet: SampleTasklet,
-    ): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(sampleTasklet.asItemStreamReader())
-                    processor(sampleTasklet.asItemProcessor())
-                    writer { chunk -> println(chunk.items) }
+    open fun testJob(sampleTasklet: SampleTasklet): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3, transactionManager) {
+                        reader(sampleTasklet.asItemStreamReader())
+                        processor(sampleTasklet.asItemProcessor())
+                        writer { chunk -> println(chunk.items) }
+                    }
                 }
             }
         }
-    }
 }

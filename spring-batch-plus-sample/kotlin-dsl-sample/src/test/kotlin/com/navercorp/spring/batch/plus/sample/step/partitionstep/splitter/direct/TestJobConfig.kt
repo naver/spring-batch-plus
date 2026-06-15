@@ -19,12 +19,12 @@
 package com.navercorp.spring.batch.plus.sample.step.partitionstep.splitter.direct
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.Step
-import org.springframework.batch.core.StepExecution
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.partition.StepExecutionSplitter
 import org.springframework.batch.core.repository.JobRepository
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.step.Step
+import org.springframework.batch.core.step.StepExecution
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
@@ -36,47 +36,52 @@ open class TestJobConfig(
     private val transactionManager: PlatformTransactionManager,
     private val jobRepository: JobRepository,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                partitioner {
-                    splitter(
-                        object : StepExecutionSplitter {
-                            override fun getStepName(): String = "workerStep"
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    partitioner {
+                        splitter(
+                            object : StepExecutionSplitter {
+                                override fun getStepName(): String = "workerStep"
 
-                            override fun split(stepExecution: StepExecution, gridSize: Int): Set<StepExecution> {
-                                val jobExecution = stepExecution.jobExecution
-                                val stepExecutions = (0 until gridSize)
-                                    .map {
-                                        jobExecution.createStepExecution("$stepName:partition-$it")
-                                    }
-                                jobRepository.addAll(stepExecutions)
-                                return stepExecutions.toSet()
-                            }
-                        },
-                    )
-                    partitionHandler {
-                        taskExecutor(SimpleAsyncTaskExecutor())
-                        step(actualStep())
-                        gridSize(4)
+                                override fun split(
+                                    stepExecution: StepExecution,
+                                    gridSize: Int,
+                                ): Set<StepExecution> {
+                                    val jobExecution = stepExecution.jobExecution
+                                    val stepExecutions =
+                                        (0 until gridSize)
+                                            .map {
+                                                jobExecution.createStepExecution("$stepName:partition-$it")
+                                            }
+                                    jobRepository.addAll(stepExecutions)
+                                    return stepExecutions.toSet()
+                                }
+                            },
+                        )
+                        partitionHandler {
+                            taskExecutor(SimpleAsyncTaskExecutor())
+                            step(actualStep())
+                            gridSize(4)
+                        }
                     }
                 }
             }
         }
-    }
 
     @Bean
-    open fun actualStep(): Step = batch {
-        step("actualStep") {
-            tasklet(
-                { contribution, _ ->
-                    println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
-                    RepeatStatus.FINISHED
-                },
-                transactionManager,
-            )
+    open fun actualStep(): Step =
+        batch {
+            step("actualStep") {
+                tasklet(
+                    { contribution, _ ->
+                        println("[${Thread.currentThread().name}][${contribution.stepExecution.stepName}] run actual tasklet")
+                        RepeatStatus.FINISHED
+                    },
+                    transactionManager,
+                )
+            }
         }
-    }
 }

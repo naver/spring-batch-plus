@@ -20,7 +20,7 @@ package com.navercorp.spring.batch.plus.sample.flux.readerprocessor
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamFluxReaderProcessor
 import org.springframework.batch.core.configuration.annotation.StepScope
-import org.springframework.batch.item.ExecutionContext
+import org.springframework.batch.infrastructure.item.ExecutionContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -44,7 +44,5 @@ open class SampleTasklet(
         }
     }
 
-    override fun process(item: Int): String? {
-        return "'$item'"
-    }
+    override fun process(item: Int): String? = "'$item'"
 }

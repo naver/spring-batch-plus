@@ -19,9 +19,9 @@
 package com.navercorp.spring.batch.plus.sample.step.chunkorientedstep.config.exceptionhandler
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.item.ItemReader
+import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,43 +31,41 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, Int>(3, transactionManager) {
-                    reader(testItemReader())
-                    writer(testItemWriter())
-                    exceptionHandler { _, throwable ->
-                        println("handle exception ${throwable.message}")
-                        throw throwable
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, Int>(3, transactionManager) {
+                        reader(testItemReader())
+                        writer(testItemWriter())
+                        exceptionHandler { _, throwable ->
+                            println("handle exception ${throwable.message}")
+                            throw throwable
+                        }
+                        // same as
+                        // exceptionHandler(
+                        //     object : ExceptionHandler {
+                        //         override fun handleException(context: RepeatContext, throwable: Throwable) {
+                        //             println("handle exception ${throwable.message}")
+                        //             throw throwable
+                        //         }
+                        //     }
+                        // )
                     }
-                    // same as
-                    // exceptionHandler(
-                    //     object : ExceptionHandler {
-                    //         override fun handleException(context: RepeatContext, throwable: Throwable) {
-                    //             println("handle exception ${throwable.message}")
-                    //             throw throwable
-                    //         }
-                    //     }
-                    // )
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        ItemReader<Int> {
             throw IllegalStateException("Error in read")
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<Int> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<Int> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }

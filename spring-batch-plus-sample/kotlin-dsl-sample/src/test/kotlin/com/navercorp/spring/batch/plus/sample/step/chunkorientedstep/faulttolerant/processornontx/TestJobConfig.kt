@@ -19,10 +19,10 @@
 package com.navercorp.spring.batch.plus.sample.step.chunkorientedstep.faulttolerant.processornontx
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.item.ItemProcessor
+import org.springframework.batch.infrastructure.item.ItemReader
+import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -32,24 +32,24 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        retry<IllegalStateException>()
-                        retryLimit(4)
-                        processorNonTransactional()
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3, transactionManager) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant {
+                            retry<IllegalStateException>()
+                            retryLimit(4)
+                            processorNonTransactional()
+                        }
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -85,9 +85,8 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }

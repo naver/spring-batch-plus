@@ -19,8 +19,8 @@
 package com.navercorp.spring.batch.plus.sample.step.configuration.startlimit
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -30,24 +30,24 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     private var count = 0
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                startLimit(2)
-                tasklet(
-                    { _, _ ->
-                        if (count < 2) {
-                            throw IllegalStateException("count is less than 2 (count: ${count++})")
-                        }
-                        RepeatStatus.FINISHED
-                    },
-                    transactionManager,
-                )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    startLimit(2)
+                    tasklet(
+                        { _, _ ->
+                            if (count < 2) {
+                                throw IllegalStateException("count is less than 2 (count: ${count++})")
+                            }
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager,
+                    )
+                }
             }
         }
-    }
 }

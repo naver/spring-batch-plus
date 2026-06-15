@@ -20,7 +20,7 @@ package com.navercorp.spring.batch.plus.sample.simple.readerwriter
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamSimpleReaderWriter
 import org.springframework.batch.core.configuration.annotation.StepScope
-import org.springframework.batch.item.Chunk
+import org.springframework.batch.infrastructure.item.Chunk
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -31,13 +31,12 @@ open class SampleTasklet(
 ) : ItemStreamSimpleReaderWriter<Int> {
     private var count = 0
 
-    override fun read(): Int? {
-        return if (count < totalCount) {
+    override fun read(): Int? =
+        if (count < totalCount) {
             count++
         } else {
             null
         }
-    }
 
     override fun write(chunk: Chunk<out Int>) {
         println(chunk.items)

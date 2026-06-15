@@ -19,12 +19,12 @@
 package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.stepoperation
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
-import org.springframework.batch.core.Job
+import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.repeat.RepeatCallback
-import org.springframework.batch.repeat.RepeatOperations
-import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.batch.repeat.support.RepeatTemplate
+import org.springframework.batch.infrastructure.repeat.RepeatCallback
+import org.springframework.batch.infrastructure.repeat.RepeatOperations
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.support.RepeatTemplate
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -34,29 +34,30 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    stepOperations(
-                        object : RepeatOperations {
-                            override fun iterate(callback: RepeatCallback): RepeatStatus {
-                                val delegate = RepeatTemplate()
-                                println("custom iterate")
-                                return delegate.iterate(callback)
-                            }
-                        },
-                    )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        stepOperations(
+                            object : RepeatOperations {
+                                override fun iterate(callback: RepeatCallback): RepeatStatus {
+                                    val delegate = RepeatTemplate()
+                                    println("custom iterate")
+                                    return delegate.iterate(callback)
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }
