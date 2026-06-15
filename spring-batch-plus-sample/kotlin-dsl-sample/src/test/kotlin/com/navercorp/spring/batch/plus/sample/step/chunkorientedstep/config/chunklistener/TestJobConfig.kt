@@ -44,7 +44,7 @@ open class TestJobConfig(
                         processor(testItemProcessor())
                         writer(testItemWriter())
                         listener(
-                            object : ChunkListener {
+                            object : ChunkListener<Int, String> {
                                 override fun beforeChunk(context: ChunkContext) {
                                     println("beforeChunk: $context")
                                 }
