@@ -33,8 +33,8 @@ import org.springframework.transaction.PlatformTransactionManager
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
     private val jobRepository: JobRepository,
+    private val transactionManager: PlatformTransactionManager,
 ) {
     @Bean
     open fun testJob(): Job =
@@ -51,13 +51,9 @@ open class TestJobConfig(
                                     gridSize: Int,
                                 ): Set<StepExecution> {
                                     val jobExecution = stepExecution.jobExecution
-                                    val stepExecutions =
-                                        (0 until gridSize)
-                                            .map {
-                                                jobExecution.createStepExecution("$stepName:partition-$it")
-                                            }
-                                    jobRepository.addAll(stepExecutions)
-                                    return stepExecutions.toSet()
+                                    return (0 until gridSize)
+                                        .map { jobRepository.createStepExecution("$stepName:partition-$it", jobExecution) }
+                                        .toSet()
                                 }
                             },
                         )
