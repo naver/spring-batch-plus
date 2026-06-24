@@ -38,18 +38,18 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())
-                        faultTolerant {
-                            skipPolicy(
-                                LimitCheckingItemSkipPolicy(
-                                    4,
-                                    mapOf(RuntimeException::class.java to true),
-                                ),
-                            )
-                        }
+                        faultTolerant()
+                        skipPolicy(
+                            LimitCheckingItemSkipPolicy(
+                                4,
+                                mapOf(RuntimeException::class.java to true),
+                            ),
+                        )
                     }
                 }
             }

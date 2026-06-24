@@ -25,9 +25,11 @@ import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.retry.RetryCallback
-import org.springframework.retry.RetryContext
-import org.springframework.retry.RetryListener
+import org.springframework.core.retry.RetryException
+import org.springframework.core.retry.RetryListener
+import org.springframework.core.retry.RetryPolicy
+import org.springframework.core.retry.RetryState
+import org.springframework.core.retry.Retryable
 import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
@@ -40,41 +42,41 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())
-                        faultTolerant {
-                            listener(
-                                object : RetryListener {
-                                    override fun <T : Any?, E : Throwable?> open(
-                                        context: RetryContext?,
-                                        callback: RetryCallback<T, E>?,
-                                    ): Boolean {
-                                        println("RetryListener::open (context: $context")
-                                        return true
-                                    }
+                        faultTolerant()
+                        retryListener(
+                            object : RetryListener {
+                                override fun beforeRetry(
+                                    retryPolicy: RetryPolicy,
+                                    retryable: Retryable<*>,
+                                    retryState: RetryState,
+                                ) {
+                                    println("RetryListener::beforeRetry (state: $retryState)")
+                                }
 
-                                    override fun <T : Any?, E : Throwable?> close(
-                                        context: RetryContext?,
-                                        callback: RetryCallback<T, E>?,
-                                        throwable: Throwable?,
-                                    ) {
-                                        println("RetryListener::close (error: ${throwable?.message})")
-                                    }
+                                override fun onRetryFailure(
+                                    retryPolicy: RetryPolicy,
+                                    retryable: Retryable<*>,
+                                    throwable: Throwable,
+                                ) {
+                                    println("RetryListener::onRetryFailure (error: ${throwable.message})")
+                                }
 
-                                    override fun <T : Any?, E : Throwable?> onError(
-                                        context: RetryContext?,
-                                        callback: RetryCallback<T, E>?,
-                                        throwable: Throwable?,
-                                    ) {
-                                        println("RetryListener::onError (error: ${throwable?.message})")
-                                    }
-                                },
-                            )
-                            retry<IllegalStateException>()
-                            retryLimit(4)
-                        }
+                                override fun onRetryPolicyExhaustion(
+                                    retryPolicy: RetryPolicy,
+                                    retryable: Retryable<*>,
+                                    exception: RetryException,
+                                ) {
+                                    println("RetryListener::onRetryPolicyExhaustion (error: ${exception.message})")
+                                }
+                            },
+                        )
+                        retry<IllegalStateException>()
+                        retryLimit(4L)
                     }
                 }
             }

@@ -38,7 +38,8 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, Int>(3, transactionManager) {
+                    chunk<Int, Int>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         writer(testItemWriter())
                         transactionAttribute(
