@@ -23,7 +23,7 @@ import org.springframework.batch.core.annotation.AfterChunk
 import org.springframework.batch.core.annotation.AfterChunkError
 import org.springframework.batch.core.annotation.BeforeChunk
 import org.springframework.batch.core.job.Job
-import org.springframework.batch.core.scope.context.ChunkContext
+import org.springframework.batch.infrastructure.item.Chunk
 import org.springframework.batch.infrastructure.item.ItemProcessor
 import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemWriter
@@ -38,13 +38,13 @@ open class TestJobConfig(
 ) {
     class TestListener {
         @BeforeChunk
-        fun beforeChunk(context: ChunkContext) {
-            println("beforeChunk: $context")
+        fun beforeChunk(chunk: Chunk<Int>) {
+            println("beforeChunk: $chunk")
         }
 
         @AfterChunk
-        fun afterChunk(context: ChunkContext) {
-            println("afterChunk: $context")
+        fun afterChunk(chunk: Chunk<String>) {
+            println("afterChunk: $chunk")
         }
 
         @AfterChunkError
@@ -57,7 +57,8 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())

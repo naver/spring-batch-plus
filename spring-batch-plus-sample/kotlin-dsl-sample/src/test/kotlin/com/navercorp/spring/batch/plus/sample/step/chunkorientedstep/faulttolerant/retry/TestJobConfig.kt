@@ -37,14 +37,14 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())
-                        faultTolerant {
-                            retry<RuntimeException>()
-                            retryLimit(4)
-                        }
+                        faultTolerant()
+                        retry<RuntimeException>()
+                        retryLimit(4L)
                     }
                 }
             }

@@ -21,7 +21,7 @@ package com.navercorp.spring.batch.plus.sample.step.chunkorientedstep.config.chu
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.listener.ChunkListener
-import org.springframework.batch.core.scope.context.ChunkContext
+import org.springframework.batch.infrastructure.item.Chunk
 import org.springframework.batch.infrastructure.item.ItemProcessor
 import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemWriter
@@ -39,21 +39,22 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())
                         listener(
                             object : ChunkListener<Int, String> {
-                                override fun beforeChunk(context: ChunkContext) {
-                                    println("beforeChunk: $context")
+                                override fun beforeChunk(chunk: Chunk<Int>) {
+                                    println("beforeChunk: $chunk")
                                 }
 
-                                override fun afterChunk(context: ChunkContext) {
-                                    println("afterChunk: $context")
+                                override fun afterChunk(chunk: Chunk<String>) {
+                                    println("afterChunk: $chunk")
                                 }
 
-                                override fun afterChunkError(context: ChunkContext) {
+                                override fun onChunkError(exception: Exception, chunk: Chunk<String>) {
                                 }
                             },
                         )

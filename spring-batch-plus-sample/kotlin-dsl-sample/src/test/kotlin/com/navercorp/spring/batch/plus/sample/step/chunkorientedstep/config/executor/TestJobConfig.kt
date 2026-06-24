@@ -24,8 +24,8 @@ import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.task.AsyncTaskExecutor
 import org.springframework.core.task.SimpleAsyncTaskExecutor
-import org.springframework.core.task.TaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
@@ -34,14 +34,15 @@ open class TestJobConfig(
     private val transactionManager: PlatformTransactionManager,
 ) {
     @Bean
-    open fun customExecutor(): TaskExecutor = SimpleAsyncTaskExecutor()
+    open fun customExecutor(): AsyncTaskExecutor = SimpleAsyncTaskExecutor()
 
     @Bean
     open fun testJob(): Job =
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, Int>(3, transactionManager) {
+                    chunk<Int, Int>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         writer(testItemWriter())
                         taskExecutor(customExecutor())

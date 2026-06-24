@@ -38,33 +38,33 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())
-                        faultTolerant {
-                            listener(
-                                object : SkipListener<Int, String> {
-                                    override fun onSkipInRead(t: Throwable) {
-                                        println("Ignore exception of read (exception: ${t.message})")
-                                    }
+                        faultTolerant()
+                        skipListener(
+                            object : SkipListener<Int, String> {
+                                override fun onSkipInRead(t: Throwable) {
+                                    println("Ignore exception of read (exception: ${t.message})")
+                                }
 
-                                    override fun onSkipInProcess(
-                                        item: Int,
-                                        t: Throwable,
-                                    ) {
-                                    }
+                                override fun onSkipInProcess(
+                                    item: Int,
+                                    t: Throwable,
+                                ) {
+                                }
 
-                                    override fun onSkipInWrite(
-                                        item: String,
-                                        t: Throwable,
-                                    ) {
-                                    }
-                                },
-                            )
-                            skip<IllegalStateException>()
-                            skipLimit(1)
-                        }
+                                override fun onSkipInWrite(
+                                    item: String,
+                                    t: Throwable,
+                                ) {
+                                }
+                            },
+                        )
+                        skip<IllegalStateException>()
+                        skipLimit(1L)
                     }
                 }
             }

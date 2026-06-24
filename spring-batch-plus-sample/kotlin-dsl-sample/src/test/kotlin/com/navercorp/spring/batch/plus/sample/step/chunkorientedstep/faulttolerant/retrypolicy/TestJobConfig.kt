@@ -25,7 +25,7 @@ import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.retry.policy.SimpleRetryPolicy
+import org.springframework.core.retry.RetryPolicy
 import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
@@ -38,14 +38,14 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())
-                        faultTolerant {
-                            retry<RuntimeException>()
-                            retryPolicy(SimpleRetryPolicy(4))
-                        }
+                        faultTolerant()
+                        retry<RuntimeException>()
+                        retryPolicy(RetryPolicy.withMaxRetries(4))
                     }
                 }
             }
