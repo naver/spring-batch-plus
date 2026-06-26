@@ -48,7 +48,10 @@ open class TestJobConfig(
 
     private fun loggingJobOperator(delegate: JobOperator): JobOperator =
         object : JobOperator by delegate {
-            override fun start(job: Job, jobParameters: JobParameters): JobExecution {
+            override fun start(
+                job: Job,
+                jobParameters: JobParameters,
+            ): JobExecution {
                 println("launch ${job.name}!!!")
                 return delegate.start(job, jobParameters)
             }
