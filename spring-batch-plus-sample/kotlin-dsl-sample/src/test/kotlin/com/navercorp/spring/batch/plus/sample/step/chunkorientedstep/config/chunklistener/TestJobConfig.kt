@@ -54,7 +54,10 @@ open class TestJobConfig(
                                     println("afterChunk: $chunk")
                                 }
 
-                                override fun onChunkError(exception: Exception, chunk: Chunk<String>) {
+                                override fun onChunkError(
+                                    exception: Exception,
+                                    chunk: Chunk<String>,
+                                ) {
                                 }
                             },
                         )
