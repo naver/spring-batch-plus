@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration
+package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
@@ -41,31 +42,43 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 /**
- * Integration tests for creating and executing job steps through the public Kotlin DSL.
+ * Integration tests for creating and executing flow steps through the public Kotlin DSL.
  */
-internal class JobStepBuilderDslIntegrationTest {
+internal class FlowStepBuilderDslIntegrationTest {
 
     @Test
-    fun testJobBean() {
+    fun testFlowBean() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
-        var stepCallCount = 0
-        val testJob2 =
+        var testStep1CallCount = 0
+        var testStep2CallCount = 0
+        val testFlow =
             batch {
-                job("testJob2") {
-                    step("testStep2") {
-                        ++stepCallCount
+                flow("testFlow") {
+                    step("testStep1") {
                         tasklet(
-                            { _, _ -> RepeatStatus.FINISHED },
+                            { _, _ ->
+                                ++testStep1CallCount
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager(),
+                        )
+                    }
+                    step("testStep2") {
+                        tasklet(
+                            { _, _ ->
+                                ++testStep2CallCount
+                                RepeatStatus.FINISHED
+                            },
                             ResourcelessTransactionManager(),
                         )
                     }
                 }
             }
-        context.registerBean("testJob2") {
-            testJob2
+        context.registerBean("testFlow") {
+            testFlow
         }
 
         // when
@@ -73,7 +86,7 @@ internal class JobStepBuilderDslIntegrationTest {
             batch {
                 job("testJob") {
                     step("testStep") {
-                        jobBean("testJob2")
+                        flowBean("testFlow")
                     }
                 }
             }
@@ -81,42 +94,42 @@ internal class JobStepBuilderDslIntegrationTest {
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(stepCallCount).isEqualTo(1)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(testStep2CallCount).isEqualTo(1)
     }
 
     @Test
-    fun testJobBeanWithInit() {
+    fun testFlowWithInit() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
-        var stepCallCount = 0
-        var jobParametersExtractorCallCount = 0
-        val testJob2 =
-            batch {
-                job("testJob2") {
-                    step("testStep2") {
-                        ++stepCallCount
-                        tasklet(
-                            { _, _ -> RepeatStatus.FINISHED },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                }
-            }
-        context.registerBean("testJob2") {
-            testJob2
-        }
+        var testStep1CallCount = 0
+        var testStep2CallCount = 0
 
         // when
         val job =
             batch {
                 job("testJob") {
                     step("testStep") {
-                        jobBean("testJob2") {
-                            parametersExtractor { _, _ ->
-                                ++jobParametersExtractorCallCount
-                                JobParameters()
+                        flow("testFlow") {
+                            step("testStep1") {
+                                tasklet(
+                                    { _, _ ->
+                                        ++testStep1CallCount
+                                        RepeatStatus.FINISHED
+                                    },
+                                    ResourcelessTransactionManager(),
+                                )
+                            }
+                            step("testStep2") {
+                                tasklet(
+                                    { _, _ ->
+                                        ++testStep2CallCount
+                                        RepeatStatus.FINISHED
+                                    },
+                                    ResourcelessTransactionManager(),
+                                )
                             }
                         }
                     }
@@ -126,24 +139,36 @@ internal class JobStepBuilderDslIntegrationTest {
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(stepCallCount).isEqualTo(1)
-        assertThat(jobParametersExtractorCallCount).isEqualTo(1)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(testStep2CallCount).isEqualTo(1)
     }
 
     @Test
-    fun testJobWithJobVariable() {
+    fun testFlowWithVariable() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
-        var stepCallCount = 0
-        val testJob2 =
+        var testStep1CallCount = 0
+        var testStep2CallCount = 0
+        val testFlow =
             batch {
-                job("testJob2") {
-                    step("testStep2") {
-                        ++stepCallCount
+                flow("testFlow") {
+                    step("testStep1") {
                         tasklet(
-                            { _, _ -> RepeatStatus.FINISHED },
+                            { _, _ ->
+                                ++testStep1CallCount
+                                RepeatStatus.FINISHED
+                            },
+                            ResourcelessTransactionManager(),
+                        )
+                    }
+                    step("testStep2") {
+                        tasklet(
+                            { _, _ ->
+                                ++testStep2CallCount
+                                RepeatStatus.FINISHED
+                            },
                             ResourcelessTransactionManager(),
                         )
                     }
@@ -155,7 +180,7 @@ internal class JobStepBuilderDslIntegrationTest {
             batch {
                 job("testJob") {
                     step("testStep") {
-                        job(testJob2)
+                        flow(testFlow)
                     }
                 }
             }
@@ -163,50 +188,8 @@ internal class JobStepBuilderDslIntegrationTest {
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(stepCallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testJobWithJobVariableAndInit() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var jobCallCount = 0
-        var jobParametersExtractorCallCount = 0
-        val testJob2 =
-            batch {
-                job("testJob2") {
-                    step("testStep2") {
-                        ++jobCallCount
-                        tasklet(
-                            { _, _ -> RepeatStatus.FINISHED },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                }
-            }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step("testStep") {
-                        job(testJob2) {
-                            parametersExtractor { _, _ ->
-                                ++jobParametersExtractorCallCount
-                                JobParameters()
-                            }
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobCallCount).isEqualTo(1)
-        assertThat(jobParametersExtractorCallCount).isEqualTo(1)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(testStep2CallCount).isEqualTo(1)
     }
 
     @Configuration
