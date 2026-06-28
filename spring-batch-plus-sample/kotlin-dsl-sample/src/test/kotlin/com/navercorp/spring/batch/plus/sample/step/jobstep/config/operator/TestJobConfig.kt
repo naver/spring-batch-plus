@@ -34,6 +34,7 @@ open class TestJobConfig(
     private val transactionManager: PlatformTransactionManager,
     private val jobOperator: JobOperator,
 ) {
+
     @Bean
     open fun testJob(): Job =
         batch {

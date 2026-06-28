@@ -31,6 +31,7 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
+
     @Bean
     open fun testJob(): Job =
         batch {
@@ -62,7 +63,13 @@ open class TestJobConfig(
         batch {
             job("anotherJob") {
                 step("anotherJobStep") {
-                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                    tasklet(
+                        { contribution, _ ->
+                            println("extra: '${contribution.stepExecution.jobParameters.getString("extra")}'")
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager,
+                    )
                 }
             }
         }
