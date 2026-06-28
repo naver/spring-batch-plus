@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.transactionattribute
+package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.listenerannotation
 
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus

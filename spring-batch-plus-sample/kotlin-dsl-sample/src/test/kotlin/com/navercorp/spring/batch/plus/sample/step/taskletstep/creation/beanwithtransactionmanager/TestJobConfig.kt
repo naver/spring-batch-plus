@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.listenerobject
+package com.navercorp.spring.batch.plus.sample.step.taskletstep.creation.beanwithtransactionmanager
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
+import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.Job
-import org.springframework.batch.core.listener.ChunkListener
-import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -39,30 +39,18 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    tasklet(testTasklet(), transactionManager) {
-                        listener(
-                            object : ChunkListener<Any, Any> {
-                                override fun beforeChunk(context: ChunkContext) {
-                                    println("beforeChunk: $context")
-                                }
-
-                                override fun afterChunk(context: ChunkContext) {
-                                    println("afterChunk: $context")
-                                }
-
-                                override fun afterChunkError(context: ChunkContext) {
-                                }
-                            },
-                        )
-                    }
+                    taskletBean("testTasklet", transactionManager)
                 }
             }
         }
 
     @Bean
-    open fun testTasklet(): Tasklet =
+    @StepScope
+    open fun testTasklet(
+        @Value("#{jobParameters['param']}") paramValue: String,
+    ): Tasklet =
         Tasklet { _, _ ->
-            println("run testTasklet")
+            println("param is '$paramValue'")
             RepeatStatus.FINISHED
         }
 }

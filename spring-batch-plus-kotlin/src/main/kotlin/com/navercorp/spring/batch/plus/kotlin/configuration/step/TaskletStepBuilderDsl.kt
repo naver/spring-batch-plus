@@ -28,6 +28,7 @@ import org.springframework.batch.infrastructure.item.ItemStream
 import org.springframework.batch.infrastructure.repeat.RepeatOperations
 import org.springframework.batch.infrastructure.repeat.exception.ExceptionHandler
 import org.springframework.core.task.TaskExecutor
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
 
 /**
@@ -59,6 +60,8 @@ class TaskletStepBuilderDsl internal constructor(
     /**
      * Set listener processing followings.
      *
+     * - [org.springframework.batch.core.annotation.BeforeStep]
+     * - [org.springframework.batch.core.annotation.AfterStep]
      * - [org.springframework.batch.core.annotation.BeforeChunk]
      * - [org.springframework.batch.core.annotation.AfterChunk]
      * - [org.springframework.batch.core.annotation.AfterChunkError]
@@ -93,8 +96,6 @@ class TaskletStepBuilderDsl internal constructor(
         this.taskExecutorSet = true
     }
 
-    // Maybe throttleLimit can be here. But throttleLimit is redundant in a tasklet step.
-
     /**
      * Set for [TaskletStepBuilder.exceptionHandler][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.exceptionHandler].
      * It can't be used when [stepOperations] is set.
@@ -114,6 +115,15 @@ class TaskletStepBuilderDsl internal constructor(
             it.stepOperations(repeatOperations)
         }
         this.stepOperationsSet = true
+    }
+
+    /**
+     * Set for [TaskletStepBuilder.transactionManager][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.transactionManager].
+     */
+    fun transactionManager(transactionManager: PlatformTransactionManager) {
+        this.lazyConfigurer.add {
+            it.transactionManager(transactionManager)
+        }
     }
 
     /**

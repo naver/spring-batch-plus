@@ -16,9 +16,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.taskletstep.variable
+package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.listenerannotation
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
+import org.springframework.batch.core.annotation.AfterChunk
+import org.springframework.batch.core.annotation.AfterStep
+import org.springframework.batch.core.annotation.BeforeChunk
+import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
@@ -31,12 +35,37 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
+
+    class TestListener {
+        @BeforeStep
+        fun beforeStep() {
+            println("beforeStep")
+        }
+
+        @AfterStep
+        fun afterStep() {
+            println("afterStep")
+        }
+
+        @BeforeChunk
+        fun beforeChunk() {
+            println("beforeChunk")
+        }
+
+        @AfterChunk
+        fun afterChunk() {
+            println("afterChunk")
+        }
+    }
+
     @Bean
     open fun testJob(): Job =
         batch {
             job("testJob") {
                 step("testStep") {
-                    tasklet(testTasklet(), transactionManager)
+                    tasklet(testTasklet(), transactionManager) {
+                        listener(TestListener())
+                    }
                 }
             }
         }

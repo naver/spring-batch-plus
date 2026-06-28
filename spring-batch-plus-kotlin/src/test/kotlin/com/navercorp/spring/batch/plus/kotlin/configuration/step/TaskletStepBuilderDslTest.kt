@@ -42,11 +42,16 @@ import org.springframework.batch.infrastructure.repeat.exception.ExceptionHandle
 import org.springframework.batch.infrastructure.repeat.support.RepeatTemplate
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
 import org.springframework.core.task.TaskExecutor
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
 import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
+/**
+ * Unit tests for TaskletStepBuilderDsl's delegation to Spring Batch's TaskletStepBuilder.
+ */
 internal class TaskletStepBuilderDslTest {
+
     @Test
     fun testChunkListener() {
         // given
@@ -147,6 +152,22 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
+    fun testTransactionManager() {
+        // given
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
+
+        // when
+        val transactionManager = mockk<PlatformTransactionManager>()
+        TaskletStepBuilderDsl(mockk(), taskletStepBuilder)
+            .apply {
+                transactionManager(transactionManager)
+            }.build()
+
+        // then
+        verify(exactly = 1) { taskletStepBuilder.transactionManager(transactionManager) }
+    }
+
+    @Test
     fun testTransactionalAttribute() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
@@ -215,6 +236,7 @@ internal class TaskletStepBuilderDslTest {
 
     @Nested
     inner class RedundancyCheck {
+
         @Suppress("DEPRECATION")
         @Test
         fun testStepOperationsAndRedundantSettings() {
