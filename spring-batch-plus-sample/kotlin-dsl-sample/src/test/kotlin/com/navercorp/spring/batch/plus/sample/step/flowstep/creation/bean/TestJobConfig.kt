@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.flowstep.variable
+package com.navercorp.spring.batch.plus.sample.step.flowstep.creation.bean
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.job.Job
@@ -31,12 +31,13 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
+
     @Bean
     open fun testJob(): Job =
         batch {
             job("testJob") {
                 step("testStep") {
-                    flow(anotherFlow())
+                    flowBean("anotherFlow")
                 }
             }
         }
