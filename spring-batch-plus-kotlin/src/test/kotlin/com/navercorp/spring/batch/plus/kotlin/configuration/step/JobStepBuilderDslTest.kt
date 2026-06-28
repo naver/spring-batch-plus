@@ -28,7 +28,11 @@ import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.JobStepBuilder
 import org.springframework.batch.core.step.job.JobParametersExtractor
 
+/**
+ * Unit tests for JobStepBuilderDsl's delegation to Spring Batch's JobStepBuilder.
+ */
 internal class JobStepBuilderDslTest {
+
     @Test
     fun testOperator() {
         // given
