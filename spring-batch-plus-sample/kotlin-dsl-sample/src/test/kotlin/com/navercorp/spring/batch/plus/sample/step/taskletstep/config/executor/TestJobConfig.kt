@@ -33,6 +33,7 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
+
     @Bean
     open fun customExecutor(): TaskExecutor =
         object : SimpleAsyncTaskExecutor() {

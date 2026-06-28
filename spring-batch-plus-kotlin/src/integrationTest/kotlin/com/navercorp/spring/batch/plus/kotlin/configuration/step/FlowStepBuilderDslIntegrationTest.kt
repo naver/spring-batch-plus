@@ -99,7 +99,7 @@ internal class FlowStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithInit() {
+    fun testFlowWithLambda() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()

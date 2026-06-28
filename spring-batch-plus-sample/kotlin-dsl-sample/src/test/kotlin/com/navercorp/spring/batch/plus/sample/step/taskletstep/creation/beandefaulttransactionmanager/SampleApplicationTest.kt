@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.transactionattribute
+package com.navercorp.spring.batch.plus.sample.step.taskletstep.creation.beandefaulttransactionmanager
 
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
@@ -38,6 +38,7 @@ open class SampleApplicationTest {
 
         val jobParameters =
             JobParametersBuilder()
+                .addString("param", "I am test")
                 .toJobParameters()
         val jobExecution = jobOperator.start(job, jobParameters)
 

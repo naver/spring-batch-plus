@@ -16,22 +16,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.taskletstep.config.listenerobject
+package com.navercorp.spring.batch.plus.sample.step.taskletstep.creation.variabledefaulttransactionmanager
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.job.Job
-import org.springframework.batch.core.listener.ChunkListener
-import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
 
     @Bean
@@ -39,22 +35,7 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    tasklet(testTasklet(), transactionManager) {
-                        listener(
-                            object : ChunkListener<Any, Any> {
-                                override fun beforeChunk(context: ChunkContext) {
-                                    println("beforeChunk: $context")
-                                }
-
-                                override fun afterChunk(context: ChunkContext) {
-                                    println("afterChunk: $context")
-                                }
-
-                                override fun afterChunkError(context: ChunkContext) {
-                                }
-                            },
-                        )
-                    }
+                    tasklet(testTasklet())
                 }
             }
         }
