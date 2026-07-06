@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.partitionstep.partitionhandler.direct
+package com.navercorp.spring.batch.plus.sample.step.partitionstep.config.splitter.builtin
 
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
@@ -29,6 +29,7 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication
 open class SampleApplicationTest {
+
     @Test
     fun run() {
         val applicationContext = runApplication<SampleApplicationTest>()

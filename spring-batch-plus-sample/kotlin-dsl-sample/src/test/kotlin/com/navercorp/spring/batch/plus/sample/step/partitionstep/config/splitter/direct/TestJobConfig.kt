@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.partitionstep.splitter.direct
+package com.navercorp.spring.batch.plus.sample.step.partitionstep.config.splitter.direct
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.job.Job
@@ -36,12 +36,18 @@ open class TestJobConfig(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
 ) {
+
     @Bean
     open fun testJob(): Job =
         batch {
             job("testJob") {
                 step("testStep") {
                     partitioner {
+                        partitionHandler {
+                            taskExecutor(SimpleAsyncTaskExecutor())
+                            step(actualStep())
+                            gridSize(4)
+                        }
                         splitter(
                             object : StepExecutionSplitter {
                                 override fun getStepName(): String = "workerStep"
@@ -52,16 +58,16 @@ open class TestJobConfig(
                                 ): Set<StepExecution> {
                                     val jobExecution = stepExecution.jobExecution
                                     return (0 until gridSize)
-                                        .map { jobRepository.createStepExecution("$stepName:partition-$it", jobExecution) }
+                                        .map {
+                                            jobRepository.createStepExecution(
+                                                "$stepName:partition-$it",
+                                                jobExecution,
+                                            )
+                                        }
                                         .toSet()
                                 }
                             },
                         )
-                        partitionHandler {
-                            taskExecutor(SimpleAsyncTaskExecutor())
-                            step(actualStep())
-                            gridSize(4)
-                        }
                     }
                 }
             }

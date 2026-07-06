@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.partitionstep.aggregator
+package com.navercorp.spring.batch.plus.sample.step.partitionstep.config.aggregator
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.job.Job
@@ -34,21 +34,22 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
+
     @Bean
     open fun testJob(): Job =
         batch {
             job("testJob") {
                 step("testStep") {
                     partitioner {
-                        splitter("workerStep") { gridSize ->
-                            (0 until gridSize).associate {
-                                "partition-$it" to ExecutionContext()
-                            }
-                        }
                         partitionHandler {
                             taskExecutor(SimpleAsyncTaskExecutor())
                             step(testStep())
                             gridSize(4)
+                        }
+                        splitter("workerStep") { gridSize ->
+                            (0 until gridSize).associate {
+                                "partition-$it" to ExecutionContext()
+                            }
                         }
                         aggregator(DefaultStepExecutionAggregator())
                     }
