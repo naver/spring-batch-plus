@@ -199,6 +199,7 @@ internal class FlowStepBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
+
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,

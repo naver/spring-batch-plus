@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.sample.step.partitionstep.partitionhandler.inner
+package com.navercorp.spring.batch.plus.sample.step.partitionstep.creation.directhandler
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler
 import org.springframework.batch.core.step.Step
 import org.springframework.batch.infrastructure.item.ExecutionContext
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
@@ -33,22 +34,24 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
+
     @Bean
     open fun testJob(): Job =
         batch {
             job("testJob") {
                 step("testStep") {
                     partitioner {
+                        partitionHandler(
+                            TaskExecutorPartitionHandler().apply {
+                                setTaskExecutor(SimpleAsyncTaskExecutor())
+                                step = actualStep()
+                                gridSize = 4
+                            },
+                        )
                         splitter("workerStep") { gridSize ->
                             (0 until gridSize).associate {
                                 "partition-$it" to ExecutionContext()
                             }
-                        }
-                        // use TaskExecutorPartitionHandler internally
-                        partitionHandler {
-                            taskExecutor(SimpleAsyncTaskExecutor())
-                            step(actualStep())
-                            gridSize(4)
                         }
                     }
                 }

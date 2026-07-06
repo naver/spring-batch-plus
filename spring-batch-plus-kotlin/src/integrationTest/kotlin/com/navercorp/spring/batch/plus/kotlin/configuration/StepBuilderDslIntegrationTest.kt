@@ -40,6 +40,7 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class StepBuilderDslIntegrationTest {
+
     @Test
     fun testChunkWithCount() {
         // given
@@ -162,36 +163,6 @@ internal class StepBuilderDslIntegrationTest {
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(readCallCount).isEqualTo(readLimit)
         assertThat(writeCallCount).isEqualTo(7) // Ceil(20/3)
-    }
-
-    @Test
-    fun testPartitioner() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
-        val batch = context.getBean<BatchDsl>()
-        var partitionHandlerCallCount = 0
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step("testStep") {
-                        partitioner {
-                            partitionHandler { _, _ ->
-                                ++partitionHandlerCallCount
-                                listOf()
-                            }
-                            splitter("splitStep") { mapOf() }
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobLauncher.run(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(partitionHandlerCallCount).isEqualTo(1)
     }
 
     @Configuration
