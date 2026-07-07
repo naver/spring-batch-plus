@@ -30,20 +30,18 @@ import org.springframework.core.retry.RetryListener
 import org.springframework.core.retry.RetryPolicy
 import org.springframework.core.retry.RetryState
 import org.springframework.core.retry.Retryable
-import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
+
     @Bean
     open fun testJob(): Job =
         batch {
             job("testJob") {
                 step("testStep") {
                     chunk<Int, String>(3) {
-                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())

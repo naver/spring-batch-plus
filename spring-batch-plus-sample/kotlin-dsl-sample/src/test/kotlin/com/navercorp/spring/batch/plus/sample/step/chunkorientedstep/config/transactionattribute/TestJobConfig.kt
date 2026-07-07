@@ -24,22 +24,20 @@ import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
+
     @Bean
     open fun testJob(): Job =
         batch {
             job("testJob") {
                 step("testStep") {
                     chunk<Int, Int>(3) {
-                        transactionManager(transactionManager)
                         reader(testItemReader())
                         writer(testItemWriter())
                         transactionAttribute(
