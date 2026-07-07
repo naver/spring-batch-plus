@@ -28,13 +28,12 @@ import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
+
     class TestListener {
         @OnSkipInRead
         fun onSkipInRead(t: Throwable) {
@@ -64,10 +63,11 @@ open class TestJobConfig(
             job("testJob") {
                 step("testStep") {
                     chunk<Int, String>(3) {
-                        transactionManager(transactionManager)
                         reader(testItemReader())
                         processor(testItemProcessor())
                         writer(testItemWriter())
+                        // TODO: Keep this pending until annotation-based skip callbacks are observable
+                        // through ChunkOrientedStepBuilder.listener(Object).
                         listener(TestListener())
                         faultTolerant()
                         skip<IllegalStateException>()

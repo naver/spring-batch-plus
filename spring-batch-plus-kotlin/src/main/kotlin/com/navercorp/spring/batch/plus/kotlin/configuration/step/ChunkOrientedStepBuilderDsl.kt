@@ -44,7 +44,7 @@ import kotlin.reflect.KClass
  *
  * Only methods defined on `ChunkOrientedStepBuilder` itself are exposed here. Step-level lifecycle
  * members inherited from `StepBuilderHelper` are configured on
- * the outer [com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl] before `chunk()` * is called.
+ * the outer [com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl] before `chunk()` is called.
  * Method order matches the upstream source.
  *
  * @since 2.0.0
@@ -60,7 +60,7 @@ class ChunkOrientedStepBuilderDsl<I : Any, O : Any> internal constructor(
     /**
      * Set for [ChunkOrientedStepBuilder.reader][org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder.reader].
      */
-    fun reader(reader: ItemReader<I>) {
+    fun reader(reader: ItemReader<out I>) {
         this.lazyConfigurer.add {
             it.reader(reader)
         }
@@ -69,7 +69,7 @@ class ChunkOrientedStepBuilderDsl<I : Any, O : Any> internal constructor(
     /**
      * Set for [ChunkOrientedStepBuilder.processor][org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder.processor].
      */
-    fun processor(processor: ItemProcessor<I, O>) {
+    fun processor(processor: ItemProcessor<in I, out O>) {
         this.lazyConfigurer.add {
             it.processor(processor)
         }
@@ -78,7 +78,7 @@ class ChunkOrientedStepBuilderDsl<I : Any, O : Any> internal constructor(
     /**
      * Set for [ChunkOrientedStepBuilder.writer][org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder.writer].
      */
-    fun writer(writer: ItemWriter<O>) {
+    fun writer(writer: ItemWriter<in O>) {
         this.lazyConfigurer.add {
             it.writer(writer)
         }
@@ -219,7 +219,7 @@ class ChunkOrientedStepBuilderDsl<I : Any, O : Any> internal constructor(
     /**
      * Set for [ChunkOrientedStepBuilder.skipListener][org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder.skipListener].
      */
-    fun skipListener(skipListener: SkipListener<I, O>) {
+    fun skipListener(skipListener: SkipListener<in I, in O>) {
         this.lazyConfigurer.add {
             it.skipListener(skipListener)
         }

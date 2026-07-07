@@ -41,7 +41,11 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
 import java.util.concurrent.ThreadLocalRandom
 
+/**
+ * Unit tests for ChunkOrientedStepBuilderDsl's delegation to Spring Batch's ChunkOrientedStepBuilder.
+ */
 internal class ChunkOrientedStepBuilderDslTest {
+
     @Test
     fun testReader() {
         // given
