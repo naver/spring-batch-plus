@@ -51,7 +51,6 @@ import javax.sql.DataSource
  * Integration tests for creating and executing partition steps through the public Kotlin DSL.
  */
 internal class PartitionStepBuilderDslIntegrationTest {
-
     @Test
     fun testPartitionHandlerWithDirectOne() {
         // given
@@ -154,7 +153,6 @@ internal class PartitionStepBuilderDslIntegrationTest {
 
     @Nested
     inner class RedundancyCheck {
-
         @Test
         fun testPartitionHandlerAndRedundantSettings() {
             // given
@@ -290,7 +288,6 @@ internal class PartitionStepBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
-
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,

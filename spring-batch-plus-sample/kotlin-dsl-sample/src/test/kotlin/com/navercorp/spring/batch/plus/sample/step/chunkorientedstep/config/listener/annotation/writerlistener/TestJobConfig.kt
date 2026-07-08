@@ -34,7 +34,6 @@ import org.springframework.context.annotation.Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
 ) {
-
     class TestListener {
         @BeforeWrite
         fun beforeWrite(chunk: Chunk<String>) {

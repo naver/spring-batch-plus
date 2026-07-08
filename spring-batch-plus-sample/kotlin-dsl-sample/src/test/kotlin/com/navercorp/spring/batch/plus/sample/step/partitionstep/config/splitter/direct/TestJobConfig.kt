@@ -36,7 +36,6 @@ open class TestJobConfig(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
     open fun testJob(): Job =
         batch {
@@ -63,8 +62,7 @@ open class TestJobConfig(
                                                 "$stepName:partition-$it",
                                                 jobExecution,
                                             )
-                                        }
-                                        .toSet()
+                                        }.toSet()
                                 }
                             },
                         )

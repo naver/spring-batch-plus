@@ -59,7 +59,6 @@ import java.util.concurrent.ThreadLocalRandom
  * Tests for deprecated SimpleStepBuilderDsl, including its legacy execution-backed redundancy check.
  */
 internal class SimpleStepBuilderDslTest {
-
     @Test
     fun testReader() {
         // given
@@ -336,7 +335,6 @@ internal class SimpleStepBuilderDslTest {
 
     @Nested
     inner class RedundancyCheck {
-
         @Test
         fun testStepOperationsIgnoreTaskExecutorAndExceptionHandler() {
             // given
@@ -367,8 +365,7 @@ internal class SimpleStepBuilderDslTest {
                                 return super.iterate(callback)
                             }
                         },
-                    )
-                    .taskExecutor { task ->
+                    ).taskExecutor { task ->
                         ++taskExecutorCallCount
                         task.run()
                     }.exceptionHandler { _, e ->

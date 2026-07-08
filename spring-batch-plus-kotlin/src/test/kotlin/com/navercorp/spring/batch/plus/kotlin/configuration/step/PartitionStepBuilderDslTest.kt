@@ -39,7 +39,6 @@ import java.util.concurrent.ThreadLocalRandom
  * Unit tests for PartitionStepBuilderDsl's delegation and DSL-owned preconditions.
  */
 internal class PartitionStepBuilderDslTest {
-
     @Test
     fun testPartitionHandler() {
         // given

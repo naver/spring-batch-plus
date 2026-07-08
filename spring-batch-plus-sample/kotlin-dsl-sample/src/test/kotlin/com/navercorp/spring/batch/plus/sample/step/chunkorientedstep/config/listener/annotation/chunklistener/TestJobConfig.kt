@@ -34,7 +34,6 @@ import org.springframework.context.annotation.Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
 ) {
-
     class TestListener {
         @BeforeChunk
         fun beforeChunk(chunk: Chunk<Int>) {

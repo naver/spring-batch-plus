@@ -29,7 +29,6 @@ import org.springframework.batch.core.step.builder.FlowStepBuilder
  * Unit tests for FlowStepBuilderDsl's delegation to Spring Batch's FlowStepBuilder.
  */
 internal class FlowStepBuilderDslTest {
-
     @Test
     fun testBuild() {
         // given

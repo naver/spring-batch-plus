@@ -29,7 +29,6 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication
 open class SampleApplicationTest {
-
     @Test
     fun run() {
         val applicationContext = runApplication<SampleApplicationTest>()

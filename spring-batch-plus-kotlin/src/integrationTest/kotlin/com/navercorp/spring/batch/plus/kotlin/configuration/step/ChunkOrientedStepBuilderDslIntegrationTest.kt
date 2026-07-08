@@ -52,7 +52,6 @@ import javax.sql.DataSource
  * Integration tests for creating and executing chunk-oriented steps through the public Kotlin DSL.
  */
 internal class ChunkOrientedStepBuilderDslIntegrationTest {
-
     @Test
     fun testChunkOrientedStep() {
         // given
@@ -243,7 +242,6 @@ internal class ChunkOrientedStepBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
-
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,

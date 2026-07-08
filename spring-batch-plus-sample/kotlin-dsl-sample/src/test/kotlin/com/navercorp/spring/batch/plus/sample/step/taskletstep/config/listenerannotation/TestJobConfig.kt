@@ -35,7 +35,6 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @BeforeStep
         fun beforeStep() {
