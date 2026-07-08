@@ -33,7 +33,6 @@ import org.springframework.context.annotation.Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
 ) {
-
     class TestListener {
         @OnSkipInRead
         fun onSkipInRead(t: Throwable) {

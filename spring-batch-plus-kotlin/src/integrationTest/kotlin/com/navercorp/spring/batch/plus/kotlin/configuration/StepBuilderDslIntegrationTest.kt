@@ -40,7 +40,6 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 internal class StepBuilderDslIntegrationTest {
-
     @Test
     fun testChunkWithCount() {
         // given

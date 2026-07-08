@@ -24,14 +24,12 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.listener.ChunkListener
 import org.springframework.batch.core.step.builder.TaskletStepBuilder
 import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.infrastructure.item.ItemStream
 import org.springframework.batch.infrastructure.repeat.RepeatOperations
 import org.springframework.batch.infrastructure.repeat.exception.ExceptionHandler
-import org.springframework.batch.infrastructure.repeat.support.RepeatTemplate
 import org.springframework.core.task.TaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
@@ -40,7 +38,6 @@ import org.springframework.transaction.interceptor.TransactionAttribute
  * Unit tests for TaskletStepBuilderDsl's delegation to Spring Batch's TaskletStepBuilder.
  */
 internal class TaskletStepBuilderDslTest {
-
     @Test
     fun testChunkListener() {
         // given
@@ -222,5 +219,4 @@ internal class TaskletStepBuilderDslTest {
                 }.build()
         }.hasMessageContaining("exceptionHandler is redundant")
     }
-
 }

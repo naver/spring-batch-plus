@@ -45,7 +45,6 @@ import javax.sql.DataSource
  * Integration tests for creating and executing job steps through the public Kotlin DSL.
  */
 internal class JobStepBuilderDslIntegrationTest {
-
     @Test
     fun testJobBean() {
         // given
@@ -217,7 +216,6 @@ internal class JobStepBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
-
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,

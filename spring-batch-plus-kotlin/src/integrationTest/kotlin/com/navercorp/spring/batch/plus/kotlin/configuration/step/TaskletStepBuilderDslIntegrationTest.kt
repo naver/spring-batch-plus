@@ -62,7 +62,6 @@ import javax.sql.DataSource
  * Integration tests for creating and executing tasklet steps through the public Kotlin DSL.
  */
 internal class TaskletStepBuilderDslIntegrationTest {
-
     @Test
     fun testTaskletBean() {
         // given
@@ -278,7 +277,6 @@ internal class TaskletStepBuilderDslIntegrationTest {
 
     @Nested
     inner class RedundancyCheck {
-
         @Suppress("DEPRECATION")
         @Test
         fun testStepOperationsIgnoreTaskExecutorAndExceptionHandler() {
@@ -299,8 +297,7 @@ internal class TaskletStepBuilderDslIntegrationTest {
                                 return super.iterate(callback)
                             }
                         },
-                    )
-                    .taskExecutor { task ->
+                    ).taskExecutor { task ->
                         ++taskExecutorCallCount
                         task.run()
                     }.exceptionHandler { _, e ->
@@ -327,7 +324,6 @@ internal class TaskletStepBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
-
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,

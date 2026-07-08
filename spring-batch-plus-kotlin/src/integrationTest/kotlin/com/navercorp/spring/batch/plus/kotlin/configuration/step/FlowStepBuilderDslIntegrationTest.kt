@@ -45,7 +45,6 @@ import javax.sql.DataSource
  * Integration tests for creating and executing flow steps through the public Kotlin DSL.
  */
 internal class FlowStepBuilderDslIntegrationTest {
-
     @Test
     fun testFlowBean() {
         // given
@@ -199,7 +198,6 @@ internal class FlowStepBuilderDslIntegrationTest {
         transactionManagerRef = "metadataTransactionManager",
     )
     private open class TestConfiguration {
-
         @Bean
         open fun batchDsl(
             beanFactory: BeanFactory,

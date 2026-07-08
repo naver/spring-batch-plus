@@ -31,7 +31,6 @@ import org.springframework.context.annotation.Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
 ) {
-
     @Bean
     open fun testJob(): Job =
         batch {

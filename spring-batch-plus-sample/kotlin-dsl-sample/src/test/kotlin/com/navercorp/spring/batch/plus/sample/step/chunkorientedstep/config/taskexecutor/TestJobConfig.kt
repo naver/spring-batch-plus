@@ -31,7 +31,6 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor
 open class TestJobConfig(
     private val batch: BatchDsl,
 ) {
-
     @Bean
     open fun customExecutor(): AsyncTaskExecutor = SimpleAsyncTaskExecutor()
 

@@ -11,7 +11,6 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint")
 }
 
-
 /* kotlin */
 
 kotlin {

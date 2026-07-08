@@ -35,7 +35,6 @@ import org.springframework.core.retry.Retryable
 open class TestJobConfig(
     private val batch: BatchDsl,
 ) {
-
     @Bean
     open fun testJob(): Job =
         batch {
