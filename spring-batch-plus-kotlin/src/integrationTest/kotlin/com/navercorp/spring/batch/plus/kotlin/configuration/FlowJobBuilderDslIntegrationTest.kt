@@ -27,7 +27,7 @@ import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepo
 import org.springframework.batch.core.job.flow.FlowExecutionStatus
 import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.job.parameters.JobParameters
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
@@ -44,12 +44,15 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
+/**
+ * Integration coverage for job declarations that require Spring Batch's flow-job path.
+ */
 internal class FlowJobBuilderDslIntegrationTest {
     @Test
     fun testStepBeanWithTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var transitionStep1CallCount = 0
@@ -123,7 +126,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -138,7 +141,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testStepWithInitAndTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var transitionStep1CallCount = 0
@@ -202,7 +205,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -217,7 +220,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testStepWithVariableAndTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var transitionStep1CallCount = 0
@@ -283,7 +286,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -298,7 +301,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testFlowBean() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var testStep2CallCount = 0
@@ -347,7 +350,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     flowBean("testFlow2")
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -360,7 +363,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testFlowWithInit() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var testStep2CallCount = 0
@@ -393,7 +396,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -406,7 +409,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testFlowWithVariable() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var testStep2CallCount = 0
@@ -447,7 +450,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     flow(testFlow2)
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -460,7 +463,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testFlowBeanWithTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var transitionStep1CallCount = 0
@@ -539,7 +542,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -554,7 +557,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testFlowWithInitAndTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var transitionStep1CallCount = 0
@@ -622,7 +625,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -637,7 +640,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testFlowWithVariableAndTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var transitionStep1CallCount = 0
@@ -707,7 +710,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -722,7 +725,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testDeciderBean() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testDeciderCallCount = 0
         val testDecider =
@@ -745,7 +748,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -757,7 +760,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testDeciderBeanNotFirst() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var testDeciderCallCount = 0
@@ -790,7 +793,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -803,7 +806,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testDeciderWithVariable() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testDeciderCallCount = 0
         val decider =
@@ -823,7 +826,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -835,7 +838,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testDeciderWithVariableNotFirst() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var testDeciderCallCount = 0
@@ -865,7 +868,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -878,7 +881,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     fun testSplit() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var taskExecutorCallCount = 0
         var testStep1CallCount = 0
@@ -924,7 +927,7 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)

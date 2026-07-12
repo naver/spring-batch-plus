@@ -24,7 +24,7 @@ import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
 import org.springframework.batch.core.job.parameters.JobParameters
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
@@ -40,13 +40,16 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
+/**
+ * Integration coverage for sequential jobs built from plain step declarations.
+ */
 internal class SimpleJobBuilderDslIntegrationTest {
     @Test
     fun testStepBean() {
         // given
         AnnotationConfigApplicationContext()
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var testStep2CallCount = 0
@@ -92,7 +95,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                     stepBean("testStep2")
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -104,7 +107,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
     fun testStepWithInit() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var testStep2CallCount = 0
@@ -133,7 +136,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -145,7 +148,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
     fun testStepWithVariable() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var testStep1CallCount = 0
         var testStep2CallCount = 0
@@ -182,7 +185,7 @@ internal class SimpleJobBuilderDslIntegrationTest {
                     step(testStep2)
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)

@@ -29,7 +29,7 @@ import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepo
 import org.springframework.batch.core.job.flow.FlowExecutionStatus
 import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.job.parameters.JobParameters
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
@@ -42,12 +42,15 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
+/**
+ * Integration coverage for repeated transition clauses branching from the same decider source.
+ */
 internal class DeciderTransitionBuilderDslIntegrationTest {
     @RepeatedTest(10)
     fun testDeciderWithMultipleTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         val expectedFlowExecutionStatus = randomFlowExecutionStatus()
         var testDeciderCallCount = 0
@@ -71,7 +74,7 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(testDeciderCallCount).isEqualTo(1)
