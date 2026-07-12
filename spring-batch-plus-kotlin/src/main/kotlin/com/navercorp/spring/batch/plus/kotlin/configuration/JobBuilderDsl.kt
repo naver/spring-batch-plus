@@ -45,9 +45,9 @@ class JobBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val jobBuilder: JobBuilder,
 ) : FlowBuilderDsl<FlowJobBuilder> {
-    private var lazyConfigurer = LazyConfigurer<JobBuilderHelper<*>>()
+    private val lazyConfigurer = LazyConfigurer<JobBuilderHelper<*>>()
 
-    private var lazyFlowConfigurer = LazyConfigurer<FlowBuilderDsl<FlowJobBuilder>>()
+    private val lazyFlowConfigurer = LazyConfigurer<FlowBuilderDsl<FlowJobBuilder>>()
 
     private var isFlowJob = false
 

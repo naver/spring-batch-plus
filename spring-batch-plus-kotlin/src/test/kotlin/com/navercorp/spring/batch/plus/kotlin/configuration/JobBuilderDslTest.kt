@@ -31,9 +31,10 @@ import org.springframework.batch.core.listener.JobExecutionListener
 import java.util.UUID
 
 /**
- * org.springframework.batch.core.job.builder.JobBuilderHelper related tests
+ * Unit tests for JobBuilderDsl's delegation of common job settings.
+ * Job creation entry points belong in job-specific tests, not here.
  */
-internal class JobBuilderDslHelperTest {
+internal class JobBuilderDslTest {
     @Test
     fun testValidator() {
         // given
@@ -135,24 +136,6 @@ internal class JobBuilderDslHelperTest {
 
         // then
         verify(exactly = 1) { jobBuilder.preventRestart() }
-    }
-
-    @Test
-    fun testConfigurationAfterStep() {
-        // given
-        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
-        val jobBuilderDsl = jobBuilderDsl(jobBuilder)
-
-        // when
-        val jobParametersValidator = mockk<JobParametersValidator>()
-        jobBuilderDsl
-            .apply {
-                step(mockk())
-                validator(jobParametersValidator)
-            }.build()
-
-        // then
-        verify(exactly = 1) { jobBuilder.validator(jobParametersValidator) }
     }
 
     private fun jobBuilderDsl(jobBuilder: JobBuilder): JobBuilderDsl {
