@@ -51,6 +51,9 @@ import kotlin.reflect.KClass
 /**
  * A dsl for [SimpleStepBuilder][org.springframework.batch.core.step.builder.SimpleStepBuilder].
  *
+ * Common step settings stay on
+ * [StepBuilderDsl][com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl].
+ *
  * @since 0.1.0
  */
 @BatchDslMarker

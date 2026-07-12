@@ -29,9 +29,10 @@ import org.springframework.transaction.PlatformTransactionManager
 import java.util.concurrent.ThreadLocalRandom
 
 /**
- * org.springframework.batch.core.step.builder.StepBuilderHelper related tests
+ * Unit tests for StepBuilderDsl's delegation of common step settings.
+ * Step creation entry points belong in step-specific tests, not here.
  */
-internal class StepBuilderDslHelperTest {
+internal class StepBuilderDslTest {
     @Test
     fun testObservationRegistry() {
         // given

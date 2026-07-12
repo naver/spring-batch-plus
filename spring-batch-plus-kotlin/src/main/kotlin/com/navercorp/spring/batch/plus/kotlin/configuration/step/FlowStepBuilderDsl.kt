@@ -27,6 +27,9 @@ import org.springframework.batch.core.step.builder.FlowStepBuilder
 /**
  * A dsl for [FlowStepBuilder][org.springframework.batch.core.step.builder.FlowStepBuilder].
  *
+ * Common step settings stay on
+ * [StepBuilderDsl][com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl].
+ *
  * @since 0.1.0
  */
 @BatchDslMarker
