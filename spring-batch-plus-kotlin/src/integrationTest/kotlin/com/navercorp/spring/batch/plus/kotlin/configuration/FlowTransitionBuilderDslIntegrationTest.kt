@@ -27,7 +27,7 @@ import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
 import org.springframework.batch.core.job.parameters.JobParameters
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
@@ -42,12 +42,15 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
+/**
+ * Integration coverage for repeated transition clauses branching from the same flow source.
+ */
 internal class FlowTransitionBuilderDslIntegrationTest {
     @RepeatedTest(10)
     fun testFlowWithMultipleTransition() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         val expectedExitStatus = randomExitStatus()
         var testStep1CallCount = 0
@@ -81,7 +84,7 @@ internal class FlowTransitionBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(testStep1CallCount).isEqualTo(1)

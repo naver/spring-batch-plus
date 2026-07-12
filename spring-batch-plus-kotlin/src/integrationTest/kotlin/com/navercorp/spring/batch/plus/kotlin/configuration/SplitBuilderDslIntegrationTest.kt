@@ -26,7 +26,7 @@ import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
 import org.springframework.batch.core.job.parameters.JobParameters
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
@@ -43,12 +43,15 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
+/**
+ * Integration coverage for split declarations that attach multiple flows to one split state.
+ */
 internal class SplitBuilderDslIntegrationTest {
     @Test
     fun testFlowBean() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         val callerThread = Thread.currentThread().name
         var taskExecutorCallCount = 0
@@ -110,7 +113,7 @@ internal class SplitBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -124,7 +127,7 @@ internal class SplitBuilderDslIntegrationTest {
     fun testFlowWithInit() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         var taskExecutorCallCount = 0
         var testStep1CallCount = 0
@@ -170,7 +173,7 @@ internal class SplitBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -184,7 +187,7 @@ internal class SplitBuilderDslIntegrationTest {
     fun testFlowWithVariable() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
         val callerThread = Thread.currentThread().name
         var taskExecutorCallCount = 0
@@ -238,7 +241,7 @@ internal class SplitBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
