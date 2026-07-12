@@ -25,7 +25,7 @@ import org.springframework.batch.core.job.flow.Flow
 import org.springframework.beans.factory.getBean
 
 /**
- * A dsl for [FlowBuilder.SplitBuilder][org.springframework.batch.core.job.builder.FlowBuilder.SplitBuilder].
+ * Collects flows for a split state before adding them to the underlying [FlowBuilder.SplitBuilder].
  *
  * @since 0.1.0
  */

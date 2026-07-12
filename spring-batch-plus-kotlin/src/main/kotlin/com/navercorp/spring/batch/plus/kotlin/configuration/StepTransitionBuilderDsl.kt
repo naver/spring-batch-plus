@@ -24,7 +24,8 @@ import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.step.Step
 
 /**
- * A dsl for step transition.
+ * Collects transition clauses that start from a single step.
+ * The first clause continues from the incoming builder; additional clauses branch from the same step.
  *
  * @since 0.1.0
  */

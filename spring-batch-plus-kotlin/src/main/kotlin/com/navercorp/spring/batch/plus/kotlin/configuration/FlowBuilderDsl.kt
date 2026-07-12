@@ -26,7 +26,8 @@ import org.springframework.batch.core.step.Step
 import org.springframework.core.task.TaskExecutor
 
 /**
- * A dsl for [FlowBuilder][org.springframework.batch.core.job.builder.FlowBuilder].
+ * Declaration surface for flow-like builder targets.
+ * [T] is the type produced by the underlying Spring Batch [FlowBuilder].
  *
  * @since 0.1.0
  */

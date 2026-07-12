@@ -27,7 +27,9 @@ import org.springframework.batch.core.step.Step
 import org.springframework.core.task.TaskExecutor
 
 /**
- * A dsl for [SimpleJobBuilder][org.springframework.batch.core.job.builder.SimpleJobBuilder].
+ * Adapts the simple-job builder to the shared flow declaration replay path.
+ * Calls that require a flow job fail fast because a simple job can only replay
+ * plain step declarations.
  */
 @BatchDslMarker
 internal class SimpleJobBuilderDslAdapter internal constructor(

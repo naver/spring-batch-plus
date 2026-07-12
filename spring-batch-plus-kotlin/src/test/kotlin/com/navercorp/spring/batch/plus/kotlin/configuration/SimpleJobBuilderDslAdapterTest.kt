@@ -27,6 +27,9 @@ import org.springframework.batch.core.step.Step
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
 
+/**
+ * Unit tests for SimpleJobBuilderDslAdapter's fail-fast boundary.
+ */
 internal class SimpleJobBuilderDslAdapterTest {
     @Test
     fun testUnsupportedCall() {

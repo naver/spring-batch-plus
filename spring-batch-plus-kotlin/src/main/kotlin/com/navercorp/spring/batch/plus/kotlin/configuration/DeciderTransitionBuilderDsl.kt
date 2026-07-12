@@ -24,7 +24,8 @@ import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.JobExecutionDecider
 
 /**
- * A dsl for decider transition.
+ * Collects transition clauses that start from a single decider state.
+ * The first clause continues from the incoming builder; additional clauses branch from the same decider.
  *
  * @since 0.1.0
  */
