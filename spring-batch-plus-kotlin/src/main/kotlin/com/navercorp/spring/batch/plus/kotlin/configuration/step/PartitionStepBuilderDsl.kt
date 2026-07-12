@@ -33,11 +33,8 @@ import org.springframework.core.task.TaskExecutor
 /**
  * A dsl for [PartitionStepBuilder][org.springframework.batch.core.step.builder.PartitionStepBuilder].
  *
- * Most methods wrap `PartitionStepBuilder` directly. The `step`, `taskExecutor`, and `gridSize`
- * options apply only when a custom `PartitionHandler` is not provided. They configure the default
- * `TaskExecutorPartitionHandler` built internally by `PartitionStepBuilder`. To make that dependency
- * explicit, these three are exposed via the inner [TaskExecutorPartitionHandlerBuilderDsl] block
- * inside `partitionHandler { ... }`, not at the top level.
+ * Common step settings stay on
+ * [StepBuilderDsl][com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl].
  *
  * @since 0.1.0
  */

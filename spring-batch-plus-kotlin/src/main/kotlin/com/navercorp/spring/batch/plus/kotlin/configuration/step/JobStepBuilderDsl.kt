@@ -29,6 +29,9 @@ import org.springframework.batch.core.step.job.JobParametersExtractor
 /**
  * A dsl for [JobStepBuilder][org.springframework.batch.core.step.builder.JobStepBuilder].
  *
+ * Common step settings stay on
+ * [StepBuilderDsl][com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl].
+ *
  * @since 0.1.0
  */
 @BatchDslMarker

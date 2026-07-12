@@ -34,6 +34,9 @@ import org.springframework.transaction.interceptor.TransactionAttribute
 /**
  * A dsl for [TaskletStepBuilder][org.springframework.batch.core.step.builder.TaskletStepBuilder].
  *
+ * Common step settings stay on
+ * [StepBuilderDsl][com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl].
+ *
  * @since 0.1.0
  */
 @BatchDslMarker

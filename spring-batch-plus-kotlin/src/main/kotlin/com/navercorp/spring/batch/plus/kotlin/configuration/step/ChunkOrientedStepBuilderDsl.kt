@@ -42,10 +42,9 @@ import kotlin.reflect.KClass
 /**
  * A dsl for [ChunkOrientedStepBuilder][org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder].
  *
- * Only methods defined on `ChunkOrientedStepBuilder` itself are exposed here. Step-level lifecycle
- * members inherited from `StepBuilderHelper` are configured on
- * the outer [com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl] before `chunk()` is called.
- * Method order matches the upstream source.
+ * Common step settings stay on
+ * [StepBuilderDsl][com.navercorp.spring.batch.plus.kotlin.configuration.StepBuilderDsl].
+ * [observationRegistry] stays here because `ChunkOrientedStepBuilder` redefines it.
  *
  * @since 2.0.0
  */

@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration
+package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
 import org.springframework.batch.core.job.parameters.JobParameters
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.infrastructure.repeat.policy.SimpleCompletionPolicy
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
@@ -37,15 +38,22 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.TransactionManager
+import java.util.UUID
 import javax.sql.DataSource
 
-internal class StepBuilderDslIntegrationTest {
+/**
+ * Integration tests for deprecated simple chunk step entry points on the public Kotlin DSL.
+ */
+@Suppress("DEPRECATION")
+internal class SimpleStepBuilderDslIntegrationTest {
     @Test
     fun testChunkWithCount() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
+        val jobName = UUID.randomUUID().toString()
+        val stepName = UUID.randomUUID().toString()
         val readLimit = 20
         val chunkSize = 3
         var readCallCount = 0
@@ -54,8 +62,8 @@ internal class StepBuilderDslIntegrationTest {
         // when
         val job =
             batch {
-                job("testJob") {
-                    step("testStep") {
+                job(jobName) {
+                    step(stepName) {
                         chunk<Int, Int>(chunkSize, ResourcelessTransactionManager()) {
                             reader {
                                 if (readCallCount < readLimit) {
@@ -72,7 +80,7 @@ internal class StepBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
@@ -84,8 +92,10 @@ internal class StepBuilderDslIntegrationTest {
     fun testChunkWithCompletionPolicy() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
+        val jobName = UUID.randomUUID().toString()
+        val stepName = UUID.randomUUID().toString()
         val readLimit = 20
         val chunkSize = 3
         var readCallCount = 0
@@ -94,8 +104,8 @@ internal class StepBuilderDslIntegrationTest {
         // when
         val job =
             batch {
-                job("testJob") {
-                    step("testStep") {
+                job(jobName) {
+                    step(stepName) {
                         chunk<Int, Int>(SimpleCompletionPolicy(chunkSize), ResourcelessTransactionManager()) {
                             reader {
                                 if (readCallCount < readLimit) {
@@ -112,51 +122,7 @@ internal class StepBuilderDslIntegrationTest {
                     }
                 }
             }
-        val jobExecution = jobLauncher.run(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(readCallCount).isEqualTo(readLimit)
-        assertThat(writeCallCount).isEqualTo(7) // Ceil(20/3)
-    }
-
-    @Test
-    fun testChunkOriented() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobLauncher = context.getBean<JobLauncher>()
-        val batch = context.getBean<BatchDsl>()
-        val readLimit = 20
-        val chunkSize = 3
-        var readCallCount = 0
-        var writeCallCount = 0
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step("testStep") {
-                        chunk<Int, Int>(chunkSize) {
-                            transactionManager(ResourcelessTransactionManager())
-                            reader {
-                                if (readCallCount < readLimit) {
-                                    ++readCallCount
-                                    1
-                                } else {
-                                    null
-                                }
-                            }
-                            writer {
-                                ++writeCallCount
-                            }
-                            faultTolerant()
-                            skip<Throwable>()
-                            skipLimit(1L)
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobLauncher.run(job, JobParameters())
+        val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
