@@ -24,7 +24,8 @@ import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.builder.FlowJobBuilder
 
 /**
- * A dsl for [FlowJobBuilder][org.springframework.batch.core.job.builder.FlowJobBuilder].
+ * Builds jobs that require Spring Batch's flow-job path.
+ * The actual flow declaration operations are delegated to [ConcreteFlowBuilderDsl].
  */
 @BatchDslMarker
 internal class FlowJobBuilderDsl internal constructor(

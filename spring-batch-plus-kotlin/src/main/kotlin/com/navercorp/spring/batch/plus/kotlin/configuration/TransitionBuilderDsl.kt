@@ -28,7 +28,8 @@ import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.getBean
 
 /**
- * A dsl for [FlowBuilder.TransitionBuilder][org.springframework.batch.core.job.builder.FlowBuilder.TransitionBuilder].
+ * Target DSL for a single transition pattern.
+ * A target step, flow, decider, or terminal action must be selected before build.
  *
  * @since 0.1.0
  */

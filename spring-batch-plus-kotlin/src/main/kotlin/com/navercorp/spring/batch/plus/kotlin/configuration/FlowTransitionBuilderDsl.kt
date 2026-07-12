@@ -24,7 +24,8 @@ import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 
 /**
- * A dsl for flow transition.
+ * Collects transition clauses that start from a single flow.
+ * The first clause continues from the incoming builder; additional clauses branch from the same flow.
  *
  * @since 0.1.0
  */

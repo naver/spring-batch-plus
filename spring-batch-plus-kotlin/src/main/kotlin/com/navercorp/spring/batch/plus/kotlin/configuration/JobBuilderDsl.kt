@@ -36,7 +36,9 @@ import org.springframework.batch.core.step.Step
 import org.springframework.core.task.TaskExecutor
 
 /**
- * A dsl for [JobBuilder][org.springframework.batch.core.job.builder.JobBuilder].
+ * Entry DSL for a job block.
+ * Common job settings are applied to the parent [JobBuilder] before the block is
+ * replayed into either the simple-job or flow-job builder path.
  *
  * @since 0.1.0
  */

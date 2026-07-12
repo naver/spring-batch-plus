@@ -29,7 +29,8 @@ import org.springframework.beans.factory.getBean
 import org.springframework.core.task.TaskExecutor
 
 /**
- * A concrete implementation for [FlowBuilder][org.springframework.batch.core.job.builder.FlowBuilder].
+ * Shared entry implementation for top-level, nested, split, and job flow declarations.
+ * Source-specific transition blocks are delegated so repeated `on` clauses branch from the same source.
  */
 @BatchDslMarker
 internal class ConcreteFlowBuilderDsl<T : Any> internal constructor(

@@ -27,7 +27,9 @@ import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.getBean
 
 /**
- * A dsl for [SimpleJobBuilder][org.springframework.batch.core.job.builder.SimpleJobBuilder].
+ * Builds sequential jobs whose declarations are limited to plain step entries.
+ * Flow and transition declarations are selected by [JobBuilderDsl] before this
+ * builder is used.
  */
 @BatchDslMarker
 internal class SimpleJobBuilderDsl internal constructor(
