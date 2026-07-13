@@ -143,6 +143,86 @@ internal class TaskletStepBuilderDslIntegrationTest {
     }
 
     @Test
+    fun testTaskletBeanWithTransactionManager() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobOperator = context.getBean<JobOperator>()
+        val batch = context.getBean<BatchDsl>()
+        var taskletCallCount = 0
+        val tasklet =
+            Tasklet { _, _ ->
+                ++taskletCallCount
+                RepeatStatus.FINISHED
+            }
+        context.registerBean("testTasklet") {
+            tasklet
+        }
+
+        // when
+        val job =
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        taskletBean("testTasklet", ResourcelessTransactionManager())
+                    }
+                }
+            }
+        val jobExecution = jobOperator.start(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(taskletCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testTaskletBeanWithTransactionManagerAndInit() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobOperator = context.getBean<JobOperator>()
+        val batch = context.getBean<BatchDsl>()
+        var taskletCallCount = 0
+        var streamOpenCallCount = 0
+        var streamCloseCallCount = 0
+        val tasklet =
+            Tasklet { _, _ ->
+                ++taskletCallCount
+                RepeatStatus.FINISHED
+            }
+        context.registerBean("testTasklet") {
+            tasklet
+        }
+
+        // when
+        val job =
+            batch {
+                job("testJob") {
+                    step("testStep") {
+                        taskletBean("testTasklet", ResourcelessTransactionManager()) {
+                            stream(
+                                object : ItemStream {
+                                    override fun open(executionContext: ExecutionContext) {
+                                        ++streamOpenCallCount
+                                    }
+
+                                    override fun close() {
+                                        ++streamCloseCallCount
+                                    }
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        val jobExecution = jobOperator.start(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(taskletCallCount).isEqualTo(1)
+        assertThat(streamOpenCallCount).isEqualTo(1)
+        assertThat(streamCloseCallCount).isEqualTo(1)
+    }
+
+    @Test
     fun testTaskletWithLambda() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
