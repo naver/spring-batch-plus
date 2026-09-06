@@ -29,12 +29,11 @@ import org.springframework.transaction.PlatformTransactionManager
 import java.util.concurrent.ThreadLocalRandom
 
 /**
- * Unit tests for StepBuilderDsl's delegation of common step settings.
- * Step creation entry points belong in step-specific tests, not here.
+ * Covers deferred application of common step settings before specialized step creation.
  */
 internal class StepBuilderDslTest {
     @Test
-    fun testObservationRegistry() {
+    fun observationRegistryShouldConfigureStepBuilderWhenRegistryIsProvided() {
         // given
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
@@ -51,7 +50,7 @@ internal class StepBuilderDslTest {
     }
 
     @Test
-    fun testStartLimit() {
+    fun startLimitShouldConfigureStepBuilderWhenLimitIsProvided() {
         // given
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
@@ -68,7 +67,7 @@ internal class StepBuilderDslTest {
     }
 
     @Test
-    fun testObjectListener() {
+    fun listenerShouldConfigureStepBuilderWhenObjectListenerIsProvided() {
         // given
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
@@ -87,7 +86,7 @@ internal class StepBuilderDslTest {
     }
 
     @Test
-    fun testStepExecutionListener() {
+    fun listenerShouldConfigureStepBuilderWhenStepExecutionListenerIsProvided() {
         // given
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)
@@ -104,7 +103,7 @@ internal class StepBuilderDslTest {
     }
 
     @Test
-    fun testAllowStartIfComplete() {
+    fun allowStartIfCompleteShouldConfigureStepBuilderWhenFlagIsProvided() {
         // given
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepBuilderDsl = stepBuilderDsl(stepBuilder)

@@ -51,7 +51,7 @@ import org.springframework.retry.policy.SimpleRetryPolicy
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 
 /**
- * Separated from SimpleStepBuilderDslTest since it's too big.
+ * Covers fault-tolerant behavior retained by the deprecated simple-step DSL and ordering-sensitive builder overrides.
  */
 internal class FaultTolerantStepBuilderDslTest {
     private val jobInstance = JobInstance(0L, "testJob")
@@ -59,7 +59,7 @@ internal class FaultTolerantStepBuilderDslTest {
     private val jobParameters = JobParameters()
 
     @Test
-    fun testSkipListener() {
+    fun skipListenerShouldReceiveCallbackWhenSkippableReadFailureOccurs() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -123,7 +123,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryListener() {
+    fun retryListenerShouldBeInvokedWhenWriterRetryOccurs() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -188,7 +188,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testKeyGenerator() {
+    fun keyGeneratorShouldBeInvokedWhenWriterRetryOccurs() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -230,7 +230,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryLimit() {
+    fun retryLimitShouldBoundAttemptsWhenWriterKeepsFailing() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -269,7 +269,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testRetry() {
+    fun retryShouldRetryMatchingExceptionWhenWriterFails() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -308,7 +308,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testNoRetry() {
+    fun noRetryShouldPreventRetryWhenExceptionIsExcluded() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -348,7 +348,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryPolicy() {
+    fun retryPolicyShouldControlAttemptsWhenWriterKeepsFailing() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -387,7 +387,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testBackoffPolicy() {
+    fun backOffPolicyShouldBeInvokedWhenWriterRetryOccurs() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -436,7 +436,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryContextCache() {
+    fun retryContextCacheShouldBeUsedWhenWriterRetryOccurs() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -485,7 +485,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testSkipLimit() {
+    fun skipLimitShouldAllowConfiguredNumberOfReadFailuresWhenExceptionIsSkippable() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -526,7 +526,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testSkip() {
+    fun skipShouldSkipMatchingExceptionWhenReadFails() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -567,7 +567,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testNoSkip() {
+    fun noSkipShouldFailStepWithoutSkippingWhenExceptionIsExcluded() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -609,7 +609,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testSkipPolicy() {
+    fun skipPolicyShouldAllowReadFailuresWhenPolicyAcceptsException() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -654,7 +654,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testNoRollback() {
+    fun noRollbackShouldCompleteStepWhenWriterThrowsExcludedException() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -689,7 +689,7 @@ internal class FaultTolerantStepBuilderDslTest {
     }
 
     @Test
-    fun testProcessorNonTransactional() {
+    fun processorNonTransactionalShouldAvoidReprocessingItemsWhenWriterRetries() {
         // given
         val chunkSize = 3
         val readLimit = 20
@@ -736,10 +736,13 @@ internal class FaultTolerantStepBuilderDslTest {
         assertThat(processCallCount).isEqualTo(readLimit)
     }
 
+    /**
+     * Covers ordering compatibility for options whose delegate changes after fault tolerance is enabled.
+     */
     @Nested
     inner class OverriddenMethodTest {
         @Test
-        fun testObjectSkipListenerNotInvokedWhenCalledBeforeFaultTolerant() {
+        fun objectListenerShouldNotReceiveSkipCallbackWhenRegisteredBeforeFaultTolerantOnDelegate() {
             // given
             val chunkSize = 1
             val readLimit = 3
@@ -794,7 +797,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testObjectSkipListenerInvokedWhenCalledAfterFaultTolerant() {
+        fun objectListenerShouldReceiveSkipCallbackWhenRegisteredAfterFaultTolerantOnDelegate() {
             // given
             val chunkSize = 1
             val readLimit = 3
@@ -849,7 +852,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testObjectSkipListenerInvokedOnDslWhenCalledBeforeFaultTolerant() {
+        fun objectListenerShouldReceiveSkipCallbackWhenRegisteredBeforeFaultTolerantOnDsl() {
             // given
             val chunkSize = 1
             val readLimit = 3
@@ -901,7 +904,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testObjectSkipListenerInvokedOnDslWhenCalledAfterFaultTolerant() {
+        fun objectListenerShouldReceiveSkipCallbackWhenRegisteredAfterFaultTolerantOnDsl() {
             // given
             val chunkSize = 1
             val readLimit = 3
@@ -953,7 +956,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testDelegateListenerIsInvokedWhenCalledWithFaultTolerant() {
+        fun chunkListenerShouldBeInvokedWhenRegisteredAfterFaultTolerantOnDelegate() {
             // given
             val stepBuilder = StepBuilder("testStep", mockk(relaxed = true))
             val simpleStepBuilder = TestBuilderBridge.simpleStepBuilder<Int, Int>(stepBuilder)
@@ -991,7 +994,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testDelegateListenerIsInvokedOnDslWhenCalledBeforeFaultTolerant() {
+        fun chunkListenerShouldBeInvokedWhenRegisteredBeforeFaultTolerantOnDsl() {
             // when
             val step =
                 simpleStepBuilderDsl<Int, Int>(3) {
@@ -1025,7 +1028,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testDelegateListenerIsInvokedOnDslWhenCalledAfterFaultTolerant() {
+        fun chunkListenerShouldBeInvokedWhenRegisteredAfterFaultTolerantOnDsl() {
             // when
             val step =
                 simpleStepBuilderDsl<Int, Int>(3) {
@@ -1059,7 +1062,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testTransactionAttributeIsWrappedWhenCalledWithFaultTolerant() {
+        fun transactionAttributeShouldHonorNoRollbackWhenConfiguredAfterFaultTolerantOnDelegate() {
             // given
             val chunkSize = 3
             val readLimit = 20
@@ -1107,7 +1110,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testTransactionAttributeIsWrappedOnDslWhenCalledBeforeFaultTolerantIsCalled() {
+        fun transactionAttributeShouldHonorNoRollbackWhenConfiguredBeforeFaultTolerantOnDsl() {
             // given
             val chunkSize = 3
             val readLimit = 20
@@ -1151,7 +1154,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testTransactionAttributeIsWrappedOnDslWhenCalledAfterFaultTolerantIsCalled() {
+        fun transactionAttributeShouldHonorNoRollbackWhenConfiguredAfterFaultTolerantOnDsl() {
             // given
             val chunkSize = 3
             val readLimit = 20
@@ -1195,7 +1198,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testStreamIsDelegatedToChunkMonitorWhenCalledWithFaultTolerant() {
+        fun streamShouldRegisterWithChunkMonitorWhenConfiguredAfterFaultTolerantOnDelegate() {
             // given
             val chunkSize = 3
             val readLimit = 20
@@ -1254,7 +1257,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testStreamIsDelegatedToChunkMonitorOnDslWhenCalledBeforeFaultTolerant() {
+        fun streamShouldRegisterWithChunkMonitorWhenConfiguredBeforeFaultTolerantOnDsl() {
             // given
             val chunkSize = 3
             val readLimit = 20
@@ -1310,7 +1313,7 @@ internal class FaultTolerantStepBuilderDslTest {
         }
 
         @Test
-        fun testStreamIsDelegatedToChunkMonitorOnDslWhenCalledAfterFaultTolerant() {
+        fun streamShouldRegisterWithChunkMonitorWhenConfiguredAfterFaultTolerantOnDsl() {
             // given
             val chunkSize = 3
             val readLimit = 20

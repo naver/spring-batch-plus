@@ -56,11 +56,11 @@ import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 /**
- * Tests for deprecated SimpleStepBuilderDsl, including its legacy execution-backed redundancy check.
+ * Covers the deprecated simple-step delegation boundary and its legacy repeat-operation precedence.
  */
 internal class SimpleStepBuilderDslTest {
     @Test
-    fun testReader() {
+    fun readerShouldConfigureSimpleStepBuilderWhenReaderIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -76,7 +76,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testProcessor() {
+    fun processorShouldConfigureSimpleStepBuilderWhenProcessorIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -92,7 +92,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testWriter() {
+    fun writerShouldConfigureSimpleStepBuilderWhenWriterIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -108,7 +108,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testReaderIsTransactionalQueue() {
+    fun readerIsTransactionalQueueShouldConfigureSimpleStepBuilderWhenInvoked() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -123,7 +123,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testObjectListener() {
+    fun listenerShouldConfigureSimpleStepBuilderWhenObjectListenerIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -141,7 +141,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testReadListener() {
+    fun listenerShouldConfigureSimpleStepBuilderWhenItemReadListenerIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -157,7 +157,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testWriteListener() {
+    fun listenerShouldConfigureSimpleStepBuilderWhenItemWriteListenerIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -173,7 +173,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testProcessListener() {
+    fun listenerShouldConfigureSimpleStepBuilderWhenItemProcessListenerIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -189,7 +189,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testChunkListener() {
+    fun listenerShouldConfigureSimpleStepBuilderWhenChunkListenerIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -205,7 +205,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testStream() {
+    fun streamShouldConfigureSimpleStepBuilderWhenItemStreamIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -221,7 +221,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testTaskExecutor() {
+    fun taskExecutorShouldConfigureSimpleStepBuilderWhenExecutorIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -238,7 +238,7 @@ internal class SimpleStepBuilderDslTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun testExceptionHandler() {
+    fun exceptionHandlerShouldConfigureSimpleStepBuilderWhenHandlerIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -254,7 +254,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testStepOperations() {
+    fun stepOperationsShouldConfigureSimpleStepBuilderWhenRepeatOperationsAreProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -270,7 +270,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testTransactionAttribute() {
+    fun transactionAttributeShouldConfigureSimpleStepBuilderWhenTransactionAttributeIsProvided() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -286,7 +286,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testBuild() {
+    fun buildShouldReturnBuiltStepWhenInvoked() {
         // given
         val mockStep = mockk<TaskletStep>()
         val taskletStepBuilder =
@@ -302,7 +302,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testBuildWithSettingStepOperationsAndTaskExecutor() {
+    fun buildShouldRejectTaskExecutorWhenStepOperationsAreConfigured() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -317,7 +317,7 @@ internal class SimpleStepBuilderDslTest {
     }
 
     @Test
-    fun testBuildWithSettingStepOperationsAndExceptionHandler() {
+    fun buildShouldRejectExceptionHandlerWhenStepOperationsAreConfigured() {
         // given
         val simpleStepBuilder = mockk<SimpleStepBuilder<Int, Int>>(relaxed = true)
 
@@ -336,7 +336,7 @@ internal class SimpleStepBuilderDslTest {
     @Nested
     inner class RedundancyCheck {
         @Test
-        fun testStepOperationsIgnoreTaskExecutorAndExceptionHandler() {
+        fun stepOperationsShouldTakePrecedenceWhenTaskExecutorAndExceptionHandlerAreConfigured() {
             // given
             val chunkSize = 3
             val readLimit = 20

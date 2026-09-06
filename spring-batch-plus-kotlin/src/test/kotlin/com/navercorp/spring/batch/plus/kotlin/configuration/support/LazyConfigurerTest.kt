@@ -20,10 +20,14 @@ package com.navercorp.spring.batch.plus.kotlin.configuration.support
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
+/**
+ * Covers the invariant that composed deferred configurations execute each registered action exactly once.
+ */
 internal class LazyConfigurerTest {
     @Test
-    fun testAdd() {
+    fun configurerShouldExecuteOnceWhenAppliedToTarget() {
         // given
         var configurerCallCount = 0
 
@@ -32,14 +36,14 @@ internal class LazyConfigurerTest {
         lazyConfigurer.add {
             ++configurerCallCount
         }
-        "test".apply(lazyConfigurer)
+        lazyConfigurer(UUID.randomUUID().toString())
 
         // then
         assertThat(configurerCallCount).isEqualTo(1)
     }
 
     @Test
-    fun testAddOther() {
+    fun configurersShouldExecuteOnceEachWhenNestedConfigurerIsAppliedToTarget() {
         // given
         var configurer1CallCount = 0
         var configurer2CallCount = 0
@@ -56,7 +60,7 @@ internal class LazyConfigurerTest {
                 }
             },
         )
-        "test".apply(lazyConfigurer)
+        lazyConfigurer(UUID.randomUUID().toString())
 
         // then
         assertThat(configurer1CallCount).isEqualTo(1)
