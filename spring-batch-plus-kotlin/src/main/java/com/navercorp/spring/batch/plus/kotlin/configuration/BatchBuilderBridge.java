@@ -22,7 +22,6 @@ import org.springframework.batch.core.job.builder.FlowJobBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.builder.PartitionStepBuilder;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 
 // Java bridge for Spring Batch builder constructors whose F-bounded wildcard
@@ -36,10 +35,6 @@ final class BatchBuilderBridge {
 
 	static FlowJobBuilder toFlowJobBuilder(JobBuilder jobBuilder) {
 		return new FlowJobBuilder(jobBuilder);
-	}
-
-	static <I, O> SimpleStepBuilder<I, O> toSimpleStepBuilder(StepBuilder stepBuilder) {
-		return new SimpleStepBuilder<>(stepBuilder);
 	}
 
 	static PartitionStepBuilder toPartitionStepBuilder(StepBuilder stepBuilder) {

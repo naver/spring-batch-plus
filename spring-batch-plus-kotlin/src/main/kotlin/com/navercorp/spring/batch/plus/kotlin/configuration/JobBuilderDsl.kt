@@ -37,7 +37,7 @@ import org.springframework.core.task.TaskExecutor
 
 /**
  * Entry DSL for a job block.
- * Common job settings are applied to the parent [JobBuilder] before the block is
+ * Common job settings are applied to the base [JobBuilder] before the block is
  * replayed into either the simple-job or flow-job builder path.
  *
  * @since 0.1.0
@@ -51,7 +51,7 @@ class JobBuilderDsl internal constructor(
 
     private val lazyFlowConfigurer = LazyConfigurer<FlowBuilderDsl<FlowJobBuilder>>()
 
-    private var isFlowJob = false
+    private var requiresFlowJob = false
 
     /**
      * Set for [JobBuilder.validator][org.springframework.batch.core.job.builder.JobBuilderHelper.validator].
@@ -138,7 +138,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.stepBean(name, stepTransitionInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun step(
@@ -149,7 +149,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.step(name, stepInit, stepTransitionInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun step(
@@ -159,14 +159,14 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.step(step, stepTransitionInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun flowBean(name: String) {
         this.lazyFlowConfigurer.add {
             it.flowBean(name)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun flow(
@@ -176,14 +176,14 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.flow(name, flowInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun flow(flow: Flow) {
         this.lazyFlowConfigurer.add {
             it.flow(flow)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun flowBean(
@@ -193,7 +193,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.flowBean(name, flowTransitionInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun flow(
@@ -204,7 +204,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.flow(name, flowInit, flowTransitionInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun flow(
@@ -214,7 +214,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.flow(flow, flowTransitionInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun deciderBean(
@@ -224,7 +224,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.deciderBean(name, deciderTransitionInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun decider(
@@ -234,7 +234,7 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.decider(decider, deciderTransitionInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     override fun split(
@@ -244,19 +244,33 @@ class JobBuilderDsl internal constructor(
         this.lazyFlowConfigurer.add {
             it.split(taskExecutor, splitInit)
         }
-        this.isFlowJob = true
+        this.requiresFlowJob = true
     }
 
     internal fun build(): Job {
         this.jobBuilder.apply(this.lazyConfigurer)
 
-        return if (!isFlowJob) {
+        /**
+         * A plain sequence of steps can use a simple job. A flow, decider, split, or explicit
+         * transition requires a flow job because it introduces a flow graph.
+         */
+        return if (!requiresFlowJob) {
+            /**
+             * The first step is unknown until deferred declarations are replayed, so
+             * [JobBuilder.start] cannot be called yet. `SimpleJobBuilder(JobBuilderHelper)` leaves
+             * the step list open for replay.
+             */
             val simpleJobBuilder = BatchBuilderBridge.toSimpleJobBuilder(this.jobBuilder)
             val simpleJobBuilderDsl = SimpleJobBuilderDsl(this.dslContext, simpleJobBuilder)
             SimpleJobBuilderDslAdapter(simpleJobBuilderDsl)
                 .apply(this.lazyFlowConfigurer)
                 .build()
         } else {
+            /**
+             * The first state is unknown until deferred declarations are replayed, so
+             * [JobBuilder.start] or [JobBuilder.flow] cannot be called yet.
+             * `JobFlowBuilder(FlowJobBuilder)` leaves the initial state open for replay.
+             */
             val flowJobBuilder = BatchBuilderBridge.toFlowJobBuilder(this.jobBuilder)
             val jobFlowBuilder = JobFlowBuilder(flowJobBuilder)
             val delegate = ConcreteFlowBuilderDsl(this.dslContext, jobFlowBuilder)

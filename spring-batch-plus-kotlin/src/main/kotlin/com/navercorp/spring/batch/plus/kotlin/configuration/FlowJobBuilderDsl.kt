@@ -33,8 +33,8 @@ internal class FlowJobBuilderDsl internal constructor(
     private val dslContext: DslContext,
     private val delegate: ConcreteFlowBuilderDsl<FlowJobBuilder>,
 ) : FlowBuilderDsl<FlowJobBuilder> by delegate {
-    internal fun build(): Job =
-        this.delegate
-            .build()
-            .build()
+    internal fun build(): Job {
+        val flowJobBuilder = this.delegate.build()
+        return flowJobBuilder.build()
+    }
 }
