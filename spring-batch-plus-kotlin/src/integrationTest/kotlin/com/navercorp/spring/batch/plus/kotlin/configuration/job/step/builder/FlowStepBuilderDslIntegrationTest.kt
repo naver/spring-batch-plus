@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration.step
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.step.builder
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
@@ -42,11 +42,11 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 /**
- * Integration tests for creating and executing flow steps through the public Kotlin DSL.
+ * Covers the integration boundary from flow declarations to actual flow-step execution.
  */
 internal class FlowStepBuilderDslIntegrationTest {
     @Test
-    fun testFlowBean() {
+    fun flowBeanShouldCreateFlowStepWhenBeanNameIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -98,7 +98,7 @@ internal class FlowStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithLambda() {
+    fun flowShouldCreateFlowStepWhenFlowIsDeclaredWithInit() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -143,7 +143,7 @@ internal class FlowStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithVariable() {
+    fun flowShouldCreateFlowStepWhenFlowIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()

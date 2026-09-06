@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration.step
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.step.builder
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import io.mockk.mockk
@@ -59,11 +59,11 @@ import java.util.concurrent.ThreadLocalRandom
 import javax.sql.DataSource
 
 /**
- * Integration tests for creating and executing tasklet steps through the public Kotlin DSL.
+ * Covers the integration boundary from tasklet declarations to actual tasklet-step execution.
  */
 internal class TaskletStepBuilderDslIntegrationTest {
     @Test
-    fun testTaskletBean() {
+    fun taskletBeanShouldCreateTaskletStepWhenBeanNameIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -95,7 +95,7 @@ internal class TaskletStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testTaskletBeanWithInit() {
+    fun taskletBeanShouldCreateTaskletStepWhenBeanNameAndInitAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -143,7 +143,7 @@ internal class TaskletStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testTaskletBeanWithTransactionManager() {
+    fun taskletBeanShouldCreateTaskletStepWhenBeanNameAndTransactionManagerAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -175,7 +175,7 @@ internal class TaskletStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testTaskletBeanWithTransactionManagerAndInit() {
+    fun taskletBeanShouldCreateTaskletStepWhenBeanNameTransactionManagerAndInitAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -223,7 +223,7 @@ internal class TaskletStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testTaskletWithLambda() {
+    fun taskletShouldCreateTaskletStepWhenLambdaIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -250,7 +250,7 @@ internal class TaskletStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testTaskletWithLambdaAndInit() {
+    fun taskletShouldCreateTaskletStepWhenLambdaAndInitAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -295,7 +295,7 @@ internal class TaskletStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testTaskletWithAnnotationListener() {
+    fun listenerShouldInvokeAnnotatedCallbacksWhenTaskletStepRuns() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -359,7 +359,7 @@ internal class TaskletStepBuilderDslIntegrationTest {
     inner class RedundancyCheck {
         @Suppress("DEPRECATION")
         @Test
-        fun testStepOperationsIgnoreTaskExecutorAndExceptionHandler() {
+        fun stepOperationsShouldIgnoreTaskExecutorAndExceptionHandlerWhenBothAreConfigured() {
             // given
             var iterateCount = 0
             var taskExecutorCallCount = 0

@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.split.builder
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -44,11 +45,11 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 /**
- * Integration coverage for split declarations that attach multiple flows to one split state.
+ * Covers flow membership and validation inside an already-created split, rather than entry into split construction.
  */
 internal class SplitBuilderDslIntegrationTest {
     @Test
-    fun testFlowBean() {
+    fun flowBeanShouldCreateSplitWhenFlowBeanNamesAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -124,7 +125,7 @@ internal class SplitBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithInit() {
+    fun flowShouldCreateSplitWhenFlowsAreDeclaredWithInit() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -184,7 +185,7 @@ internal class SplitBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithVariable() {
+    fun flowShouldCreateSplitWhenFlowInstancesAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -252,7 +253,7 @@ internal class SplitBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testNoFlow() {
+    fun splitShouldThrowExceptionWhenNoFlowIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val batch = context.getBean<BatchDsl>()
