@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.step.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -95,6 +96,19 @@ class ItemStreamFluxReaderAdapterTest {
 		itemStreamReader.close();
 
 		verify(delegate, times(1)).onCloseRead();
+	}
+
+	@Test
+	void lifecycleShouldBeOptional() {
+		ItemStreamFluxReaderDelegate<Integer> delegate = $ -> Flux.empty();
+		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
+		ExecutionContext executionContext = new ExecutionContext();
+
+		assertThatCode(() -> {
+			itemStreamReader.open(executionContext);
+			itemStreamReader.update(executionContext);
+			itemStreamReader.close();
+		}).doesNotThrowAnyException();
 	}
 
 	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})

@@ -19,6 +19,7 @@
 package com.navercorp.spring.batch.plus.step.adapter;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -73,6 +74,20 @@ class ItemStreamWriterAdapterTest {
 		itemStreamWriterAdaptor.close();
 
 		verify(delegate, times(1)).onCloseWrite();
+	}
+
+	@Test
+	void lifecycleShouldBeOptional() {
+		ItemStreamWriterDelegate<Integer> delegate = $ -> {
+		};
+		ItemStreamWriter<Integer> itemStreamWriter = ItemStreamWriterAdapter.of(delegate);
+		ExecutionContext executionContext = new ExecutionContext();
+
+		assertThatCode(() -> {
+			itemStreamWriter.open(executionContext);
+			itemStreamWriter.update(executionContext);
+			itemStreamWriter.close();
+		}).doesNotThrowAnyException();
 	}
 
 	@SuppressWarnings({"ConstantConditions"})
