@@ -29,11 +29,11 @@ import org.springframework.batch.core.step.builder.JobStepBuilder
 import org.springframework.batch.core.step.job.JobParametersExtractor
 
 /**
- * Unit tests for JobStepBuilderDsl's delegation to Spring Batch's JobStepBuilder.
+ * Covers the delegation boundary between the job-step DSL and its underlying builder.
  */
 internal class JobStepBuilderDslTest {
     @Test
-    fun testOperator() {
+    fun operatorShouldConfigureJobStepBuilderWhenJobOperatorIsProvided() {
         // given
         val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true)
 
@@ -49,7 +49,7 @@ internal class JobStepBuilderDslTest {
     }
 
     @Test
-    fun testParametersExtractor() {
+    fun parametersExtractorShouldConfigureJobStepBuilderWhenExtractorIsProvided() {
         // given
         val jobStepBuilder = mockk<JobStepBuilder>(relaxed = true)
 
@@ -65,7 +65,7 @@ internal class JobStepBuilderDslTest {
     }
 
     @Test
-    fun testBuild() {
+    fun buildShouldReturnBuiltStepWhenInvoked() {
         // given
         val mockStep = mockk<Step>()
         val jobStepBuilder =

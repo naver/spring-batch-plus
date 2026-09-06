@@ -31,12 +31,11 @@ import org.springframework.batch.core.listener.JobExecutionListener
 import java.util.UUID
 
 /**
- * Unit tests for JobBuilderDsl's delegation of common job settings.
- * Job creation entry points belong in job-specific tests, not here.
+ * Covers deferred application of common job settings when a job is built.
  */
 internal class JobBuilderDslTest {
     @Test
-    fun testValidator() {
+    fun validatorShouldConfigureJobBuilderWhenValidatorIsProvided() {
         // given
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
@@ -53,7 +52,7 @@ internal class JobBuilderDslTest {
     }
 
     @Test
-    fun testIncrementer() {
+    fun incrementerShouldConfigureJobBuilderWhenIncrementerIsProvided() {
         // given
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
@@ -70,7 +69,7 @@ internal class JobBuilderDslTest {
     }
 
     @Test
-    fun testObservationRegistry() {
+    fun observationRegistryShouldConfigureJobBuilderWhenRegistryIsProvided() {
         // given
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
@@ -87,7 +86,7 @@ internal class JobBuilderDslTest {
     }
 
     @Test
-    fun testObjectListener() {
+    fun listenerShouldConfigureJobBuilderWhenObjectListenerIsProvided() {
         // given
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
@@ -106,7 +105,7 @@ internal class JobBuilderDslTest {
     }
 
     @Test
-    fun testJobExecutionListener() {
+    fun listenerShouldConfigureJobBuilderWhenJobExecutionListenerIsProvided() {
         // given
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)
@@ -123,7 +122,7 @@ internal class JobBuilderDslTest {
     }
 
     @Test
-    fun testPreventRestart() {
+    fun preventRestartShouldConfigureJobBuilderWhenInvoked() {
         // given
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobBuilderDsl = jobBuilderDsl(jobBuilder)

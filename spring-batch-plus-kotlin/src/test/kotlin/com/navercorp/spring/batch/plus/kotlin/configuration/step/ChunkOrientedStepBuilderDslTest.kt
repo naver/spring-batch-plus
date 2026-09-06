@@ -42,11 +42,11 @@ import org.springframework.transaction.interceptor.TransactionAttribute
 import java.util.concurrent.ThreadLocalRandom
 
 /**
- * Unit tests for ChunkOrientedStepBuilderDsl's delegation to Spring Batch's ChunkOrientedStepBuilder.
+ * Covers the unit boundary between chunk-oriented step declarations and their underlying builder configuration.
  */
 internal class ChunkOrientedStepBuilderDslTest {
     @Test
-    fun testReader() {
+    fun readerShouldConfigureChunkOrientedStepBuilderWhenReaderIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -62,7 +62,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testProcessor() {
+    fun processorShouldConfigureChunkOrientedStepBuilderWhenProcessorIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -78,7 +78,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testWriter() {
+    fun writerShouldConfigureChunkOrientedStepBuilderWhenWriterIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -94,7 +94,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testTransactionManager() {
+    fun transactionManagerShouldConfigureChunkOrientedStepBuilderWhenTransactionManagerIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -110,7 +110,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testTransactionAttribute() {
+    fun transactionAttributeShouldConfigureChunkOrientedStepBuilderWhenTransactionAttributeIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -126,7 +126,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testStream() {
+    fun streamShouldConfigureChunkOrientedStepBuilderWhenItemStreamIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -142,7 +142,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testStepListener() {
+    fun listenerShouldConfigureChunkOrientedStepBuilderWhenStepListenerIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -158,7 +158,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testObjectListener() {
+    fun listenerShouldConfigureChunkOrientedStepBuilderWhenObjectListenerIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -176,7 +176,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testInterruptionPolicy() {
+    fun interruptionPolicyShouldConfigureChunkOrientedStepBuilderWhenPolicyIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -192,7 +192,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testFaultTolerant() {
+    fun faultTolerantShouldEnableFaultToleranceWhenInvoked() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -207,7 +207,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryPolicy() {
+    fun retryPolicyShouldConfigureChunkOrientedStepBuilderWhenPolicyIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -223,7 +223,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryListener() {
+    fun retryListenerShouldConfigureChunkOrientedStepBuilderWhenListenerIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -239,7 +239,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryWithReified() {
+    fun retryShouldConfigureChunkOrientedStepBuilderWhenReifiedExceptionTypeIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -254,7 +254,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryWithKClass() {
+    fun retryShouldConfigureChunkOrientedStepBuilderWhenKClassIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -269,7 +269,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testRetryLimit() {
+    fun retryLimitShouldConfigureChunkOrientedStepBuilderWhenLimitIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -285,7 +285,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testSkipPolicy() {
+    fun skipPolicyShouldConfigureChunkOrientedStepBuilderWhenPolicyIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -301,7 +301,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testSkipListener() {
+    fun skipListenerShouldConfigureChunkOrientedStepBuilderWhenListenerIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -317,7 +317,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testSkipWithReified() {
+    fun skipShouldConfigureChunkOrientedStepBuilderWhenReifiedExceptionTypeIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -332,7 +332,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testSkipWithKClass() {
+    fun skipShouldConfigureChunkOrientedStepBuilderWhenKClassIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -347,7 +347,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testSkipLimit() {
+    fun skipLimitShouldConfigureChunkOrientedStepBuilderWhenLimitIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -363,7 +363,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testTaskExecutor() {
+    fun taskExecutorShouldConfigureChunkOrientedStepBuilderWhenExecutorIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -379,7 +379,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testObservationRegistry() {
+    fun observationRegistryShouldConfigureChunkOrientedStepBuilderWhenRegistryIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
 
@@ -395,7 +395,7 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
-    fun testBuild() {
+    fun buildShouldReturnBuiltStepWhenInvoked() {
         // given
         val mockStep = mockk<ChunkOrientedStep<Int, Int>>()
         val chunkOrientedStepBuilder =

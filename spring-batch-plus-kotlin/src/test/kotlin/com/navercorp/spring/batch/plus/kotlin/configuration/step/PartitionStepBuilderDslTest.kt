@@ -36,11 +36,11 @@ import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 /**
- * Unit tests for PartitionStepBuilderDsl's delegation and DSL-owned preconditions.
+ * Covers partition builder delegation and the configuration required to build a partition step.
  */
 internal class PartitionStepBuilderDslTest {
     @Test
-    fun testPartitionHandler() {
+    fun partitionHandlerShouldConfigurePartitionStepBuilderWhenHandlerIsProvided() {
         // given
         val partitionHandler = mockk<PartitionHandler>()
         val splitter = mockk<StepExecutionSplitter>()
@@ -61,7 +61,7 @@ internal class PartitionStepBuilderDslTest {
     }
 
     @Test
-    fun testPartitionHandlerWithInit() {
+    fun partitionHandlerShouldConfigurePartitionStepBuilderWhenInitIsProvided() {
         // given
         val step = mockk<Step>()
         val taskExecutor = mockk<TaskExecutor>()
@@ -90,7 +90,7 @@ internal class PartitionStepBuilderDslTest {
     }
 
     @Test
-    fun testSplitter() {
+    fun splitterShouldConfigurePartitionStepBuilderWhenSplitterIsProvided() {
         // given
         val partitionHandler = mockk<PartitionHandler>()
         val splitter = mockk<StepExecutionSplitter>()
@@ -111,7 +111,7 @@ internal class PartitionStepBuilderDslTest {
     }
 
     @Test
-    fun testSplitterWithPartitioner() {
+    fun splitterShouldConfigurePartitionStepBuilderWhenStepNameAndPartitionerAreProvided() {
         // given
         val stepName = UUID.randomUUID().toString()
         val partitionHandler = mockk<PartitionHandler>()
@@ -133,7 +133,7 @@ internal class PartitionStepBuilderDslTest {
     }
 
     @Test
-    fun testAggregator() {
+    fun aggregatorShouldConfigurePartitionStepBuilderWhenAggregatorIsProvided() {
         // given
         val aggregator = mockk<StepExecutionAggregator>()
         val partitionHandler = mockk<PartitionHandler>()
@@ -156,7 +156,7 @@ internal class PartitionStepBuilderDslTest {
     }
 
     @Test
-    fun testBuild() {
+    fun buildShouldReturnBuiltStepWhenRequiredConfigurationIsProvided() {
         // given
         val partitionHandler = mockk<PartitionHandler>()
         val splitter = mockk<StepExecutionSplitter>()
@@ -178,7 +178,7 @@ internal class PartitionStepBuilderDslTest {
     }
 
     @Test
-    fun testPartitionHandlerBuilderRequiresStep() {
+    fun partitionHandlerShouldThrowIllegalStateExceptionWhenStepIsNotConfigured() {
         // given
         val taskExecutor = mockk<TaskExecutor>()
         val gridSize = ThreadLocalRandom.current().nextInt(1, 10)
@@ -195,7 +195,7 @@ internal class PartitionStepBuilderDslTest {
     }
 
     @Test
-    fun testWithoutPartitionHandler() {
+    fun buildShouldThrowIllegalStateExceptionWhenPartitionHandlerIsNotConfigured() {
         // given
         val splitter = mockk<StepExecutionSplitter>()
         val partitionStepBuilder = mockk<PartitionStepBuilder>(relaxed = true)
@@ -210,7 +210,7 @@ internal class PartitionStepBuilderDslTest {
     }
 
     @Test
-    fun testWithoutSplitter() {
+    fun buildShouldThrowIllegalStateExceptionWhenSplitterIsNotConfigured() {
         // given
         val partitionHandler = mockk<PartitionHandler>()
         val partitionStepBuilder = mockk<PartitionStepBuilder>(relaxed = true)

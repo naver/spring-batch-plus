@@ -26,11 +26,11 @@ import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.FlowStepBuilder
 
 /**
- * Unit tests for FlowStepBuilderDsl's delegation to Spring Batch's FlowStepBuilder.
+ * Covers the delegation boundary between the flow-step DSL and its underlying builder.
  */
 internal class FlowStepBuilderDslTest {
     @Test
-    fun testBuild() {
+    fun buildShouldReturnBuiltStepWhenInvoked() {
         // given
         val mockStep = mockk<Step>()
         val flowStepBuilder =

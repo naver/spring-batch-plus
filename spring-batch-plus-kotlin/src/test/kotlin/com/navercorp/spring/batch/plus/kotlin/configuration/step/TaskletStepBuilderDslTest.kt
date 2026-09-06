@@ -35,11 +35,11 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
 
 /**
- * Unit tests for TaskletStepBuilderDsl's delegation to Spring Batch's TaskletStepBuilder.
+ * Covers tasklet-step option delegation and mutually exclusive repeat-operation settings.
  */
 internal class TaskletStepBuilderDslTest {
     @Test
-    fun testChunkListener() {
+    fun listenerShouldConfigureTaskletStepBuilderWhenChunkListenerIsProvided() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -55,7 +55,7 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
-    fun testObjectListener() {
+    fun listenerShouldConfigureTaskletStepBuilderWhenObjectListenerIsProvided() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -73,7 +73,7 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
-    fun testStream() {
+    fun streamShouldConfigureTaskletStepBuilderWhenItemStreamIsProvided() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -90,7 +90,7 @@ internal class TaskletStepBuilderDslTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun testTaskExecutor() {
+    fun taskExecutorShouldConfigureTaskletStepBuilderWhenExecutorIsProvided() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -106,7 +106,7 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
-    fun testExceptionHandler() {
+    fun exceptionHandlerShouldConfigureTaskletStepBuilderWhenHandlerIsProvided() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -122,7 +122,7 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
-    fun testStepOperations() {
+    fun stepOperationsShouldConfigureTaskletStepBuilderWhenRepeatOperationsAreProvided() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -138,7 +138,7 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
-    fun testTransactionManager() {
+    fun transactionManagerShouldConfigureTaskletStepBuilderWhenTransactionManagerIsProvided() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -154,7 +154,7 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
-    fun testTransactionalAttribute() {
+    fun transactionAttributeShouldConfigureTaskletStepBuilderWhenTransactionAttributeIsProvided() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -170,7 +170,7 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
-    fun testBuild() {
+    fun buildShouldReturnBuiltStepWhenInvoked() {
         // given
         val mockStep = mockk<TaskletStep>()
         val taskletStepBuilder =
@@ -187,7 +187,7 @@ internal class TaskletStepBuilderDslTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun testBuildWithSettingStepOperationsAndTaskExecutor() {
+    fun buildShouldRejectTaskExecutorWhenStepOperationsAreConfigured() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
@@ -204,7 +204,7 @@ internal class TaskletStepBuilderDslTest {
     }
 
     @Test
-    fun testBuildWithSettingStepOperationsAndExceptionHandler() {
+    fun buildShouldRejectExceptionHandlerWhenStepOperationsAreConfigured() {
         // given
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
 
