@@ -16,20 +16,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.step.builder
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
 import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
-import org.springframework.batch.infrastructure.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.repeat.policy.SimpleCompletionPolicy
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
@@ -40,46 +38,44 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.TransactionManager
+import java.util.UUID
 import javax.sql.DataSource
 
 /**
- * Integration coverage for repeated transition clauses branching from the same flow source.
+ * Covers the integration boundary from deprecated chunk declarations to actual simple-step execution.
  */
-internal class FlowTransitionBuilderDslIntegrationTest {
-    @RepeatedTest(10)
-    fun testFlowWithMultipleTransition() {
+@Suppress("DEPRECATION")
+internal class SimpleStepBuilderDslIntegrationTest {
+    @Test
+    fun chunkShouldCreateSimpleStepWhenChunkSizeIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
-        val expectedExitStatus = randomExitStatus()
-        var testStep1CallCount = 0
-        val testFlow1 =
-            batch {
-                flow("testFlow1") {
-                    step("testStep1") {
-                        tasklet(
-                            { contribution, _ ->
-                                ++testStep1CallCount
-                                contribution.exitStatus = expectedExitStatus
-                                RepeatStatus.FINISHED
-                            },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                }
-            }
+        val jobName = UUID.randomUUID().toString()
+        val stepName = UUID.randomUUID().toString()
+        val readLimit = 20
+        val chunkSize = 3
+        var readCallCount = 0
+        var writeCallCount = 0
 
         // when
         val job =
             batch {
-                job("testJob") {
-                    flow(testFlow1) {
-                        on("COMPLETED") {
-                            end()
-                        }
-                        on("*") {
-                            fail()
+                job(jobName) {
+                    step(stepName) {
+                        chunk<Int, Int>(chunkSize, ResourcelessTransactionManager()) {
+                            reader {
+                                if (readCallCount < readLimit) {
+                                    ++readCallCount
+                                    1
+                                } else {
+                                    null
+                                }
+                            }
+                            writer {
+                                ++writeCallCount
+                            }
                         }
                     }
                 }
@@ -87,60 +83,52 @@ internal class FlowTransitionBuilderDslIntegrationTest {
         val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
-        assertThat(testStep1CallCount).isEqualTo(1)
-        when (expectedExitStatus) {
-            ExitStatus.COMPLETED -> {
-                assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-                assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
-            }
-
-            else -> {
-                assertThat(jobExecution.status).isEqualTo(BatchStatus.FAILED)
-                assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.FAILED.exitCode)
-            }
-        }
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(readCallCount).isEqualTo(readLimit)
+        assertThat(writeCallCount).isEqualTo(7) // Ceil(20/3)
     }
 
     @Test
-    fun testStepWithNoTransition() {
+    fun chunkShouldCreateSimpleStepWhenCompletionPolicyIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
-        val testFlow1 =
-            batch {
-                flow("testFlow1") {
-                    step("testStep1") {
-                        tasklet(
-                            { _, _ ->
-                                RepeatStatus.FINISHED
-                            },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                }
-            }
+        val jobName = UUID.randomUUID().toString()
+        val stepName = UUID.randomUUID().toString()
+        val readLimit = 20
+        val chunkSize = 3
+        var readCallCount = 0
+        var writeCallCount = 0
 
-        // when, then
-        assertThatThrownBy {
+        // when
+        val job =
             batch {
-                job("testJob") {
-                    flow(testFlow1) {
-                        // no transition
+                job(jobName) {
+                    step(stepName) {
+                        chunk<Int, Int>(SimpleCompletionPolicy(chunkSize), ResourcelessTransactionManager()) {
+                            reader {
+                                if (readCallCount < readLimit) {
+                                    ++readCallCount
+                                    1
+                                } else {
+                                    null
+                                }
+                            }
+                            writer {
+                                ++writeCallCount
+                            }
+                        }
                     }
                 }
             }
-        }.hasMessageContaining("should set transition for flow")
+        val jobExecution = jobOperator.start(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(readCallCount).isEqualTo(readLimit)
+        assertThat(writeCallCount).isEqualTo(7) // Ceil(20/3)
     }
-
-    private fun randomExitStatus(): ExitStatus =
-        listOf(
-            ExitStatus.UNKNOWN,
-            ExitStatus.NOOP,
-            ExitStatus.FAILED,
-            ExitStatus.STOPPED,
-            ExitStatus.COMPLETED,
-            // ExitStatus.EXECUTING, // why considered ExitStatus.COMPLETE?
-        ).random()
 
     @Configuration
     @EnableBatchProcessing

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration.step
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.step.builder
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
@@ -48,11 +48,11 @@ import java.util.UUID
 import javax.sql.DataSource
 
 /**
- * Integration tests for creating and executing partition steps through the public Kotlin DSL.
+ * Covers the integration boundary from partition declarations to actual partition-step execution.
  */
 internal class PartitionStepBuilderDslIntegrationTest {
     @Test
-    fun testPartitionHandlerWithDirectOne() {
+    fun partitionerShouldCreatePartitionStepWhenPartitionHandlerIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -94,7 +94,7 @@ internal class PartitionStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testPartitionHandlerWithBuiltInOne() {
+    fun partitionerShouldCreatePartitionStepWhenTaskExecutorPartitionHandlerIsConfigured() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -154,7 +154,7 @@ internal class PartitionStepBuilderDslIntegrationTest {
     @Nested
     inner class RedundancyCheck {
         @Test
-        fun testPartitionHandlerAndRedundantSettings() {
+        fun partitionHandlerShouldIgnoreTaskExecutorPartitionHandlerSettingsWhenBothAreConfigured() {
             // given
             val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
             val jobOperator = context.getBean<JobOperator>()
@@ -215,7 +215,7 @@ internal class PartitionStepBuilderDslIntegrationTest {
         }
 
         @Test
-        fun testSplitterAndRedundantSettings() {
+        fun splitterShouldIgnorePartitionerWhenBothAreConfigured() {
             // given
             val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
             val jobOperator = context.getBean<JobOperator>()

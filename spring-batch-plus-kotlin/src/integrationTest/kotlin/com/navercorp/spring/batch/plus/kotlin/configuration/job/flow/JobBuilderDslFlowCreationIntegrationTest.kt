@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.flow
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
-import org.springframework.batch.core.job.flow.FlowExecutionStatus
-import org.springframework.batch.core.job.flow.JobExecutionDecider
+import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
@@ -40,265 +40,15 @@ import org.springframework.context.support.registerBean
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 /**
- * Integration coverage for job declarations that require Spring Batch's flow-job path.
+ * Covers the boundary where introducing a flow selects flow-job construction.
  */
-internal class FlowJobBuilderDslIntegrationTest {
+internal class JobBuilderDslFlowCreationIntegrationTest {
     @Test
-    fun testStepBeanWithTransition() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var testStep1CallCount = 0
-        var transitionStep1CallCount = 0
-        var transitionStep2CallCount = 0
-        var testStep2CallCount = 0
-        val testStep1 =
-            batch {
-                step("testStep1") {
-                    tasklet(
-                        { _, _ ->
-                            ++testStep1CallCount
-                            throw RuntimeException("Error")
-                        },
-                        ResourcelessTransactionManager(),
-                    )
-                }
-            }
-        val testStep2 =
-            batch {
-                step("testStep2") {
-                    tasklet(
-                        { _, _ ->
-                            ++testStep2CallCount
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
-                }
-            }
-        context.apply {
-            registerBean("testStep1") {
-                testStep1
-            }
-            registerBean("testStep2") {
-                testStep2
-            }
-        }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    stepBean("testStep1") {
-                        on("COMPLETED") {
-                            step("transitionStep1") {
-                                tasklet(
-                                    { _, _ ->
-                                        ++transitionStep1CallCount
-                                        RepeatStatus.FINISHED
-                                    },
-                                    ResourcelessTransactionManager(),
-                                )
-                            }
-                        }
-                        on("FAILED") {
-                            step("transitionStep2") {
-                                tasklet(
-                                    { _, _ ->
-                                        ++transitionStep2CallCount
-                                        RepeatStatus.FINISHED
-                                    },
-                                    ResourcelessTransactionManager(),
-                                )
-                            }
-                        }
-                    }
-                    stepBean("testStep2") {
-                        on("COMPLETED") {
-                            end("TEST")
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
-        assertThat(testStep1CallCount).isEqualTo(1)
-        assertThat(transitionStep1CallCount).isEqualTo(0)
-        assertThat(transitionStep2CallCount).isEqualTo(1)
-        assertThat(testStep2CallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testStepWithInitAndTransition() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var testStep1CallCount = 0
-        var transitionStep1CallCount = 0
-        var transitionStep2CallCount = 0
-        var testStep2CallCount = 0
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step(
-                        "testStep1",
-                        {
-                            tasklet(
-                                { _, _ ->
-                                    ++testStep1CallCount
-                                    throw RuntimeException("Error")
-                                },
-                                ResourcelessTransactionManager(),
-                            )
-                        },
-                    ) {
-                        on("COMPLETED") {
-                            step("transitionStep1") {
-                                tasklet(
-                                    { _, _ ->
-                                        ++transitionStep1CallCount
-                                        RepeatStatus.FINISHED
-                                    },
-                                    ResourcelessTransactionManager(),
-                                )
-                            }
-                        }
-                        on("FAILED") {
-                            step("transitionStep2") {
-                                tasklet(
-                                    { _, _ ->
-                                        ++transitionStep2CallCount
-                                        RepeatStatus.FINISHED
-                                    },
-                                    ResourcelessTransactionManager(),
-                                )
-                            }
-                        }
-                    }
-                    step(
-                        "testStep2",
-                        {
-                            tasklet(
-                                { _, _ ->
-                                    ++testStep2CallCount
-                                    RepeatStatus.FINISHED
-                                },
-                                ResourcelessTransactionManager(),
-                            )
-                        },
-                    ) {
-                        on("COMPLETED") {
-                            end("TEST")
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
-        assertThat(testStep1CallCount).isEqualTo(1)
-        assertThat(transitionStep1CallCount).isEqualTo(0)
-        assertThat(transitionStep2CallCount).isEqualTo(1)
-        assertThat(testStep2CallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testStepWithVariableAndTransition() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var testStep1CallCount = 0
-        var transitionStep1CallCount = 0
-        var transitionStep2CallCount = 0
-        var testStep2CallCount = 0
-        val testStep1 =
-            batch {
-                step("testStep1") {
-                    tasklet(
-                        { _, _ ->
-                            ++testStep1CallCount
-                            throw RuntimeException("Error")
-                        },
-                        ResourcelessTransactionManager(),
-                    )
-                }
-            }
-        val testStep2 =
-            batch {
-                step("testStep2") {
-                    tasklet(
-                        { _, _ ->
-                            ++testStep2CallCount
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
-                }
-            }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step(testStep1) {
-                        on("COMPLETED") {
-                            step("transitionStep1") {
-                                tasklet(
-                                    { _, _ ->
-                                        ++transitionStep1CallCount
-                                        RepeatStatus.FINISHED
-                                    },
-                                    ResourcelessTransactionManager(),
-                                )
-                            }
-                        }
-                        on("FAILED") {
-                            step("transitionStep2") {
-                                tasklet(
-                                    { _, _ ->
-                                        ++transitionStep2CallCount
-                                        RepeatStatus.FINISHED
-                                    },
-                                    ResourcelessTransactionManager(),
-                                )
-                            }
-                        }
-                    }
-                    step(testStep2) {
-                        on("COMPLETED") {
-                            end("TEST")
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
-        assertThat(testStep1CallCount).isEqualTo(1)
-        assertThat(transitionStep1CallCount).isEqualTo(0)
-        assertThat(transitionStep2CallCount).isEqualTo(1)
-        assertThat(testStep2CallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testFlowBean() {
+    fun flowBeanShouldCreateFlowJobWhenFlowBeanNamesAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -353,6 +103,7 @@ internal class FlowJobBuilderDslIntegrationTest {
         val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
+        assertThat(job).isInstanceOf(FlowJob::class.java)
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
         assertThat(testStep1CallCount).isEqualTo(1)
@@ -360,7 +111,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithInit() {
+    fun flowShouldCreateFlowJobWhenFlowsAreDeclaredWithInit() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -399,6 +150,7 @@ internal class FlowJobBuilderDslIntegrationTest {
         val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
+        assertThat(job).isInstanceOf(FlowJob::class.java)
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
         assertThat(testStep1CallCount).isEqualTo(1)
@@ -406,7 +158,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithVariable() {
+    fun flowShouldCreateFlowJobWhenFlowInstancesAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -453,6 +205,7 @@ internal class FlowJobBuilderDslIntegrationTest {
         val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
+        assertThat(job).isInstanceOf(FlowJob::class.java)
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
         assertThat(testStep1CallCount).isEqualTo(1)
@@ -460,7 +213,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowBeanWithTransition() {
+    fun flowBeanShouldCreateFlowJobWhenBeanNameAndTransitionAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -483,7 +236,6 @@ internal class FlowJobBuilderDslIntegrationTest {
                     }
                 }
             }
-
         val testFlow2 =
             batch {
                 flow("testFlow2") {
@@ -545,6 +297,7 @@ internal class FlowJobBuilderDslIntegrationTest {
         val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
+        assertThat(job).isInstanceOf(FlowJob::class.java)
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
         assertThat(testStep1CallCount).isEqualTo(1)
@@ -554,7 +307,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithInitAndTransition() {
+    fun flowShouldCreateFlowJobWhenInitAndTransitionAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -628,6 +381,7 @@ internal class FlowJobBuilderDslIntegrationTest {
         val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
+        assertThat(job).isInstanceOf(FlowJob::class.java)
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
         assertThat(testStep1CallCount).isEqualTo(1)
@@ -637,7 +391,7 @@ internal class FlowJobBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFlowWithVariableAndTransition() {
+    fun flowShouldCreateFlowJobWhenInstanceAndTransitionAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -713,227 +467,12 @@ internal class FlowJobBuilderDslIntegrationTest {
         val jobExecution = jobOperator.start(job, JobParameters())
 
         // then
+        assertThat(job).isInstanceOf(FlowJob::class.java)
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
         assertThat(testStep1CallCount).isEqualTo(1)
         assertThat(transitionStep1CallCount).isEqualTo(0)
         assertThat(transitionStep2CallCount).isEqualTo(1)
-        assertThat(testStep2CallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testDeciderBean() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var testDeciderCallCount = 0
-        val testDecider =
-            JobExecutionDecider { _, _ ->
-                ++testDeciderCallCount
-                FlowExecutionStatus.COMPLETED
-            }
-        context.registerBean("testDecider") {
-            testDecider
-        }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    deciderBean("testDecider") {
-                        on("COMPLETED") {
-                            end("TEST")
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
-        assertThat(testDeciderCallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testDeciderBeanNotFirst() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var testStep1CallCount = 0
-        var testDeciderCallCount = 0
-        val testDecider =
-            JobExecutionDecider { _, _ ->
-                ++testDeciderCallCount
-                FlowExecutionStatus.COMPLETED
-            }
-        context.registerBean("testDecider") {
-            testDecider
-        }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step("testStep1") {
-                        tasklet(
-                            { _, _ ->
-                                ++testStep1CallCount
-                                RepeatStatus.FINISHED
-                            },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                    deciderBean("testDecider") {
-                        on("COMPLETED") {
-                            end("TEST")
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
-        assertThat(testStep1CallCount).isEqualTo(1)
-        assertThat(testDeciderCallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testDeciderWithVariable() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var testDeciderCallCount = 0
-        val decider =
-            JobExecutionDecider { _, _ ->
-                ++testDeciderCallCount
-                FlowExecutionStatus.COMPLETED
-            }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    decider(decider) {
-                        on("COMPLETED") {
-                            end("TEST")
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
-        assertThat(testDeciderCallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testDeciderWithVariableNotFirst() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var testStep1CallCount = 0
-        var testDeciderCallCount = 0
-        val decider =
-            JobExecutionDecider { _, _ ->
-                ++testDeciderCallCount
-                FlowExecutionStatus.COMPLETED
-            }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step("testStep1") {
-                        tasklet(
-                            { _, _ ->
-                                ++testStep1CallCount
-                                RepeatStatus.FINISHED
-                            },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                    decider(decider) {
-                        on("COMPLETED") {
-                            end("TEST")
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
-        assertThat(testStep1CallCount).isEqualTo(1)
-        assertThat(testDeciderCallCount).isEqualTo(1)
-    }
-
-    @Test
-    fun testSplit() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        var taskExecutorCallCount = 0
-        var testStep1CallCount = 0
-        var testStep2CallCount = 0
-        val callerThread = Thread.currentThread().name
-        val taskExecutor =
-            object : ThreadPoolTaskExecutor() {
-                override fun execute(task: Runnable) {
-                    ++taskExecutorCallCount
-                    super.execute(task)
-                }
-            }.apply { initialize() }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    split(taskExecutor) {
-                        flow("testFlow1") {
-                            step("testStep1") {
-                                tasklet(
-                                    { _, _ ->
-                                        ++testStep1CallCount
-                                        assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                        RepeatStatus.FINISHED
-                                    },
-                                    ResourcelessTransactionManager(),
-                                )
-                            }
-                        }
-                        flow("testFlow2") {
-                            step("testStep2") {
-                                tasklet(
-                                    { _, _ ->
-                                        ++testStep2CallCount
-                                        assertThat(Thread.currentThread().name).isNotEqualTo(callerThread)
-                                        RepeatStatus.FINISHED
-                                    },
-                                    ResourcelessTransactionManager(),
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
-        assertThat(taskExecutorCallCount).isEqualTo(2)
-        assertThat(testStep1CallCount).isEqualTo(1)
         assertThat(testStep2CallCount).isEqualTo(1)
     }
 

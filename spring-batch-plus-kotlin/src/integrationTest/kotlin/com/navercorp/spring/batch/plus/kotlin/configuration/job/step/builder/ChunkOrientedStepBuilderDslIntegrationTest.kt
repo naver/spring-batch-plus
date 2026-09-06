@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration.step
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.step.builder
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
@@ -49,11 +49,11 @@ import java.util.UUID
 import javax.sql.DataSource
 
 /**
- * Integration tests for creating and executing chunk-oriented steps through the public Kotlin DSL.
+ * Covers the integration boundary from chunk declarations to actual chunk-oriented step execution.
  */
 internal class ChunkOrientedStepBuilderDslIntegrationTest {
     @Test
-    fun testChunkOrientedStep() {
+    fun chunkShouldCreateChunkOrientedStepWhenItemComponentsAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -98,7 +98,7 @@ internal class ChunkOrientedStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testChunkOrientedStepWithAnnotationListener() {
+    fun listenerShouldInvokeAnnotatedCallbacksWhenChunkOrientedStepRuns() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -168,7 +168,7 @@ internal class ChunkOrientedStepBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testFaultTolerantChunkOrientedStepWithVariantItemComponentTypes() {
+    fun chunkShouldCreateFaultTolerantStepWhenItemComponentsUseVariantTypes() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()

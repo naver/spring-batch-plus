@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.decider.transition
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.RepeatedTest
@@ -43,11 +44,11 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 /**
- * Integration coverage for repeated transition clauses branching from the same decider source.
+ * Covers source reselection after the first `on` clause.
  */
 internal class DeciderTransitionBuilderDslIntegrationTest {
     @RepeatedTest(10)
-    fun testDeciderWithMultipleTransition() {
+    fun deciderShouldFollowMatchingTransitionWhenMultipleTransitionsAreConfigured() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
@@ -98,7 +99,7 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
     }
 
     @Test
-    fun testStepWithNoTransition() {
+    fun deciderShouldThrowExceptionWhenTransitionBlockIsEmpty() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val batch = context.getBean<BatchDsl>()
@@ -112,7 +113,6 @@ internal class DeciderTransitionBuilderDslIntegrationTest {
             batch {
                 job("testJob") {
                     decider(testDecider) {
-                        // no transition
                     }
                 }
             }

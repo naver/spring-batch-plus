@@ -16,65 +16,83 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration.step
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.transition
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
+import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
+import org.springframework.batch.core.job.flow.FlowExecutionStatus
+import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
-import org.springframework.batch.infrastructure.repeat.policy.SimpleCompletionPolicy
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.support.registerBean
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.TransactionManager
-import java.util.UUID
 import javax.sql.DataSource
 
 /**
- * Integration tests for deprecated simple chunk step entry points on the public Kotlin DSL.
+ * Covers a decider as an immediate transition destination, distinct from branching from a decider source.
  */
-@Suppress("DEPRECATION")
-internal class SimpleStepBuilderDslIntegrationTest {
+internal class OnDeciderTargetIntegrationTest {
     @Test
-    fun testChunkWithCount() {
+    fun deciderBeanShouldExecuteAsTransitionTargetWhenBeanNameIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
-        val jobName = UUID.randomUUID().toString()
-        val stepName = UUID.randomUUID().toString()
-        val readLimit = 20
-        val chunkSize = 3
-        var readCallCount = 0
-        var writeCallCount = 0
+        var testStep1CallCount = 0
+        var testDeciderCallCount = 0
+        val testStep1 =
+            batch {
+                step("testStep1") {
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager(),
+                    )
+                }
+            }
+        val testDecider =
+            JobExecutionDecider { _, _ ->
+                ++testDeciderCallCount
+                FlowExecutionStatus("SKIPPED")
+            }
+        context.registerBean("testDecider") {
+            testDecider
+        }
 
         // when
         val job =
             batch {
-                job(jobName) {
-                    step(stepName) {
-                        chunk<Int, Int>(chunkSize, ResourcelessTransactionManager()) {
-                            reader {
-                                if (readCallCount < readLimit) {
-                                    ++readCallCount
-                                    1
-                                } else {
-                                    null
+                job("testJob") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            deciderBean("testDecider") {
+                                on("COMPLETED") {
+                                    fail()
                                 }
-                            }
-                            writer {
-                                ++writeCallCount
+                                on("SKIPPED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    end()
+                                }
                             }
                         }
                     }
@@ -84,39 +102,53 @@ internal class SimpleStepBuilderDslIntegrationTest {
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(readCallCount).isEqualTo(readLimit)
-        assertThat(writeCallCount).isEqualTo(7) // Ceil(20/3)
+        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(testDeciderCallCount).isEqualTo(1)
     }
 
     @Test
-    fun testChunkWithCompletionPolicy() {
+    fun deciderShouldExecuteAsTransitionTargetWhenInstanceIsProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val jobOperator = context.getBean<JobOperator>()
         val batch = context.getBean<BatchDsl>()
-        val jobName = UUID.randomUUID().toString()
-        val stepName = UUID.randomUUID().toString()
-        val readLimit = 20
-        val chunkSize = 3
-        var readCallCount = 0
-        var writeCallCount = 0
+        var testStep1CallCount = 0
+        var testDeciderCallCount = 0
+        val testStep1 =
+            batch {
+                step("testStep1") {
+                    tasklet(
+                        { _, _ ->
+                            ++testStep1CallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager(),
+                    )
+                }
+            }
+        val testDecider =
+            JobExecutionDecider { _, _ ->
+                ++testDeciderCallCount
+                FlowExecutionStatus("SKIPPED")
+            }
 
         // when
         val job =
             batch {
-                job(jobName) {
-                    step(stepName) {
-                        chunk<Int, Int>(SimpleCompletionPolicy(chunkSize), ResourcelessTransactionManager()) {
-                            reader {
-                                if (readCallCount < readLimit) {
-                                    ++readCallCount
-                                    1
-                                } else {
-                                    null
+                job("testJob") {
+                    step(testStep1) {
+                        on("COMPLETED") {
+                            decider(testDecider) {
+                                on("COMPLETED") {
+                                    fail()
                                 }
-                            }
-                            writer {
-                                ++writeCallCount
+                                on("SKIPPED") {
+                                    end("TEST")
+                                }
+                                on("*") {
+                                    end()
+                                }
                             }
                         }
                     }
@@ -126,8 +158,9 @@ internal class SimpleStepBuilderDslIntegrationTest {
 
         // then
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(readCallCount).isEqualTo(readLimit)
-        assertThat(writeCallCount).isEqualTo(7) // Ceil(20/3)
+        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus("TEST").exitCode)
+        assertThat(testStep1CallCount).isEqualTo(1)
+        assertThat(testDeciderCallCount).isEqualTo(1)
     }
 
     @Configuration

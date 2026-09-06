@@ -16,18 +16,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.spring.batch.plus.kotlin.configuration
+package com.navercorp.spring.batch.plus.kotlin.configuration.job.transition
 
-import org.assertj.core.api.Assertions.assertThat
+import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.springframework.batch.core.BatchStatus
-import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
-import org.springframework.batch.core.job.parameters.JobParameters
-import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
@@ -43,74 +38,19 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 /**
- * Integration coverage for repeated transition clauses branching from the same step source.
+ * Covers the requirement that every `on` clause select a transition target.
  */
-internal class StepTransitionBuilderDslIntegrationTest {
-    @RepeatedTest(10)
-    fun testStepWithMultipleTransition() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        val expectedExitStatus = randomExitStatus()
-        var testStep1CallCount = 0
-        val testStep1 =
-            batch {
-                step("testStep1") {
-                    tasklet(
-                        { contribution, _ ->
-                            ++testStep1CallCount
-                            contribution.exitStatus = expectedExitStatus
-                            RepeatStatus.FINISHED
-                        },
-                        ResourcelessTransactionManager(),
-                    )
-                }
-            }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step(testStep1) {
-                        on("COMPLETED") {
-                            end()
-                        }
-                        on("*") {
-                            fail()
-                        }
-                    }
-                }
-            }
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(testStep1CallCount).isEqualTo(1)
-        when (expectedExitStatus) {
-            ExitStatus.COMPLETED -> {
-                assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-                assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
-            }
-
-            else -> {
-                assertThat(jobExecution.status).isEqualTo(BatchStatus.FAILED)
-                assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.FAILED.exitCode)
-            }
-        }
-    }
-
+internal class OnTargetSelectionIntegrationTest {
     @Test
-    fun testStepWithNoTransition() {
+    fun onShouldThrowExceptionWhenTransitionTargetIsNotConfigured() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
         val batch = context.getBean<BatchDsl>()
-        val testStep1 =
+        val testStep =
             batch {
-                step("testStep1") {
+                step("testStep") {
                     tasklet(
-                        { _, _ ->
-                            RepeatStatus.FINISHED
-                        },
+                        { _, _ -> RepeatStatus.FINISHED },
                         ResourcelessTransactionManager(),
                     )
                 }
@@ -120,23 +60,14 @@ internal class StepTransitionBuilderDslIntegrationTest {
         assertThatThrownBy {
             batch {
                 job("testJob") {
-                    step(testStep1) {
-                        // no transition
+                    step(testStep) {
+                        on("COMPLETED") {
+                        }
                     }
                 }
             }
-        }.hasMessageContaining("should set transition for step")
+        }.hasMessageContaining("should set transition")
     }
-
-    private fun randomExitStatus(): ExitStatus =
-        listOf(
-            ExitStatus.UNKNOWN,
-            ExitStatus.NOOP,
-            ExitStatus.FAILED,
-            ExitStatus.STOPPED,
-            ExitStatus.COMPLETED,
-            // ExitStatus.EXECUTING, // why considered ExitStatus.COMPLETE?
-        ).random()
 
     @Configuration
     @EnableBatchProcessing
