@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
@@ -45,13 +46,14 @@ public class ItemStreamFluxReaderAdapter<T> implements ItemStreamReader<T> {
 		return new ItemStreamFluxReaderAdapter<>(delegate);
 	}
 
+	// Prevent the reactive source from advancing beyond the item requested by ItemReader.read().
 	protected static final int DEFAULT_BATCH_SIZE = 1;
 
 	protected final ItemStreamFluxReaderDelegate<T> delegate;
 
-	protected Flux<? extends T> flux = null;
+	protected @Nullable Flux<? extends T> flux = null;
 
-	protected Iterator<? extends T> iterator = null;
+	protected @Nullable Iterator<? extends T> iterator = null;
 
 	protected ItemStreamFluxReaderAdapter(ItemStreamFluxReaderDelegate<T> delegate) {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate reader must not be null");
@@ -64,7 +66,7 @@ public class ItemStreamFluxReaderAdapter<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public T read() {
+	public @Nullable T read() {
 		Iterator<? extends T> iterator = getIterator();
 		if (iterator.hasNext()) {
 			return iterator.next();

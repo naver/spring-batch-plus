@@ -21,6 +21,7 @@ package com.navercorp.spring.batch.plus.step.adapter;
 import java.util.Iterator;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
@@ -44,7 +45,7 @@ public class ItemStreamIteratorReaderAdapter<T> implements ItemStreamReader<T> {
 
 	protected final ItemStreamIteratorReaderDelegate<T> delegate;
 
-	protected Iterator<? extends T> iterator = null;
+	protected @Nullable Iterator<? extends T> iterator = null;
 
 	protected ItemStreamIteratorReaderAdapter(ItemStreamIteratorReaderDelegate<T> delegate) {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate reader must not be null");
@@ -57,7 +58,7 @@ public class ItemStreamIteratorReaderAdapter<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public T read() {
+	public @Nullable T read() {
 		Iterator<? extends T> iterator = getIterator();
 		if (iterator.hasNext()) {
 			return iterator.next();

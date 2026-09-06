@@ -24,8 +24,8 @@ import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 import reactor.core.publisher.Flux;
 
 /**
- * A {@link Flux<T>} based adapter for stream reader, writer. It can represent
- * {@link ItemStreamReader}, {@link ItemStreamWriter} in a single class.
+ * Combines the delegate contracts required to adapt one object into an {@link ItemStreamReader} and
+ * {@link ItemStreamWriter}, with reader input supplied as a {@link Flux}.
  *
  * @since 1.1.0
  */

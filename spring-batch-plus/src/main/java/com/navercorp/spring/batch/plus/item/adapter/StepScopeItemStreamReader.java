@@ -23,6 +23,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.springframework.batch.core.scope.StepScope;
 import org.springframework.batch.core.scope.context.StepContext;
@@ -69,7 +70,7 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public T read() throws Exception {
+	public @Nullable T read() throws Exception {
 		return getDelegate().read();
 	}
 

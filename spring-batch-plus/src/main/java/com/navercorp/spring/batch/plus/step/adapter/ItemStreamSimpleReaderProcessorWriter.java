@@ -23,8 +23,8 @@ import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 
 /**
- * An item ({@link I}) based adapter for stream reader, processor, writer. It can represent
- * {@link ItemStreamReader}, {@link ItemProcessor}, {@link ItemStreamWriter} in a single class.
+ * Combines the delegate contracts required to adapt one object into an {@link ItemStreamReader},
+ * {@link ItemProcessor}, and {@link ItemStreamWriter}, with the reader supplying one item per call.
  *
  * @since 1.1.0
  */
