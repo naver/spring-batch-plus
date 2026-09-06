@@ -24,7 +24,6 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamIteratorReaderProcessorWriter;
@@ -39,13 +38,12 @@ public class SampleTasklet implements ItemStreamIteratorReaderProcessorWriter<In
 	private int count = 0;
 
 	@Override
-	public void onOpenRead(@NonNull ExecutionContext executionContext) {
+	public void onOpenRead(ExecutionContext executionContext) {
 		System.out.println("onOpenRead");
 	}
 
-	@NonNull
 	@Override
-	public Iterator<? extends Integer> readIterator(@NonNull ExecutionContext executionContext) {
+	public Iterator<? extends Integer> readIterator(ExecutionContext executionContext) {
 		System.out.println("totalCount: " + totalCount);
 		return new Iterator<>() {
 			@Override
@@ -61,7 +59,7 @@ public class SampleTasklet implements ItemStreamIteratorReaderProcessorWriter<In
 	}
 
 	@Override
-	public void onUpdateRead(@NonNull ExecutionContext executionContext) {
+	public void onUpdateRead(ExecutionContext executionContext) {
 		System.out.println("onUpdateRead");
 	}
 
@@ -71,24 +69,24 @@ public class SampleTasklet implements ItemStreamIteratorReaderProcessorWriter<In
 	}
 
 	@Override
-	public String process(@NonNull Integer item) {
+	public String process(Integer item) {
 		return "'" + item.toString() + "'";
 	}
 
 	@Override
-	public void onOpenWrite(@NonNull ExecutionContext executionContext) {
+	public void onOpenWrite(ExecutionContext executionContext) {
 		System.out.println("onOpenWrite");
 	}
 
 	@Override
-	public void write(@NonNull Chunk<? extends String> chunk) {
+	public void write(Chunk<? extends String> chunk) {
 		System.out.println(chunk.getItems());
 	}
 
 	@Override
-	public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
+	public void onUpdateWrite(ExecutionContext executionContext) {
 		System.out.println("onUpdateWrite");
-		executionContext.putString("samplekey", "samplevlaue");
+		executionContext.putString("samplekey", "samplevalue");
 	}
 
 	@Override

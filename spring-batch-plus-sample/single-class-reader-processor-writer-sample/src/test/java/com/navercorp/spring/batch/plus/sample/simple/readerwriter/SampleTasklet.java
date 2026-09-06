@@ -21,7 +21,6 @@ package com.navercorp.spring.batch.plus.sample.simple.readerwriter;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamSimpleReaderWriter;
@@ -45,7 +44,7 @@ class SampleTasklet implements ItemStreamSimpleReaderWriter<Integer> {
 	}
 
 	@Override
-	public void write(@NonNull Chunk<? extends Integer> chunk) {
+	public void write(Chunk<? extends Integer> chunk) {
 		System.out.println(chunk.getItems());
 	}
 }

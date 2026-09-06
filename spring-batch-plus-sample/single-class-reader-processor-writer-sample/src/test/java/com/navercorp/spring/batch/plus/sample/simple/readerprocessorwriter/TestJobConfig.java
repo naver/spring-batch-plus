@@ -35,14 +35,15 @@ public class TestJobConfig {
 
 	@Bean
 	public Job testJob(
-		com.navercorp.spring.batch.plus.sample.simple.readerprocessorwriter.SampleTasklet sampleTasklet,
+		SampleTasklet sampleTasklet,
 		JobRepository jobRepository,
 		PlatformTransactionManager transactionManager
 	) {
 		return new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, String>chunk(3, transactionManager)
+					.<Integer, String>chunk(3)
+					.transactionManager(transactionManager)
 					.reader(itemStreamReader(sampleTasklet))
 					.processor(itemProcessor(sampleTasklet))
 					.writer(itemStreamWriter(sampleTasklet))

@@ -36,7 +36,8 @@ open class TestJobConfig(
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(sampleTasklet.asItemStreamReader())
                         processor(sampleTasklet.asItemProcessor())
                         writer { chunk -> println(chunk.items) }
