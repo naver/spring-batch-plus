@@ -35,11 +35,14 @@ import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
 import reactor.core.publisher.Flux;
 
+/**
+ * Covers the blocking reader contract over a Flux-backed stream delegate.
+ */
 @SuppressWarnings("unchecked")
 class ItemStreamFluxReaderAdapterTest {
 
 	@Test
-	void openShouldInvokeProperDelegateMethods() {
+	void openShouldInitializeFromDelegate() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
 
@@ -50,7 +53,7 @@ class ItemStreamFluxReaderAdapterTest {
 	}
 
 	@Test
-	void readShouldReturnValuesFromDelegate() throws Exception {
+	void readShouldReturnAllSourceItems() throws Exception {
 		List<Integer> expected = List.of(1, 2, 3);
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		when(delegate.readFlux(any())).thenAnswer($ -> Flux.fromIterable(expected));
@@ -67,7 +70,7 @@ class ItemStreamFluxReaderAdapterTest {
 	}
 
 	@Test
-	void readShouldThrowExceptionWhenNoOpenInvoked() {
+	void readShouldFailWhenAdapterIsNotOpened() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
 
@@ -75,7 +78,7 @@ class ItemStreamFluxReaderAdapterTest {
 	}
 
 	@Test
-	void updateShouldInvokeProperDelegateMethod() {
+	void updateShouldForwardExecutionContextToDelegate() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
 
@@ -85,7 +88,7 @@ class ItemStreamFluxReaderAdapterTest {
 	}
 
 	@Test
-	void closeShouldInvokeProperDelegateMethod() {
+	void closeShouldNotifyDelegate() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = mock(ItemStreamFluxReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamFluxReaderAdapter.of(delegate);
 
@@ -96,7 +99,7 @@ class ItemStreamFluxReaderAdapterTest {
 
 	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
-	void createShouldThrowExceptionWhenPassingNull() {
+	void ofShouldRejectNullDelegate() {
 		assertThatThrownBy(() -> ItemStreamFluxReaderAdapter.of(null));
 	}
 }

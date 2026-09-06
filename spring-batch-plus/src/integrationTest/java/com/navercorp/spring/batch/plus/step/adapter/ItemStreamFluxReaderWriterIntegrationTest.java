@@ -52,13 +52,18 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.TransactionManager;
 
+import reactor.core.publisher.Flux;
+
+/**
+ * Covers how delegate scope controls state isolation across step executions.
+ */
 @SuppressWarnings({"unchecked", "unused"})
-class ItemStreamSimpleReaderWriterIT {
+class ItemStreamFluxReaderWriterIntegrationTest {
 
 	private static final int TEST_REPEAT_COUNT = 5;
 
 	@RepeatedTest(TEST_REPEAT_COUNT)
-	void simpleReaderWriterShouldNotKeepCountWhenStepScoped() throws Exception {
+	void stepScopedDelegateShouldUseFreshStateForEachStepExecution() throws Exception {
 		int itemCount = ThreadLocalRandom.current().nextInt(10, 100);
 		int chunkCount = ThreadLocalRandom.current().nextInt(1, 10);
 		InvokeCountContext invokeCountContext = new InvokeCountContext();
@@ -67,8 +72,8 @@ class ItemStreamSimpleReaderWriterIT {
 		context.registerBean("invokeCountContext", InvokeCountContext.class, () -> invokeCountContext);
 		context.register(StepScopedConfiguration.class);
 		context.refresh();
-		ItemStreamSimpleReaderWriter<Integer> testTasklet = context.getBean("testTasklet",
-			ItemStreamSimpleReaderWriter.class);
+		ItemStreamFluxReaderWriter<Integer> testTasklet = context.getBean("testTasklet",
+			ItemStreamFluxReaderWriter.class);
 		JobRepository jobRepository = context.getBean(JobRepository.class);
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
@@ -93,20 +98,19 @@ class ItemStreamSimpleReaderWriterIT {
 		}
 
 		assertThat(jobExecutions).allSatisfy(it -> assertThat(it.getStatus()).isEqualTo(BatchStatus.COMPLETED));
-		// stream callback should be invoked
+		assertThat(invokeCountContext.readContextCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onOpenReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateReadCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onOpenWriteCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateWriteCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseWriteCallCount).isEqualTo(repeatCount);
-		// 'count' field is isolated per job instances since it is step scoped. so count is 0 for all job instances
 		int writeCountPerIteration = (int)Math.ceil((double)itemCount / (double)chunkCount);
 		assertThat(invokeCountContext.writeCallCount).isEqualTo(repeatCount * writeCountPerIteration);
 	}
 
 	@RepeatedTest(TEST_REPEAT_COUNT)
-	void simpleReaderWriterShouldKeepCountWhenNotStepScoped() throws Exception {
+	void singletonDelegateShouldReuseStateAcrossStepExecutions() throws Exception {
 		int itemCount = ThreadLocalRandom.current().nextInt(10, 100);
 		int chunkCount = ThreadLocalRandom.current().nextInt(1, 10);
 		InvokeCountContext invokeCountContext = new InvokeCountContext();
@@ -115,8 +119,8 @@ class ItemStreamSimpleReaderWriterIT {
 		context.registerBean("invokeCountContext", InvokeCountContext.class, () -> invokeCountContext);
 		context.register(NotStepScopedConfiguration.class);
 		context.refresh();
-		ItemStreamSimpleReaderWriter<Integer> testTasklet = context.getBean("testTasklet",
-			ItemStreamSimpleReaderWriter.class);
+		ItemStreamFluxReaderWriter<Integer> testTasklet = context.getBean("testTasklet",
+			ItemStreamFluxReaderWriter.class);
 		JobRepository jobRepository = context.getBean(JobRepository.class);
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
@@ -141,14 +145,13 @@ class ItemStreamSimpleReaderWriterIT {
 		}
 
 		assertThat(jobExecutions).allSatisfy(it -> assertThat(it.getStatus()).isEqualTo(BatchStatus.COMPLETED));
-		// stream callback should be invoked
+		assertThat(invokeCountContext.readContextCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onOpenReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateReadCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onOpenWriteCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateWriteCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseWriteCallCount).isEqualTo(repeatCount);
-		// write should be invoked only once per iteration
 		int writeCountPerIteration = (int)Math.ceil((double)itemCount / (double)chunkCount);
 		assertThat(invokeCountContext.writeCallCount).isEqualTo(writeCountPerIteration);
 	}
@@ -176,7 +179,8 @@ class ItemStreamSimpleReaderWriterIT {
 
 		@StepScope
 		@Bean
-		TestTasklet testTasklet(InvokeCountContext invokeCountContext, int itemCount) {
+		TestTasklet testTasklet(
+			InvokeCountContext invokeCountContext, int itemCount) {
 			return new TestTasklet(invokeCountContext, itemCount);
 		}
 	}
@@ -203,12 +207,13 @@ class ItemStreamSimpleReaderWriterIT {
 		}
 
 		@Bean
-		TestTasklet testTasklet(InvokeCountContext invokeCountContext, int itemCount) {
+		TestTasklet testTasklet(
+			InvokeCountContext invokeCountContext, int itemCount) {
 			return new TestTasklet(invokeCountContext, itemCount);
 		}
 	}
 
-	private static class TestTasklet implements ItemStreamSimpleReaderWriter<Integer> {
+	private static class TestTasklet implements ItemStreamFluxReaderWriter<Integer> {
 
 		private int count = 0;
 		private final InvokeCountContext invokeCountContext;
@@ -225,12 +230,16 @@ class ItemStreamSimpleReaderWriterIT {
 		}
 
 		@Override
-		public Integer read() {
-			if (this.count < this.itemCount) {
-				return this.count++;
-			} else {
-				return null;
-			}
+		public Flux<Integer> readFlux(ExecutionContext executionContext) {
+			this.invokeCountContext.readContextCallCount++;
+			return Flux.generate(sink -> {
+				if (count < itemCount) {
+					sink.next(count);
+					++count;
+				} else {
+					sink.complete();
+				}
+			});
 		}
 
 		@Override
@@ -266,6 +275,7 @@ class ItemStreamSimpleReaderWriterIT {
 
 	private static class InvokeCountContext {
 		int onOpenReadCallCount = 0;
+		int readContextCallCount = 0;
 		int onUpdateReadCallCount = 0;
 		int onCloseReadCallCount = 0;
 		int onOpenWriteCallCount = 0;

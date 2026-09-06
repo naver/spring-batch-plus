@@ -53,13 +53,16 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.TransactionManager;
 
+/**
+ * Covers how delegate scope controls state isolation across step executions.
+ */
 @SuppressWarnings({"unchecked", "unused"})
-class ItemStreamSimpleReaderProcessorWriterIT {
+class ItemStreamSimpleReaderProcessorWriterIntegrationTest {
 
 	private static final int TEST_REPEAT_COUNT = 5;
 
 	@RepeatedTest(TEST_REPEAT_COUNT)
-	void simpleReaderProcessorWriterShouldNotKeepCountWhenStepScoped() throws Exception {
+	void stepScopedDelegateShouldUseFreshStateForEachStepExecution() throws Exception {
 		int itemCount = ThreadLocalRandom.current().nextInt(10, 100);
 		int chunkCount = ThreadLocalRandom.current().nextInt(1, 10);
 		InvokeCountContext invokeCountContext = new InvokeCountContext();
@@ -95,21 +98,19 @@ class ItemStreamSimpleReaderProcessorWriterIT {
 		}
 
 		assertThat(jobExecutions).allSatisfy(it -> assertThat(it.getStatus()).isEqualTo(BatchStatus.COMPLETED));
-		// stream callback should be invoked
 		assertThat(invokeCountContext.onOpenReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateReadCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onOpenWriteCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateWriteCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseWriteCallCount).isEqualTo(repeatCount);
-		// 'count' field is isolated per job instances since it is step scoped. so count is 0 for all job instances
 		assertThat(invokeCountContext.processCallCount).isEqualTo(repeatCount * itemCount);
 		int writeCountPerIteration = (int)Math.ceil((double)itemCount / (double)chunkCount);
 		assertThat(invokeCountContext.writeCallCount).isEqualTo(repeatCount * writeCountPerIteration);
 	}
 
 	@RepeatedTest(TEST_REPEAT_COUNT)
-	void simpleReaderProcessorWriterShouldKeepCountWhenNotStepScoped() throws Exception {
+	void singletonDelegateShouldReuseStateAcrossStepExecutions() throws Exception {
 		int itemCount = ThreadLocalRandom.current().nextInt(10, 100);
 		int chunkCount = ThreadLocalRandom.current().nextInt(1, 10);
 		InvokeCountContext invokeCountContext = new InvokeCountContext();
@@ -145,14 +146,12 @@ class ItemStreamSimpleReaderProcessorWriterIT {
 		}
 
 		assertThat(jobExecutions).allSatisfy(it -> assertThat(it.getStatus()).isEqualTo(BatchStatus.COMPLETED));
-		// stream callback should be invoked
 		assertThat(invokeCountContext.onOpenReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateReadCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onOpenWriteCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateWriteCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseWriteCallCount).isEqualTo(repeatCount);
-		// process, write should be invoked only once per iteration
 		assertThat(invokeCountContext.processCallCount).isEqualTo(itemCount);
 		int writeCountPerIteration = (int)Math.ceil((double)itemCount / (double)chunkCount);
 		assertThat(invokeCountContext.writeCallCount).isEqualTo(writeCountPerIteration);

@@ -18,8 +18,8 @@
 
 package com.navercorp.spring.batch.plus.step.adapter;
 
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemProcessor;
 import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamWriter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
@@ -43,7 +43,6 @@ import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -53,13 +52,16 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.TransactionManager;
 
+/**
+ * Covers how delegate scope controls state isolation across step executions.
+ */
 @SuppressWarnings({"unchecked", "unused"})
-class ItemStreamIteratorReaderWriterIT {
+class ItemStreamIterableReaderProcessorIntegrationTest {
 
 	private static final int TEST_REPEAT_COUNT = 5;
 
 	@RepeatedTest(TEST_REPEAT_COUNT)
-	void iteratorReaderWriterShouldNotKeepCountWhenStepScoped() throws Exception {
+	void stepScopedDelegateShouldUseFreshStateForEachStepExecution() throws Exception {
 		int itemCount = ThreadLocalRandom.current().nextInt(10, 100);
 		int chunkCount = ThreadLocalRandom.current().nextInt(1, 10);
 		InvokeCountContext invokeCountContext = new InvokeCountContext();
@@ -68,8 +70,8 @@ class ItemStreamIteratorReaderWriterIT {
 		context.registerBean("invokeCountContext", InvokeCountContext.class, () -> invokeCountContext);
 		context.register(StepScopedConfiguration.class);
 		context.refresh();
-		ItemStreamIteratorReaderWriter<Integer> testTasklet = context.getBean("testTasklet",
-			ItemStreamIteratorReaderWriter.class);
+		ItemStreamIterableReaderProcessor<Integer, Integer> testTasklet = context.getBean("testTasklet",
+			ItemStreamIterableReaderProcessor.class);
 		JobRepository jobRepository = context.getBean(JobRepository.class);
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
@@ -77,7 +79,9 @@ class ItemStreamIteratorReaderWriterIT {
 					.<Integer, Integer>chunk(chunkCount)
 					.transactionManager(new ResourcelessTransactionManager())
 					.reader(itemStreamReader(testTasklet))
-					.writer(itemStreamWriter(testTasklet))
+					.processor(itemProcessor(testTasklet))
+					.writer($ -> {
+					})
 					.build()
 			)
 			.build();
@@ -94,22 +98,16 @@ class ItemStreamIteratorReaderWriterIT {
 		}
 
 		assertThat(jobExecutions).allSatisfy(it -> assertThat(it.getStatus()).isEqualTo(BatchStatus.COMPLETED));
-		// read context should be invoked
 		assertThat(invokeCountContext.readContextCallCount).isEqualTo(repeatCount);
-		// stream callback should be invoked
 		assertThat(invokeCountContext.onOpenReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateReadCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseReadCallCount).isEqualTo(repeatCount);
-		assertThat(invokeCountContext.onOpenWriteCallCount).isEqualTo(repeatCount);
-		assertThat(invokeCountContext.onUpdateWriteCallCount).isGreaterThanOrEqualTo(repeatCount);
-		assertThat(invokeCountContext.onCloseWriteCallCount).isEqualTo(repeatCount);
-		// 'count' field is isolated per job instances since it is step scoped. so count is 0 for all job instances
+		assertThat(invokeCountContext.processCallCount).isEqualTo(repeatCount * itemCount);
 		int writeCountPerIteration = (int)Math.ceil((double)itemCount / (double)chunkCount);
-		assertThat(invokeCountContext.writeCallCount).isEqualTo(repeatCount * writeCountPerIteration);
 	}
 
 	@RepeatedTest(TEST_REPEAT_COUNT)
-	void iteratorReaderWriterShouldKeepCountWhenNotStepScoped() throws Exception {
+	void singletonDelegateShouldReuseStateAcrossStepExecutions() throws Exception {
 		int itemCount = ThreadLocalRandom.current().nextInt(10, 100);
 		int chunkCount = ThreadLocalRandom.current().nextInt(1, 10);
 		InvokeCountContext invokeCountContext = new InvokeCountContext();
@@ -118,8 +116,8 @@ class ItemStreamIteratorReaderWriterIT {
 		context.registerBean("invokeCountContext", InvokeCountContext.class, () -> invokeCountContext);
 		context.register(NotStepScopedConfiguration.class);
 		context.refresh();
-		ItemStreamIteratorReaderWriter<Integer> testTasklet = context.getBean("testTasklet",
-			ItemStreamIteratorReaderWriter.class);
+		ItemStreamIterableReaderProcessor<Integer, Integer> testTasklet = context.getBean("testTasklet",
+			ItemStreamIterableReaderProcessor.class);
 		JobRepository jobRepository = context.getBean(JobRepository.class);
 		Job job = new JobBuilder("testJob", jobRepository)
 			.start(
@@ -127,7 +125,9 @@ class ItemStreamIteratorReaderWriterIT {
 					.<Integer, Integer>chunk(chunkCount)
 					.transactionManager(new ResourcelessTransactionManager())
 					.reader(itemStreamReader(testTasklet))
-					.writer(itemStreamWriter(testTasklet))
+					.processor(itemProcessor(testTasklet))
+					.writer($ -> {
+					})
 					.build()
 			)
 			.build();
@@ -144,18 +144,12 @@ class ItemStreamIteratorReaderWriterIT {
 		}
 
 		assertThat(jobExecutions).allSatisfy(it -> assertThat(it.getStatus()).isEqualTo(BatchStatus.COMPLETED));
-		// read context should be invoked
 		assertThat(invokeCountContext.readContextCallCount).isEqualTo(repeatCount);
-		// stream callback should be invoked
 		assertThat(invokeCountContext.onOpenReadCallCount).isEqualTo(repeatCount);
 		assertThat(invokeCountContext.onUpdateReadCallCount).isGreaterThanOrEqualTo(repeatCount);
 		assertThat(invokeCountContext.onCloseReadCallCount).isEqualTo(repeatCount);
-		assertThat(invokeCountContext.onOpenWriteCallCount).isEqualTo(repeatCount);
-		assertThat(invokeCountContext.onUpdateWriteCallCount).isGreaterThanOrEqualTo(repeatCount);
-		assertThat(invokeCountContext.onCloseWriteCallCount).isEqualTo(repeatCount);
-		// process, write should be invoked only once per iteration
+		assertThat(invokeCountContext.processCallCount).isEqualTo(itemCount);
 		int writeCountPerIteration = (int)Math.ceil((double)itemCount / (double)chunkCount);
-		assertThat(invokeCountContext.writeCallCount).isEqualTo(writeCountPerIteration);
 	}
 
 	@EnableBatchProcessing
@@ -215,7 +209,7 @@ class ItemStreamIteratorReaderWriterIT {
 		}
 	}
 
-	private static class TestTasklet implements ItemStreamIteratorReaderWriter<Integer> {
+	private static class TestTasklet implements ItemStreamIterableReaderProcessor<Integer, Integer> {
 
 		private int count = 0;
 		private final InvokeCountContext invokeCountContext;
@@ -232,9 +226,9 @@ class ItemStreamIteratorReaderWriterIT {
 		}
 
 		@Override
-		public Iterator<? extends Integer> readIterator(ExecutionContext executionContext) {
+		public Iterable<? extends Integer> readIterable(ExecutionContext executionContext) {
 			this.invokeCountContext.readContextCallCount++;
-			return new Iterator<>() {
+			return () -> new Iterator<>() {
 				@Override
 				public boolean hasNext() {
 					return count < itemCount;
@@ -262,23 +256,9 @@ class ItemStreamIteratorReaderWriterIT {
 		}
 
 		@Override
-		public void onOpenWrite(ExecutionContext executionContext) {
-			this.invokeCountContext.onOpenWriteCallCount++;
-		}
-
-		@Override
-		public void write(Chunk<? extends Integer> chunk) {
-			this.invokeCountContext.writeCallCount++;
-		}
-
-		@Override
-		public void onUpdateWrite(ExecutionContext executionContext) {
-			this.invokeCountContext.onUpdateWriteCallCount++;
-		}
-
-		@Override
-		public void onCloseWrite() {
-			this.invokeCountContext.onCloseWriteCallCount++;
+		public Integer process(Integer item) {
+			this.invokeCountContext.processCallCount++;
+			return item;
 		}
 	}
 
@@ -287,9 +267,6 @@ class ItemStreamIteratorReaderWriterIT {
 		int readContextCallCount = 0;
 		int onUpdateReadCallCount = 0;
 		int onCloseReadCallCount = 0;
-		int onOpenWriteCallCount = 0;
-		int writeCallCount = 0;
-		int onUpdateWriteCallCount = 0;
-		int onCloseWriteCallCount = 0;
+		int processCallCount = 0;
 	}
 }

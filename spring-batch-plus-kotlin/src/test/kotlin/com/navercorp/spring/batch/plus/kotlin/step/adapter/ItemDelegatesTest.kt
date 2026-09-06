@@ -31,64 +31,55 @@ import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
+/**
+ * Covers the Kotlin extension boundary that converts item delegates into Spring Batch adapters.
+ */
 internal class ItemDelegatesTest {
     @Test
-    fun testAsItemStreamReaderOnItemStreamFluxReaderDelegate() {
-        // when
+    fun asItemStreamReaderShouldReturnStepScopedReaderWhenFluxDelegateIsProvided() {
         val delegate = mockk<ItemStreamFluxReaderDelegate<*>>()
         val itemStreamReader = delegate.asItemStreamReader()
 
-        // then
         assertThat(itemStreamReader).isInstanceOf(StepScopeItemStreamReader::class.java)
     }
 
     @Test
-    fun testAsItemStreamReaderOnItemStreamIterableReaderDelegate() {
-        // when
+    fun asItemStreamReaderShouldReturnStepScopedReaderWhenIterableDelegateIsProvided() {
         val delegate = mockk<ItemStreamIterableReaderDelegate<*>>()
         val itemStreamReader = delegate.asItemStreamReader()
 
-        // then
         assertThat(itemStreamReader).isInstanceOf(StepScopeItemStreamReader::class.java)
     }
 
     @Test
-    fun testAsItemStreamReaderOnItemStreamIteratorReaderDelegate() {
-        // when
+    fun asItemStreamReaderShouldReturnStepScopedReaderWhenIteratorDelegateIsProvided() {
         val delegate = mockk<ItemStreamIteratorReaderDelegate<*>>()
         val itemStreamReader = delegate.asItemStreamReader()
 
-        // then
         assertThat(itemStreamReader).isInstanceOf(StepScopeItemStreamReader::class.java)
     }
 
     @Test
-    fun testAsItemStreamReaderOnItemStreamSimpleReaderDelegate() {
-        // when
+    fun asItemStreamReaderShouldReturnStepScopedReaderWhenSimpleDelegateIsProvided() {
         val delegate = mockk<ItemStreamSimpleReaderDelegate<*>>()
         val itemStreamReader = delegate.asItemStreamReader()
 
-        // then
         assertThat(itemStreamReader).isInstanceOf(StepScopeItemStreamReader::class.java)
     }
 
     @Test
-    fun testAsItemProcessor() {
-        // when
+    fun asItemProcessorShouldReturnItemProcessorAdapterWhenDelegateIsProvided() {
         val delegate = mockk<ItemProcessorDelegate<*, *>>()
         val itemProcessor = delegate.asItemProcessor()
 
-        // then
         assertThat(itemProcessor).isInstanceOf(ItemProcessorAdapter::class.java)
     }
 
     @Test
-    fun testAsItemStreamWriter() {
-        // when
+    fun asItemStreamWriterShouldReturnItemStreamWriterAdapterWhenDelegateIsProvided() {
         val delegate = mockk<ItemStreamWriterDelegate<*>>()
         val itemStreamWriter = delegate.asItemStreamWriter()
 
-        // then
         assertThat(itemStreamWriter).isInstanceOf(ItemStreamWriterAdapter::class.java)
     }
 }

@@ -32,11 +32,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
+/**
+ * Covers the blocking reader contract over a delegate that supplies one item per call.
+ */
 @SuppressWarnings("unchecked")
 class ItemStreamSimpleReaderAdapterTest {
 
 	@Test
-	void openShouldInvokeProperDelegateMethod() {
+	void openShouldNotifyDelegate() {
 		ItemStreamSimpleReaderDelegate<Integer> delegate = mock(ItemStreamSimpleReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamSimpleReaderAdapter.of(delegate);
 
@@ -46,7 +49,7 @@ class ItemStreamSimpleReaderAdapterTest {
 	}
 
 	@Test
-	void readShouldReturnValuesFromDelegate() throws Exception {
+	void readShouldReturnDelegateItem() throws Exception {
 		Integer expected = ThreadLocalRandom.current().nextInt();
 		ItemStreamSimpleReaderDelegate<Integer> delegate = mock(ItemStreamSimpleReaderDelegate.class);
 		when(delegate.read()).thenReturn(expected);
@@ -58,7 +61,7 @@ class ItemStreamSimpleReaderAdapterTest {
 	}
 
 	@Test
-	void updateShouldInvokeProperDelegateMethod() {
+	void updateShouldForwardExecutionContextToDelegate() {
 		ItemStreamSimpleReaderDelegate<Integer> delegate = mock(ItemStreamSimpleReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamSimpleReaderAdapter.of(delegate);
 
@@ -68,7 +71,7 @@ class ItemStreamSimpleReaderAdapterTest {
 	}
 
 	@Test
-	void closeShouldInvokeProperDelegateMethod() {
+	void closeShouldNotifyDelegate() {
 		ItemStreamSimpleReaderDelegate<Integer> delegate = mock(ItemStreamSimpleReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamSimpleReaderAdapter.of(delegate);
 
@@ -79,7 +82,7 @@ class ItemStreamSimpleReaderAdapterTest {
 
 	@SuppressWarnings({"ConstantConditions"})
 	@Test
-	void createShouldThrowExceptionWhenPassingNull() {
+	void ofShouldRejectNullDelegate() {
 		assertThatThrownBy(() -> ItemStreamSimpleReaderAdapter.of(null));
 	}
 }
