@@ -158,6 +158,47 @@ internal class JobBuilderDslFlowCreationIntegrationTest {
     }
 
     @Test
+    fun flowShouldCreateFlowJobWhenInitialStepBeanNameIsProvided() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobOperator = context.getBean<JobOperator>()
+        val batch = context.getBean<BatchDsl>()
+        var testStepCallCount = 0
+        val testStep =
+            batch {
+                step("testStep") {
+                    tasklet(
+                        { _, _ ->
+                            ++testStepCallCount
+                            RepeatStatus.FINISHED
+                        },
+                        ResourcelessTransactionManager(),
+                    )
+                }
+            }
+        context.registerBean("testStep") {
+            testStep
+        }
+
+        // when
+        val job =
+            batch {
+                job("testJob") {
+                    flow("testFlow") {
+                        stepBean("testStep")
+                    }
+                }
+            }
+        val jobExecution = jobOperator.start(job, JobParameters())
+
+        // then
+        assertThat(job).isInstanceOf(FlowJob::class.java)
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(jobExecution.exitStatus.exitCode).isEqualTo(ExitStatus.COMPLETED.exitCode)
+        assertThat(testStepCallCount).isEqualTo(1)
+    }
+
+    @Test
     fun flowShouldCreateFlowJobWhenFlowInstancesAreProvided() {
         // given
         val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
