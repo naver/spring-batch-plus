@@ -19,16 +19,16 @@
 package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.BatchDslMarker
-import org.springframework.batch.core.job.builder.FlowBuilder
+import org.springframework.batch.core.job.builder.FlowJobBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.step.Step
 import org.springframework.core.task.TaskExecutor
 
 /**
- * Declaration surface for flow-like builder targets.
- * [T] is the type produced by the underlying Spring Batch [FlowBuilder].
+ * Shared DSL for declaring either a standalone [Flow] or the flow of a job.
  *
+ * @param T [Flow] for standalone flow declarations, or [FlowJobBuilder] for flow-job declarations
  * @since 0.1.0
  */
 @BatchDslMarker
