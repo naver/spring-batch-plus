@@ -35,11 +35,14 @@ import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.batch.test.MetaDataInstanceFactory;
 import org.springframework.batch.test.StepScopeTestUtils;
 
+/**
+ * Covers delegate creation and reuse within an active Spring Batch step scope.
+ */
 @SuppressWarnings("unchecked")
 class StepScopeItemStreamReaderTest {
 
 	@Test
-	void openShouldInvokeProperDelegateMethod() throws Exception {
+	void openShouldDelegateToScopedReader() throws Exception {
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
 		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
@@ -53,7 +56,7 @@ class StepScopeItemStreamReaderTest {
 	}
 
 	@Test
-	void readShouldReturnValueFromDelegate() throws Exception {
+	void readShouldReturnScopedDelegateItem() throws Exception {
 		Integer expected = ThreadLocalRandom.current().nextInt();
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
 		when(delegate.read()).thenReturn(expected);
@@ -66,7 +69,7 @@ class StepScopeItemStreamReaderTest {
 	}
 
 	@Test
-	void updateShouldInvokeProperDelegateMethod() throws Exception {
+	void updateShouldDelegateToScopedReader() throws Exception {
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
 		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
@@ -80,7 +83,7 @@ class StepScopeItemStreamReaderTest {
 	}
 
 	@Test
-	void closeShouldInvokeProperDelegateMethod() throws Exception {
+	void closeShouldDelegateToScopedReader() throws Exception {
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
 		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
@@ -94,7 +97,7 @@ class StepScopeItemStreamReaderTest {
 	}
 
 	@Test
-	void invokeShouldThrowExceptionWhenNoStepScope() {
+	void operationsShouldFailWhenCalledOutsideStepScope() {
 		ItemStreamReader<Integer> delegate = mock(ItemStreamReader.class);
 		ItemStreamReader<Integer> itemStreamReader = StepScopeItemStreamReader.of(() -> delegate);
 
@@ -113,7 +116,7 @@ class StepScopeItemStreamReaderTest {
 	}
 
 	@Test
-	void createShouldThrowExceptionWhenPassingNull() {
+	void ofShouldRejectNullDelegateSupplier() {
 		assertThatThrownBy(() -> StepScopeItemStreamReader.of(null));
 	}
 }

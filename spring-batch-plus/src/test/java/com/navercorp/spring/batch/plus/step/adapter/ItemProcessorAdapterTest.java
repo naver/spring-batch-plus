@@ -29,11 +29,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 
+/**
+ * Covers preservation of the processing delegate contract through its Spring Batch adapter.
+ */
 @SuppressWarnings("unchecked")
 class ItemProcessorAdapterTest {
 
 	@Test
-	void processShouldReturnValueFromDelegate() throws Exception {
+	void processShouldReturnDelegateResult() throws Exception {
 		Integer expected = ThreadLocalRandom.current().nextInt();
 		ItemProcessorDelegate<Integer, Integer> delegate = mock(ItemProcessorDelegate.class);
 		when(delegate.process(any())).thenReturn(expected);
@@ -46,7 +49,7 @@ class ItemProcessorAdapterTest {
 
 	@SuppressWarnings({"ConstantConditions"})
 	@Test
-	void createShouldThrowExceptionWhenPassingNull() {
+	void ofShouldRejectNullDelegate() {
 		assertThatThrownBy(() -> ItemProcessorAdapter.of(null));
 	}
 }

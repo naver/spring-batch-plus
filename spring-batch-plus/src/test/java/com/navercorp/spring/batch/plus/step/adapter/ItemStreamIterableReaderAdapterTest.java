@@ -33,11 +33,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
+/**
+ * Covers the blocking reader contract over an Iterable-backed stream delegate.
+ */
 @SuppressWarnings("unchecked")
 class ItemStreamIterableReaderAdapterTest {
 
 	@Test
-	void openShouldInvokeProperDelegateMethods() {
+	void openShouldInitializeFromDelegate() {
 		ItemStreamIterableReaderDelegate<Integer> delegate = mock(ItemStreamIterableReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIterableReaderAdapter.of(delegate);
 
@@ -48,7 +51,7 @@ class ItemStreamIterableReaderAdapterTest {
 	}
 
 	@Test
-	void readShouldReturnValuesFromDelegate() throws Exception {
+	void readShouldReturnAllSourceItems() throws Exception {
 		List<Integer> expected = List.of(1, 2, 3);
 		ItemStreamIterableReaderDelegate<Integer> delegate = mock(ItemStreamIterableReaderDelegate.class);
 		when(delegate.readIterable(any())).thenAnswer($ -> expected);
@@ -65,7 +68,7 @@ class ItemStreamIterableReaderAdapterTest {
 	}
 
 	@Test
-	void readShouldThrowExceptionWhenNoOpenInvoked() {
+	void readShouldFailWhenAdapterIsNotOpened() {
 		ItemStreamIterableReaderDelegate<Integer> delegate = mock(ItemStreamIterableReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIterableReaderAdapter.of(delegate);
 
@@ -73,7 +76,7 @@ class ItemStreamIterableReaderAdapterTest {
 	}
 
 	@Test
-	void updateShouldInvokeProperDelegateMethod() {
+	void updateShouldForwardExecutionContextToDelegate() {
 		ItemStreamIterableReaderDelegate<Integer> delegate = mock(ItemStreamIterableReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIterableReaderAdapter.of(delegate);
 
@@ -83,7 +86,7 @@ class ItemStreamIterableReaderAdapterTest {
 	}
 
 	@Test
-	void closeShouldInvokeProperDelegateMethod() {
+	void closeShouldNotifyDelegate() {
 		ItemStreamIterableReaderDelegate<Integer> delegate = mock(ItemStreamIterableReaderDelegate.class);
 		ItemStreamReader<Integer> itemStreamReader = ItemStreamIterableReaderAdapter.of(delegate);
 
@@ -94,7 +97,7 @@ class ItemStreamIterableReaderAdapterTest {
 
 	@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 	@Test
-	void createShouldThrowExceptionWhenPassingNull() {
+	void ofShouldRejectNullDelegate() {
 		assertThatThrownBy(() -> ItemStreamIterableReaderAdapter.of(null));
 	}
 }

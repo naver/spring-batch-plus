@@ -31,10 +31,13 @@ import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 
 import reactor.core.publisher.Flux;
 
+/**
+ * Covers delegate conversion and step-scoped reader wrapping across Spring Batch item components.
+ */
 class AdapterFactoryTest {
 
 	@Test
-	void itemStreamReaderShouldReturnStepScopedOneWhenPassingItemReaderWithFluxDelegate() {
+	void itemStreamReaderShouldReturnStepScopedReaderWhenFluxDelegateIsProvided() {
 		ItemStreamFluxReaderDelegate<Integer> delegate = executionContext -> Flux.empty();
 		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
@@ -42,7 +45,7 @@ class AdapterFactoryTest {
 	}
 
 	@Test
-	void itemStreamReaderShouldReturnStepScopedOneWhenPassingItemReaderWithIterableDelegate() {
+	void itemStreamReaderShouldReturnStepScopedReaderWhenIterableDelegateIsProvided() {
 		ItemStreamIterableReaderDelegate<Integer> delegate = executionContext -> List.of();
 		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
@@ -50,7 +53,7 @@ class AdapterFactoryTest {
 	}
 
 	@Test
-	void itemStreamReaderShouldReturnStepScopedOneWhenPassingItemReaderWithIteratorDelegate() {
+	void itemStreamReaderShouldReturnStepScopedReaderWhenIteratorDelegateIsProvided() {
 		ItemStreamIteratorReaderDelegate<Integer> delegate = executionContext -> Collections.emptyIterator();
 		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
@@ -58,7 +61,7 @@ class AdapterFactoryTest {
 	}
 
 	@Test
-	void itemStreamReaderShouldReturnStepScopedOneWhenPassingItemReaderWithSimpleDelegate() {
+	void itemStreamReaderShouldReturnStepScopedReaderWhenSimpleDelegateIsProvided() {
 		ItemStreamSimpleReaderDelegate<Integer> delegate = () -> null;
 		ItemStreamReader<Integer> actual = AdapterFactory.itemStreamReader(delegate);
 
@@ -66,7 +69,7 @@ class AdapterFactoryTest {
 	}
 
 	@Test
-	void itemProcessorShouldReturnAdapterWhenPassingProcessorDelegate() {
+	void itemProcessorShouldReturnProcessorAdapterWhenDelegateIsProvided() {
 		ItemProcessorDelegate<Integer, Integer> delegate = item -> null;
 		ItemProcessor<Integer, Integer> actual = AdapterFactory.itemProcessor(delegate);
 
@@ -74,7 +77,7 @@ class AdapterFactoryTest {
 	}
 
 	@Test
-	void itemStreamWriterShouldReturnAdapterWhenPassingWriterDelegate() {
+	void itemStreamWriterShouldReturnWriterAdapterWhenDelegateIsProvided() {
 		ItemStreamWriterDelegate<Integer> delegate = items -> {
 		};
 		ItemStreamWriter<Integer> actual = AdapterFactory.itemStreamWriter(delegate);
@@ -84,7 +87,7 @@ class AdapterFactoryTest {
 
 	@SuppressWarnings({"ConstantConditions"})
 	@Test
-	void createShouldThrowExceptionWhenPassingNull() {
+	void adapterCreationShouldRejectNullDelegate() {
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamFluxReaderDelegate<?>)null));
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamIterableReaderDelegate<?>)null));
 		assertThatThrownBy(() -> AdapterFactory.itemStreamReader((ItemStreamIteratorReaderDelegate<?>)null));

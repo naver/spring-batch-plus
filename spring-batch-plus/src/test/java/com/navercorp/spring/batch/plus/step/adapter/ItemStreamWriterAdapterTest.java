@@ -29,11 +29,14 @@ import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 
+/**
+ * Covers the stream lifecycle and chunk-writing contract exposed by the writer adapter.
+ */
 @SuppressWarnings("unchecked")
 class ItemStreamWriterAdapterTest {
 
 	@Test
-	void openShouldInvokeProperDelegateMethod() {
+	void openShouldNotifyDelegate() {
 		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
 		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
@@ -43,7 +46,7 @@ class ItemStreamWriterAdapterTest {
 	}
 
 	@Test
-	void writeShouldInvokeProperDelegateMethod() throws Exception {
+	void writeShouldForwardChunkToDelegate() throws Exception {
 		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
 		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
@@ -53,7 +56,7 @@ class ItemStreamWriterAdapterTest {
 	}
 
 	@Test
-	void updateShouldInvokeProperDelegateMethod() {
+	void updateShouldForwardExecutionContextToDelegate() {
 		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
 		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
@@ -63,7 +66,7 @@ class ItemStreamWriterAdapterTest {
 	}
 
 	@Test
-	void closeShouldInvokeProperDelegateMethod() {
+	void closeShouldNotifyDelegate() {
 		ItemStreamWriterDelegate<Integer> delegate = mock(ItemStreamWriterDelegate.class);
 		ItemStreamWriter<Integer> itemStreamWriterAdaptor = ItemStreamWriterAdapter.of(delegate);
 
@@ -74,7 +77,7 @@ class ItemStreamWriterAdapterTest {
 
 	@SuppressWarnings({"ConstantConditions"})
 	@Test
-	void createShouldThrowExceptionWhenPassingNull() {
+	void ofShouldRejectNullDelegate() {
 		assertThatThrownBy(() -> ItemStreamWriterAdapter.of(null));
 	}
 }
