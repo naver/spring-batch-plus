@@ -25,12 +25,10 @@ import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepository
-import org.springframework.batch.core.job.SimpleJob
 import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
-import org.springframework.batch.core.step.Step
 import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager
 import org.springframework.beans.factory.BeanFactory
@@ -46,113 +44,9 @@ import org.springframework.transaction.TransactionManager
 import javax.sql.DataSource
 
 /**
- * Covers the boundary between sequential plain-step jobs and transition-bearing flow jobs.
+ * Covers step declarations whose explicit transitions require flow-job construction.
  */
-internal class JobBuilderDslStepCreationIntegrationTest {
-    @Test
-    fun stepBeanShouldCreateSimpleJobWhenBeanNameIsProvided() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val batch = context.getBean<BatchDsl>()
-        val step = batch.createTaskletStep("testStep")
-        context.registerBean("testStep") {
-            step
-        }
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    stepBean("testStep")
-                }
-            }
-
-        // then
-        assertThat(job).isInstanceOf(SimpleJob::class.java)
-    }
-
-    @Test
-    fun stepShouldCreateSimpleJobWhenInitIsProvided() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val batch = context.getBean<BatchDsl>()
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step("testStep") {
-                        tasklet(
-                            { _, _ -> RepeatStatus.FINISHED },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                }
-            }
-
-        // then
-        assertThat(job).isInstanceOf(SimpleJob::class.java)
-    }
-
-    @Test
-    fun stepShouldCreateSimpleJobWhenInstanceIsProvided() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val batch = context.getBean<BatchDsl>()
-        val step = batch.createTaskletStep("testStep")
-
-        // when
-        val job =
-            batch {
-                job("testJob") {
-                    step(step)
-                }
-            }
-
-        // then
-        assertThat(job).isInstanceOf(SimpleJob::class.java)
-    }
-
-    @Test
-    fun stepsShouldExecuteSequentiallyWhenPlainStepsAreProvided() {
-        // given
-        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
-        val jobOperator = context.getBean<JobOperator>()
-        val batch = context.getBean<BatchDsl>()
-        val executionOrder = mutableListOf<String>()
-
-        val job =
-            batch {
-                job("testJob") {
-                    step("testStep1") {
-                        tasklet(
-                            { _, _ ->
-                                executionOrder += "testStep1"
-                                RepeatStatus.FINISHED
-                            },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                    step("testStep2") {
-                        tasklet(
-                            { _, _ ->
-                                executionOrder += "testStep2"
-                                RepeatStatus.FINISHED
-                            },
-                            ResourcelessTransactionManager(),
-                        )
-                    }
-                }
-            }
-
-        // when
-        val jobExecution = jobOperator.start(job, JobParameters())
-
-        // then
-        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
-        assertThat(executionOrder).containsExactly("testStep1", "testStep2")
-    }
-
+internal class JobBuilderDslTransitionStepCreationIntegrationTest {
     @Test
     fun stepBeanShouldCreateFlowJobWhenBeanNameAndTransitionAreProvided() {
         // given
@@ -404,14 +298,6 @@ internal class JobBuilderDslStepCreationIntegrationTest {
         assertThat(transitionStep2CallCount).isEqualTo(1)
         assertThat(testStep2CallCount).isEqualTo(1)
     }
-
-    private fun BatchDsl.createTaskletStep(name: String): Step =
-        step(name) {
-            tasklet(
-                { _, _ -> RepeatStatus.FINISHED },
-                ResourcelessTransactionManager(),
-            )
-        }
 
     @Configuration
     @EnableBatchProcessing
