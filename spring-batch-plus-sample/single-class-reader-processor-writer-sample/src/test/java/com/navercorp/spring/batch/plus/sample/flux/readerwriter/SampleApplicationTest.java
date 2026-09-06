@@ -24,7 +24,7 @@ import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -34,13 +34,13 @@ public class SampleApplicationTest {
 	@Test
 	void run() throws Exception {
 		ApplicationContext applicationContext = SpringApplication.run(SampleApplicationTest.class);
-		JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+		JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 		Job job = applicationContext.getBean("testJob", Job.class);
 
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addLong("totalCount", 20L)
 			.toJobParameters();
-		JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+		JobExecution jobExecution = jobOperator.start(job, jobParameters);
 
 		assert BatchStatus.COMPLETED.equals(jobExecution.getStatus());
 		System.out.printf("%s%n", jobExecution);

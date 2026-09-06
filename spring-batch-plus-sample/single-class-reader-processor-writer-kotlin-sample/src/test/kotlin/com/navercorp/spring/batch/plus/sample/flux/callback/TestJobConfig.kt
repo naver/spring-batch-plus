@@ -33,11 +33,12 @@ open class TestJobConfig(
     private val transactionManager: PlatformTransactionManager,
 ) {
     @Bean
-    open fun testJob(sampleTasklet: com.navercorp.spring.batch.plus.sample.flux.callback.SampleTasklet): Job =
+    open fun testJob(sampleTasklet: SampleTasklet): Job =
         batch {
             job("testJob") {
                 step("testStep") {
-                    chunk<Int, String>(3, transactionManager) {
+                    chunk<Int, String>(3) {
+                        transactionManager(transactionManager)
                         reader(sampleTasklet.asItemStreamReader())
                         processor(sampleTasklet.asItemProcessor())
                         writer(sampleTasklet.asItemStreamWriter())

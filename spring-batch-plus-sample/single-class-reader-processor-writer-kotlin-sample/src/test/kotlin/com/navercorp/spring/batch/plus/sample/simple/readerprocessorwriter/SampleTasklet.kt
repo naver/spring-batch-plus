@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component
 @Component
 @StepScope
 open class SampleTasklet(
-    @Value("#{jobParameters['totalCount']}") private var totalCount: Long,
+    @param:Value("#{jobParameters['totalCount']}") private var totalCount: Long,
 ) : ItemStreamSimpleReaderProcessorWriter<Int, String> {
     private var count = 0
 

@@ -41,7 +41,8 @@ public class TestJobConfig {
 		return new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, Integer>chunk(3, transactionManager)
+					.<Integer, Integer>chunk(3)
+					.transactionManager(transactionManager)
 					.reader(itemStreamReader(sampleTasklet))
 					.writer(itemStreamWriter(sampleTasklet))
 					.build()

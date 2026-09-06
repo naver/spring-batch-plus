@@ -23,7 +23,6 @@ import java.util.Iterator;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamIterableReaderProcessor;
@@ -37,9 +36,8 @@ class SampleTasklet implements ItemStreamIterableReaderProcessor<Integer, String
 
 	private int count = 0;
 
-	@NonNull
 	@Override
-	public Iterable<? extends Integer> readIterable(@NonNull ExecutionContext executionContext) {
+	public Iterable<? extends Integer> readIterable(ExecutionContext executionContext) {
 		System.out.println("totalCount: " + totalCount);
 		return () -> new Iterator<>() {
 			@Override
@@ -55,7 +53,7 @@ class SampleTasklet implements ItemStreamIterableReaderProcessor<Integer, String
 	}
 
 	@Override
-	public String process(@NonNull Integer item) {
+	public String process(Integer item) {
 		return "'" + item.toString() + "'";
 	}
 }

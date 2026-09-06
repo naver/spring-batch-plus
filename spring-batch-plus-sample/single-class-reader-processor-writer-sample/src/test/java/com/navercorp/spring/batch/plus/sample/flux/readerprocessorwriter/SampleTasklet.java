@@ -22,7 +22,6 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Flux;
@@ -38,9 +37,8 @@ class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, Stri
 
 	private int count = 0;
 
-	@NonNull
 	@Override
-	public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
+	public Flux<? extends Integer> readFlux(ExecutionContext executionContext) {
 		System.out.println("totalCount: " + totalCount);
 		return Flux.generate(sink -> {
 			if (count < totalCount) {
@@ -53,12 +51,12 @@ class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, Stri
 	}
 
 	@Override
-	public String process(@NonNull Integer item) {
+	public String process(Integer item) {
 		return "'" + item.toString() + "'";
 	}
 
 	@Override
-	public void write(@NonNull Chunk<? extends String> chunk) {
+	public void write(Chunk<? extends String> chunk) {
 		System.out.println(chunk.getItems());
 	}
 }

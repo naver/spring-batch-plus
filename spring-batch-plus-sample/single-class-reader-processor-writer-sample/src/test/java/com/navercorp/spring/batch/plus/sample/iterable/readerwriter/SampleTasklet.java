@@ -24,7 +24,6 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import com.navercorp.spring.batch.plus.step.adapter.ItemStreamIterableReaderWriter;
@@ -38,9 +37,8 @@ class SampleTasklet implements ItemStreamIterableReaderWriter<Integer> {
 
 	private int count = 0;
 
-	@NonNull
 	@Override
-	public Iterable<? extends Integer> readIterable(@NonNull ExecutionContext executionContext) {
+	public Iterable<? extends Integer> readIterable(ExecutionContext executionContext) {
 		System.out.println("totalCount: " + totalCount);
 		return () -> new Iterator<>() {
 			@Override
@@ -56,7 +54,7 @@ class SampleTasklet implements ItemStreamIterableReaderWriter<Integer> {
 	}
 
 	@Override
-	public void write(@NonNull Chunk<? extends Integer> chunk) {
+	public void write(Chunk<? extends Integer> chunk) {
 		System.out.println(chunk.getItems());
 	}
 }
