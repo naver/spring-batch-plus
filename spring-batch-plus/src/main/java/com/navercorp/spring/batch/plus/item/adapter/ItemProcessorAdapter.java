@@ -20,6 +20,7 @@ package com.navercorp.spring.batch.plus.item.adapter;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 
 /**
@@ -49,9 +50,8 @@ public class ItemProcessorAdapter<I, O> implements ItemProcessor<I, O> {
 		this.delegate = Objects.requireNonNull(delegate, "Delegate processor must not be null");
 	}
 
-	@SuppressWarnings("NullableProblems")
 	@Override
-	public O process(I item) {
+	public @Nullable O process(I item) {
 		return this.delegate.process(item);
 	}
 }

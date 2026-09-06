@@ -22,8 +22,8 @@ import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
 /**
- * An {@link Iterable<I>} based adapter for stream reader, processor. It can represent
- * {@link ItemStreamReader}, {@link ItemProcessor} in a single class.
+ * Combines the delegate contracts required to adapt one object into an {@link ItemStreamReader} and
+ * {@link ItemProcessor}, with reader input supplied as an {@link Iterable}.
  *
  * @since 1.2.0
  */

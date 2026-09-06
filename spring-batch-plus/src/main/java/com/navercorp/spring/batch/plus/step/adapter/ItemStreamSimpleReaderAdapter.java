@@ -20,6 +20,7 @@ package com.navercorp.spring.batch.plus.step.adapter;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 
@@ -53,7 +54,7 @@ public class ItemStreamSimpleReaderAdapter<T> implements ItemStreamReader<T> {
 	}
 
 	@Override
-	public T read() {
+	public @Nullable T read() {
 		return this.delegate.read();
 	}
 

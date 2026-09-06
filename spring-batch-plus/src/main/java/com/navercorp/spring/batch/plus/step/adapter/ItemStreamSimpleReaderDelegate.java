@@ -42,8 +42,7 @@ public interface ItemStreamSimpleReaderDelegate<T> {
 	 * @return an item to read. null if it's end of data.
 	 *         Return contract is same as {@link org.springframework.batch.infrastructure.item.ItemReader<T>}
 	 */
-	@Nullable
-	T read();
+	@Nullable T read();
 
 	/**
 	 * A delegate method for {@link ItemStreamReader#update(ExecutionContext)}.

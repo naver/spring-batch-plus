@@ -36,6 +36,5 @@ public interface ItemProcessorDelegate<I, O> {
 	 * @param item an item to process
 	 * @return processed item
 	 */
-	@Nullable
-	O process(I item);
+	@Nullable O process(I item);
 }
