@@ -36,21 +36,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Demonstrates how {@link com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer} drops
- * every previous identifying parameter so each new JobInstance carries only the incremented
- * {@code run.id}.
- *
- * <p>The Spring Batch 6.0 standard flow ({@code JobOperator.start} + {@code startNextInstance})
- * never produces a prev JobExecution whose JobParameters contain keys other than {@code run.id},
- * so the difference between
- * {@link org.springframework.batch.core.job.parameters.RunIdIncrementer} and
- * {@code ClearRunIdIncrementer} is invisible in a clean 6.0 project. The legacy state seeded
- * here reproduces a 5.x &rarr; 6.0 migration: prior executions populated
- * {@code BATCH_JOB_EXECUTION_PARAMS} via the now-removed
- * {@code JobParametersBuilder.getNextJobParameters} pattern, leaving non-runId keys on the
- * latest JobInstance. {@code ClearRunIdIncrementer} cuts the chain so the next JobInstance
- * starts from a minimal identity. The companion {@code bad} sample shows what
- * {@code RunIdIncrementer} does with the same seed.
+ * Demonstrates how {@link com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer}
+ * discards legacy non-run-id parameters from the next job instance.
  */
 @SpringBootApplication
 public class SampleApplicationTest {
@@ -61,8 +48,7 @@ public class SampleApplicationTest {
 		JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 		Job job = applicationContext.getBean(Job.class);
 
-		// Same legacy seed as the "bad" scenario for an apples-to-apples comparison.
-		// See the class-level Javadoc for the migration context.
+		// Direct repository setup reproduces metadata that the normal launch path cannot create.
 		JobParameters legacyParams = new JobParametersBuilder()
 			.addString("stringValue", "1")
 			.addString("longValue", "10")
@@ -80,8 +66,6 @@ public class SampleApplicationTest {
 		assert BatchStatus.COMPLETED.equals(nextExecution.getStatus());
 		JobParameters nextParams = nextExecution.getJobParameters();
 
-		// ClearRunIdIncrementer drops every previous identifying key and keeps only run.id,
-		// so legacy keys never propagate into the new JobInstance.
 		assert 6L == Objects.requireNonNull(nextParams.getLong("run.id"));
 		assert nextParams.getString("stringValue") == null;
 		assert nextParams.getString("longValue") == null;
