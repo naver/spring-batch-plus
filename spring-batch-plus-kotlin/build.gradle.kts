@@ -4,6 +4,11 @@ plugins {
     id("spring.batch.plus.maven-publish-conventions")
 }
 
+tasks.javadoc {
+    // Java sources only bridge Kotlin compiler limitations and expose no public API to document.
+    exclude("**/*.java")
+}
+
 dependencies {
     api(project(":spring-batch-plus"))
 
