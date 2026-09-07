@@ -19,11 +19,13 @@
 package com.navercorp.spring.batch.plus.job.metadata;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.repository.dao.AbstractJdbcBatchMetadataDao;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -62,36 +64,42 @@ class JobMetadataDao extends AbstractJdbcBatchMetadataDao {
 	}
 
 	Optional<Long> selectMaxJobInstanceIdLessThanCreateTime(LocalDate createTime) {
-		return Optional.ofNullable(
-			getJdbcTemplate().queryForObject(selectMaxJobInstanceId, Long.class, createTime)
-		);
+		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
+		return Optional.ofNullable(jdbcTemplate.queryForObject(selectMaxJobInstanceId, Long.class, createTime));
 	}
 
-	Long selectMinJobInstanceId() {
-		return getJdbcTemplate().queryForObject(selectMinJobInstanceId, Long.class);
+	Optional<Long> selectMinJobInstanceId() {
+		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
+		return Optional.ofNullable(jdbcTemplate.queryForObject(selectMinJobInstanceId, Long.class));
 	}
 
 	int deleteJobInstancesByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		return getJdbcTemplate().update(deleteJobInstances, lowJobInstanceId, highJobInstanceId);
+		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
+		return jdbcTemplate.update(deleteJobInstances, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteJobExecutionsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		return getJdbcTemplate().update(deleteJobExecutions, lowJobInstanceId, highJobInstanceId);
+		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
+		return jdbcTemplate.update(deleteJobExecutions, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteJobExecutionParamsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		return getJdbcTemplate().update(deleteJobExecutionParams, lowJobInstanceId, highJobInstanceId);
+		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
+		return jdbcTemplate.update(deleteJobExecutionParams, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteJobExecutionContextsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		return getJdbcTemplate().update(deleteJobExecutionContexts, lowJobInstanceId, highJobInstanceId);
+		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
+		return jdbcTemplate.update(deleteJobExecutionContexts, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteStepExecutionsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		return getJdbcTemplate().update(deleteStepExecutions, lowJobInstanceId, highJobInstanceId);
+		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
+		return jdbcTemplate.update(deleteStepExecutions, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteStepExecutionContextsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		return getJdbcTemplate().update(deleteStepExecutionContexts, lowJobInstanceId, highJobInstanceId);
+		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
+		return jdbcTemplate.update(deleteStepExecutionContexts, lowJobInstanceId, highJobInstanceId);
 	}
 }

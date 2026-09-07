@@ -43,6 +43,10 @@ import org.springframework.transaction.interceptor.TransactionAttribute;
  * @since 0.2.0
  */
 public class DeleteMetadataJobBuilder {
+	protected static final String CHECK_MAX_JOB_INSTANCE_ID_STEP_NAME = "checkMaxJobInstanceId";
+
+	protected static final String DELETE_METADATA_STEP_NAME = "deleteMetadata";
+
 	protected final JobRepository jobRepository;
 
 	protected final DataSource dataSource;
@@ -123,13 +127,12 @@ public class DeleteMetadataJobBuilder {
 	 * @return a job to delete old metadata.
 	 */
 	public Job build() {
-
 		DefaultJobParametersValidator validator = new DefaultJobParametersValidator();
 		validator.setRequiredKeys(new String[] {this.baseDateParameterName});
 
 		JobMetadataDao dao = new JobMetadataDao(this.dataSource, this.tablePrefix);
 		Step checkStep = this.buildCheckStep(dao);
-
+		Step deleteStep = buildDeleteStep(dao);
 		return new JobBuilder(this.name, this.jobRepository)
 			.validator(validator)
 			.start(checkStep)
@@ -138,7 +141,7 @@ public class DeleteMetadataJobBuilder {
 			.end()
 
 			.from(checkStep)
-			.next(buildDeleteStep(dao))
+			.next(deleteStep)
 			.end()
 			.build();
 	}
@@ -151,7 +154,7 @@ public class DeleteMetadataJobBuilder {
 		);
 
 		TransactionAttribute noTransaction = new DefaultTransactionAttribute(Propagation.NOT_SUPPORTED.value());
-		return new StepBuilder("checkMaxJobInstanceId", this.jobRepository)
+		return new StepBuilder(CHECK_MAX_JOB_INSTANCE_ID_STEP_NAME, this.jobRepository)
 			.tasklet(tasklet, new ResourcelessTransactionManager())
 			.transactionAttribute(noTransaction)
 			.listener(tasklet)
@@ -164,7 +167,7 @@ public class DeleteMetadataJobBuilder {
 			this.dryRunParameterName
 		);
 		PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
-		return new StepBuilder("deleteMetadata", this.jobRepository)
+		return new StepBuilder(DELETE_METADATA_STEP_NAME, this.jobRepository)
 			.tasklet(tasklet, transactionManager)
 			.listener(tasklet)
 			.build();

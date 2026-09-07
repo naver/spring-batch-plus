@@ -71,7 +71,7 @@ class CheckMaxJobInstanceIdToDeleteTasklet implements Tasklet, StepExecutionList
 		LocalDate baseDate = LocalDate.parse(baseDateStr, baseDateFormatter);
 		Optional<Long> maxJobInstanceId = this.dao.selectMaxJobInstanceIdLessThanCreateTime(baseDate);
 
-		if (!maxJobInstanceId.isPresent()) {
+		if (maxJobInstanceId.isEmpty()) {
 			logger.info("There is no record of job instance executed before {}. No need to delete metadata", baseDate);
 			return RepeatStatus.FINISHED;
 		}
