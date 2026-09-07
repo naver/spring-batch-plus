@@ -36,12 +36,11 @@ import org.springframework.batch.infrastructure.repeat.RepeatStatus;
  * This tasklet must be executed after execution of {@link CheckMaxJobInstanceIdToDeleteTasklet}
  */
 class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
+	protected static final Logger logger = LoggerFactory.getLogger(DeleteMetadataTasklet.class);
 
 	static final String LOW_ID_KEY = "lowJobInstanceId";
 
 	static final int DELETION_RANGE_LENGTH = 100;
-
-	private final Logger logger = LoggerFactory.getLogger(DeleteMetadataTasklet.class);
 
 	private final JobMetadataDao dao;
 
