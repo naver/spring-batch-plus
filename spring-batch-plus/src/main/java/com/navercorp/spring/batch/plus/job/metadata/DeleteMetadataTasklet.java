@@ -42,10 +42,10 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 
 	static final int DELETION_RANGE_LENGTH = 100;
 
-	private final JobMetadataDao dao;
+	protected final JobMetadataDao dao;
 
-	private final String dryRunParameterName;
-	private long maxJobInstanceId;
+	protected final String dryRunParameterName;
+	protected long maxJobInstanceId;
 
 	DeleteMetadataTasklet(JobMetadataDao dao, String dryRunParameterName) {
 		this.dao = dao;
@@ -91,24 +91,24 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 		return RepeatStatus.CONTINUABLE;
 	}
 
-	private void putLowJobInstanceId(StepExecution stepExecution, long lowJobInstanceId) {
+	protected void putLowJobInstanceId(StepExecution stepExecution, long lowJobInstanceId) {
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		stepExecutionContext.put(LOW_ID_KEY, lowJobInstanceId);
 	}
 
-	private long getLowJobInstanceId(StepExecution stepExecution) {
+	protected long getLowJobInstanceId(StepExecution stepExecution) {
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
 		return stepExecutionContext.getLong(LOW_ID_KEY);
 	}
 
-	private boolean getDryRunParameter(StepExecution stepExecution) {
+	protected boolean getDryRunParameter(StepExecution stepExecution) {
 		JobParameters jobParameters = stepExecution.getJobParameters();
 		return Optional.ofNullable(jobParameters.getString(this.dryRunParameterName))
 			.map(Boolean::parseBoolean)
 			.orElse(false);
 	}
 
-	private int deleteJobMetadata(long lowJobInstanceId, long highJobInstanceId) {
+	protected int deleteJobMetadata(long lowJobInstanceId, long highJobInstanceId) {
 		dao.deleteStepExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 		dao.deleteStepExecutionsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 		dao.deleteJobExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);

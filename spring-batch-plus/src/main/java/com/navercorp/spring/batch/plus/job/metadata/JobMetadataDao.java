@@ -31,21 +31,21 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 class JobMetadataDao extends AbstractJdbcBatchMetadataDao {
 
-	private final String selectMaxJobInstanceId;
+	protected final String selectMaxJobInstanceId;
 
-	private final String selectMinJobInstanceId;
+	protected final String selectMinJobInstanceId;
 
-	private final String deleteJobInstances;
+	protected final String deleteJobInstances;
 
-	private final String deleteJobExecutions;
+	protected final String deleteJobExecutions;
 
-	private final String deleteJobExecutionParams;
+	protected final String deleteJobExecutionParams;
 
-	private final String deleteJobExecutionContexts;
+	protected final String deleteJobExecutionContexts;
 
-	private final String deleteStepExecutions;
+	protected final String deleteStepExecutions;
 
-	private final String deleteStepExecutionContexts;
+	protected final String deleteStepExecutionContexts;
 
 	JobMetadataDao(DataSource dataSource, String tablePrefix) {
 		setJdbcTemplate(new JdbcTemplate(dataSource));
