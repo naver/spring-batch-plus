@@ -38,6 +38,9 @@ import org.springframework.batch.infrastructure.item.ItemStreamReader;
  * @since 1.1.0
  */
 public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
+	protected static final Logger logger = getLogger(StepScopeItemStreamReader.class);
+
+	protected static final String SCOPE_KEY = "StepScopeItemStreamReader@delegate";
 
 	/**
 	 * Create an {@link ItemStreamReader} instance bound to {@link StepScope}.
@@ -50,10 +53,6 @@ public class StepScopeItemStreamReader<T> implements ItemStreamReader<T> {
 	public static <T> ItemStreamReader<T> of(Supplier<ItemStreamReader<T>> delegateSupplier) {
 		return new StepScopeItemStreamReader<>(delegateSupplier);
 	}
-
-	protected static final String SCOPE_KEY = "StepScopeItemStreamReader@delegate";
-
-	protected final Logger logger = getLogger(StepScopeItemStreamReader.class);
 
 	protected final Supplier<ItemStreamReader<T>> delegateSupplier;
 

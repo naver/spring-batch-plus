@@ -41,12 +41,11 @@ import org.springframework.batch.infrastructure.repeat.RepeatStatus;
  * A tasklet to check metadata of job instances to delete.
  */
 class CheckMaxJobInstanceIdToDeleteTasklet implements Tasklet, StepExecutionListener {
+	protected static final Logger logger = LoggerFactory.getLogger(CheckMaxJobInstanceIdToDeleteTasklet.class);
 
 	static final String MAX_ID_KEY = "maxJobInstanceId";
 
 	static final ExitStatus EMPTY = new ExitStatus("EMPTY");
-
-	private final Logger logger = LoggerFactory.getLogger(CheckMaxJobInstanceIdToDeleteTasklet.class);
 
 	private final JobMetadataDao dao;
 

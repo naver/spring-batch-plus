@@ -44,8 +44,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 
 public class TestJobRepositoryConfig {
-
-	private final Logger logger = LoggerFactory.getLogger(TestJobRepositoryConfig.class);
+	protected static final Logger logger = LoggerFactory.getLogger(TestJobRepositoryConfig.class);
 
 	@Bean
 	DataSource dataSource(String tablePrefix) throws Exception {

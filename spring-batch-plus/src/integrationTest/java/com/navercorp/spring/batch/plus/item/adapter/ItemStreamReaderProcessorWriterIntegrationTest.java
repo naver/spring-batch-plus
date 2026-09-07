@@ -56,10 +56,10 @@ import reactor.core.publisher.Flux;
 // note: it's deprecated. Do not change it.
 @SuppressWarnings({"unchecked", "deprecation"})
 class ItemStreamReaderProcessorWriterIntegrationTest {
+	protected static final Logger logger =
+		LoggerFactory.getLogger(ItemStreamReaderProcessorWriterIntegrationTest.class);
 
 	private static final int TEST_REPEAT_COUNT = 5;
-
-	private static final Logger logger = LoggerFactory.getLogger(ItemStreamReaderProcessorWriterIntegrationTest.class);
 
 	private static int onOpenReadCallCount = 0;
 	private static int readContextCallCount = 0;
