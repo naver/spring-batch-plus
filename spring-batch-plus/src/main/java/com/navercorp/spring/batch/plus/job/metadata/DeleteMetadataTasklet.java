@@ -45,7 +45,6 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 	protected final JobMetadataDao dao;
 
 	protected final String dryRunParameterName;
-	protected long maxJobInstanceId;
 
 	DeleteMetadataTasklet(JobMetadataDao dao, String dryRunParameterName) {
 		this.dao = dao;
@@ -55,9 +54,10 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		this.maxJobInstanceId = jobExecutionContext.getLong(CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY);
-
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		long maxJobInstanceId = jobExecutionContext.getLong(CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY);
+		putMaxJobInstanceId(stepExecutionContext, maxJobInstanceId);
+
 		// Preserve the persisted lower bound when restarting the step.
 		if (stepExecutionContext.containsKey(LOW_ID_KEY)) {
 			return;
@@ -81,6 +81,7 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 		}
 
 		long lowJobInstanceId = getLowJobInstanceId(stepExecutionContext);
+		long maxJobInstanceId = getMaxJobInstanceId(stepExecutionContext);
 		long highJobInstanceId = Math.min(lowJobInstanceId + DELETION_RANGE_LENGTH - 1, maxJobInstanceId);
 		boolean dryRun = getDryRunParameter(stepExecution);
 
@@ -93,7 +94,7 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 		}
 
 		long nextLowJobInstanceId = highJobInstanceId + 1;
-		if (nextLowJobInstanceId > this.maxJobInstanceId) {
+		if (nextLowJobInstanceId > maxJobInstanceId) {
 			return RepeatStatus.FINISHED;
 		}
 		putLowJobInstanceId(stepExecutionContext, nextLowJobInstanceId);
@@ -107,6 +108,14 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 
 	protected long getLowJobInstanceId(ExecutionContext stepExecutionContext) {
 		return stepExecutionContext.getLong(LOW_ID_KEY);
+	}
+
+	protected void putMaxJobInstanceId(ExecutionContext stepExecutionContext, long maxJobInstanceId) {
+		stepExecutionContext.put(CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY, maxJobInstanceId);
+	}
+
+	protected long getMaxJobInstanceId(ExecutionContext stepExecutionContext) {
+		return stepExecutionContext.getLong(CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY);
 	}
 
 	protected boolean getDryRunParameter(StepExecution stepExecution) {
