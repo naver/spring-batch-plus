@@ -18,12 +18,8 @@
 
 package com.navercorp.spring.batch.plus.job.metadata;
 
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createJobExecution;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createStepExecution;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateFrom;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateTo;
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -33,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -92,10 +87,10 @@ class JobMetadataDaoTest {
 		jobRepository.createJobInstance("testJob2", buildJobParams());
 
 		// when
-		Long minJobInstanceId = dao.selectMinJobInstanceId();
+		Optional<Long> minJobInstanceId = dao.selectMinJobInstanceId();
 
 		// then
-		assertThat(minJobInstanceId).isEqualTo(jobInstance1.getId());
+		assertThat(minJobInstanceId).hasValue(jobInstance1.getId());
 	}
 
 	@Test

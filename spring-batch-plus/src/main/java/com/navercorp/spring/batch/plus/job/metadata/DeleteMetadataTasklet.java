@@ -56,21 +56,31 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 	public void beforeStep(StepExecution stepExecution) {
 		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
 		this.maxJobInstanceId = jobExecutionContext.getLong(CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY);
-		long minJobInstanceId = this.dao.selectMinJobInstanceId();
 
 		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
-		if (stepExecutionContext.containsKey(LOW_ID_KEY)) { // in case of restart
+		// Preserve the persisted lower bound when restarting the step.
+		if (stepExecutionContext.containsKey(LOW_ID_KEY)) {
 			return;
 		}
 
-		putLowJobInstanceId(stepExecution, minJobInstanceId);
+		Optional<Long> minJobInstanceId = this.dao.selectMinJobInstanceId();
+		if (minJobInstanceId.isEmpty()) {
+			return;
+		}
+
+		putLowJobInstanceId(stepExecutionContext, minJobInstanceId.get());
 	}
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 		StepExecution stepExecution = contribution.getStepExecution();
+		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+		if (!stepExecutionContext.containsKey(LOW_ID_KEY)) {
+			logger.info("No job instances found. Skipping metadata deletion");
+			return RepeatStatus.FINISHED;
+		}
 
-		long lowJobInstanceId = getLowJobInstanceId(stepExecution);
+		long lowJobInstanceId = getLowJobInstanceId(stepExecutionContext);
 		long highJobInstanceId = Math.min(lowJobInstanceId + DELETION_RANGE_LENGTH - 1, maxJobInstanceId);
 		boolean dryRun = getDryRunParameter(stepExecution);
 
@@ -86,18 +96,16 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 		if (nextLowJobInstanceId > this.maxJobInstanceId) {
 			return RepeatStatus.FINISHED;
 		}
-		putLowJobInstanceId(stepExecution, nextLowJobInstanceId);
+		putLowJobInstanceId(stepExecutionContext, nextLowJobInstanceId);
 
 		return RepeatStatus.CONTINUABLE;
 	}
 
-	protected void putLowJobInstanceId(StepExecution stepExecution, long lowJobInstanceId) {
-		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+	protected void putLowJobInstanceId(ExecutionContext stepExecutionContext, long lowJobInstanceId) {
 		stepExecutionContext.put(LOW_ID_KEY, lowJobInstanceId);
 	}
 
-	protected long getLowJobInstanceId(StepExecution stepExecution) {
-		ExecutionContext stepExecutionContext = stepExecution.getExecutionContext();
+	protected long getLowJobInstanceId(ExecutionContext stepExecutionContext) {
 		return stepExecutionContext.getLong(LOW_ID_KEY);
 	}
 
