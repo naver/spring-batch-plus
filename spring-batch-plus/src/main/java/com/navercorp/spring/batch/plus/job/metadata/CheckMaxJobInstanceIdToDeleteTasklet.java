@@ -43,9 +43,9 @@ import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 class CheckMaxJobInstanceIdToDeleteTasklet implements Tasklet, StepExecutionListener {
 	protected static final Logger logger = LoggerFactory.getLogger(CheckMaxJobInstanceIdToDeleteTasklet.class);
 
-	static final String MAX_ID_KEY = "maxJobInstanceId";
+	protected static final String MAX_ID_KEY = "maxJobInstanceId";
 
-	static final ExitStatus EMPTY = new ExitStatus("EMPTY");
+	protected static final ExitStatus EMPTY = new ExitStatus("EMPTY");
 
 	protected final JobMetadataDao dao;
 

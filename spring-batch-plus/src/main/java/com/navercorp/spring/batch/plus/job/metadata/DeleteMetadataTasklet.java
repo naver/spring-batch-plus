@@ -38,7 +38,7 @@ import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 	protected static final Logger logger = LoggerFactory.getLogger(DeleteMetadataTasklet.class);
 
-	static final String LOW_ID_KEY = "lowJobInstanceId";
+	protected static final String LOW_ID_KEY = "lowJobInstanceId";
 
 	static final int DELETION_RANGE_LENGTH = 100;
 
