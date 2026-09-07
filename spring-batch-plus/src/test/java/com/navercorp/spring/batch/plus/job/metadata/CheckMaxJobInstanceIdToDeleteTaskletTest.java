@@ -18,120 +18,157 @@
 
 package com.navercorp.spring.batch.plus.job.metadata;
 
-import static com.navercorp.spring.batch.plus.job.metadata.CheckMaxJobInstanceIdToDeleteTasklet.MAX_ID_KEY;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.buildJobParams;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createJobExecution;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.createStepExecution;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateFrom;
-import static com.navercorp.spring.batch.plus.job.metadata.MetadataTestSupports.dateTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.step.StepContribution;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
-import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.batch.test.MetaDataInstanceFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(TestJobRepositoryConfig.class)
+/**
+ * Covers how the metadata deletion boundary controls the next job-flow state.
+ *
+ * <p>Classicist: the execution contexts are real.
+ */
 class CheckMaxJobInstanceIdToDeleteTaskletTest {
 
-	@Autowired
-	JobRepository jobRepository;
-
-	CheckMaxJobInstanceIdToDeleteTasklet tasklet;
-
-	@BeforeEach
-	void setUp(@Autowired JobMetadataDao dao, @Autowired JobRepositoryTestUtils testUtils) {
-		DateTimeFormatter baseDateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-		this.tasklet = new CheckMaxJobInstanceIdToDeleteTasklet(dao, "baseDate", baseDateFormatter);
-		testUtils.removeJobExecutions();
-	}
-
 	@Test
-	void testExecuteWhenNoMetadata() {
-		// when
-		JobParameters jobParameters = new JobParametersBuilder()
-			.addString("baseDate", "2022/03/15")
-			.toJobParameters();
-		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution(jobParameters);
-		StepContribution stepContribution = new StepContribution(stepExecution);
-		ChunkContext chunkContext = new ChunkContext(new StepContext(stepExecution));
-		RepeatStatus repeatStatus = tasklet.execute(stepContribution, chunkContext);
-		ExitStatus exitStatus = tasklet.afterStep(stepExecution);
-
-		// then
-		assertThat(repeatStatus).isEqualTo(RepeatStatus.FINISHED);
-		assertThat(exitStatus).isEqualTo(CheckMaxJobInstanceIdToDeleteTasklet.EMPTY);
-		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		assertThat(jobExecutionContext.containsKey(MAX_ID_KEY)).isFalse();
-	}
-
-	@Test
-	void testExecuteWhenNeedToDelete() throws Exception {
+	void executeShouldStoreMaximumJobInstanceIdWhenDeletableMetadataExists() {
 		// given
-		JobExecution execution1 = createJobExecution(jobRepository, "testJob1", buildJobParams());
-		execution1.setCreateTime(dateTo(2022, 3, 14));
-		jobRepository.update(execution1);
-
-		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
-		execution2.setCreateTime(dateFrom(2022, 3, 15));
-		jobRepository.update(execution2);
-
+		String baseDateParameterName = UUID.randomUUID().toString();
+		String baseDateValue = "2022-03-15";
+		LocalDate baseDate = LocalDate.parse(baseDateValue);
+		DateTimeFormatter baseDateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+		long maxJobInstanceId = ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
 		JobParameters jobParameters = new JobParametersBuilder()
-			.addString("baseDate", "2022/03/15")
+			.addString(baseDateParameterName, baseDateValue)
 			.toJobParameters();
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution(jobParameters);
-		StepContribution stepContribution = new StepContribution(stepExecution);
+		StepContribution contribution = new StepContribution(stepExecution);
 		ChunkContext chunkContext = new ChunkContext(new StepContext(stepExecution));
+		JobMetadataDao dao = mock(JobMetadataDao.class);
+		when(dao.selectMaxJobInstanceIdLessThanCreateTime(baseDate)).thenReturn(Optional.of(maxJobInstanceId));
+		CheckMaxJobInstanceIdToDeleteTasklet sut = new CheckMaxJobInstanceIdToDeleteTasklet(
+			dao,
+			baseDateParameterName,
+			baseDateFormatter
+		);
 
 		// when
-		RepeatStatus repeatStatus = tasklet.execute(stepContribution, chunkContext);
-		ExitStatus exitStatus = tasklet.afterStep(stepExecution);
+		RepeatStatus actual = sut.execute(contribution, chunkContext);
 
 		// then
-		assertThat(repeatStatus).isEqualTo(RepeatStatus.FINISHED);
-		assertThat(exitStatus).isEqualTo(ExitStatus.COMPLETED);
-		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		long maxJobInstanceId = jobExecutionContext.getLong(MAX_ID_KEY);
-		assertThat(maxJobInstanceId).isEqualTo(execution1.getJobInstanceId());
+		verify(dao).selectMaxJobInstanceIdLessThanCreateTime(baseDate);
+		ExecutionContext actualContext = stepExecution.getJobExecution().getExecutionContext();
+		assertThat(actual).isEqualTo(RepeatStatus.FINISHED);
+		assertThat(actualContext.getLong("maxJobInstanceId")).isEqualTo(maxJobInstanceId);
 	}
 
 	@Test
-	void testExecuteWhenNoNeedToDelete() throws Exception {
+	void executeShouldLeaveMaximumIdAbsentWhenDeletableMetadataDoesNotExist() {
 		// given
-		JobExecution execution = createJobExecution(jobRepository, "testJob2", buildJobParams());
-		execution.setCreateTime(dateFrom(2022, 2, 15));
-		jobRepository.update(execution);
-
+		String baseDateParameterName = UUID.randomUUID().toString();
+		String baseDateValue = "2022-03-15";
+		LocalDate baseDate = LocalDate.parse(baseDateValue);
+		DateTimeFormatter baseDateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
 		JobParameters jobParameters = new JobParametersBuilder()
-			.addString("baseDate", "2022/02/15")
+			.addString(baseDateParameterName, baseDateValue)
 			.toJobParameters();
 		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution(jobParameters);
-		StepContribution stepContribution = new StepContribution(stepExecution);
+		StepContribution contribution = new StepContribution(stepExecution);
 		ChunkContext chunkContext = new ChunkContext(new StepContext(stepExecution));
+		JobMetadataDao dao = mock(JobMetadataDao.class);
+		when(dao.selectMaxJobInstanceIdLessThanCreateTime(baseDate)).thenReturn(Optional.empty());
+		CheckMaxJobInstanceIdToDeleteTasklet sut = new CheckMaxJobInstanceIdToDeleteTasklet(
+			dao,
+			baseDateParameterName,
+			baseDateFormatter
+		);
 
 		// when
-		RepeatStatus repeatStatus = tasklet.execute(stepContribution, chunkContext);
-		ExitStatus exitStatus = tasklet.afterStep(stepExecution);
+		RepeatStatus actual = sut.execute(contribution, chunkContext);
 
 		// then
-		assertThat(repeatStatus).isEqualTo(RepeatStatus.FINISHED);
-		assertThat(exitStatus).isEqualTo(CheckMaxJobInstanceIdToDeleteTasklet.EMPTY);
-		ExecutionContext jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-		assertThat(jobExecutionContext.containsKey(MAX_ID_KEY)).isFalse();
+		verify(dao).selectMaxJobInstanceIdLessThanCreateTime(baseDate);
+		ExecutionContext actualContext = stepExecution.getJobExecution().getExecutionContext();
+		assertThat(actual).isEqualTo(RepeatStatus.FINISHED);
+		assertThat(actualContext.containsKey("maxJobInstanceId")).isFalse();
+	}
+
+	@Test
+	void afterStepShouldReturnCompletedWhenMaximumJobInstanceIdIsPresent() {
+		// given
+		String baseDateParameterName = UUID.randomUUID().toString();
+		long maxJobInstanceId = ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
+		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
+		stepExecution.getJobExecution().getExecutionContext().putLong("maxJobInstanceId", maxJobInstanceId);
+		JobMetadataDao dao = mock(JobMetadataDao.class);
+		CheckMaxJobInstanceIdToDeleteTasklet sut = new CheckMaxJobInstanceIdToDeleteTasklet(
+			dao,
+			baseDateParameterName,
+			DateTimeFormatter.ISO_LOCAL_DATE
+		);
+
+		// when
+		ExitStatus actual = sut.afterStep(stepExecution);
+
+		// then
+		assertThat(actual).isEqualTo(ExitStatus.COMPLETED);
+	}
+
+	@Test
+	void afterStepShouldReturnEmptyWhenMaximumJobInstanceIdIsAbsent() {
+		// given
+		String baseDateParameterName = UUID.randomUUID().toString();
+		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
+		JobMetadataDao dao = mock(JobMetadataDao.class);
+		CheckMaxJobInstanceIdToDeleteTasklet sut = new CheckMaxJobInstanceIdToDeleteTasklet(
+			dao,
+			baseDateParameterName,
+			DateTimeFormatter.ISO_LOCAL_DATE
+		);
+
+		// when
+		ExitStatus actual = sut.afterStep(stepExecution);
+
+		// then
+		assertThat(actual).isEqualTo(new ExitStatus("EMPTY"));
+	}
+
+	@Test
+	void afterStepShouldReturnFailedWhenStepExecutionFailed() {
+		// given
+		String baseDateParameterName = UUID.randomUUID().toString();
+		StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution();
+		stepExecution.setStatus(BatchStatus.FAILED);
+		JobMetadataDao dao = mock(JobMetadataDao.class);
+		CheckMaxJobInstanceIdToDeleteTasklet sut = new CheckMaxJobInstanceIdToDeleteTasklet(
+			dao,
+			baseDateParameterName,
+			DateTimeFormatter.ISO_LOCAL_DATE
+		);
+
+		// when
+		ExitStatus actual = sut.afterStep(stepExecution);
+
+		// then
+		assertThat(actual).isEqualTo(ExitStatus.FAILED);
 	}
 }
