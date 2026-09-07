@@ -18,8 +18,7 @@
 
 package com.navercorp.spring.batch.plus.job;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,10 +28,13 @@ import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
 
+/**
+ * Covers the parameter transformation contract independently of Spring Batch job execution.
+ */
 class ClearRunIdIncrementerTest {
 
 	@Test
-	void getNextShouldReturnOneWhenNoPreviousValue() {
+	void getNextShouldInitializeRunIdToOneWhenPreviousValueDoesNotExist() {
 		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
 
 		JobParameters jobParameters = clearRunIdIncrementer.getNext(new JobParameters());
@@ -41,7 +43,7 @@ class ClearRunIdIncrementerTest {
 	}
 
 	@Test
-	void getNextShouldReturnPlusOneWhenPreviousExists() {
+	void getNextShouldIncrementRunIdWhenPreviousValueExists() {
 		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create();
 
 		long previousId = ThreadLocalRandom.current().nextLong();
@@ -54,7 +56,7 @@ class ClearRunIdIncrementerTest {
 	}
 
 	@Test
-	void getNextShouldReturnPlusOneWhenPreviousExistsUsingCustomRunId() {
+	void getNextShouldUseConfiguredRunIdParameterName() {
 		String runId = UUID.randomUUID().toString();
 		JobParametersIncrementer clearRunIdIncrementer = ClearRunIdIncrementer.create(runId);
 
@@ -70,7 +72,7 @@ class ClearRunIdIncrementerTest {
 
 	@SuppressWarnings("DataFlowIssue")
 	@Test
-	void createShouldThrowExceptionWhenPassingNull() {
+	void createShouldThrowExceptionWhenRunIdParameterNameIsNull() {
 		assertThatThrownBy(() -> ClearRunIdIncrementer.create(null));
 	}
 }

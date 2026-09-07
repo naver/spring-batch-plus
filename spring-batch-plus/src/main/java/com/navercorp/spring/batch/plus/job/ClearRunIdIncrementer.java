@@ -27,9 +27,11 @@ import org.springframework.batch.core.job.parameters.JobParametersIncrementer;
 import org.springframework.batch.core.job.parameters.RunIdIncrementer;
 
 /**
- * Alternative to {@link RunIdIncrementer}.
- * RunIdIncrementer returns not only a new run id but also all previous job parameters.
- * It makes unintended job parameters for a job.
+ * A {@link JobParametersIncrementer} that increments a run-id parameter while
+ * discarding every other parameter from the supplied {@link JobParameters}.
+ *
+ * <p>Use this instead of {@link RunIdIncrementer} when parameters from the previous job
+ * execution must not propagate to the next job instance.
  *
  * @since 0.1.0
  */
@@ -38,18 +40,18 @@ public class ClearRunIdIncrementer implements JobParametersIncrementer {
 	protected static final String DEFAULT_RUN_ID = "run.id";
 
 	/**
-	 * Create a new ClearRunIdIncrementer with {@link #DEFAULT_RUN_ID}.
-	 * @return a new ClearRunIdIncrementer instance
+	 * Creates an incrementer using {@link #DEFAULT_RUN_ID} as the run-id parameter name.
+	 * @return a new incrementer
 	 */
 	public static JobParametersIncrementer create() {
 		return create(DEFAULT_RUN_ID);
 	}
 
 	/**
-	 * Create a new ClearRunIdIncrementer with custom run id.
+	 * Creates an incrementer using the given run-id parameter name.
 	 *
-	 * @param runId a run id
-	 * @return a new ClearRunIdIncrementer instance
+	 * @param runId the run-id parameter name
+	 * @return a new incrementer
 	 */
 	public static JobParametersIncrementer create(String runId) {
 		return new ClearRunIdIncrementer(runId);
