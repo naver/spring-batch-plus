@@ -43,19 +43,19 @@ import org.springframework.transaction.interceptor.TransactionAttribute;
  * @since 0.2.0
  */
 public class DeleteMetadataJobBuilder {
-	private final JobRepository jobRepository;
+	protected final JobRepository jobRepository;
 
-	private final DataSource dataSource;
+	protected final DataSource dataSource;
 
-	private String name = "deleteMetadataJob";
+	protected String name = "deleteMetadataJob";
 
-	private String tablePrefix = AbstractJdbcBatchMetadataDao.DEFAULT_TABLE_PREFIX;
+	protected String tablePrefix = AbstractJdbcBatchMetadataDao.DEFAULT_TABLE_PREFIX;
 
-	private String baseDateParameterName = "baseDate";
+	protected String baseDateParameterName = "baseDate";
 
-	private DateTimeFormatter baseDateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+	protected DateTimeFormatter baseDateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
-	private String dryRunParameterName = "dryRun";
+	protected String dryRunParameterName = "dryRun";
 
 	/**
 	 * @param jobRepository the target job repository to delete old metadata.
@@ -143,7 +143,7 @@ public class DeleteMetadataJobBuilder {
 			.build();
 	}
 
-	private Step buildCheckStep(JobMetadataDao dao) {
+	protected Step buildCheckStep(JobMetadataDao dao) {
 		CheckMaxJobInstanceIdToDeleteTasklet tasklet = new CheckMaxJobInstanceIdToDeleteTasklet(
 			dao,
 			this.baseDateParameterName,
@@ -158,7 +158,7 @@ public class DeleteMetadataJobBuilder {
 			.build();
 	}
 
-	private Step buildDeleteStep(JobMetadataDao dao) {
+	protected Step buildDeleteStep(JobMetadataDao dao) {
 		DeleteMetadataTasklet tasklet = new DeleteMetadataTasklet(
 			dao,
 			this.dryRunParameterName

@@ -47,11 +47,11 @@ class CheckMaxJobInstanceIdToDeleteTasklet implements Tasklet, StepExecutionList
 
 	static final ExitStatus EMPTY = new ExitStatus("EMPTY");
 
-	private final JobMetadataDao dao;
+	protected final JobMetadataDao dao;
 
-	private final String baseDateParameterName;
+	protected final String baseDateParameterName;
 
-	private final DateTimeFormatter baseDateFormatter;
+	protected final DateTimeFormatter baseDateFormatter;
 
 	CheckMaxJobInstanceIdToDeleteTasklet(
 		JobMetadataDao dao,
