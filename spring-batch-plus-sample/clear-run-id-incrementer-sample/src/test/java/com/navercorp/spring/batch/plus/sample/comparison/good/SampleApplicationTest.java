@@ -22,22 +22,25 @@ import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
-import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.infrastructure.item.ExecutionContext;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer;
 
 /**
- * Demonstrates how {@link com.navercorp.spring.batch.plus.job.ClearRunIdIncrementer}
- * discards legacy non-run-id parameters from the next job instance.
+ * Shows ClearRunIdIncrementer discarding the previous run's parameters.
  */
 @SpringBootApplication
 public class SampleApplicationTest {
@@ -45,30 +48,36 @@ public class SampleApplicationTest {
 	void run() throws Exception {
 		ApplicationContext applicationContext = SpringApplication.run(SampleApplicationTest.class);
 		JobRepository jobRepository = applicationContext.getBean(JobRepository.class);
+		PlatformTransactionManager transactionManager = applicationContext.getBean(PlatformTransactionManager.class);
 		JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
-		Job job = applicationContext.getBean(Job.class);
 
-		// Direct repository setup reproduces metadata that the normal launch path cannot create.
-		JobParameters legacyParams = new JobParametersBuilder()
+		Step testStep = new StepBuilder("testStep", jobRepository)
+			.tasklet(
+				(contribution, chunkContext) -> RepeatStatus.FINISHED,
+				transactionManager
+			)
+			.build();
+
+		Job jobBeforeIncrementer = new JobBuilder("testJob", jobRepository)
+			.start(testStep)
+			.build();
+		JobParameters parameters = new JobParametersBuilder()
 			.addString("stringValue", "1")
 			.addString("longValue", "10")
-			.addLong("run.id", 5L)
 			.toJobParameters();
-		JobInstance legacyInstance = jobRepository.createJobInstance(job.getName(), legacyParams);
-		JobExecution legacyExecution = jobRepository.createJobExecution(legacyInstance, legacyParams,
-			new ExecutionContext());
-		legacyExecution.setStatus(BatchStatus.COMPLETED);
-		legacyExecution.setExitStatus(ExitStatus.COMPLETED);
-		jobRepository.update(legacyExecution);
+		jobOperator.start(jobBeforeIncrementer, parameters);
 
-		JobExecution nextExecution = jobOperator.startNextInstance(job);
+		Job jobWithIncrementer = new JobBuilder("testJob", jobRepository)
+			.incrementer(ClearRunIdIncrementer.create())
+			.start(testStep)
+			.build();
+		JobExecution actual = jobOperator.startNextInstance(jobWithIncrementer);
 
-		assert BatchStatus.COMPLETED.equals(nextExecution.getStatus());
-		JobParameters nextParams = nextExecution.getJobParameters();
-
-		assert 6L == Objects.requireNonNull(nextParams.getLong("run.id"));
-		assert nextParams.getString("stringValue") == null;
-		assert nextParams.getString("longValue") == null;
-		System.out.printf("good: params=%s%n", nextParams);
+		assert BatchStatus.COMPLETED.equals(actual.getStatus());
+		JobParameters actualParameters = actual.getJobParameters();
+		assert 1L == Objects.requireNonNull(actualParameters.getLong("run.id"));
+		assert null == actualParameters.getString("stringValue");
+		assert null == actualParameters.getString("longValue");
+		System.out.printf("good: params=%s%n", actualParameters);
 	}
 }
