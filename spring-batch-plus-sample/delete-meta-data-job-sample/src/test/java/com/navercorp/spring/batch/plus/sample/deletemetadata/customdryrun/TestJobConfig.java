@@ -22,7 +22,6 @@ import javax.sql.DataSource;
 
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.job.parameters.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
@@ -37,12 +36,11 @@ import com.navercorp.spring.batch.plus.job.metadata.DeleteMetadataJobBuilder;
 public class TestJobConfig {
 
 	@Bean
-	public Job removeJob(
+	public Job deleteMetadataJob(
 		@BatchDataSource DataSource dataSource,
 		JobRepository jobRepository
 	) {
 		return new DeleteMetadataJobBuilder(jobRepository, dataSource)
-			.name("removeJob")
 			.dryRunParameterName("customDryRunParam")
 			.build();
 	}
@@ -53,7 +51,6 @@ public class TestJobConfig {
 		PlatformTransactionManager transactionManager
 	) {
 		return new JobBuilder("testJob", jobRepository)
-			.incrementer(new RunIdIncrementer())
 			.start(
 				new StepBuilder("testStep", jobRepository)
 					.tasklet(
