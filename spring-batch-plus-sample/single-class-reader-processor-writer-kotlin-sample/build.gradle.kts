@@ -9,7 +9,7 @@ buildscript {
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jlleitschuh.gradle.ktlint")
-    id("io.spring.dependency-management") version "1.1.6"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 repositories {
@@ -32,14 +32,14 @@ tasks.named<Test>("test") {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.7")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.8")
     }
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-batch-jdbc")
     implementation(project(":spring-boot-starter-batch-plus-kotlin"))
-    implementation("io.projectreactor:reactor-core:3.5.0")
+    implementation("io.projectreactor:reactor-core:3.8.7")
     runtimeOnly("com.h2database:h2:2.4.240")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
