@@ -1,17 +1,17 @@
 [versions]
-spring-boot = "4.0.7"
-spring-batch = "6.0.4"
+spring-boot = "4.0.8"
+spring-batch = "6.0.5"
 # spring-jdbc version should follow minor version described in 'spring-framework.version'
 # https://github.com/spring-projects/spring-batch/blob/main/pom.xml
-spring-jdbc = "7.0.6"
+spring-jdbc = "7.0.9"
 # spring-data-mongodb / mongodb-driver versions should follow what 'spring-batch.version' pins
 # https://github.com/spring-projects/spring-batch/blob/main/pom.xml
-spring-data-mongodb = "5.0.6"
+spring-data-mongodb = "5.0.7"
 mongodb-driver = "5.6.5"
-slf4j = "2.0.17"
-reactor-core = "3.8.4"
+slf4j = "2.0.18"
+reactor-core = "3.8.7"
 findbugs-jsr305 = "3.0.2"
-jspecify = "1.0.0"
+jspecify = "1.0.1"
 
 # test-only
 junit = "6.0.+"
