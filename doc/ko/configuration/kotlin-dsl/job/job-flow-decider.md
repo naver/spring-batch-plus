@@ -20,30 +20,31 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            decider(testDecider()) {
-                on("COMPLETED") {
-                    end()
-                }
-                on("FAILED") {
-                    step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                decider(testDecider()) {
+                    on("COMPLETED") {
+                        end()
                     }
-                }
-                on("*") {
-                    stop()
+                    on("FAILED") {
+                        step("transitionStep") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
+                    }
+                    on("*") {
+                        stop()
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testDecider(): JobExecutionDecider = JobExecutionDecider { _, _ ->
-        FlowExecutionStatus.FAILED
-    }
+    open fun testDecider(): JobExecutionDecider =
+        JobExecutionDecider { _, _ ->
+            FlowExecutionStatus.FAILED
+        }
 }
 ```
 
@@ -54,9 +55,10 @@ open class TestJobConfig(
 ```kotlin
 @Component
 class TestDecider : JobExecutionDecider {
-    override fun decide(jobExecution: JobExecution, stepExecution: StepExecution?): FlowExecutionStatus {
-        return FlowExecutionStatus.FAILED
-    }
+    override fun decide(
+        jobExecution: JobExecution,
+        stepExecution: StepExecution?,
+    ): FlowExecutionStatus = FlowExecutionStatus.FAILED
 }
 ```
 
@@ -66,24 +68,24 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            deciderBean("testDecider") {
-                on("COMPLETED") {
-                    end()
-                }
-                on("FAILED") {
-                    step("transitionStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                deciderBean("testDecider") {
+                    on("COMPLETED") {
+                        end()
                     }
-                }
-                on("*") {
-                    stop()
+                    on("FAILED") {
+                        step("transitionStep") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
+                    }
+                    on("*") {
+                        stop()
+                    }
                 }
             }
         }
-    }
 }
 ```

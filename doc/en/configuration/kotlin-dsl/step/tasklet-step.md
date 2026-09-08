@@ -10,6 +10,7 @@
   - [Set an ExceptionHandler](#set-an-exceptionhandler)
   - [Set RepeatOperations](#set-repeatoperations)
   - [Set a TransactionAttribute](#set-a-transactionattribute)
+  - [Set a TransactionManager](#set-a-transactionmanager)
 
 A tasklet step consists of a single `Tasklet`.
 
@@ -50,24 +51,25 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                taskletBean("testTasklet", transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    taskletBean("testTasklet", transactionManager)
+                }
             }
         }
-    }
 
     @Bean
     @StepScope
     open fun testTasklet(
         @Value("#{jobParameters['param']}") paramValue: String,
-    ): Tasklet = Tasklet { _, _ ->
-        println("param is '$paramValue'")
-        RepeatStatus.FINISHED
-    }
+    ): Tasklet =
+        Tasklet { _, _ ->
+            println("param is '$paramValue'")
+            RepeatStatus.FINISHED
+        }
 }
 ```
 
@@ -85,39 +87,46 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
+        @BeforeStep
+        fun beforeStep() {
+            println("beforeStep")
+        }
+
+        @AfterStep
+        fun afterStep() {
+            println("afterStep")
+        }
+
         @BeforeChunk
-        fun beforeChunk(context: ChunkContext) {
-            println("beforeChunk: $context")
+        fun beforeChunk() {
+            println("beforeChunk")
         }
 
         @AfterChunk
-        fun afterChunk(context: ChunkContext) {
-            println("afterChunk: $context")
-        }
-
-        @AfterChunkError
-        fun afterChunkError() {
+        fun afterChunk() {
+            println("afterChunk")
         }
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    listener(TestListener())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        listener(TestListener())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }
 ```
 
@@ -131,36 +140,37 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    listener(
-                        object : ChunkListener {
-                            override fun beforeChunk(context: ChunkContext) {
-                                println("beforeChunk: $context")
-                            }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        listener(
+                            object : ChunkListener<Any, Any> {
+                                override fun beforeChunk(context: ChunkContext) {
+                                    println("beforeChunk: $context")
+                                }
 
-                            override fun afterChunk(context: ChunkContext) {
-                                println("afterChunk: $context")
-                            }
+                                override fun afterChunk(context: ChunkContext) {
+                                    println("afterChunk: $context")
+                                }
 
-                            override fun afterChunkError(context: ChunkContext) {
-                            }
-                        },
-                    )
+                                override fun afterChunkError(context: ChunkContext) {
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }
 ```
 
@@ -174,37 +184,38 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    stream(
-                        object : ItemStream {
-                            override fun open(executionContext: ExecutionContext) {
-                                println("open stream")
-                            }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        stream(
+                            object : ItemStream {
+                                override fun open(executionContext: ExecutionContext) {
+                                    println("open stream")
+                                }
 
-                            override fun update(executionContext: ExecutionContext) {
-                                println("update stream")
-                            }
+                                override fun update(executionContext: ExecutionContext) {
+                                    println("update stream")
+                                }
 
-                            override fun close() {
-                                println("close stream")
-                            }
-                        },
-                    )
+                                override fun close() {
+                                    println("close stream")
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }
 ```
 
@@ -218,39 +229,39 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun customExecutor(): TaskExecutor {
-        return object : SimpleAsyncTaskExecutor() {
+    open fun customExecutor(): TaskExecutor =
+        object : SimpleAsyncTaskExecutor() {
             override fun execute(task: Runnable) {
                 println("run in custom executor")
                 super.execute(task)
             }
         }
-    }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    taskExecutor(customExecutor())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        taskExecutor(customExecutor())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }
 ```
 
 ### Set an ExceptionHandler
 
-You can use an `ExceptionHandler` object to set an exception handler.
+You can use an `ExceptionHandler` object to set an exception handler. You can use Kotlin’s trailing lambda to make the code simpler.
 
 ```kotlin
 @Configuration
@@ -258,59 +269,35 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    exceptionHandler(
-                        object : ExceptionHandler {
-                            override fun handleException(context: RepeatContext, throwable: Throwable) {
-                                println("handle exception ${throwable.message}")
-                                throw throwable
-                            }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        exceptionHandler { _, throwable ->
+                            println("handle exception ${throwable.message}")
+                            throw throwable
                         }
-                    )
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        throw IllegalStateException("testTasklet error")
-    }
-}
-```
-
-You can use Kotlin’s trailing lambda to make the code simpler.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    exceptionHandler { _, throwable ->
-                        println("handle exception ${throwable.message}")
-                        throw throwable
+                        // same as
+                        // exceptionHandler(
+                        //     object : ExceptionHandler {
+                        //         override fun handleException(context: RepeatContext, throwable: Throwable) {
+                        //             println("handle exception ${throwable.message}")
+                        //             throw throwable
+                        //         }
+                        //     }
+                        // )
                     }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        throw IllegalStateException("testTasklet error")
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            throw IllegalStateException("testTasklet error")
+        }
 }
 ```
 
@@ -324,31 +311,32 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    stepOperations(
-                        object : RepeatOperations {
-                            override fun iterate(callback: RepeatCallback): RepeatStatus {
-                                val delegate = RepeatTemplate()
-                                println("custom iterate")
-                                return delegate.iterate(callback)
-                            }
-                        },
-                    )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        stepOperations(
+                            object : RepeatOperations {
+                                override fun iterate(callback: RepeatCallback): RepeatStatus {
+                                    val delegate = RepeatTemplate()
+                                    println("custom iterate")
+                                    return delegate.iterate(callback)
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        println("run testTasklet")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
 }
 ```
 
@@ -362,28 +350,60 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet(testTasklet(), transactionManager) {
-                    transactionAttribute(
-                        DefaultTransactionAttribute().apply {
-                            setName("test-tx")
-                        },
-                    )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        transactionAttribute(
+                            DefaultTransactionAttribute().apply {
+                                setName("test-tx")
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testTasklet(): Tasklet = Tasklet { _, _ ->
-        // print false
-        val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
-        println("run testTasklet (transactionName: $transactionName}")
-        RepeatStatus.FINISHED
-    }
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            // print false
+            val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
+            println("run testTasklet (transactionName: $transactionName}")
+            RepeatStatus.FINISHED
+        }
 }
 ``` 
+
+### Set a TransactionManager
+
+You can set the `PlatformTransactionManager` that the tasklet step uses.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet()) {
+                        transactionManager(transactionManager)
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
+}
+```

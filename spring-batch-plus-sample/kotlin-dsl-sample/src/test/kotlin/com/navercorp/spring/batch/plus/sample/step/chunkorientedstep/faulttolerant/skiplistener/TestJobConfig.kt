@@ -51,17 +51,19 @@ open class TestJobConfig(
                                     item: Int,
                                     t: Throwable,
                                 ) {
+                                    println("Ignore exception of process (item: $item, exception: ${t.message})")
                                 }
 
                                 override fun onSkipInWrite(
                                     item: String,
                                     t: Throwable,
                                 ) {
+                                    println("Ignore exception of write (item: $item, exception: ${t.message})")
                                 }
                             },
                         )
                         skip<IllegalStateException>()
-                        skipLimit(1L)
+                        skipLimit(3L)
                     }
                 }
             }
@@ -76,7 +78,7 @@ open class TestJobConfig(
                 val next = count++
 
                 if (next == 3) {
-                    throw IllegalStateException("I am ignored")
+                    throw IllegalStateException("I am ignored in read")
                 }
 
                 if (next < 11) {
@@ -91,12 +93,20 @@ open class TestJobConfig(
     @Bean
     open fun testItemProcessor(): ItemProcessor<Int, String> =
         ItemProcessor<Int, String> { item ->
+            if (item == 5) {
+                throw IllegalStateException("I am ignored in process")
+            }
+
             item.toString()
         }
 
     @Bean
     open fun testItemWriter(): ItemWriter<String> =
-        ItemWriter { items ->
-            println("write $items")
+        ItemWriter { chunk ->
+            if (chunk.items.contains("7")) {
+                throw IllegalStateException("I am ignored in write")
+            }
+
+            println("write ${chunk.items}")
         }
 }

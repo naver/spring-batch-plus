@@ -40,6 +40,11 @@ open class TestJobConfig(
             job("testJob") {
                 step("testStep") {
                     partitioner {
+                        splitter("workerStep") { gridSize ->
+                            (0 until gridSize).associate {
+                                "partition-$it" to ExecutionContext()
+                            }
+                        }
                         partitionHandler(
                             TaskExecutorPartitionHandler().apply {
                                 setTaskExecutor(SimpleAsyncTaskExecutor())
@@ -47,11 +52,6 @@ open class TestJobConfig(
                                 gridSize = 4
                             },
                         )
-                        splitter("workerStep") { gridSize ->
-                            (0 until gridSize).associate {
-                                "partition-$it" to ExecutionContext()
-                            }
-                        }
                     }
                 }
             }

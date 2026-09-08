@@ -4,8 +4,6 @@
 - [Set a job listener](#set-a-job-listener)
   - [Set a listener using annotations](#set-a-listener-using-annotations)
   - [Set a listener using a JobExecutionListener object](#set-a-listener-using-a-jobexecutionlistener-object)
-- [Set a MeterRegistry](#set-a-meterregistry)
-- [Set a BatchJobObservationConvention](#set-a-batchjobobservationconvention)
 - [Set a ObservationRegistry](#set-a-observationregistry)
 - [Set preventRestart](#set-preventrestart)
 - [Set a JobParametersValidator](#set-a-jobparametersvalidator)
@@ -14,7 +12,7 @@ The functions that can be set with `JobBuilder` are also available with the Kotl
 
 ## Set a JobParameterIncrementer
 
-The Kotlin DSL helps you set a `JobParameterIncrementer` using `JobBuilder`.
+The Kotlin DSL helps you set a `JobParameterIncrementer` using `JobBuilder`. You can use Kotlin’s trailing lambda to make the code simpler.
 
 ```kotlin
 @Configuration
@@ -22,51 +20,32 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            incrementer(
-                object : JobParametersIncrementer {
-                    override fun getNext(parameters: JobParameters?): JobParameters {
-                        val nextValue = parameters?.getLong("param")?.plus(1L) ?: 0L
-                        return JobParametersBuilder(parameters ?: JobParameters())
-                            .addLong("param", nextValue)
-                            .toJobParameters()
-                    }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                incrementer {
+                    val nextValue = it?.getLong("param")?.plus(1L) ?: 0L
+                    JobParametersBuilder(it ?: JobParameters())
+                        .addLong("param", nextValue)
+                        .toJobParameters()
                 }
-            )
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                // same as
+                // incrementer(
+                //     object : JobParametersIncrementer {
+                //         override fun getNext(parameters: JobParameters?): JobParameters {
+                //             val nextValue = parameters?.getLong("param")?.plus(1L) ?: 0L
+                //             return JobParametersBuilder(parameters ?: JobParameters())
+                //                 .addLong("param", nextValue)
+                //                 .toJobParameters()
+                //         }
+                //     }
+                // )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
-}
-```
-
-You can use Kotlin’s trailing lambda to make the code simpler.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            incrementer {
-                val nextValue = it?.getLong("param")?.plus(1L) ?: 0L
-                JobParametersBuilder(it ?: JobParameters())
-                    .addLong("param", nextValue)
-                    .toJobParameters()
-            }
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-        }
-    }
 }
 ```
 
@@ -84,7 +63,6 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @BeforeJob
         fun beforeJob() {
@@ -98,14 +76,15 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            listener(TestListener())
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                listener(TestListener())
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 
@@ -119,72 +98,26 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            listener(
-                object : JobExecutionListener {
-                    override fun beforeJob(jobExecution: JobExecution) {
-                        println("before $jobExecution")
-                    }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                listener(
+                    object : JobExecutionListener {
+                        override fun beforeJob(jobExecution: JobExecution) {
+                            println("before $jobExecution")
+                        }
 
-                    override fun afterJob(jobExecution: JobExecution) {
-                        println("after $jobExecution")
-                    }
-                },
-            )
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        override fun afterJob(jobExecution: JobExecution) {
+                            println("after $jobExecution")
+                        }
+                    },
+                )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
-}
-```
-
-## Set a MeterRegistry
-
-The Kotlin DSL helps you set a `MeterRegistry` using `JobBuilder`.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            meterRegistry(SimpleMeterRegistry())
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-        }
-    }
-}
-```
-
-## Set a BatchJobObservationConvention
-
-The Kotlin DSL helps you set a `BatchJobObservationConvention` using `JobBuilder`.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            observationConvention(DefaultBatchJobObservationConvention())
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-        }
-    }
 }
 ```
 
@@ -198,16 +131,16 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            observationRegistry(ObservationRegistry.create())
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                observationRegistry(ObservationRegistry.create())
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 
@@ -221,33 +154,33 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        var isFirst = true
+    open fun testJob(): Job =
+        batch {
+            var isFirst = true
 
-        job("testJob") {
-            preventRestart()
-            step("testStep") {
-                tasklet(
-                    { _, _ ->
-                        if (isFirst) {
-                            isFirst = false
-                            throw RuntimeException("First try should be failed")
-                        }
-                        RepeatStatus.FINISHED
-                    },
-                    transactionManager,
-                )
+            job("testJob") {
+                preventRestart()
+                step("testStep") {
+                    tasklet(
+                        { _, _ ->
+                            if (isFirst) {
+                                isFirst = false
+                                throw RuntimeException("First try should be failed")
+                            }
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager,
+                    )
+                }
             }
         }
-    }
 }
 ```
 
 ## Set a JobParametersValidator
 
-The Kotlin DSL helps you set a `JobParametersValidator` using `JobBuilder`.
+The Kotlin DSL helps you set a `JobParametersValidator` using `JobBuilder`. You can use Kotlin’s trailing lambda to make the code simpler.
 
 ```kotlin
 @Configuration
@@ -255,50 +188,31 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            validator(
-                object : JobParametersValidator {
-                    override fun validate(parameters: JobParameters?) {
-                        val value = parameters?.getLong("param")
-                        if (value == null || value < 0L) {
-                            throw JobParametersInvalidException("param is < 0")
-                        }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                validator {
+                    val value = it?.getLong("param")
+                    if (value == null || value < 0L) {
+                        throw InvalidJobParametersException("param is null or less than 0")
                     }
                 }
-            )
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-        }
-    }
-}
-```
-
-You can use Kotlin’s trailing lambda to make the code simpler.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            validator {
-                val value = it?.getLong("param")
-                if (value == null || value < 0L) {
-                    throw JobParametersInvalidException("param is null or less than 0")
+                // same as
+                // validator(
+                //     object : JobParametersValidator {
+                //         override fun validate(parameters: JobParameters?) {
+                //             val value = parameters?.getLong("param")
+                //             if (value == null || value < 0L) {
+                //                 throw InvalidJobParametersException("param is < 0")
+                //             }
+                //         }
+                //     }
+                // )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
         }
-    }
 }
 ```

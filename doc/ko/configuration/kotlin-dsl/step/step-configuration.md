@@ -1,8 +1,6 @@
 # Step Configuration
 
-- [BatchStepObservationConvention 설정](#batchstepobservationconvention-설정)
 - [ObservationRegistry 설정](#observationregistry-설정)
-- [MeterRegistry 설정](#meterregistry-설정)
 - [StartLimit 설정](#startlimit-설정)
 - [Step Listener 설정](#step-listener-설정)
   - [Annotation을 사용하여 Listener 설정하기](#annotation을-사용하여-listener-설정하기)
@@ -10,29 +8,6 @@
 - [allowStartIfComplete 설정](#allowstartifcomplete-설정)
 
 Kotlin DSL에서는 `StepBuilder`에서 설정할 수 있는 기능을 모두 제공합니다. 이 문서에서는 Kotlin DSL을 활용해서 `Step` 관련 설정들을 하는 방법에 대해서 다룹니다.
-
-## BatchStepObservationConvention 설정
-
-Kotlin DSL은 `StepBuilder`를 사용하여 `BatchStepObservationConvention`을 설정하는 방법을 제공합니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                observationConvention(DefaultBatchStepObservationConvention())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-        }
-    }
-}
-```
 
 ## ObservationRegistry 설정
 
@@ -44,39 +19,16 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                observationRegistry(ObservationRegistry.create())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    observationRegistry(ObservationRegistry.create())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
-}
-```
-
-## MeterRegistry 설정
-
-Kotlin DSL은 `StepBuilder`를 사용하여 `MeterRegistry`을 설정하는 방법을 제공합니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                meterRegistry(SimpleMeterRegistry())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-        }
-    }
 }
 ```
 
@@ -90,26 +42,26 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     private var count = 0
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                startLimit(2)
-                tasklet(
-                    { _, _ ->
-                        if (count < 2) {
-                            throw IllegalStateException("count is less than 2 (count: ${count++})")
-                        }
-                        RepeatStatus.FINISHED
-                    },
-                    transactionManager,
-                )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    startLimit(2)
+                    tasklet(
+                        { _, _ ->
+                            if (count < 2) {
+                                throw IllegalStateException("count is less than 2 (count: ${count++})")
+                            }
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager,
+                    )
+                }
             }
         }
-    }
 }
 ```
 
@@ -127,7 +79,6 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @BeforeStep
         fun beforeStep() {
@@ -141,14 +92,15 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                listener(TestListener())
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    listener(TestListener())
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 
@@ -162,27 +114,27 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                listener(
-                    object : StepExecutionListener {
-                        override fun beforeStep(stepExecution: StepExecution) {
-                            println("beforeStep")
-                        }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    listener(
+                        object : StepExecutionListener {
+                            override fun beforeStep(stepExecution: StepExecution) {
+                                println("beforeStep")
+                            }
 
-                        override fun afterStep(stepExecution: StepExecution): ExitStatus? {
-                            println("afterStep")
-                            return null
-                        }
-                    },
-                )
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                            override fun afterStep(stepExecution: StepExecution): ExitStatus? {
+                                println("afterStep")
+                                return null
+                            }
+                        },
+                    )
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 
@@ -196,29 +148,29 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("alwaysRunStep") {
-                allowStartIfComplete(true)
-                tasklet(
-                    { _, _ ->
-                        println("always run")
-                        RepeatStatus.FINISHED
-                    },
-                    transactionManager,
-                )
-            }
-            step("alwaysFailsStep") {
-                tasklet(
-                    { _, _ ->
-                        throw IllegalStateException("always failed")
-                    },
-                    transactionManager,
-                )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("alwaysRunStep") {
+                    allowStartIfComplete(true)
+                    tasklet(
+                        { _, _ ->
+                            println("always run")
+                            RepeatStatus.FINISHED
+                        },
+                        transactionManager,
+                    )
+                }
+                step("alwaysFailsStep") {
+                    tasklet(
+                        { _, _ ->
+                            throw IllegalStateException("always failed")
+                        },
+                        transactionManager,
+                    )
+                }
             }
         }
-    }
 }
 ```

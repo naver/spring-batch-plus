@@ -8,51 +8,48 @@
 Spring Batch provides DSL for creating a `Job`, `Step`, and `Flow` object. Spring Batch lets you create a `Job`, `Step`, and `Flow` object using `JobBuilder`, `StepBuilder`, and `FlowBuilder`. Here is a Kotlin code example.
 
 ```kotlin
+@Configuration
 open class TestJobConfig(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job {
-        return JobBuilder("testJob", jobRepository)
+    open fun testJob(): Job =
+        JobBuilder("testJob", jobRepository)
             .start(
                 StepBuilder("testStep1", jobRepository)
                     .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                     .build(),
-            )
-            .next(testStep2())
-            .on("COMPLETED").to(testStep3())
+            ).next(testStep2())
+            .on("COMPLETED")
+            .to(testStep3())
             .from(testStep2())
-            .on("FAILED").to(testStep4())
+            .on("FAILED")
+            .to(testStep4())
             .end()
             .build()
-    }
 
     @Bean
-    open fun testStep2(): Step {
-        return StepBuilder("testStep2", jobRepository)
+    open fun testStep2(): Step =
+        StepBuilder("testStep2", jobRepository)
             .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
-    }
 
     @Bean
-    open fun testStep3(): Step {
-        return StepBuilder("testStep3", jobRepository)
+    open fun testStep3(): Step =
+        StepBuilder("testStep3", jobRepository)
             .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
-    }
 
     @Bean
-    open fun testStep4(): Step {
-        return StepBuilder("testStep4", jobRepository)
+    open fun testStep4(): Step =
+        StepBuilder("testStep4", jobRepository)
             .tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             .build()
-    }
 }
 ```
 
-However, this has boilerplate code and is not Kotlin-like. To avoid such a problem, Spring Batch Plus helps you set a `Job`, `Step`, and `Flow` object using the Kotlin DSL. The following code example using the Kotlin DSL works the same.
+However, this has boilerplate code and is not Kotlin-like. You need to create a method for each `Step` to run, and the readability of a conditional flow built with `.from().on().to()` varies greatly with indentation and line breaks. Laying the calls out as shown above still works as expected, so auto formatting of an IDE cannot catch such code. To avoid such problems, Spring Batch Plus helps you set a `Job`, `Step`, and `Flow` object using the Kotlin DSL. The following code example using the Kotlin DSL works the same.
 
 ```kotlin
 @Configuration
@@ -60,46 +57,51 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+                step(testStep2()) {
+                    on("COMPLETED") {
+                        step(testStep3())
+                    }
+                    on("FAILED") {
+                        step(testStep4())
+                    }
+                }
+            }
+        }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep1") {
+    open fun testStep2(): Step =
+        batch {
+            step("testStep2") {
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
-            step(testStep2()) {
-                on("COMPLETED") {
-                    step(testStep3())
-                }
-                on("FAILED") {
-                    step(testStep4())
-                }
+        }
+
+    @Bean
+    open fun testStep3(): Step =
+        batch {
+            step("testStep3") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
         }
-    }
 
     @Bean
-    open fun testStep2(): Step = batch {
-        step("testStep2") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testStep4(): Step =
+        batch {
+            step("testStep4") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
         }
-    }
-
-    @Bean
-    open fun testStep3(): Step = batch {
-        step("testStep3") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-        }
-    }
-
-    @Bean
-    open fun testStep4(): Step = batch {
-        step("testStep4") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-        }
-    }
 }
 ```
+
+The Kotlin DSL does not require boilerplate code such as `.build()`, and a conditional flow is expressed as nested blocks. You can pass a `Step` registered as a method like testStep2, or define a `Step` while defining a `Job` like testStep1.
 
 Because the Kotlin DSL is designed to act as a wrapper for Spring Batch functions, not to change them, configurations not available in JAVA-based DSL are not applicable to Spring Batch in the Kotlin DSL as well. For more information about Spring Batch configurations, see [Spring Batch Docs](https://spring.io/projects/spring-batch).
 
@@ -114,17 +116,15 @@ Using `spring-boot-starter-batch-plus-kotlin` automatically adds a `BatchDsl` be
 ```kotlin
 @Configuration
 open class BatchConfig {
-
     @Bean
     open fun batchDsl(
         beanFactory: BeanFactory,
-        jobRepository: JobRepository
-    ): BatchDsl {
-        return BatchDsl(
+        jobRepository: JobRepository,
+    ): BatchDsl =
+        BatchDsl(
             beanFactory,
-            jobRepository
+            jobRepository,
         )
-    }
 }
 ```
 
@@ -134,19 +134,20 @@ If it is bound as a property of the class, you can use it without binding it as 
 
 ```kotlin
 @Configuration
-class TestJobConfig(
-    private val batch: BatchDsl
+open class TestJobConfig(
+    private val batch: BatchDsl,
 ) {
     @Bean
-    fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet { _, _ ->
-                    RepeatStatus.FINISHED
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet { _, _ ->
+                        RepeatStatus.FINISHED
+                    }
                 }
             }
         }
-    }
 }
 ```
 
@@ -155,17 +156,17 @@ Also you can bind a `BatchDsl` bean as an argument of a function.
 ```kotlin
 @Configuration
 open class TestJobConfig {
-
     @Bean
-    open fun testJob(batch: BatchDsl): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet { _, _ ->
-                    RepeatStatus.FINISHED
+    open fun testJob(batch: BatchDsl): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet { _, _ ->
+                        RepeatStatus.FINISHED
+                    }
                 }
             }
         }
-    }
 }
 ```
 
