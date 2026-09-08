@@ -29,7 +29,7 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,7 +40,7 @@ public class SampleApplicationTest {
 	@Test
 	void run() throws Exception {
 		ApplicationContext applicationContext = SpringApplication.run(SampleApplicationTest.class);
-		JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+		JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 		JobRepository jobRepository = applicationContext.getBean(JobRepository.class);
 
 		// prepare job instances
@@ -52,7 +52,7 @@ public class SampleApplicationTest {
 			).toList();
 		for (JobParameters testJobParameters : testJobParameterList) {
 			// change create time date for test
-			JobExecution jobExecution = jobLauncher.run(testJob, testJobParameters);
+			JobExecution jobExecution = jobOperator.start(testJob, testJobParameters);
 			jobExecution.setCreateTime(jobExecution.getCreateTime().minusDays(1));
 			jobRepository.update(jobExecution);
 		}
@@ -64,7 +64,7 @@ public class SampleApplicationTest {
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString("baseDate", now.format(formatter))
 			.toJobParameters();
-		jobLauncher.run(removeJob, jobParameters);
+		jobOperator.start(removeJob, jobParameters);
 
 		// all instances are removed
 		for (JobParameters testJobParameters : testJobParameterList) {

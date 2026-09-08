@@ -30,7 +30,7 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -46,7 +46,7 @@ public class SampleApplicationTest {
 		properties.put("spring.batch.jdbc.table-prefix", "CUSTOM_");
 		application.setDefaultProperties(properties);
 		ApplicationContext applicationContext = application.run();
-		JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+		JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 		JobRepository jobRepository = applicationContext.getBean(JobRepository.class);
 
 		// prepare job instances
@@ -58,19 +58,19 @@ public class SampleApplicationTest {
 			).toList();
 		for (JobParameters testJobParameters : testJobParameterList) {
 			// change create time date for test
-			JobExecution jobExecution = jobLauncher.run(testJob, testJobParameters);
+			JobExecution jobExecution = jobOperator.start(testJob, testJobParameters);
 			jobExecution.setCreateTime(jobExecution.getCreateTime().minusDays(1));
 			jobRepository.update(jobExecution);
 		}
 
-		// launch removeJob
-		Job removeJob = applicationContext.getBean("removeJob", Job.class);
+		// launch deleteMetadataJob
+		Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
 		LocalDate now = LocalDate.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		JobParameters jobParameters = new JobParametersBuilder()
 			.addString("baseDate", now.format(formatter))
 			.toJobParameters();
-		jobLauncher.run(removeJob, jobParameters);
+		jobOperator.start(removeJob, jobParameters);
 
 		// all instances are removed
 		for (JobParameters testJobParameters : testJobParameterList) {
