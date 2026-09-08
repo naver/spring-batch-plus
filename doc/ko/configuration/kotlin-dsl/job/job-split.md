@@ -2,7 +2,7 @@
 
 - [Flow 병렬 처리하기](#flow-병렬-처리하기)
   - [Flow를 변수로 넘기기](#flow를-변수로-넘기기)
-  - [내부에서 Flow를 초기화 하기](#내부에서-flow를-초기화-하기)
+  - [내부에서 Flow를 초기화하기](#내부에서-flow를-초기화하기)
   - [Bean 이름으로 Flow를 가져오기](#bean-이름으로-flow를-가져오기)
 
 Spring Batch는 여러 `Flow`를 동시에 수행할 수 있습니다. Kotlin DSL도 동일한 기능을 제공합니다.
@@ -21,46 +21,49 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            val testFlow3 = batch {
-                flow("testFlow3") {
-                    step("testStep3") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                val testFlow3 =
+                    batch {
+                        flow("testFlow3") {
+                            step("testStep3") {
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                            }
+                        }
                     }
+                split(SimpleAsyncTaskExecutor()) {
+                    flow(testFlow1())
+                    flow(testFlow2())
+                    flow(testFlow3)
                 }
             }
-            split(SimpleAsyncTaskExecutor()) {
-                flow(testFlow1())
-                flow(testFlow2())
-                flow(testFlow3)
-            }
         }
-    }
 
     @Bean
-    open fun testFlow1(): Flow = batch {
-        flow("testFlow1") {
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow1(): Flow =
+        batch {
+            flow("testFlow1") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 
     @Bean
-    open fun testFlow2(): Flow = batch {
-        flow("testFlow2") {
-            step("testStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow2(): Flow =
+        batch {
+            flow("testFlow2") {
+                step("testStep2") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 
-### 내부에서 Flow를 초기화 하기
+### 내부에서 Flow를 초기화하기
 
 `TaskExecutor`에서 수행할 `Flow`를 정의할 때 내부에서 초기화 할 수 있습니다.
 
@@ -70,29 +73,29 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            split(SimpleAsyncTaskExecutor()) {
-                flow("testFlow1") {
-                    step("testStep1") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                split(SimpleAsyncTaskExecutor()) {
+                    flow("testFlow1") {
+                        step("testStep1") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
                     }
-                }
-                flow("testFlow2") {
-                    step("testStep2") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                    flow("testFlow2") {
+                        step("testStep2") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
                     }
-                }
-                flow("testFlow3") {
-                    step("testStep3") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                    flow("testFlow3") {
+                        step("testStep3") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
                     }
                 }
             }
         }
-    }
 }
 ```
 
@@ -106,43 +109,46 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            split(SimpleAsyncTaskExecutor()) {
-                flowBean("testFlow1")
-                flowBean("testFlow2")
-                flowBean("testFlow3")
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                split(SimpleAsyncTaskExecutor()) {
+                    flowBean("testFlow1")
+                    flowBean("testFlow2")
+                    flowBean("testFlow3")
+                }
             }
         }
-    }
 
     @Bean
-    open fun testFlow1(): Flow = batch {
-        flow("testFlow1") {
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow1(): Flow =
+        batch {
+            flow("testFlow1") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 
     @Bean
-    open fun testFlow2(): Flow = batch {
-        flow("testFlow2") {
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow2(): Flow =
+        batch {
+            flow("testFlow2") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 
     @Bean
-    open fun testFlow3(): Flow = batch {
-        flow("testFlow3") {
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow3(): Flow =
+        batch {
+            flow("testFlow3") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```

@@ -16,24 +16,25 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                flow(anotherFlow())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    flow(anotherFlow())
+                }
             }
         }
-    }
 
     @Bean
-    open fun anotherFlow(): Flow = batch {
-        flow("anotherFlow") {
-            step("anotherFlowStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun anotherFlow(): Flow =
+        batch {
+            flow("anotherFlow") {
+                step("anotherFlowStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 
@@ -47,19 +48,19 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                flow("anotherFlow") {
-                    step("anotherFlowStep") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    flow("anotherFlow") {
+                        step("anotherFlowStep") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
                     }
                 }
             }
         }
-    }
 }
 ```
 
@@ -73,23 +74,24 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                flowBean("anotherFlow")
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    flowBean("anotherFlow")
+                }
             }
         }
-    }
 
     @Bean
-    open fun anotherFlow(): Flow = batch {
-        flow("anotherFlow") {
-            step("anotherFlowStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun anotherFlow(): Flow =
+        batch {
+            flow("anotherFlow") {
+                step("anotherFlowStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```

@@ -39,15 +39,16 @@ open class TestJobConfig(
             job("testJob") {
                 step("testStep") {
                     partitioner {
-                        partitionHandler {
-                            taskExecutor(SimpleAsyncTaskExecutor())
-                            step(testStep())
-                            gridSize(4)
-                        }
+                        // use SimpleStepExecutionSplitter internally
                         splitter("workerStep") { gridSize ->
                             (0 until gridSize).associate {
                                 "partition-$it" to ExecutionContext()
                             }
+                        }
+                        partitionHandler {
+                            taskExecutor(SimpleAsyncTaskExecutor())
+                            step(testStep())
+                            gridSize(4)
                         }
                     }
                 }

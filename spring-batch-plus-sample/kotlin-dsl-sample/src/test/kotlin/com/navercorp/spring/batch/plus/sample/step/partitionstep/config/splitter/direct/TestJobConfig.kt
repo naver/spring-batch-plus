@@ -42,11 +42,6 @@ open class TestJobConfig(
             job("testJob") {
                 step("testStep") {
                     partitioner {
-                        partitionHandler {
-                            taskExecutor(SimpleAsyncTaskExecutor())
-                            step(actualStep())
-                            gridSize(4)
-                        }
                         splitter(
                             object : StepExecutionSplitter {
                                 override fun getStepName(): String = "workerStep"
@@ -66,6 +61,11 @@ open class TestJobConfig(
                                 }
                             },
                         )
+                        partitionHandler {
+                            taskExecutor(SimpleAsyncTaskExecutor())
+                            step(actualStep())
+                            gridSize(4)
+                        }
                     }
                 }
             }

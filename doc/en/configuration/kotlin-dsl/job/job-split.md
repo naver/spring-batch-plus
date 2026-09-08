@@ -21,42 +21,45 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            val testFlow3 = batch {
-                flow("testFlow3") {
-                    step("testStep3") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                val testFlow3 =
+                    batch {
+                        flow("testFlow3") {
+                            step("testStep3") {
+                                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                            }
+                        }
                     }
+                split(SimpleAsyncTaskExecutor()) {
+                    flow(testFlow1())
+                    flow(testFlow2())
+                    flow(testFlow3)
                 }
             }
-            split(SimpleAsyncTaskExecutor()) {
-                flow(testFlow1())
-                flow(testFlow2())
-                flow(testFlow3)
-            }
         }
-    }
 
     @Bean
-    open fun testFlow1(): Flow = batch {
-        flow("testFlow1") {
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow1(): Flow =
+        batch {
+            flow("testFlow1") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 
     @Bean
-    open fun testFlow2(): Flow = batch {
-        flow("testFlow2") {
-            step("testStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow2(): Flow =
+        batch {
+            flow("testFlow2") {
+                step("testStep2") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 
@@ -70,29 +73,29 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            split(SimpleAsyncTaskExecutor()) {
-                flow("testFlow1") {
-                    step("testStep1") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                split(SimpleAsyncTaskExecutor()) {
+                    flow("testFlow1") {
+                        step("testStep1") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
                     }
-                }
-                flow("testFlow2") {
-                    step("testStep2") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                    flow("testFlow2") {
+                        step("testStep2") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
                     }
-                }
-                flow("testFlow3") {
-                    step("testStep3") {
-                        tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                    flow("testFlow3") {
+                        step("testStep3") {
+                            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                        }
                     }
                 }
             }
         }
-    }
 }
 ```
 
@@ -106,43 +109,46 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            split(SimpleAsyncTaskExecutor()) {
-                flowBean("testFlow1")
-                flowBean("testFlow2")
-                flowBean("testFlow3")
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                split(SimpleAsyncTaskExecutor()) {
+                    flowBean("testFlow1")
+                    flowBean("testFlow2")
+                    flowBean("testFlow3")
+                }
             }
         }
-    }
 
     @Bean
-    open fun testFlow1(): Flow = batch {
-        flow("testFlow1") {
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow1(): Flow =
+        batch {
+            flow("testFlow1") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 
     @Bean
-    open fun testFlow2(): Flow = batch {
-        flow("testFlow2") {
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow2(): Flow =
+        batch {
+            flow("testFlow2") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 
     @Bean
-    open fun testFlow3(): Flow = batch {
-        flow("testFlow3") {
-            step("testStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow3(): Flow =
+        batch {
+            flow("testFlow3") {
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```

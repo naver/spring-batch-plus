@@ -1,34 +1,27 @@
 # Chunk-Oriented Step
 
 - [Chunk Size를 지정하여 생성하기](#chunk-size를-지정하여-생성하기)
-- [CompletionPolicy Policy를 지정하여 생성하기](#completionpolicy-policy를-지정하여-생성하기)
-- [RepeatOperation을 통해 생성하기](#repeatoperation을-통해-생성하기)
 - [Chunk-oriented Step 설정하기](#chunk-oriented-step-설정하기)
   - [Annotation을 사용하여 Listener 설정하기](#annotation을-사용하여-listener-설정하기)
+  - [StepExecutionListener 객체를 사용하여 Listener 설정하기](#stepexecutionlistener-객체를-사용하여-listener-설정하기)
   - [ChunkListener 객체를 사용하여 Listener 설정하기](#chunklistener-객체를-사용하여-listener-설정하기)
   - [ItemReadListener 객체를 사용하여 Listener 설정하기](#itemreadlistener-객체를-사용하여-listener-설정하기)
   - [ItemProcessListener 객체를 사용하여 Listener 설정하기](#itemprocesslistener-객체를-사용하여-listener-설정하기)
   - [ItemWriteListener 객체를 사용하여 Listener 설정하기](#itemwritelistener-객체를-사용하여-listener-설정하기)
   - [Stream 설정하기](#stream-설정하기)
   - [TaskExecutor 설정하기](#taskexecutor-설정하기)
-  - [ExceptionHandler 설정하기](#exceptionhandler-설정하기)
-  - [RepeatOperations 설정하기](#repeatoperations-설정하기)
   - [TransactionAttribute 설정하기](#transactionattribute-설정하기)
+  - [TransactionManager 설정하기](#transactionmanager-설정하기)
+  - [StepInterruptionPolicy 설정하기](#stepinterruptionpolicy-설정하기)
+  - [ObservationRegistry 설정하기](#observationregistry-설정하기)
 - [FaultTolerant 설정하기](#faulttolerant-설정하기)
   - [Annotation을 사용해서 SkipListener 설정하기](#annotation을-사용해서-skiplistener-설정하기)
   - [SkipListener 설정하기](#skiplistener-설정하기)
   - [RetryListener 설정하기](#retrylistener-설정하기)
-  - [KeyGenerator 설정하기](#keygenerator-설정하기)
   - [Retry Class, RetryLimit 설정하기](#retry-class-retrylimit-설정하기)
-  - [noRetry Class 설정하기](#noretry-class-설정하기)
   - [RetryPolicy 설정하기](#retrypolicy-설정하기)
-  - [BackOffPolicy 설정하기](#backoffpolicy-설정하기)
-  - [RetryContextCache 설정하기](#retrycontextcache-설정하기)
   - [Skip Class, SkipLimit 설정하기](#skip-class-skiplimit-설정하기)
-  - [noSkip Class 설정하기](#noskip-class-설정하기)
   - [SkipPolicy 설정하기](#skippolicy-설정하기)
-  - [noRollback Class 설정하기](#norollback-class-설정하기)
-  - [processorNonTransactional 설정하기](#processornontransactional-설정하기)
 
 Chunk-Oriented Step은 `ItemReader`, `ItemProcessor`, `ItemWriter`로 구성된 `Step`입니다.
 
@@ -40,171 +33,115 @@ Chunk size를 지정하여 `Step`을 생성할 수 있습니다.
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
-}
-```
-
-## CompletionPolicy Policy를 지정하여 생성하기
-
-CompletionPolicy를 직접 지정하여 `Step`을 생성할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(SimpleCompletionPolicy(3), transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                return if (count < 11) {
-                    count++
-                } else {
-                    null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
-}
-```
-
-## RepeatOperation을 통해 생성하기
-
-`RepeatOperations`를 직접 지정하여 `Step`을 생성할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                val repeatOperations = RepeatTemplate().apply {
-                    setCompletionPolicy(SimpleCompletionPolicy(3))
-                }
-                chunk<Int, String>(repeatOperations, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                return if (count < 11) {
-                    count++
-                } else {
-                    null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
 }
 ```
 
 ## Chunk-oriented Step 설정하기
 
-Kotlin DSL에서는 `SimpleStepBuilder`에서 설정할 수 있는 기능을 모두 제공합니다.
+Kotlin DSL에서는 `ChunkOrientedStepBuilder`에서 설정할 수 있는 기능을 모두 제공합니다.
 
 ### Annotation을 사용하여 Listener 설정하기
+
+임의의 객체에 `@BeforeStep`, `@AfterStep` Annotation을 붙여서 Step Execution Listener 를 설정할 수 있습니다.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    class TestListener {
+        @BeforeStep
+        fun beforeStep(stepExecution: StepExecution) {
+            println("beforeStep: $stepExecution")
+        }
+
+        @AfterStep
+        fun afterStep(stepExecution: StepExecution): ExitStatus? {
+            println("afterStep: $stepExecution")
+            return null
+        }
+    }
+
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(TestListener())
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 11) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            item.toString()
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            println("write $items")
+        }
+}
+```
 
 임의의 객체에 `@BeforeChunk`, `@AfterChunk`, `@AfterChunkError` Annotation을 붙여서 Chunk Listener 를 설정할 수 있습니다.
 
@@ -212,18 +149,16 @@ Kotlin DSL에서는 `SimpleStepBuilder`에서 설정할 수 있는 기능을 모
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @BeforeChunk
-        fun beforeChunk(context: ChunkContext) {
-            println("beforeChunk: $context")
+        fun beforeChunk(chunk: Chunk<Int>) {
+            println("beforeChunk: $chunk")
         }
 
         @AfterChunk
-        fun afterChunk(context: ChunkContext) {
-            println("afterChunk: $context")
+        fun afterChunk(chunk: Chunk<String>) {
+            println("afterChunk: $chunk")
         }
 
         @AfterChunkError
@@ -232,47 +167,44 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(TestListener())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(TestListener())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }
 ```
 
@@ -282,9 +214,7 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @BeforeRead
         fun beforeRead() {
@@ -303,47 +233,44 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(TestListener())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(TestListener())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }
 ```
 
@@ -353,9 +280,7 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @BeforeProcess
         fun beforeProcess(item: Any) {
@@ -363,58 +288,61 @@ open class TestJobConfig(
         }
 
         @AfterProcess
-        fun afterProcess(item: Any, result: Any?) {
+        fun afterProcess(
+            item: Any,
+            result: Any?,
+        ) {
             println("afterProcess: $item, result: $result")
         }
 
         @OnProcessError
-        fun onProcessError(item: Any, e: Exception) {
+        fun onProcessError(
+            item: Any,
+            e: Exception,
+        ) {
             println("onProcessError: $item, exception: $e")
         }
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(TestListener())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(TestListener())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("[${Thread.currentThread().name}] write $items")
         }
-    }
 }
 ```
 
@@ -424,9 +352,7 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @BeforeWrite
         fun beforeWrite(chunk: Chunk<String>) {
@@ -439,53 +365,53 @@ open class TestJobConfig(
         }
 
         @OnWriteError
-        fun onWriteError(exception: Exception, chunk: Chunk<String>) {
+        fun onWriteError(
+            exception: Exception,
+            chunk: Chunk<String>,
+        ) {
             println("afterWrite: ${chunk.items}, exception: $exception")
         }
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(TestListener())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(TestListener())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }
 ```
 
@@ -495,9 +421,7 @@ Annotation 기반의 Listener들은 한 객체에서 일부만 선택하여 사�
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
         @AfterRead
         fun afterRead(item: Any) {
@@ -505,7 +429,10 @@ open class TestJobConfig(
         }
 
         @AfterProcess
-        fun afterProcess(item: Any, result: Any?) {
+        fun afterProcess(
+            item: Any,
+            result: Any?,
+        ) {
             println("afterProcess: $item, result: $result")
         }
 
@@ -516,47 +443,106 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(TestListener())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(TestListener())
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("[${Thread.currentThread().name}] write $items")
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            println("write $items")
         }
-    }
+}
+```
+
+### StepExecutionListener 객체를 사용하여 Listener 설정하기
+
+`StepExecutionListener` 객체를 직접 인자로 넘겨서 Step Execution Listener 를 설정할 수 있습니다.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(
+                            object : StepExecutionListener {
+                                override fun beforeStep(stepExecution: StepExecution) {
+                                    println("beforeStep: $stepExecution")
+                                }
+
+                                override fun afterStep(stepExecution: StepExecution): ExitStatus? {
+                                    println("afterStep: $stepExecution")
+                                    return null
+                                }
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 11) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            item.toString()
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            println("write $items")
+        }
 }
 ```
 
@@ -568,64 +554,62 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(
-                        object : ChunkListener {
-                            override fun beforeChunk(context: ChunkContext) {
-                                println("beforeChunk: $context")
-                            }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(
+                            object : ChunkListener<Int, String> {
+                                override fun beforeChunk(chunk: Chunk<Int>) {
+                                    println("beforeChunk: $chunk")
+                                }
 
-                            override fun afterChunk(context: ChunkContext) {
-                                println("afterChunk: $context")
-                            }
+                                override fun afterChunk(chunk: Chunk<String>) {
+                                    println("afterChunk: $chunk")
+                                }
 
-                            override fun afterChunkError(context: ChunkContext) {
-                            }
-                        },
-                    )
+                                override fun onChunkError(
+                                    exception: Exception,
+                                    chunk: Chunk<String>,
+                                ) {
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("[${Thread.currentThread().name}] write $items")
         }
-    }
 }
 ```
 
@@ -637,64 +621,59 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(
-                        object : ItemReadListener<Int> {
-                            override fun beforeRead() {
-                                println("beforeRead")
-                            }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(
+                            object : ItemReadListener<Int> {
+                                override fun beforeRead() {
+                                    println("beforeRead")
+                                }
 
-                            override fun onReadError(ex: Exception) {
-                            }
+                                override fun onReadError(ex: Exception) {
+                                }
 
-                            override fun afterRead(item: Int) {
-                                println("afterRead (item: $item)")
-                            }
-                        },
-                    )
+                                override fun afterRead(item: Int) {
+                                    println("afterRead (item: $item)")
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }
 ```
 
@@ -706,64 +685,65 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(
-                        object : ItemProcessListener<Int, String> {
-                            override fun beforeProcess(item: Int) {
-                                println("beforeProcess: $item")
-                            }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(
+                            object : ItemProcessListener<Int, String> {
+                                override fun beforeProcess(item: Int) {
+                                    println("beforeProcess: $item")
+                                }
 
-                            override fun afterProcess(item: Int, result: String?) {
-                                println("afterProcess: $item, result: $result")
-                            }
+                                override fun afterProcess(
+                                    item: Int,
+                                    result: String?,
+                                ) {
+                                    println("afterProcess: $item, result: $result")
+                                }
 
-                            override fun onProcessError(item: Int, e: Exception) {
-                            }
-                        },
-                    )
+                                override fun onProcessError(
+                                    item: Int,
+                                    e: Exception,
+                                ) {
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }
 ```
 
@@ -775,64 +755,62 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(
-                        object : ItemWriteListener<String> {
-                            override fun beforeWrite(chunk: Chunk<out String>) {
-                                println("beforeWrite: ${chunk.items}")
-                            }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(
+                            object : ItemWriteListener<String> {
+                                override fun beforeWrite(chunk: Chunk<out String>) {
+                                    println("beforeWrite: ${chunk.items}")
+                                }
 
-                            override fun afterWrite(chunk: Chunk<out String>) {
-                                println("afterWrite: ${chunk.items}")
-                            }
+                                override fun afterWrite(chunk: Chunk<out String>) {
+                                    println("afterWrite: ${chunk.items}")
+                                }
 
-                            override fun onWriteError(exception: Exception, Chunk: Chunk<out String>) {
-                            }
-                        },
-                    )
+                                override fun onWriteError(
+                                    exception: Exception,
+                                    Chunk: Chunk<out String>,
+                                ) {
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }
 ```
 
@@ -844,65 +822,60 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    stream(
-                        object : ItemStream {
-                            override fun open(executionContext: ExecutionContext) {
-                                println("open stream")
-                            }
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        stream(
+                            object : ItemStream {
+                                override fun open(executionContext: ExecutionContext) {
+                                    println("open stream")
+                                }
 
-                            override fun update(executionContext: ExecutionContext) {
-                                println("update stream")
-                            }
+                                override fun update(executionContext: ExecutionContext) {
+                                    println("update stream")
+                                }
 
-                            override fun close() {
-                                println("close stream")
-                            }
-                        },
-                    )
+                                override fun close() {
+                                    println("close stream")
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 11) {
+            override fun read(): Int? =
+                if (count < 11) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("[${Thread.currentThread().name}] write $items")
         }
-    }
 }
 ```
 
@@ -914,192 +887,42 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
+    @Bean
+    open fun customExecutor(): AsyncTaskExecutor = SimpleAsyncTaskExecutor()
 
     @Bean
-    open fun customExecutor(): TaskExecutor {
-        return SimpleAsyncTaskExecutor()
-    }
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, Int>(3, transactionManager) {
-                    reader(testItemReader())
-                    writer(testItemWriter())
-                    taskExecutor(customExecutor())
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                return if (count < 20) {
-                    count++
-                } else {
-                    null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<Int> {
-        return ItemWriter { items ->
-            println("[${Thread.currentThread().name}] write $items")
-        }
-    }
-}
-```
-
-### ExceptionHandler 설정하기
-
-`ExceptionHandler` 객체를 통해 Exception handler 를 설정할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, Int>(3, transactionManager) {
-                    reader(testItemReader())
-                    writer(testItemWriter())
-                    exceptionHandler(
-                        object : ExceptionHandler {
-                            override fun handleException(context: RepeatContext, throwable: Throwable) {
-                                println("handle exception ${throwable.message}")
-                                throw throwable
-                            }
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return ItemReader<Int> {
-            throw IllegalStateException("Error in read")
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<Int> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
-}
-```
-
-Kotlin의 trailing lambda 기능을 사용하면 보다 간단하게 설정할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, Int>(3, transactionManager) {
-                    reader(testItemReader())
-                    writer(testItemWriter())
-                    exceptionHandler { _, throwable ->
-                        println("handle exception ${throwable.message}")
-                        throw throwable
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, Int>(3) {
+                        reader(testItemReader())
+                        writer(testItemWriter())
+                        taskExecutor(customExecutor())
                     }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return ItemReader<Int> {
-            throw IllegalStateException("Error in read")
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<Int> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
-}
-```
-
-### RepeatOperations 설정하기
-
-`RepeatOperations` 객체를 통해 RepeatOperation 를 설정할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, Int>(3, transactionManager) {
-                    reader(testItemReader())
-                    writer(testItemWriter())
-                    stepOperations(
-                        object : RepeatOperations {
-                            override fun iterate(callback: RepeatCallback): RepeatStatus {
-                                val delegate = RepeatTemplate()
-                                println("custom iterate")
-                                return delegate.iterate(callback)
-                            }
-                        },
-                    )
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 20) {
+            override fun read(): Int? =
+                if (count < 20) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<Int> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<Int> =
+        ItemWriter { items ->
             println("[${Thread.currentThread().name}] write $items")
         }
-    }
 }
 ```
 
@@ -1111,48 +934,177 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, Int>(3, transactionManager) {
-                    reader(testItemReader())
-                    writer(testItemWriter())
-                    transactionAttribute(
-                        DefaultTransactionAttribute().apply {
-                            setName("test-tx")
-                        },
-                    )
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, Int>(3) {
+                        reader(testItemReader())
+                        writer(testItemWriter())
+                        transactionAttribute(
+                            DefaultTransactionAttribute().apply {
+                                setName("test-tx")
+                            },
+                        )
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
             private var count = 0
 
-            override fun read(): Int? {
-                return if (count < 20) {
+            override fun read(): Int? =
+                if (count < 20) {
                     count++
                 } else {
                     null
                 }
-            }
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<Int> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<Int> =
+        ItemWriter { items ->
             val transactionName = TransactionSynchronizationManager.getCurrentTransactionName()
             println("write $items (transactionName: $transactionName)")
         }
-    }
+}
+```
+
+### TransactionManager 설정하기
+
+chunk-oriented step이 사용할 `PlatformTransactionManager`를 설정할 수 있습니다.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, Int>(3) {
+                        transactionManager(transactionManager)
+                        reader(testItemReader())
+                        writer(testItemWriter())
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 20) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<Int> =
+        ItemWriter { items ->
+            println("write $items")
+        }
+}
+```
+
+### StepInterruptionPolicy 설정하기
+
+Step 수행 중 중단 여부를 판단하는 `StepInterruptionPolicy`를 설정할 수 있습니다.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, Int>(3) {
+                        reader(testItemReader())
+                        writer(testItemWriter())
+                        interruptionPolicy(ThreadStepInterruptionPolicy())
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 20) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<Int> =
+        ItemWriter { items ->
+            println("write $items")
+        }
+}
+```
+
+### ObservationRegistry 설정하기
+
+Step 수행에 대한 관측을 위해 `ObservationRegistry`를 설정할 수 있습니다.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, Int>(3) {
+                        reader(testItemReader())
+                        writer(testItemWriter())
+                        observationRegistry(ObservationRegistry.create())
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 20) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<Int> =
+        ItemWriter { items ->
+            println("write $items")
+        }
 }
 ```
 
@@ -1168,44 +1120,47 @@ faultTolerant를 설정하는 경우 `@OnSkipInRead`, `@OnSkipInProcess`, `@OnSk
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     class TestListener {
-
         @OnSkipInRead
         fun onSkipInRead(t: Throwable) {
             println("Ignore exception of read (exception: ${t.message})")
         }
 
         @OnSkipInProcess
-        fun onSkipInProcess(item: Any, t: Throwable) {
+        fun onSkipInProcess(
+            item: Any,
+            t: Throwable,
+        ) {
             println("Ignore exception of process (item: $item, exception: ${t.message})")
         }
 
         @OnSkipInWrite
-        fun onSkipInWrite(item: Any, t: Throwable) {
+        fun onSkipInWrite(
+            item: Any,
+            t: Throwable,
+        ) {
             println("Ignore exception of write (item: $item, exception: ${t.message})")
         }
     }
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    listener(TestListener())
-                    faultTolerant {
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listener(TestListener())
+                        faultTolerant()
                         skip<IllegalStateException>()
-                        skipLimit(1)
+                        skipLimit(1L)
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -1229,18 +1184,16 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
 }
 ```
 
@@ -1252,38 +1205,44 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        listener(
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant()
+                        skipListener(
                             object : SkipListener<Int, String> {
                                 override fun onSkipInRead(t: Throwable) {
                                     println("Ignore exception of read (exception: ${t.message})")
                                 }
 
-                                override fun onSkipInProcess(item: Int, t: Throwable) {
+                                override fun onSkipInProcess(
+                                    item: Int,
+                                    t: Throwable,
+                                ) {
+                                    println("Ignore exception of process (item: $item, exception: ${t.message})")
                                 }
 
-                                override fun onSkipInWrite(item: String, t: Throwable) {
+                                override fun onSkipInWrite(
+                                    item: String,
+                                    t: Throwable,
+                                ) {
+                                    println("Ignore exception of write (item: $item, exception: ${t.message})")
                                 }
                             },
                         )
                         skip<IllegalStateException>()
-                        skipLimit(1)
+                        skipLimit(3L)
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -1294,7 +1253,7 @@ open class TestJobConfig(
                 val next = count++
 
                 if (next == 3) {
-                    throw IllegalStateException("I am ignored")
+                    throw IllegalStateException("I am ignored in read")
                 }
 
                 if (next < 11) {
@@ -1307,18 +1266,24 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            if (item == 5) {
+                throw IllegalStateException("I am ignored in process")
+            }
+
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { chunk ->
+            if (chunk.items.contains("7")) {
+                throw IllegalStateException("I am ignored in write")
+            }
+
+            println("write ${chunk.items}")
         }
-    }
 }
 ```
 
@@ -1330,52 +1295,50 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        listener(
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant()
+                        retryListener(
                             object : RetryListener {
-                                override fun <T : Any?, E : Throwable?> open(
-                                    context: RetryContext?,
-                                    callback: RetryCallback<T, E>?,
-                                ): Boolean {
-                                    println("RetryListener::open (context: $context")
-                                    return true
+                                override fun beforeRetry(
+                                    retryPolicy: RetryPolicy,
+                                    retryable: Retryable<*>,
+                                    retryState: RetryState,
+                                ) {
+                                    println("RetryListener::beforeRetry (state: $retryState)")
                                 }
 
-                                override fun <T : Any?, E : Throwable?> close(
-                                    context: RetryContext?,
-                                    callback: RetryCallback<T, E>?,
-                                    throwable: Throwable?,
+                                override fun onRetryFailure(
+                                    retryPolicy: RetryPolicy,
+                                    retryable: Retryable<*>,
+                                    throwable: Throwable,
                                 ) {
-                                    println("RetryListener::close (error: ${throwable?.message})")
+                                    println("RetryListener::onRetryFailure (error: ${throwable.message})")
                                 }
 
-                                override fun <T : Any?, E : Throwable?> onError(
-                                    context: RetryContext?,
-                                    callback: RetryCallback<T, E>?,
-                                    throwable: Throwable?,
+                                override fun onRetryPolicyExhaustion(
+                                    retryPolicy: RetryPolicy,
+                                    retryable: Retryable<*>,
+                                    exception: RetryException,
                                 ) {
-                                    println("RetryListener::onError (error: ${throwable?.message})")
+                                    println("RetryListener::onRetryPolicyExhaustion (error: ${exception.message})")
                                 }
                             },
                         )
                         retry<IllegalStateException>()
-                        retryLimit(4)
+                        retryLimit(4L)
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -1407,153 +1370,10 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
-}
-```
-
-### KeyGenerator 설정하기
-
-`KeyGenerator` 객체를 사용하여 Retry할 때 item을 식별할 수 있는 key를 설정할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        keyGenerator(
-                            object : KeyGenerator {
-                                override fun getKey(item: Any): Any {
-                                    println("get key of $item")
-                                    return item.toString()
-                                }
-                            }
-                        )
-                        retry<IllegalStateException>()
-                        retryLimit(4)
-                    }
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                if (count < 11) {
-                    return count++
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        var tryCount = 0
-
-        return ItemProcessor<Int, String> { item ->
-            if (item == 5 && tryCount < 3) {
-                ++tryCount
-                throw IllegalStateException("Error (tryCount: $tryCount)")
-            }
-
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
-}
-```
-
-Kotlin의 trailing lambda를 활용하여 보다 간략하게 표현 가능합니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        keyGenerator { item ->
-                            println("get key of $item")
-                            item.toString()
-                        }
-                        retry<IllegalStateException>()
-                        retryLimit(4)
-                    }
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                if (count < 11) {
-                    return count++
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        var tryCount = 0
-
-        return ItemProcessor<Int, String> { item ->
-            if (item == 5 && tryCount < 3) {
-                ++tryCount
-                throw IllegalStateException("Error (tryCount: $tryCount)")
-            }
-
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
 }
 ```
 
@@ -1565,25 +1385,23 @@ Retry 대상 Class, Retry Limit을 설정해서 특정 예외와 그 하위 클�
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant()
                         retry<RuntimeException>()
-                        retryLimit(4)
+                        retryLimit(4L)
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -1615,78 +1433,10 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
-}
-```
-
-### noRetry Class 설정하기
-
-Retry 대상 Class를 설정 후 특정 예외는 Retry 대상에서 제외하고 싶은 경우 noRetry Class를 설정할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        retry<RuntimeException>()
-                        retryLimit(Int.MAX_VALUE)
-                        noRetry<IllegalArgumentException>()
-                    }
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                if (count < 11) {
-                    return count++
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        var tryCount = 0
-
-        return ItemProcessor<Int, String> { item ->
-            if (item == 5 && tryCount < 3) {
-                ++tryCount
-                throw IllegalArgumentException("I cannot be retryed")
-            }
-
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
 }
 ```
 
@@ -1698,25 +1448,23 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant()
                         retry<RuntimeException>()
-                        retryPolicy(SimpleRetryPolicy(4))
+                        retryPolicy(RetryPolicy.withMaxRetries(4))
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -1748,162 +1496,10 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
-}
-```
-
-### BackOffPolicy 설정하기
-
-`BackOffPolicy`를 지정해서 Retry가 발생한 경우 backoff를 지정할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        retry<IllegalStateException>()
-                        retryLimit(4)
-                        backOffPolicy(
-                            object : BackOffPolicy {
-                                override fun start(context: RetryContext?): BackOffContext? {
-                                    return null
-                                }
-
-                                override fun backOff(backOffContext: BackOffContext?) {
-                                    println("backOff (context: $backOffContext)")
-                                }
-                            },
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                if (count < 11) {
-                    return count++
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        var tryCount = 0
-
-        return ItemProcessor<Int, String> { item ->
-            if (item == 5 && tryCount < 3) {
-                ++tryCount
-                throw IllegalStateException("Error (tryCount: $tryCount)")
-            }
-
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
-}
-```
-
-### RetryContextCache 설정하기
-
-`RetryContextCache`를 지정해서 Retry하는 경우 내부 Context의 Cache를 지정할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        retry<IllegalStateException>()
-                        retryLimit(4)
-                        retryContextCache(
-                            object : MapRetryContextCache() {
-                                override fun containsKey(key: Any?): Boolean {
-                                    println("contains key: $key")
-                                    return super.containsKey(key)
-                                }
-                            },
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                if (count < 11) {
-                    return count++
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        var tryCount = 0
-
-        return ItemProcessor<Int, String> { item ->
-            if (item == 5 && tryCount < 3) {
-                ++tryCount
-                throw IllegalStateException("Error (tryCount: $tryCount)")
-            }
-
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
 }
 ```
 
@@ -1915,25 +1511,23 @@ Skip 대상 Class, Skip Limit을 설정해서 특정 예외와 그 하위 클래
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant()
                         skip<RuntimeException>()
-                        skipLimit(4)
+                        skipLimit(4L)
                     }
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -1951,90 +1545,20 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             if (item % 3 == 0) {
                 throw IllegalStateException("Error")
             }
 
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
-}
-```
-
-### noSkip Class 설정하기
-
-Skip 대상 Class를 설정 후 특정 예외는 Skip 대상에서 제외하고 싶은 경우 noSkip 설정을 통해 할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        skip<RuntimeException>()
-                        skipLimit(4)
-                        noSkip<IllegalArgumentException>()
-                    }
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                if (count < 11) {
-                    return count++
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
-            if (item % 3 == 0) {
-                throw IllegalStateException("Error")
-            }
-
-            if (item == 5) {
-                throw IllegalArgumentException("I cannot be skipped")
-            }
-
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
 }
 ```
 
@@ -2046,18 +1570,17 @@ open class TestJobConfig(
 @Configuration
 open class TestJobConfig(
     private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant()
                         skipPolicy(
                             LimitCheckingItemSkipPolicy(
                                 4,
@@ -2068,7 +1591,6 @@ open class TestJobConfig(
                 }
             }
         }
-    }
 
     @Bean
     open fun testItemReader(): ItemReader<Int> {
@@ -2086,154 +1608,19 @@ open class TestJobConfig(
     }
 
     @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
             if (item % 3 == 0) {
                 throw IllegalStateException("Error")
             }
 
             item.toString()
         }
-    }
 
     @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
             println("write $items")
         }
-    }
-}
-```
-
-### noRollback Class 설정하기
-
-noRollback 을 설정하여 에러가 발생해도 롤백하지 않고 진행할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        noRollback<RuntimeException>()
-                    }
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                if (count < 11) {
-                    return count++
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        return ItemProcessor<Int, String> { item ->
-            if (item % 3 == 0) {
-                throw IllegalStateException("Error")
-            }
-
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
-}
-```
-
-### processorNonTransactional 설정하기
-
-processorNonTransactional 을 설정하여 retry를 할 때 process에서 이전에 처리한 데이터를 cache할지 지정할 수 있습니다.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
-
-    @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
-                    reader(testItemReader())
-                    processor(testItemProcessor())
-                    writer(testItemWriter())
-                    faultTolerant {
-                        retry<IllegalStateException>()
-                        retryLimit(4)
-                        processorNonTransactional()
-                    }
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemReader(): ItemReader<Int> {
-        return object : ItemReader<Int> {
-            private var count = 0
-
-            override fun read(): Int? {
-                if (count < 11) {
-                    val next = count
-                    println("read: $next")
-                    count++
-                    return next
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    @Bean
-    open fun testItemProcessor(): ItemProcessor<Int, String> {
-        var tryCount = 0
-
-        return ItemProcessor<Int, String> { item ->
-            println("process: $item")
-            if (item == 5 && tryCount < 3) {
-                ++tryCount
-                throw IllegalStateException("Error (tryCount: $tryCount)")
-            }
-
-            item.toString()
-        }
-    }
-
-    @Bean
-    open fun testItemWriter(): ItemWriter<String> {
-        return ItemWriter { items ->
-            println("write $items")
-        }
-    }
 }
 ```

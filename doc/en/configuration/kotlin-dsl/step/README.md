@@ -8,7 +8,7 @@ In Spring Batch, a `Job` runs by `Step`. There are 5 types of `Steps`. Spring Ba
 
 ## How to create a step
 
-There are two ways to create a `Step`. The first way is to call a step in `BatchDsl`.
+There are two ways to create a `Step`. The first way is to call a step in `BatchDsl`. The second way is to create a `Step` during the process of creating a `Job` or a `Flow` that basically contains `Steps`.
 
 ```kotlin
 @Configuration
@@ -17,50 +17,42 @@ open class TestJobConfig(
     private val transactionManager: PlatformTransactionManager,
 ) {
     @Bean
-    open fun testStep() = batch {
-        step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                // within job
+                step("testStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+                step("testStep2") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+                flow(testFlow())
+                step(testStep())
+            }
         }
-    }
-}
-```
-
-The second way is to create a `Step` during the process of creating a `Job` or a `Flow` that basically contains `Steps`.
-
-```kotlin
-@Configuration
-open class TestJobConfig(
-    private val batch: BatchDsl,
-    private val transactionManager: PlatformTransactionManager,
-) {
 
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            // within job
-            step("testStep1") {
+    open fun testStep() =
+        batch {
+            step("testStep") {
                 tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
             }
-            step("testStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-            flow(testFlow())
-            step(testStep())
         }
-    }
 
     @Bean
-    open fun testFlow() = batch {
-        flow("testFlow") {
-            // within flow
-            step("flowStep1") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-            step("flowStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testFlow() =
+        batch {
+            flow("testFlow") {
+                // within flow
+                step("flowStep1") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+                step("flowStep2") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 

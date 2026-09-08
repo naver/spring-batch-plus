@@ -16,18 +16,18 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            step("testStep") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
-            }
-            step("testStep2") {
-                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+                step("testStep2") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
             }
         }
-    }
 }
 ```
 

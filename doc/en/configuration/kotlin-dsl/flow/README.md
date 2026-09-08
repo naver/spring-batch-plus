@@ -14,33 +14,35 @@ open class TestJobConfig(
     private val batch: BatchDsl,
     private val transactionManager: PlatformTransactionManager,
 ) {
-
     @Bean
-    open fun testJob(): Job = batch {
-        job("testJob") {
-            flow(testFlow())
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                flow(testFlow())
+            }
         }
-    }
 
     @Bean
-    open fun testFlow(): Flow = batch {
-        flow("testFlow") {
-            step(testStep()) {
-                on("COMPLETED") {
-                    stop()
-                }
-                on("*") {
-                    fail()
+    open fun testFlow(): Flow =
+        batch {
+            flow("testFlow") {
+                step(testStep()) {
+                    on("COMPLETED") {
+                        stop()
+                    }
+                    on("*") {
+                        fail()
+                    }
                 }
             }
         }
-    }
 
     @Bean
-    open fun testStep(): Step = batch {
-        step("testStep") {
-            tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+    open fun testStep(): Step =
+        batch {
+            step("testStep") {
+                tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+            }
         }
-    }
 }
 ```
