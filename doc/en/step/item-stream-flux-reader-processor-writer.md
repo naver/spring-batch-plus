@@ -45,9 +45,8 @@ class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, Stri
 
     private int count = 0;
 
-    @NonNull
     @Override
-    public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
+    public Flux<? extends Integer> readFlux(ExecutionContext executionContext) {
         System.out.println("totalCount: " + totalCount);
         return Flux.generate(sink -> {
             if (count < totalCount) {
@@ -60,12 +59,12 @@ class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Integer, Stri
     }
 
     @Override
-    public String process(@NonNull Integer item) {
+    public String process(Integer item) {
         return "'" + item.toString() + "'";
     }
 
     @Override
-    public void write(@NonNull Chunk<? extends String> chunk) {
+    public void write(Chunk<? extends String> chunk) {
         System.out.println(chunk.getItems());
     }
 }
@@ -84,7 +83,8 @@ public class TestJobConfig {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, String>chunk(3, transactionManager)
+                    .<Integer, String>chunk(3)
+                    .transactionManager(transactionManager)
                     .reader(AdapterFactory.itemStreamReader(sampleTasklet))
                     .processor(AdapterFactory.itemProcessor(sampleTasklet))
                     .writer(AdapterFactory.itemStreamWriter(sampleTasklet))
@@ -98,9 +98,9 @@ public class TestJobConfig {
 You can statically import the method of `AdapterFactory` for better readability.
 
 ```java
-import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemProcessor;
-import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemProcessor;
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamWriter;
 
 ...
 
@@ -116,7 +116,8 @@ public class TestJobConfig {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, String>chunk(3, transactionManager)
+                    .<Integer, String>chunk(3)
+                    .transactionManager(transactionManager)
                     .reader(itemStreamReader(sampleTasklet))
                     .processor(itemProcessor(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
@@ -173,7 +174,8 @@ open class TestJobConfig(
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
+                chunk<Int, String>(3) {
+                    transactionManager(transactionManager)
                     reader(sampleTasklet.asItemStreamReader())
                     processor(sampleTasklet.asItemProcessor())
                     writer(sampleTasklet.asItemStreamWriter())
@@ -202,9 +204,8 @@ class SampleTasklet implements ItemStreamFluxReaderWriter<Integer> {
 
     private int count = 0;
 
-    @NonNull
     @Override
-    public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
+    public Flux<? extends Integer> readFlux(ExecutionContext executionContext) {
         System.out.println("totalCount: " + totalCount);
         return Flux.generate(sink -> {
             if (count < totalCount) {
@@ -217,7 +218,7 @@ class SampleTasklet implements ItemStreamFluxReaderWriter<Integer> {
     }
 
     @Override
-    public void write(@NonNull Chunk<? extends Integer> chunk) {
+    public void write(Chunk<? extends Integer> chunk) {
         System.out.println(chunk.getItems());
     }
 }
@@ -236,7 +237,8 @@ public class TestJobConfig {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, Integer>chunk(3, transactionManager)
+                    .<Integer, Integer>chunk(3)
+                    .transactionManager(transactionManager)
                     .reader(AdapterFactory.itemStreamReader(sampleTasklet))
                     .writer(AdapterFactory.itemStreamWriter(sampleTasklet))
                     .build()
@@ -249,8 +251,8 @@ public class TestJobConfig {
 You can statically import the method of `AdapterFactory` for better readability.
 
 ```java
-import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamWriter;
 
 ...
 
@@ -266,7 +268,8 @@ public class TestJobConfig {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, Integer>chunk(3, transactionManager)
+                    .<Integer, Integer>chunk(3)
+                    .transactionManager(transactionManager)
                     .reader(itemStreamReader(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
                     .build()
@@ -319,7 +322,8 @@ open class TestJobConfig(
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, Int>(3, transactionManager) {
+                chunk<Int, Int>(3) {
+                    transactionManager(transactionManager)
                     reader(sampleTasklet.asItemStreamReader())
                     writer(sampleTasklet.asItemStreamWriter())
                 }
@@ -347,9 +351,8 @@ class SampleTasklet implements ItemStreamFluxReaderProcessor<Integer, String> {
 
 	private int count = 0;
 
-	@NonNull
 	@Override
-	public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
+	public Flux<? extends Integer> readFlux(ExecutionContext executionContext) {
 		System.out.println("totalCount: " + totalCount);
 		return Flux.generate(sink -> {
 			if (count < totalCount) {
@@ -362,7 +365,7 @@ class SampleTasklet implements ItemStreamFluxReaderProcessor<Integer, String> {
 	}
 
 	@Override
-	public String process(@NonNull Integer item) {
+	public String process(Integer item) {
 		return "'" + item.toString() + "'";
 	}
 }
@@ -381,7 +384,8 @@ public class TestJobConfig {
 		return new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, String>chunk(3, transactionManager)
+					.<Integer, String>chunk(3)
+					.transactionManager(transactionManager)
 					.reader(AdapterFactory.itemStreamReader(sampleTasklet))
 					.processor(AdapterFactory.itemProcessor(sampleTasklet))
 					.writer(chunk -> System.out.println(chunk.getItems()))
@@ -395,8 +399,8 @@ public class TestJobConfig {
 You can statically import the method of `AdapterFactory` for better readability.
 
 ```java
-import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamReader;
-import static com.navercorp.spring.batch.plus.step.AdapterFactory.itemStreamWriter;
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamReader;
+import static com.navercorp.spring.batch.plus.step.adapter.AdapterFactory.itemStreamWriter;
 
 ...
 
@@ -412,7 +416,8 @@ public class TestJobConfig {
 		return new JobBuilder("testJob", jobRepository)
 			.start(
 				new StepBuilder("testStep", jobRepository)
-					.<Integer, String>chunk(3, transactionManager)
+					.<Integer, String>chunk(3)
+					.transactionManager(transactionManager)
 					.reader(itemStreamReader(sampleTasklet))
 					.processor(itemProcessor(sampleTasklet))
 					.writer(chunk -> System.out.println(chunk.getItems()))
@@ -465,7 +470,8 @@ open class TestJobConfig(
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
+                chunk<Int, String>(3) {
+                    transactionManager(transactionManager)
                     reader(sampleTasklet.asItemStreamReader())
                     processor(sampleTasklet.asItemProcessor())
                     writer { chunk -> println(chunk.items) }
@@ -493,13 +499,12 @@ public class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Intege
     private int count = 0;
 
     @Override
-    public void onOpenRead(@NonNull ExecutionContext executionContext) {
+    public void onOpenRead(ExecutionContext executionContext) {
         System.out.println("onOpenRead");
     }
 
-    @NonNull
     @Override
-    public Flux<? extends Integer> readFlux(@NonNull ExecutionContext executionContext) {
+    public Flux<? extends Integer> readFlux(ExecutionContext executionContext) {
         System.out.println("totalCount: " + totalCount);
         return Flux.generate(sink -> {
             if (count < totalCount) {
@@ -512,7 +517,7 @@ public class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Intege
     }
 
     @Override
-    public void onUpdateRead(@NonNull ExecutionContext executionContext) {
+    public void onUpdateRead(ExecutionContext executionContext) {
         System.out.println("onUpdateRead");
     }
 
@@ -522,22 +527,22 @@ public class SampleTasklet implements ItemStreamFluxReaderProcessorWriter<Intege
     }
 
     @Override
-    public String process(@NonNull Integer item) {
+    public String process(Integer item) {
         return "'" + item.toString() + "'";
     }
 
     @Override
-    public void onOpenWrite(@NonNull ExecutionContext executionContext) {
+    public void onOpenWrite(ExecutionContext executionContext) {
         System.out.println("onOpenWrite");
     }
 
     @Override
-    public void write(@NonNull Chunk<? extends String> chunk) {
+    public void write(Chunk<? extends String> chunk) {
         System.out.println(chunk.getItems());
     }
 
     @Override
-    public void onUpdateWrite(@NonNull ExecutionContext executionContext) {
+    public void onUpdateWrite(ExecutionContext executionContext) {
         System.out.println("onUpdateWrite");
         executionContext.putString("samplekey", "samplevlaue");
     }
@@ -562,7 +567,8 @@ public class TestJobConfig {
         return new JobBuilder("testJob", jobRepository)
             .start(
                 new StepBuilder("testStep", jobRepository)
-                    .<Integer, String>chunk(3, transactionManager)
+                    .<Integer, String>chunk(3)
+                    .transactionManager(transactionManager)
                     .reader(itemStreamReader(sampleTasklet))
                     .processor(itemProcessor(sampleTasklet))
                     .writer(itemStreamWriter(sampleTasklet))
@@ -643,7 +649,8 @@ open class TestJobConfig(
     ): Job = batch {
         job("testJob") {
             step("testStep") {
-                chunk<Int, String>(3, transactionManager) {
+                chunk<Int, String>(3) {
+                    transactionManager(transactionManager)
                     reader(sampleTasklet.asItemStreamReader())
                     processor(sampleTasklet.asItemProcessor())
                     writer(sampleTasklet.asItemStreamWriter())
