@@ -48,7 +48,7 @@ public class TestJobConfig {
 // run
 public static void main(String[] args) throws Exception {
     ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
-    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+    JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 
     // launch deleteMetadataJob
     Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
@@ -57,7 +57,7 @@ public static void main(String[] args) throws Exception {
     JobParameters jobParameter = new JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters();
-    jobLauncher.run(removeJob, jobParameter);
+    jobOperator.start(removeJob, jobParameter);
 }
 ```
 
@@ -81,7 +81,7 @@ open class TestJobConfig {
 // run
 fun main() {
     val applicationContext = runApplication<BatchApplication>()
-    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val jobOperator = applicationContext.getBean<JobOperator>()
 
     // launch deleteMetadataJob
     val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
@@ -90,7 +90,7 @@ fun main() {
     val jobParameter = JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobOperator.start(removeJob, jobParameter)
 }
 ```
 
@@ -111,7 +111,7 @@ public class TestJobConfig {
         JobRepository jobRepository
     ) {
         return new DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
+            .name("customJobName")
             .build();
     }
 }
@@ -119,16 +119,16 @@ public class TestJobConfig {
 // run
 public static void main(String[] args) throws Exception {
     ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
-    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+    JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 
     // launch removeJob
     Job removeJob = applicationContext.getBean("removeJob", Job.class);
     LocalDate now = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     JobParameters jobParameter = new JobParametersBuilder()
-        .addString("base", now.format(formatter)) // custom naming
+        .addString("baseDate", now.format(formatter))
         .toJobParameters();
-    jobLauncher.run(removeJob, jobParameter);
+    jobOperator.start(removeJob, jobParameter);
 }
 ```
 
@@ -145,7 +145,7 @@ open class TestJobConfig {
         jobRepository: JobRepository
     ): Job {
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
+            .name("customJobName")
             .build()
     }
 }
@@ -153,7 +153,7 @@ open class TestJobConfig {
 // run
 fun main() {
     val applicationContext = runApplication<BatchApplication>()
-    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val jobOperator = applicationContext.getBean<JobOperator>()
 
     // launch removeJob
     val removeJob = applicationContext.getBean<Job>("removeJob")
@@ -162,7 +162,7 @@ fun main() {
     val jobParameter = JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobOperator.start(removeJob, jobParameter)
 }
 ```
 
@@ -178,12 +178,11 @@ You can call the `tablePrefix` of `DeleteMetadataJobBuilder` to specify a table 
 public class TestJobConfig {
 
     @Bean
-    public Job removeJob(
+    public Job deleteMetadataJob(
         @BatchDataSource DataSource dataSource,
         JobRepository jobRepository
     ) {
         return new DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .tablePrefix("CUSTOM_")
             .build();
     }
@@ -197,23 +196,23 @@ public static void main(String[] args) throws Exception {
     properties.put("spring.batch.jdbc.table-prefix", "CUSTOM_");
     application.setDefaultProperties(properties);
     ApplicationContext applicationContext = application.run(args);
-    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+    JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 
-    // launch removeJob
-    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    // launch deleteMetadataJob
+    Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
     LocalDate now = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     JobParameters jobParameter = new JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters();
-    jobLauncher.run(removeJob, jobParameter);
+    jobOperator.start(removeJob, jobParameter);
 }
 ```
 
 You can also get the value of `spring.batch.jdbc.table-prefix` in Spring Boot as shown in the following code example.
 
 ```java
-import org.springframework.boot.autoconfigure.batch.BatchProperties;
+import org.springframework.boot.batch.jdbc.autoconfigure.BatchJdbcProperties;
 
 ...
 
@@ -221,14 +220,13 @@ import org.springframework.boot.autoconfigure.batch.BatchProperties;
 public class TestJobConfig {
 
     @Bean
-    public Job removeJob(
+    public Job deleteMetadataJob(
         @BatchDataSource DataSource dataSource,
         JobRepository jobRepository,
-        BatchProperties properties
+        BatchJdbcProperties properties
     ) {
-        String tablePrefix = properties.getJdbc().getTablePrefix();
+        String tablePrefix = properties.getTablePrefix();
         return new DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .tablePrefix(tablePrefix)
             .build();
     }
@@ -243,12 +241,11 @@ public class TestJobConfig {
 open class TestJobConfig {
 
     @Bean
-    open fun removeJob(
+    open fun deleteMetadataJob(
         @BatchDataSource dataSource: DataSource,
         jobRepository: JobRepository
     ): Job {
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .tablePrefix("CUSTOM_")
             .build()
     }
@@ -264,23 +261,23 @@ fun main() {
         setDefaultProperties(properties)
     }
     val applicationContext = application.run()
-    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val jobOperator = applicationContext.getBean<JobOperator>()
 
-    // launch removeJob
-    val removeJob = applicationContext.getBean<Job>("removeJob")
+    // launch deleteMetadataJob
+    val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     val jobParameter = JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobOperator.start(removeJob, jobParameter)
 }
 ```
 
 You can also get the value of `spring.batch.jdbc.table-prefix` in Spring Boot as shown in the following code example.
 
 ```kotlin
-import org.springframework.boot.autoconfigure.batch.BatchProperties
+import org.springframework.boot.batch.jdbc.autoconfigure.BatchJdbcProperties
 
 ...
 
@@ -288,14 +285,13 @@ import org.springframework.boot.autoconfigure.batch.BatchProperties
 open class TestJobConfig {
 
     @Bean
-    open fun removeJob(
+    open fun deleteMetadataJob(
         @BatchDataSource dataSource: DataSource,
         jobRepository: JobRepository,
-        properties: BatchProperties
+        properties: BatchJdbcProperties
     ): Job {
-        val tablePrefix = properties.jdbc.tablePrefix
+        val tablePrefix = properties.tablePrefix
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .tablePrefix(tablePrefix)
             .build()
     }
@@ -314,12 +310,11 @@ You can call the `baseDateParameterName` of `DeleteMetadataJobBuilder` to specif
 public class TestJobConfig {
 
     @Bean
-    public Job removeJob(
+    public Job deleteMetadataJob(
         @BatchDataSource DataSource dataSource,
         JobRepository jobRepository
     ) {
         return new DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .baseDateParameterName("base") // custom naming
             .build();
     }
@@ -328,16 +323,16 @@ public class TestJobConfig {
 // run
 public static void main(String[] args) throws Exception {
     ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
-    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+    JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 
-    // launch removeJob
-    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    // launch deleteMetadataJob
+    Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
     LocalDate now = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     JobParameters jobParameter = new JobParametersBuilder()
         .addString("base", now.format(formatter)) // custom naming
         .toJobParameters();
-    jobLauncher.run(removeJob, jobParameter);
+    jobOperator.start(removeJob, jobParameter);
 }
 ```
 
@@ -349,12 +344,11 @@ public static void main(String[] args) throws Exception {
 open class TestJobConfig {
 
     @Bean
-    open fun removeJob(
+    open fun deleteMetadataJob(
         @BatchDataSource dataSource: DataSource,
         jobRepository: JobRepository
     ): Job {
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .baseDateParameterName("base")
             .build()
     }
@@ -363,16 +357,16 @@ open class TestJobConfig {
 // run
 fun main() {
     val applicationContext = runApplication<BatchApplication>()
-    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val jobOperator = applicationContext.getBean<JobOperator>()
 
-    // launch removeJob
-    val removeJob = applicationContext.getBean<Job>("removeJob")
+    // launch deleteMetadataJob
+    val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     val jobParameter = JobParametersBuilder()
         .addString("base", now.format(formatter)) // custom naming
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobOperator.start(removeJob, jobParameter)
 }
 ```
 
@@ -388,12 +382,11 @@ You can call the `baseDateFormatter` of `DeleteMetadataJobBuilder` to specify th
 public class TestJobConfig {
 
     @Bean
-    public Job removeJob(
+    public Job deleteMetadataJob(
         @BatchDataSource DataSource dataSource,
         JobRepository jobRepository
     ) {
         return new DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .baseDateFormatter(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             .build();
     }
@@ -402,16 +395,16 @@ public class TestJobConfig {
 // run
 public static void main(String[] args) throws Exception {
     ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
-    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+    JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 
-    // launch removeJob
-    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    // launch deleteMetadataJob
+    Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
     LocalDate now = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     JobParameters jobParameter = new JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters();
-    jobLauncher.run(removeJob, jobParameter);
+    jobOperator.start(removeJob, jobParameter);
 }
 ```
 
@@ -423,12 +416,11 @@ public static void main(String[] args) throws Exception {
 open class TestJobConfig {
 
     @Bean
-    open fun removeJob(
+    open fun deleteMetadataJob(
         @BatchDataSource dataSource: DataSource,
         jobRepository: JobRepository
     ): Job {
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .baseDateFormatter(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             .build()
     }
@@ -437,16 +429,16 @@ open class TestJobConfig {
 // run
 fun main() {
     val applicationContext = runApplication<BatchApplication>()
-    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val jobOperator = applicationContext.getBean<JobOperator>()
 
-    // launch removeJob
-    val removeJob = applicationContext.getBean<Job>("removeJob")
+    // launch deleteMetadataJob
+    val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val jobParameter = JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobOperator.start(removeJob, jobParameter)
 }
 ```
 
@@ -462,12 +454,11 @@ You can launch job as dryRun mode by setting `dryRun` parameter to `true`.
 public class TestJobConfig {
 
     @Bean
-    public Job removeJob(
+    public Job deleteMetadataJob(
         @BatchDataSource DataSource dataSource,
         JobRepository jobRepository
     ) {
         return new DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .build();
     }
 }
@@ -475,17 +466,17 @@ public class TestJobConfig {
 // run
 public static void main(String[] args) throws Exception {
     ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
-    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+    JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 
-    // launch removeJob
-    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    // launch deleteMetadataJob
+    Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
     LocalDate now = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     JobParameters jobParameter = new JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .addString("dryRun", "true") // set dryRun to 'true'
         .toJobParameters();
-    jobLauncher.run(removeJob, jobParameter);
+    jobOperator.start(removeJob, jobParameter);
 }
 ```
 
@@ -497,12 +488,11 @@ public static void main(String[] args) throws Exception {
 open class TestJobConfig {
 
     @Bean
-    open fun removeJob(
+    open fun deleteMetadataJob(
         @BatchDataSource dataSource: DataSource,
         jobRepository: JobRepository
     ): Job {
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .build()
     }
 }
@@ -510,17 +500,17 @@ open class TestJobConfig {
 // run
 fun main() {
     val applicationContext = runApplication<BatchApplication>()
-    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val jobOperator = applicationContext.getBean<JobOperator>()
 
-    // launch removeJob
-    val removeJob = applicationContext.getBean<Job>("removeJob")
+    // launch deleteMetadataJob
+    val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     val jobParameter = JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .addString("dryRun", "true") // set dryRun to 'true'
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobOperator.start(removeJob, jobParameter)
 }
 ```
 
@@ -536,12 +526,11 @@ You can call the `dryRunParameterName` of `DeleteMetadataJobBuilder` to specify 
 public class TestJobConfig {
 
     @Bean
-    public Job removeJob(
+    public Job deleteMetadataJob(
         @BatchDataSource DataSource dataSource,
         JobRepository jobRepository
     ) {
         return new DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .dryRunParameterName("customDryRunParam")
             .build();
     }
@@ -550,17 +539,17 @@ public class TestJobConfig {
 // run
 public static void main(String[] args) throws Exception {
     ApplicationContext applicationContext = SpringApplication.run(BatchApplication.class);
-    JobLauncher jobLauncher = applicationContext.getBean(JobLauncher.class);
+    JobOperator jobOperator = applicationContext.getBean(JobOperator.class);
 
-    // launch removeJob
-    Job removeJob = applicationContext.getBean("removeJob", Job.class);
+    // launch deleteMetadataJob
+    Job removeJob = applicationContext.getBean("deleteMetadataJob", Job.class);
     LocalDate now = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     JobParameters jobParameter = new JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .addString("customDryRunParam", "true") // set dryRun to 'true'
         .toJobParameters();
-    jobLauncher.run(removeJob, jobParameter);
+    jobOperator.start(removeJob, jobParameter);
 }
 ```
 
@@ -572,12 +561,11 @@ public static void main(String[] args) throws Exception {
 open class TestJobConfig {
 
     @Bean
-    open fun removeJob(
+    open fun deleteMetadataJob(
         @BatchDataSource dataSource: DataSource,
         jobRepository: JobRepository
     ): Job {
         return DeleteMetadataJobBuilder(jobRepository, dataSource)
-            .name("removeJob")
             .dryRunParameterName("customDryRunParam")
             .build()
     }
@@ -586,16 +574,16 @@ open class TestJobConfig {
 // run
 fun main() {
     val applicationContext = runApplication<BatchApplication>()
-    val jobLauncher = applicationContext.getBean<JobLauncher>()
+    val jobOperator = applicationContext.getBean<JobOperator>()
 
-    // launch removeJob
-    val removeJob = applicationContext.getBean<Job>("removeJob")
+    // launch deleteMetadataJob
+    val removeJob = applicationContext.getBean<Job>("deleteMetadataJob")
     val now = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     val jobParameter = JobParametersBuilder()
         .addString("baseDate", now.format(formatter))
         .addString("customDryRunParam", "true") // set dryRun to 'true'
         .toJobParameters()
-    jobLauncher.run(removeJob, jobParameter)
+    jobOperator.start(removeJob, jobParameter)
 }
 ```
