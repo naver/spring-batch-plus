@@ -34,7 +34,9 @@ import org.springframework.batch.core.job.JobExecution
 import org.springframework.batch.core.job.JobInstance
 import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobOperator
+import org.springframework.batch.core.listener.ChunkListener
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.StepExecution
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -292,6 +294,91 @@ internal class TaskletStepBuilderDslIntegrationTest {
         assertThat(taskletCallCount).isEqualTo(1)
         assertThat(streamOpenCallCount).isEqualTo(1)
         assertThat(streamCloseCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun listenerBeanShouldInvokeChunkListenerWhenTaskletStepRuns() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobOperator = context.getBean<JobOperator>()
+        val batch = context.getBean<BatchDsl>()
+        val listenerName = UUID.randomUUID().toString()
+        var beforeChunkCallCount = 0
+        var afterChunkCallCount = 0
+        context.registerBean(listenerName) {
+            object : ChunkListener<Any, Any> {
+                override fun beforeChunk(context: ChunkContext) {
+                    ++beforeChunkCallCount
+                }
+
+                override fun afterChunk(context: ChunkContext) {
+                    ++afterChunkCallCount
+                }
+
+                override fun afterChunkError(context: ChunkContext) {
+                }
+            }
+        }
+
+        // when
+        val job =
+            batch {
+                job(UUID.randomUUID().toString()) {
+                    step(UUID.randomUUID().toString()) {
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }) {
+                            listenerBean(listenerName)
+                        }
+                    }
+                }
+            }
+        val jobExecution = jobOperator.start(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(beforeChunkCallCount).isEqualTo(1)
+        assertThat(afterChunkCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun listenerBeanShouldInvokeAnnotatedChunkCallbacksWhenTaskletStepRuns() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobOperator = context.getBean<JobOperator>()
+        val batch = context.getBean<BatchDsl>()
+        val listenerName = UUID.randomUUID().toString()
+        var beforeChunkCallCount = 0
+        var afterChunkCallCount = 0
+        context.registerBean(listenerName) {
+            object {
+                @BeforeChunk
+                fun beforeChunk() {
+                    ++beforeChunkCallCount
+                }
+
+                @AfterChunk
+                fun afterChunk() {
+                    ++afterChunkCallCount
+                }
+            }
+        }
+
+        // when
+        val job =
+            batch {
+                job(UUID.randomUUID().toString()) {
+                    step(UUID.randomUUID().toString()) {
+                        tasklet({ _, _ -> RepeatStatus.FINISHED }) {
+                            listenerBean(listenerName)
+                        }
+                    }
+                }
+            }
+        val jobExecution = jobOperator.start(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(beforeChunkCallCount).isEqualTo(1)
+        assertThat(afterChunkCallCount).isEqualTo(1)
     }
 
     @Test

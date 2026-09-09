@@ -22,6 +22,7 @@ import com.navercorp.spring.batch.plus.kotlin.configuration.BatchDsl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.BatchStatus
+import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.annotation.AfterChunk
 import org.springframework.batch.core.annotation.AfterStep
 import org.springframework.batch.core.annotation.BeforeChunk
@@ -31,7 +32,9 @@ import org.springframework.batch.core.configuration.annotation.EnableJdbcJobRepo
 import org.springframework.batch.core.job.parameters.JobParameters
 import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.listener.SkipListener
+import org.springframework.batch.core.listener.StepExecutionListener
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.core.step.StepExecution
 import org.springframework.batch.infrastructure.item.ItemProcessor
 import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemWriter
@@ -41,6 +44,7 @@ import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.support.registerBean
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
@@ -95,6 +99,115 @@ internal class ChunkOrientedStepBuilderDslIntegrationTest {
         assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
         assertThat(readCallCount).isEqualTo(readLimit)
         assertThat(writtenItems).containsExactly(0, 1, 2, 3, 4, 5)
+    }
+
+    @Test
+    fun listenerBeanShouldInvokeStepListenerWhenChunkOrientedStepRuns() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobOperator = context.getBean<JobOperator>()
+        val batch = context.getBean<BatchDsl>()
+        val listenerName = UUID.randomUUID().toString()
+        var beforeStepCallCount = 0
+        var afterStepCallCount = 0
+        context.registerBean(listenerName) {
+            object : StepExecutionListener {
+                override fun beforeStep(stepExecution: StepExecution) {
+                    ++beforeStepCallCount
+                }
+
+                override fun afterStep(stepExecution: StepExecution): ExitStatus? {
+                    ++afterStepCallCount
+                    return null
+                }
+            }
+        }
+        var readCallCount = 0
+        val reader: ItemReader<Int> =
+            ItemReader {
+                if (readCallCount < 1) {
+                    readCallCount++
+                } else {
+                    null
+                }
+            }
+        val writer: ItemWriter<Int> = ItemWriter { }
+
+        // when
+        val job =
+            batch {
+                job(UUID.randomUUID().toString()) {
+                    step(UUID.randomUUID().toString()) {
+                        chunk<Int, Int>(3) {
+                            transactionManager(ResourcelessTransactionManager())
+                            reader(reader)
+                            writer(writer)
+                            listenerBean(listenerName)
+                        }
+                    }
+                }
+            }
+        val jobExecution = jobOperator.start(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(beforeStepCallCount).isEqualTo(1)
+        assertThat(afterStepCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun listenerBeanShouldInvokeAnnotatedChunkCallbacksWhenChunkOrientedStepRuns() {
+        // given
+        val context = AnnotationConfigApplicationContext(TestConfiguration::class.java)
+        val jobOperator = context.getBean<JobOperator>()
+        val batch = context.getBean<BatchDsl>()
+        val listenerName = UUID.randomUUID().toString()
+        var beforeChunkCallCount = 0
+        var afterChunkCallCount = 0
+        context.registerBean(listenerName) {
+            object {
+                @BeforeChunk
+                fun beforeChunk() {
+                    ++beforeChunkCallCount
+                }
+
+                @AfterChunk
+                fun afterChunk() {
+                    ++afterChunkCallCount
+                }
+            }
+        }
+        var readCallCount = 0
+        val reader: ItemReader<Int> =
+            ItemReader {
+                if (readCallCount < 1) {
+                    readCallCount++
+                } else {
+                    null
+                }
+            }
+        val writer: ItemWriter<Int> = ItemWriter { }
+
+        // when
+        val job =
+            batch {
+                job(UUID.randomUUID().toString()) {
+                    step(UUID.randomUUID().toString()) {
+                        chunk<Int, Int>(3) {
+                            transactionManager(ResourcelessTransactionManager())
+                            reader(reader)
+                            writer(writer)
+                            listenerBean(listenerName)
+                        }
+                    }
+                }
+            }
+        val jobExecution = jobOperator.start(job, JobParameters())
+
+        // then
+        assertThat(jobExecution.status).isEqualTo(BatchStatus.COMPLETED)
+        assertThat(beforeChunkCallCount).isEqualTo(1)
+        assertThat(afterChunkCallCount).isEqualTo(1)
     }
 
     @Test

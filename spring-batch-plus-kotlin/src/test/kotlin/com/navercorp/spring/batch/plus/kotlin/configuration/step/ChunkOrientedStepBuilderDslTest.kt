@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import io.micrometer.observation.ObservationRegistry
 import io.mockk.every
 import io.mockk.mockk
@@ -34,11 +35,13 @@ import org.springframework.batch.infrastructure.item.ItemProcessor
 import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemStream
 import org.springframework.batch.infrastructure.item.ItemWriter
+import org.springframework.beans.factory.BeanFactory
 import org.springframework.core.retry.RetryListener
 import org.springframework.core.retry.RetryPolicy
 import org.springframework.core.task.AsyncTaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
+import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 /**
@@ -139,6 +142,47 @@ internal class ChunkOrientedStepBuilderDslTest {
 
         // then
         verify(exactly = 1) { chunkOrientedStepBuilder.stream(itemStream) }
+    }
+
+    @Test
+    fun listenerBeanShouldConfigureChunkOrientedStepBuilderWhenStepListenerBeanIsProvided() {
+        // given
+        val listenerName = UUID.randomUUID().toString()
+        val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
+        val stepListener = mockk<StepListener>()
+        val beanFactory = mockk<BeanFactory>()
+        every { beanFactory.getBean(listenerName, Any::class.java) } returns stepListener
+
+        // when
+        ChunkOrientedStepBuilderDsl(DslContext(beanFactory, mockk()), chunkOrientedStepBuilder)
+            .apply {
+                listenerBean(listenerName)
+            }.build()
+
+        // then
+        verify(exactly = 1) { chunkOrientedStepBuilder.listener(stepListener) }
+    }
+
+    @Test
+    fun listenerBeanShouldConfigureChunkOrientedStepBuilderWhenObjectListenerBeanIsProvided() {
+        // given
+        val listenerName = UUID.randomUUID().toString()
+        val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
+
+        class TestListener
+
+        val testListener = TestListener()
+        val beanFactory = mockk<BeanFactory>()
+        every { beanFactory.getBean(listenerName, Any::class.java) } returns testListener
+
+        // when
+        ChunkOrientedStepBuilderDsl(DslContext(beanFactory, mockk()), chunkOrientedStepBuilder)
+            .apply {
+                listenerBean(listenerName)
+            }.build()
+
+        // then
+        verify(exactly = 1) { chunkOrientedStepBuilder.listener(testListener) }
     }
 
     @Test

@@ -32,6 +32,7 @@ import org.springframework.batch.infrastructure.item.ItemProcessor
 import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemStream
 import org.springframework.batch.infrastructure.item.ItemWriter
+import org.springframework.beans.factory.getBean
 import org.springframework.core.retry.RetryListener
 import org.springframework.core.retry.RetryPolicy
 import org.springframework.core.task.AsyncTaskExecutor
@@ -107,6 +108,21 @@ class ChunkOrientedStepBuilderDsl<I : Any, O : Any> internal constructor(
     fun stream(stream: ItemStream) {
         this.lazyConfigurer.add {
             it.stream(stream)
+        }
+    }
+
+    /**
+     * Set listener by bean name.
+     *
+     * A bean implementing [StepListener] is set as a step listener.
+     * Otherwise it is set as an annotation based listener.
+     *
+     * @since 2.0.0
+     */
+    fun listenerBean(name: String) {
+        when (val listener = this.dslContext.beanFactory.getBean<Any>(name)) {
+            is StepListener -> listener(listener)
+            else -> listener(listener)
         }
     }
 

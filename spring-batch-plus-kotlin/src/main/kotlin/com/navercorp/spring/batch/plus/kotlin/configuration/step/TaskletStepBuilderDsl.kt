@@ -27,6 +27,7 @@ import org.springframework.batch.core.step.builder.TaskletStepBuilder
 import org.springframework.batch.infrastructure.item.ItemStream
 import org.springframework.batch.infrastructure.repeat.RepeatOperations
 import org.springframework.batch.infrastructure.repeat.exception.ExceptionHandler
+import org.springframework.beans.factory.getBean
 import org.springframework.core.task.TaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
@@ -50,6 +51,21 @@ class TaskletStepBuilderDsl internal constructor(
     private var taskExecutorSet = false
     private var exceptionHandlerSet = false
     private var stepOperationsSet = false
+
+    /**
+     * Set listener by bean name.
+     *
+     * A bean implementing [ChunkListener] is set as a chunk listener.
+     * Otherwise it is set as an annotation based listener.
+     *
+     * @since 2.0.0
+     */
+    fun listenerBean(name: String) {
+        when (val listener = this.dslContext.beanFactory.getBean<Any>(name)) {
+            is ChunkListener<*, *> -> listener(listener)
+            else -> listener(listener)
+        }
+    }
 
     /**
      * Set for [TaskletStepBuilder.listener][org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder.listener].

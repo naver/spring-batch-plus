@@ -63,6 +63,21 @@ class StepBuilderDsl internal constructor(
     }
 
     /**
+     * Set listener by bean name.
+     *
+     * A bean implementing [StepExecutionListener] is set as a step execution listener.
+     * Otherwise it is set as an annotation based listener.
+     *
+     * @since 2.0.0
+     */
+    fun listenerBean(name: String) {
+        when (val listener = this.dslContext.beanFactory.getBean<Any>(name)) {
+            is StepExecutionListener -> listener(listener)
+            else -> listener(listener)
+        }
+    }
+
+    /**
      * Set listener processing followings.
      *
      * - [org.springframework.batch.core.annotation.BeforeStep]
