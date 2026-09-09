@@ -18,6 +18,7 @@
 
 package com.navercorp.spring.batch.plus.kotlin.configuration.step
 
+import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -30,14 +31,57 @@ import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.infrastructure.item.ItemStream
 import org.springframework.batch.infrastructure.repeat.RepeatOperations
 import org.springframework.batch.infrastructure.repeat.exception.ExceptionHandler
+import org.springframework.beans.factory.BeanFactory
 import org.springframework.core.task.TaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
+import java.util.UUID
 
 /**
  * Covers tasklet-step option delegation and mutually exclusive repeat-operation settings.
  */
 internal class TaskletStepBuilderDslTest {
+    @Test
+    fun listenerBeanShouldConfigureTaskletStepBuilderWhenChunkListenerBeanIsProvided() {
+        // given
+        val listenerName = UUID.randomUUID().toString()
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
+        val chunkListener = mockk<ChunkListener<*, *>>()
+        val beanFactory = mockk<BeanFactory>()
+        every { beanFactory.getBean(listenerName, Any::class.java) } returns chunkListener
+
+        // when
+        TaskletStepBuilderDsl(DslContext(beanFactory, mockk()), taskletStepBuilder)
+            .apply {
+                listenerBean(listenerName)
+            }.build()
+
+        // then
+        verify(exactly = 1) { taskletStepBuilder.listener(chunkListener) }
+    }
+
+    @Test
+    fun listenerBeanShouldConfigureTaskletStepBuilderWhenObjectListenerBeanIsProvided() {
+        // given
+        val listenerName = UUID.randomUUID().toString()
+        val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
+
+        class TestListener
+
+        val testListener = TestListener()
+        val beanFactory = mockk<BeanFactory>()
+        every { beanFactory.getBean(listenerName, Any::class.java) } returns testListener
+
+        // when
+        TaskletStepBuilderDsl(DslContext(beanFactory, mockk()), taskletStepBuilder)
+            .apply {
+                listenerBean(listenerName)
+            }.build()
+
+        // then
+        verify(exactly = 1) { taskletStepBuilder.listener(testListener) }
+    }
+
     @Test
     fun listenerShouldConfigureTaskletStepBuilderWhenChunkListenerIsProvided() {
         // given

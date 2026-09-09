@@ -33,6 +33,7 @@ import org.springframework.batch.core.job.parameters.JobParametersIncrementer
 import org.springframework.batch.core.job.parameters.JobParametersValidator
 import org.springframework.batch.core.listener.JobExecutionListener
 import org.springframework.batch.core.step.Step
+import org.springframework.beans.factory.getBean
 import org.springframework.core.task.TaskExecutor
 
 /**
@@ -77,6 +78,21 @@ class JobBuilderDsl internal constructor(
     fun observationRegistry(observationRegistry: ObservationRegistry) {
         lazyConfigurer.add {
             it.observationRegistry(observationRegistry)
+        }
+    }
+
+    /**
+     * Set listener by bean name.
+     *
+     * A bean implementing [JobExecutionListener] is set as a job execution listener.
+     * Otherwise it is set as an annotation based listener.
+     *
+     * @since 2.0.0
+     */
+    fun listenerBean(name: String) {
+        when (val listener = this.dslContext.beanFactory.getBean<Any>(name)) {
+            is JobExecutionListener -> listener(listener)
+            else -> listener(listener)
         }
     }
 

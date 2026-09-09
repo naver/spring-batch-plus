@@ -20,12 +20,15 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import io.micrometer.observation.ObservationRegistry
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.listener.StepExecutionListener
 import org.springframework.batch.core.step.builder.StepBuilder
+import org.springframework.beans.factory.BeanFactory
 import org.springframework.transaction.PlatformTransactionManager
+import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 /**
@@ -64,6 +67,49 @@ internal class StepBuilderDslTest {
 
         // then
         verify(exactly = 1) { stepBuilderDsl.startLimit(startLimit) }
+    }
+
+    @Test
+    fun listenerBeanShouldConfigureStepBuilderWhenStepExecutionListenerBeanIsProvided() {
+        // given
+        val listenerName = UUID.randomUUID().toString()
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
+        val stepExecutionListener = mockk<StepExecutionListener>()
+        val beanFactory = mockk<BeanFactory>()
+        every { beanFactory.getBean(listenerName, Any::class.java) } returns stepExecutionListener
+        val stepBuilderDsl = StepBuilderDsl(DslContext(beanFactory, mockk()), stepBuilder)
+
+        // when
+        stepBuilderDsl
+            .apply {
+                listenerBean(listenerName)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+
+        // then
+        verify(exactly = 1) { stepBuilder.listener(stepExecutionListener) }
+    }
+
+    @Test
+    fun listenerBeanShouldConfigureStepBuilderWhenObjectListenerBeanIsProvided() {
+        // given
+        val listenerName = UUID.randomUUID().toString()
+        val stepBuilder = mockk<StepBuilder>(relaxed = true)
+
+        class TestListener
+
+        val testListener = TestListener()
+        val beanFactory = mockk<BeanFactory>()
+        every { beanFactory.getBean(listenerName, Any::class.java) } returns testListener
+        val stepBuilderDsl = StepBuilderDsl(DslContext(beanFactory, mockk()), stepBuilder)
+
+        // when
+        stepBuilderDsl
+            .apply {
+                listenerBean(listenerName)
+            }.tasklet(mockk(), mockk<PlatformTransactionManager>())
+
+        // then
+        verify(exactly = 1) { stepBuilder.listener(testListener) }
     }
 
     @Test

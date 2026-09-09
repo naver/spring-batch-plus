@@ -20,6 +20,7 @@ package com.navercorp.spring.batch.plus.kotlin.configuration
 
 import com.navercorp.spring.batch.plus.kotlin.configuration.support.DslContext
 import io.micrometer.observation.ObservationRegistry
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
@@ -28,6 +29,7 @@ import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.parameters.JobParametersIncrementer
 import org.springframework.batch.core.job.parameters.JobParametersValidator
 import org.springframework.batch.core.listener.JobExecutionListener
+import org.springframework.beans.factory.BeanFactory
 import java.util.UUID
 
 /**
@@ -83,6 +85,49 @@ internal class JobBuilderDslTest {
 
         // then
         verify(exactly = 1) { jobBuilder.observationRegistry(observationRegistry) }
+    }
+
+    @Test
+    fun listenerBeanShouldConfigureJobBuilderWhenJobExecutionListenerBeanIsProvided() {
+        // given
+        val listenerName = UUID.randomUUID().toString()
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
+        val jobExecutionListener = mockk<JobExecutionListener>()
+        val beanFactory = mockk<BeanFactory>()
+        every { beanFactory.getBean(listenerName, Any::class.java) } returns jobExecutionListener
+        val jobBuilderDsl = JobBuilderDsl(DslContext(beanFactory, mockk()), jobBuilder)
+
+        // when
+        jobBuilderDsl
+            .apply {
+                listenerBean(listenerName)
+            }.build()
+
+        // then
+        verify(exactly = 1) { jobBuilder.listener(jobExecutionListener) }
+    }
+
+    @Test
+    fun listenerBeanShouldConfigureJobBuilderWhenObjectListenerBeanIsProvided() {
+        // given
+        val listenerName = UUID.randomUUID().toString()
+        val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
+
+        class TestListener
+
+        val testListener = TestListener()
+        val beanFactory = mockk<BeanFactory>()
+        every { beanFactory.getBean(listenerName, Any::class.java) } returns testListener
+        val jobBuilderDsl = JobBuilderDsl(DslContext(beanFactory, mockk()), jobBuilder)
+
+        // when
+        jobBuilderDsl
+            .apply {
+                listenerBean(listenerName)
+            }.build()
+
+        // then
+        verify(exactly = 1) { jobBuilder.listener(testListener) }
     }
 
     @Test
