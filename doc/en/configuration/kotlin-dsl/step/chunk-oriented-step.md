@@ -8,6 +8,8 @@
   - [Set a listener using an ItemReadListener object](#set-a-listener-using-an-itemreadlistener-object)
   - [Set a listener using an ItemProcessListener object](#set-a-listener-using-an-itemprocesslistener-object)
   - [Set a listener using an ItemWriteListener object](#set-a-listener-using-an-itemwritelistener-object)
+  - [Set a listener using the bean name of an annotated object](#set-a-listener-using-the-bean-name-of-an-annotated-object)
+  - [Set a listener using the bean name of a ChunkListener](#set-a-listener-using-the-bean-name-of-a-chunklistener)
   - [Set a stream](#set-a-stream)
   - [Set a TaskExecutor](#set-a-taskexecutor)
   - [Set a TransactionAttribute](#set-a-transactionattribute)
@@ -782,6 +784,152 @@ open class TestJobConfig(
                                 }
                             },
                         )
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 11) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            item.toString()
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            println("write $items")
+        }
+}
+```
+
+### Set a listener using the bean name of an annotated object
+
+You can add `@BeforeStep`, `@AfterStep`, `@BeforeChunk` and `@AfterChunk` annotations to a `@Component` object and set it as a listener using its bean name.
+
+```kotlin
+@Component
+class TestListener {
+    @BeforeStep
+    fun beforeStep() {
+        println("beforeStep")
+    }
+
+    @AfterStep
+    fun afterStep() {
+        println("afterStep")
+    }
+
+    @BeforeChunk
+    fun beforeChunk() {
+        println("beforeChunk")
+    }
+
+    @AfterChunk
+    fun afterChunk() {
+        println("afterChunk")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listenerBean("testListener")
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 11) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            item.toString()
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            println("write $items")
+        }
+}
+```
+
+### Set a listener using the bean name of a ChunkListener
+
+You can set an object implementing `ChunkListener` as a listener using its bean name.
+
+```kotlin
+@Component
+class TestListener : ChunkListener<Int, String> {
+    override fun beforeChunk(chunk: Chunk<Int>) {
+        println("beforeChunk: $chunk")
+    }
+
+    override fun afterChunk(chunk: Chunk<String>) {
+        println("afterChunk: $chunk")
+    }
+
+    override fun onChunkError(
+        exception: Exception,
+        chunk: Chunk<String>,
+    ) {
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listenerBean("testListener")
                     }
                 }
             }
