@@ -8,6 +8,8 @@
   - [ItemReadListener 객체를 사용하여 Listener 설정하기](#itemreadlistener-객체를-사용하여-listener-설정하기)
   - [ItemProcessListener 객체를 사용하여 Listener 설정하기](#itemprocesslistener-객체를-사용하여-listener-설정하기)
   - [ItemWriteListener 객체를 사용하여 Listener 설정하기](#itemwritelistener-객체를-사용하여-listener-설정하기)
+  - [Bean 이름으로 Annotation Listener 설정하기](#bean-이름으로-annotation-listener-설정하기)
+  - [Bean 이름으로 ChunkListener 설정하기](#bean-이름으로-chunklistener-설정하기)
   - [Stream 설정하기](#stream-설정하기)
   - [TaskExecutor 설정하기](#taskexecutor-설정하기)
   - [TransactionAttribute 설정하기](#transactionattribute-설정하기)
@@ -782,6 +784,152 @@ open class TestJobConfig(
                                 }
                             },
                         )
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 11) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            item.toString()
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            println("write $items")
+        }
+}
+```
+
+### Bean 이름으로 Annotation Listener 설정하기
+
+`@Component`로 등록한 객체에 `@BeforeStep`, `@AfterStep`, `@BeforeChunk`, `@AfterChunk` Annotation을 붙이고 Bean 이름으로 Listener 를 설정할 수 있습니다.
+
+```kotlin
+@Component
+class TestListener {
+    @BeforeStep
+    fun beforeStep() {
+        println("beforeStep")
+    }
+
+    @AfterStep
+    fun afterStep() {
+        println("afterStep")
+    }
+
+    @BeforeChunk
+    fun beforeChunk() {
+        println("beforeChunk")
+    }
+
+    @AfterChunk
+    fun afterChunk() {
+        println("afterChunk")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listenerBean("testListener")
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> =
+        object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? =
+                if (count < 11) {
+                    count++
+                } else {
+                    null
+                }
+        }
+
+    @Bean
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            item.toString()
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            println("write $items")
+        }
+}
+```
+
+### Bean 이름으로 ChunkListener 설정하기
+
+Bean 이름으로 `ChunkListener`를 구현한 객체를 Listener 로 설정할 수 있습니다.
+
+```kotlin
+@Component
+class TestListener : ChunkListener<Int, String> {
+    override fun beforeChunk(chunk: Chunk<Int>) {
+        println("beforeChunk: $chunk")
+    }
+
+    override fun afterChunk(chunk: Chunk<String>) {
+        println("afterChunk: $chunk")
+    }
+
+    override fun onChunkError(
+        exception: Exception,
+        chunk: Chunk<String>,
+    ) {
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        listenerBean("testListener")
                     }
                 }
             }

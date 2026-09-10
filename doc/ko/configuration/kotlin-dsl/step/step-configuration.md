@@ -5,6 +5,8 @@
 - [Step Listener 설정](#step-listener-설정)
   - [Annotation을 사용하여 Listener 설정하기](#annotation을-사용하여-listener-설정하기)
   - [StepExecutionListener 객체를 사용하여 Listener 설정하기](#stepexecutionlistener-객체를-사용하여-listener-설정하기)
+  - [Bean 이름으로 Annotation Listener 설정하기](#bean-이름으로-annotation-listener-설정하기)
+  - [Bean 이름으로 StepExecutionListener 설정하기](#bean-이름으로-stepexecutionlistener-설정하기)
 - [allowStartIfComplete 설정](#allowstartifcomplete-설정)
 
 Kotlin DSL에서는 `StepBuilder`에서 설정할 수 있는 기능을 모두 제공합니다. 이 문서에서는 Kotlin DSL을 활용해서 `Step` 관련 설정들을 하는 방법에 대해서 다룹니다.
@@ -67,7 +69,7 @@ open class TestJobConfig(
 
 ## Step Listener 설정
 
-Kotlin DSL은 `StepBuilder`를 사용하여 `Step`에 대한 Listener를 설정하는 방법을 제공합니다. Listener를 설정하려면 Annotation을 이용하거나 `StepExecutionListener`를 이용할 수 있니다.
+Kotlin DSL은 `StepBuilder`를 사용하여 `Step`에 대한 Listener를 설정하는 방법을 제공합니다. Listener를 설정하려면 Annotation을 이용하거나 `StepExecutionListener`를 이용할 수 있고, 객체를 직접 넘기는 대신 Bean 이름으로 지정할 수도 있습니다.
 
 ### Annotation을 사용하여 Listener 설정하기
 
@@ -131,6 +133,81 @@ open class TestJobConfig(
                             }
                         },
                     )
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+            }
+        }
+}
+```
+
+### Bean 이름으로 Annotation Listener 설정하기
+
+`@Component`로 등록한 객체에 `@BeforeStep`, `@AfterStep` Annotation을 붙이고 Bean 이름으로 Listener 를 설정할 수 있습니다.
+
+```kotlin
+@Component
+class TestListener {
+    @BeforeStep
+    fun beforeStep() {
+        println("beforeStep")
+    }
+
+    @AfterStep
+    fun afterStep() {
+        println("afterStep")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    listenerBean("testListener")
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+            }
+        }
+}
+```
+
+### Bean 이름으로 StepExecutionListener 설정하기
+
+Bean 이름으로 `StepExecutionListener`를 구현한 객체를 Listener 로 설정할 수 있습니다.
+
+```kotlin
+@Component
+class TestListener : StepExecutionListener {
+    override fun beforeStep(stepExecution: StepExecution) {
+        println("beforeStep")
+    }
+
+    override fun afterStep(stepExecution: StepExecution): ExitStatus? {
+        println("afterStep")
+        return null
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    listenerBean("testListener")
                     tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }

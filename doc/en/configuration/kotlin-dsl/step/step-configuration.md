@@ -5,6 +5,8 @@
 - [Set a step listener](#set-a-step-listener)
   - [Set a listener using annotations](#set-a-listener-using-annotations)
   - [Set a listener using a StepExecutionListener object](#set-a-listener-using-a-stepexecutionlistener-object)
+  - [Set a listener using the bean name of an annotated object](#set-a-listener-using-the-bean-name-of-an-annotated-object)
+  - [Set a listener using the bean name of a StepExecutionListener](#set-a-listener-using-the-bean-name-of-a-stepexecutionlistener)
 - [Set allowStartIfComplete](#set-allowstartifcomplete)
 
 The functions that can be set with `StepBuilder` are also available with the Kotlin DSL. In this page, you will learn how to configure a `Step` using the Kotlin DSL.
@@ -67,7 +69,7 @@ open class TestJobConfig(
 
 ## Set a step listener
 
-The Kotlin DSL helps you set a `Step` listener using `StepBuilder`. You can use annotations or a `StepExecutionListener` to set a listener.
+The Kotlin DSL helps you set a `Step` listener using `StepBuilder`. You can use annotations or a `StepExecutionListener` to set a listener. You can also name a bean instead of passing the object itself.
 
 ### Set a listener using annotations
 
@@ -131,6 +133,81 @@ open class TestJobConfig(
                             }
                         },
                     )
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+            }
+        }
+}
+```
+
+### Set a listener using the bean name of an annotated object
+
+You can add `@BeforeStep` and `@AfterStep` annotations to a `@Component` object and set it as a listener using its bean name.
+
+```kotlin
+@Component
+class TestListener {
+    @BeforeStep
+    fun beforeStep() {
+        println("beforeStep")
+    }
+
+    @AfterStep
+    fun afterStep() {
+        println("afterStep")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    listenerBean("testListener")
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+            }
+        }
+}
+```
+
+### Set a listener using the bean name of a StepExecutionListener
+
+You can set an object implementing `StepExecutionListener` as a listener using its bean name.
+
+```kotlin
+@Component
+class TestListener : StepExecutionListener {
+    override fun beforeStep(stepExecution: StepExecution) {
+        println("beforeStep")
+    }
+
+    override fun afterStep(stepExecution: StepExecution): ExitStatus? {
+        println("afterStep")
+        return null
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    listenerBean("testListener")
                     tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
             }

@@ -5,6 +5,8 @@
 - [Set a tasklet step](#set-a-tasklet-step)
   - [Set a listener using annotations](#set-a-listener-using-annotations)
   - [Set a listener using a ChunkListener object](#set-a-listener-using-a-chunklistener-object)
+  - [Set a listener using the bean name of an annotated object](#set-a-listener-using-the-bean-name-of-an-annotated-object)
+  - [Set a listener using the bean name of a ChunkListener](#set-a-listener-using-the-bean-name-of-a-chunklistener)
   - [Set a stream](#set-a-stream)
   - [Set a TaskExecutor](#set-a-taskexecutor)
   - [Set an ExceptionHandler](#set-an-exceptionhandler)
@@ -160,6 +162,109 @@ open class TestJobConfig(
                                 }
                             },
                         )
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
+}
+```
+
+### Set a listener using the bean name of an annotated object
+
+You can add `@BeforeStep`, `@AfterStep`, `@BeforeChunk` and `@AfterChunk` annotations to a `@Component` object and set it as a listener using its bean name.
+
+```kotlin
+@Component
+class TestListener {
+    @BeforeStep
+    fun beforeStep() {
+        println("beforeStep")
+    }
+
+    @AfterStep
+    fun afterStep() {
+        println("afterStep")
+    }
+
+    @BeforeChunk
+    fun beforeChunk() {
+        println("beforeChunk")
+    }
+
+    @AfterChunk
+    fun afterChunk() {
+        println("afterChunk")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        listenerBean("testListener")
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
+}
+```
+
+### Set a listener using the bean name of a ChunkListener
+
+You can set an object implementing `ChunkListener` as a listener using its bean name.
+
+```kotlin
+@Component
+class TestListener : ChunkListener<Any, Any> {
+    override fun beforeChunk(context: ChunkContext) {
+        println("beforeChunk: $context")
+    }
+
+    override fun afterChunk(context: ChunkContext) {
+        println("afterChunk: $context")
+    }
+
+    override fun afterChunkError(context: ChunkContext) {
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        listenerBean("testListener")
                     }
                 }
             }

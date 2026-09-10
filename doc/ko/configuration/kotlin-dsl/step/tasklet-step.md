@@ -5,6 +5,8 @@
 - [Tasklet Step 설정하기](#tasklet-step-설정하기)
   - [Annotation을 사용하여 Listener 설정하기](#annotation을-사용하여-listener-설정하기)
   - [ChunkListener 객체를 사용하여 Listener 설정하기](#chunklistener-객체를-사용하여-listener-설정하기)
+  - [Bean 이름으로 Annotation Listener 설정하기](#bean-이름으로-annotation-listener-설정하기)
+  - [Bean 이름으로 ChunkListener 설정하기](#bean-이름으로-chunklistener-설정하기)
   - [Stream 설정하기](#stream-설정하기)
   - [TaskExecutor 설정하기](#taskexecutor-설정하기)
   - [ExceptionHandler 설정하기](#exceptionhandler-설정하기)
@@ -160,6 +162,109 @@ open class TestJobConfig(
                                 }
                             },
                         )
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
+}
+```
+
+### Bean 이름으로 Annotation Listener 설정하기
+
+`@Component`로 등록한 객체에 `@BeforeStep`, `@AfterStep`, `@BeforeChunk`, `@AfterChunk` Annotation을 붙이고 Bean 이름으로 Listener 를 설정할 수 있습니다.
+
+```kotlin
+@Component
+class TestListener {
+    @BeforeStep
+    fun beforeStep() {
+        println("beforeStep")
+    }
+
+    @AfterStep
+    fun afterStep() {
+        println("afterStep")
+    }
+
+    @BeforeChunk
+    fun beforeChunk() {
+        println("beforeChunk")
+    }
+
+    @AfterChunk
+    fun afterChunk() {
+        println("afterChunk")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        listenerBean("testListener")
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testTasklet(): Tasklet =
+        Tasklet { _, _ ->
+            println("run testTasklet")
+            RepeatStatus.FINISHED
+        }
+}
+```
+
+### Bean 이름으로 ChunkListener 설정하기
+
+Bean 이름으로 `ChunkListener`를 구현한 객체를 Listener 로 설정할 수 있습니다.
+
+```kotlin
+@Component
+class TestListener : ChunkListener<Any, Any> {
+    override fun beforeChunk(context: ChunkContext) {
+        println("beforeChunk: $context")
+    }
+
+    override fun afterChunk(context: ChunkContext) {
+        println("afterChunk: $context")
+    }
+
+    override fun afterChunkError(context: ChunkContext) {
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    tasklet(testTasklet(), transactionManager) {
+                        listenerBean("testListener")
                     }
                 }
             }

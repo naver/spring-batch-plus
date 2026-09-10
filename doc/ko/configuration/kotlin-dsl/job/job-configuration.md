@@ -4,6 +4,8 @@
 - [Job Listener 설정](#job-listener-설정)
   - [Annotation을 사용해서 Listener 설정하기](#annotation을-사용해서-listener-설정하기)
   - [JobExecutionListener 객체를 사용하여 Listener 설정하기](#jobexecutionlistener-객체를-사용하여-listener-설정하기)
+  - [Bean 이름으로 Annotation Listener 설정하기](#bean-이름으로-annotation-listener-설정하기)
+  - [Bean 이름으로 JobExecutionListener 설정하기](#bean-이름으로-jobexecutionlistener-설정하기)
 - [ObservationRegistry 설정하기](#observationregistry-설정하기)
 - [PreventRestart 설정하기](#preventrestart-설정하기)
 - [JobParametersValidator 설정하기](#jobparametersvalidator-설정하기)
@@ -51,7 +53,7 @@ open class TestJobConfig(
 
 ## Job Listener 설정
 
-Kotlin DSL은 `JobBuilder`를 사용해서 Job에 대한 Listener를 설정하는 방법을 제공합니다. Listener 설정에는 Annotation을 사용하는 방법과 `JobExecutionListener` 객체를 넘기는 두 가지 방법이 있습니다.
+Kotlin DSL은 `JobBuilder`를 사용해서 Job에 대한 Listener를 설정하는 방법을 제공합니다. Listener 설정에는 Annotation을 사용하는 방법과 `JobExecutionListener` 객체를 넘기는 방법이 있고, 객체를 직접 넘기는 대신 Bean 이름으로 지정할 수도 있습니다.
 
 ### Annotation을 사용해서 Listener 설정하기
 
@@ -113,6 +115,80 @@ open class TestJobConfig(
                         }
                     },
                 )
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+            }
+        }
+}
+```
+
+### Bean 이름으로 Annotation Listener 설정하기
+
+`@Component`로 등록한 객체에 `@BeforeJob`, `@AfterJob` Annotation을 붙이고 Bean 이름으로 Listener 를 설정할 수 있습니다.
+
+```kotlin
+@Component
+class TestListener {
+    @BeforeJob
+    fun beforeJob() {
+        println("beforeJob")
+    }
+
+    @AfterJob
+    fun afterJob() {
+        println("afterJob")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                listenerBean("testListener")
+                step("testStep") {
+                    tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
+                }
+            }
+        }
+}
+```
+
+### Bean 이름으로 JobExecutionListener 설정하기
+
+Bean 이름으로 `JobExecutionListener`를 구현한 객체를 Listener 로 설정할 수 있습니다.
+
+```kotlin
+@Component
+class TestListener : JobExecutionListener {
+    override fun beforeJob(jobExecution: JobExecution) {
+        println("before $jobExecution")
+    }
+
+    override fun afterJob(jobExecution: JobExecution) {
+        println("after $jobExecution")
+    }
+}
+```
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+    private val transactionManager: PlatformTransactionManager,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                listenerBean("testListener")
                 step("testStep") {
                     tasklet({ _, _ -> RepeatStatus.FINISHED }, transactionManager)
                 }
