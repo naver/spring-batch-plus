@@ -14,12 +14,12 @@ findbugs-jsr305 = "3.0.2"
 jspecify = "1.0.1"
 
 # test-only
-junit = "6.0.+"
-assertj = "3.27.+"
-mockito = "5.20.+"
-mockk = "1.14.+"
-h2 = "2.4.+"
-log4j = "2.25.+"
+junit = "6.0.3"
+assertj = "3.27.7"
+mockito = "5.20.0"
+mockk = "1.14.11"
+h2 = "2.4.240"
+log4j = "2.25.5"
 
 [libraries]
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot" }
