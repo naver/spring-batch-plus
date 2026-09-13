@@ -51,23 +51,23 @@ dependencyResolutionManagement {
             // test only
             library(
                 "junit",
-                "org.junit.jupiter:junit-jupiter:5.+",
+                "org.junit.jupiter:junit-jupiter:5.11.4",
             )
             library(
                 "assertj",
-                "org.assertj:assertj-core:3.+",
+                "org.assertj:assertj-core:3.27.7",
             )
             library(
                 "mockito",
-                "org.mockito:mockito-core:5.+",
+                "org.mockito:mockito-core:5.23.0",
             )
             library(
                 "mockito-kotlin",
-                "org.mockito.kotlin:mockito-kotlin:5.+",
+                "org.mockito.kotlin:mockito-kotlin:5.4.0",
             )
             library(
                 "mockk",
-                "io.mockk:mockk:1.+",
+                "io.mockk:mockk:1.13.11",
             )
             library(
                 "spring-boot-test",
