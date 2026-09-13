@@ -57,9 +57,11 @@ publishing {
                 // export REPO_URL=https://some.url
                 // export REPO_SNAPSHOT_URL=https://some.url
                 if (!version.toString().endsWith("SNAPSHOT")) {
-                    System.getenv("REPO_URL") ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    System.getenv("REPO_URL")
+                        ?: "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
                 } else {
-                    System.getenv("REPO_SNAPSHOT_URL") ?: "https://oss.sonatype.org/content/repositories/snapshots/"
+                    System.getenv("REPO_SNAPSHOT_URL")
+                        ?: "https://central.sonatype.com/repository/maven-snapshots/"
                 },
             )
         }
