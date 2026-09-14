@@ -1,5 +1,7 @@
 # ChangeLog
 
+- [2.0.x](#20x)
+  - [2.0.0](#200)
 - [1.2.x](#12x)
   - [1.2.0](#120)
 - [1.1.x](#11x)
@@ -14,6 +16,35 @@
   - [0.2.0](#020)
 - [0.1.x](#01x)
   - [0.1.0](#010)
+
+## 2.0.x
+
+### 2.0.0
+
+Support for Spring Batch 6.0.x
+
+#### New Features
+
+- Add `ChunkOrientedStepBuilderDsl` for the new `ChunkOrientedStep`
+- Add `StepBuilderDsl.chunk(chunkSize, init)` to build a chunk-oriented step
+- Add `JobStepBuilderDsl.operator` replacing `launcher`
+- Add `listenerBean` to set a listener by bean name
+
+#### Changes
+
+- Bump up minimum kotlin compatibility to 2.2
+- Remove DSL methods for APIs removed in Spring Batch 6.0
+  - `JobBuilderDsl.observationConvention`, `JobBuilderDsl.meterRegistry`, `JobBuilderDsl.repository`
+  - `StepBuilderDsl.observationConvention`, `StepBuilderDsl.repository`
+  - `SimpleStepBuilderDsl.throttleLimit`
+  - `JobStepBuilderDsl.launcher`
+- Deprecate `SimpleStepBuilderDsl` and the `SimpleStepBuilder` based `chunk` overloads
+- Change `listener` signatures for the generic `ChunkListener`
+
+#### Bug fixes & Improvements
+
+- Hold the deletion upper bound of `DeleteMetadataJob` in the step execution context
+- Fix Kotlin module Javadoc generation
 
 ## 1.2.x
 
