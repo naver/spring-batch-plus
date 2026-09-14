@@ -12,13 +12,29 @@
     - Make a tag by `git tag va.b.c`.
     - Push the tag by `git push origin va.b.c`.
 6. Wait for [deploy action](https://github.com/naver/spring-batch-plus/actions/workflows/deploy.yml) to be completed.
-7. Check Staging Repositories in a [sonatype](https://oss.sonatype.org/).
-    - Click Close.
-    - Click Release.
-8. Start a new version
+7. Hand the staged files over to the Central Portal.
+    - The deploy action uploads to the ossrh staging api, which only stores the files. They have to be handed over to the portal separately.
+    - Make an authorization token. The api expects the base64 encoded `user:password`.
+        ```sh
+        MAVEN_AUTH_TOKEN=$(printf '%s:%s' "${MAVEN_USER}" "${MAVEN_PASSWORD}" | base64 | tr -d '\n')
+        ```
+    - List the staging repositories. `profile_id` is the namespace in [central portal](https://central.sonatype.com/publishing/namespaces), not the groupId. `ip=any` is required since the files were uploaded from the CI runner.
+        ```sh
+        curl -H "Authorization: Bearer ${MAVEN_AUTH_TOKEN}" \
+            "https://ossrh-staging-api.central.sonatype.com/manual/search/repositories?ip=any&profile_id=com.navercorp"
+        ```
+    - Make sure there is exactly one repository. Each one becomes a separate deployment, so handing over only one of many releases a partial artifact set. Drop a stale one by `DELETE /manual/drop/repository/<repository key>`.
+    - Hand it over with its key.
+        ```sh
+        curl -X POST -H "Authorization: Bearer ${MAVEN_AUTH_TOKEN}" \
+            "https://ossrh-staging-api.central.sonatype.com/manual/upload/repository/<repository key>"
+        ```
+    - Release the deployment in [central portal](https://central.sonatype.com/publishing/deployments).
+8. Make sure the artifacts are on [maven central](https://repo1.maven.org/maven2/com/navercorp/spring/). It takes a few minutes after the deployment is published.
+9. Start a new version
     - Update version of `gradle.properties` to `a.b.c-SHAPSHOT`.
     - Commit message: `Start next iteration`.
-9. Merge release branch.
+10. Merge release branch.
     - Merge release branch
         - main : `git switch main && git merge release/va.b.c`.
         - patch (a.b.x branch) : `git switch a.b.x && git merge release/va.b.c`.
@@ -26,7 +42,7 @@
     - Push main to origin
         - main : `git push origin main`.
         - patch (a.b.x branch) : `git push origin a.b.x`.
-10. Make a release on [github](https://github.com/naver/spring-batch-plus/releases) based on [CHANGELOG](./CHANGELOG.md).
+11. Make a release on [github](https://github.com/naver/spring-batch-plus/releases) based on [CHANGELOG](./CHANGELOG.md).
 
 ## See also
 
@@ -34,3 +50,4 @@
 - [Sonatype Requirements](https://central.sonatype.org/publish/requirements/)
 - [GPG Guide](https://central.sonatype.org/publish/requirements/gpg/)
 - [Sonatype Release Guide](https://central.sonatype.org/publish/release/)
+- [Portal OSSRH Staging API](https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/)
