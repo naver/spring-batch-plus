@@ -30,6 +30,7 @@ import org.springframework.batch.core.job.parameters.JobParametersIncrementer
 import org.springframework.batch.core.job.parameters.JobParametersValidator
 import org.springframework.batch.core.listener.JobExecutionListener
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import java.util.UUID
 
 /**
@@ -94,7 +95,7 @@ internal class JobBuilderDslTest {
         val jobBuilder = spyk(JobBuilder(UUID.randomUUID().toString(), mockk(relaxed = true)))
         val jobExecutionListener = mockk<JobExecutionListener>()
         val beanFactory = mockk<BeanFactory>()
-        every { beanFactory.getBean(listenerName, Any::class.java) } returns jobExecutionListener
+        every { beanFactory.getBean<Any>(listenerName) } returns jobExecutionListener
         val jobBuilderDsl = JobBuilderDsl(DslContext(beanFactory, mockk()), jobBuilder)
 
         // when
@@ -117,7 +118,7 @@ internal class JobBuilderDslTest {
 
         val testListener = TestListener()
         val beanFactory = mockk<BeanFactory>()
-        every { beanFactory.getBean(listenerName, Any::class.java) } returns testListener
+        every { beanFactory.getBean<Any>(listenerName) } returns testListener
         val jobBuilderDsl = JobBuilderDsl(DslContext(beanFactory, mockk()), jobBuilder)
 
         // when

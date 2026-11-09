@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.batch.core.listener.StepExecutionListener
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.transaction.PlatformTransactionManager
 import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
@@ -76,7 +77,7 @@ internal class StepBuilderDslTest {
         val stepBuilder = mockk<StepBuilder>(relaxed = true)
         val stepExecutionListener = mockk<StepExecutionListener>()
         val beanFactory = mockk<BeanFactory>()
-        every { beanFactory.getBean(listenerName, Any::class.java) } returns stepExecutionListener
+        every { beanFactory.getBean<Any>(listenerName) } returns stepExecutionListener
         val stepBuilderDsl = StepBuilderDsl(DslContext(beanFactory, mockk()), stepBuilder)
 
         // when
@@ -99,7 +100,7 @@ internal class StepBuilderDslTest {
 
         val testListener = TestListener()
         val beanFactory = mockk<BeanFactory>()
-        every { beanFactory.getBean(listenerName, Any::class.java) } returns testListener
+        every { beanFactory.getBean<Any>(listenerName) } returns testListener
         val stepBuilderDsl = StepBuilderDsl(DslContext(beanFactory, mockk()), stepBuilder)
 
         // when

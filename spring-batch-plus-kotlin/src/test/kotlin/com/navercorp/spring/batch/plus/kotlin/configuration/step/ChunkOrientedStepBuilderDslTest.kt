@@ -36,6 +36,7 @@ import org.springframework.batch.infrastructure.item.ItemReader
 import org.springframework.batch.infrastructure.item.ItemStream
 import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.core.retry.RetryListener
 import org.springframework.core.retry.RetryPolicy
 import org.springframework.core.task.AsyncTaskExecutor
@@ -151,7 +152,7 @@ internal class ChunkOrientedStepBuilderDslTest {
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
         val stepListener = mockk<StepListener>()
         val beanFactory = mockk<BeanFactory>()
-        every { beanFactory.getBean(listenerName, Any::class.java) } returns stepListener
+        every { beanFactory.getBean<Any>(listenerName) } returns stepListener
 
         // when
         ChunkOrientedStepBuilderDsl(DslContext(beanFactory, mockk()), chunkOrientedStepBuilder)
@@ -173,7 +174,7 @@ internal class ChunkOrientedStepBuilderDslTest {
 
         val testListener = TestListener()
         val beanFactory = mockk<BeanFactory>()
-        every { beanFactory.getBean(listenerName, Any::class.java) } returns testListener
+        every { beanFactory.getBean<Any>(listenerName) } returns testListener
 
         // when
         ChunkOrientedStepBuilderDsl(DslContext(beanFactory, mockk()), chunkOrientedStepBuilder)

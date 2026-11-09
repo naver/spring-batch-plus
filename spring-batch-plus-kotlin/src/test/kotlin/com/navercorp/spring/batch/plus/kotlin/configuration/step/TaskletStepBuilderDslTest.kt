@@ -32,6 +32,7 @@ import org.springframework.batch.infrastructure.item.ItemStream
 import org.springframework.batch.infrastructure.repeat.RepeatOperations
 import org.springframework.batch.infrastructure.repeat.exception.ExceptionHandler
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.core.task.TaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.interceptor.TransactionAttribute
@@ -48,7 +49,7 @@ internal class TaskletStepBuilderDslTest {
         val taskletStepBuilder = mockk<TaskletStepBuilder>(relaxed = true)
         val chunkListener = mockk<ChunkListener<*, *>>()
         val beanFactory = mockk<BeanFactory>()
-        every { beanFactory.getBean(listenerName, Any::class.java) } returns chunkListener
+        every { beanFactory.getBean<Any>(listenerName) } returns chunkListener
 
         // when
         TaskletStepBuilderDsl(DslContext(beanFactory, mockk()), taskletStepBuilder)
@@ -70,7 +71,7 @@ internal class TaskletStepBuilderDslTest {
 
         val testListener = TestListener()
         val beanFactory = mockk<BeanFactory>()
-        every { beanFactory.getBean(listenerName, Any::class.java) } returns testListener
+        every { beanFactory.getBean<Any>(listenerName) } returns testListener
 
         // when
         TaskletStepBuilderDsl(DslContext(beanFactory, mockk()), taskletStepBuilder)
