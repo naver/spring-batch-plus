@@ -19,19 +19,21 @@
 package com.navercorp.spring.batch.plus.job.metadata;
 
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.sql.DataSource;
 
-import org.springframework.batch.core.repository.dao.AbstractJdbcBatchMetadataDao;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * A dao accessing metadata tables of Spring Batch.
  */
-class JobMetadataDao extends AbstractJdbcBatchMetadataDao {
+class JobMetadataDao {
+
+	private static final String TABLE_PREFIX_PLACEHOLDER = "%PREFIX%";
+
+	protected final JdbcOperations jdbcOperations;
 
 	protected final String selectMaxJobInstanceId;
 
@@ -50,56 +52,51 @@ class JobMetadataDao extends AbstractJdbcBatchMetadataDao {
 	protected final String deleteStepExecutionContexts;
 
 	JobMetadataDao(DataSource dataSource, String tablePrefix) {
-		setJdbcTemplate(new JdbcTemplate(dataSource));
-		setTablePrefix(tablePrefix);
+		this.jdbcOperations = new JdbcTemplate(dataSource);
 
-		this.selectMaxJobInstanceId = getQuery(MetadataSql.SELECT_MAX_JOB_INSTANCE_ID);
-		this.selectMinJobInstanceId = getQuery(MetadataSql.SELECT_MIN_JOB_INSTANCE_ID);
-		this.deleteJobInstances = getQuery(MetadataSql.DELETE_JOB_INSTANCES);
-		this.deleteJobExecutions = getQuery(MetadataSql.DELETE_JOB_EXECUTIONS);
-		this.deleteJobExecutionParams = getQuery(MetadataSql.DELETE_JOB_EXECUTION_PARAMS);
-		this.deleteJobExecutionContexts = getQuery(MetadataSql.DELETE_JOB_EXECUTION_CONTEXTS);
-		this.deleteStepExecutions = getQuery(MetadataSql.DELETE_STEP_EXECUTIONS);
-		this.deleteStepExecutionContexts = getQuery(MetadataSql.DELETE_STEP_EXECUTION_CONTEXTS);
+		this.selectMaxJobInstanceId = getQuery(MetadataSql.SELECT_MAX_JOB_INSTANCE_ID, tablePrefix);
+		this.selectMinJobInstanceId = getQuery(MetadataSql.SELECT_MIN_JOB_INSTANCE_ID, tablePrefix);
+		this.deleteJobInstances = getQuery(MetadataSql.DELETE_JOB_INSTANCES, tablePrefix);
+		this.deleteJobExecutions = getQuery(MetadataSql.DELETE_JOB_EXECUTIONS, tablePrefix);
+		this.deleteJobExecutionParams = getQuery(MetadataSql.DELETE_JOB_EXECUTION_PARAMS, tablePrefix);
+		this.deleteJobExecutionContexts = getQuery(MetadataSql.DELETE_JOB_EXECUTION_CONTEXTS, tablePrefix);
+		this.deleteStepExecutions = getQuery(MetadataSql.DELETE_STEP_EXECUTIONS, tablePrefix);
+		this.deleteStepExecutionContexts = getQuery(MetadataSql.DELETE_STEP_EXECUTION_CONTEXTS, tablePrefix);
 	}
 
 	Optional<Long> selectMaxJobInstanceIdLessThanCreateTime(LocalDate createTime) {
-		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
-		return Optional.ofNullable(jdbcTemplate.queryForObject(selectMaxJobInstanceId, Long.class, createTime));
+		return Optional.ofNullable(jdbcOperations.queryForObject(selectMaxJobInstanceId, Long.class, createTime));
 	}
 
 	Optional<Long> selectMinJobInstanceId() {
-		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
-		return Optional.ofNullable(jdbcTemplate.queryForObject(selectMinJobInstanceId, Long.class));
+		return Optional.ofNullable(jdbcOperations.queryForObject(selectMinJobInstanceId, Long.class));
 	}
 
 	int deleteJobInstancesByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
-		return jdbcTemplate.update(deleteJobInstances, lowJobInstanceId, highJobInstanceId);
+		return jdbcOperations.update(deleteJobInstances, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteJobExecutionsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
-		return jdbcTemplate.update(deleteJobExecutions, lowJobInstanceId, highJobInstanceId);
+		return jdbcOperations.update(deleteJobExecutions, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteJobExecutionParamsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
-		return jdbcTemplate.update(deleteJobExecutionParams, lowJobInstanceId, highJobInstanceId);
+		return jdbcOperations.update(deleteJobExecutionParams, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteJobExecutionContextsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
-		return jdbcTemplate.update(deleteJobExecutionContexts, lowJobInstanceId, highJobInstanceId);
+		return jdbcOperations.update(deleteJobExecutionContexts, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteStepExecutionsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
-		return jdbcTemplate.update(deleteStepExecutions, lowJobInstanceId, highJobInstanceId);
+		return jdbcOperations.update(deleteStepExecutions, lowJobInstanceId, highJobInstanceId);
 	}
 
 	int deleteStepExecutionContextsByJobInstanceIdRange(long lowJobInstanceId, long highJobInstanceId) {
-		JdbcOperations jdbcTemplate = Objects.requireNonNull(getJdbcTemplate(), "JdbcOperations must not be null");
-		return jdbcTemplate.update(deleteStepExecutionContexts, lowJobInstanceId, highJobInstanceId);
+		return jdbcOperations.update(deleteStepExecutionContexts, lowJobInstanceId, highJobInstanceId);
+	}
+
+	private String getQuery(String sql, String tablePrefix) {
+		return sql.replace(TABLE_PREFIX_PLACEHOLDER, tablePrefix);
 	}
 }
