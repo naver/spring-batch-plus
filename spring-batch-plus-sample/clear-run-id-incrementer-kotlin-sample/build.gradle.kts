@@ -32,14 +32,17 @@ tasks.named<Test>("test") {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.9")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.2.0-RC1") {
+            // keep the kotlin gradle plugin version, otherwise the boot bom also applies to the kotlin compiler and ktlint classpaths
+            bomProperty("kotlin.version", "2.2.21")
+        }
     }
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-batch-jdbc")
     implementation(project(":spring-boot-starter-batch-plus-kotlin"))
-    runtimeOnly("com.h2database:h2:2.4.240")
+    runtimeOnly("com.h2database:h2:2.5.252")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
