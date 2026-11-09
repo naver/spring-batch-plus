@@ -46,9 +46,7 @@ open class TestJobConfig(
                             }
                         }
                         partitionHandler(
-                            TaskExecutorPartitionHandler().apply {
-                                setTaskExecutor(SimpleAsyncTaskExecutor())
-                                step = actualStep()
+                            TaskExecutorPartitionHandler(actualStep(), SimpleAsyncTaskExecutor()).apply {
                                 gridSize = 4
                             },
                         )

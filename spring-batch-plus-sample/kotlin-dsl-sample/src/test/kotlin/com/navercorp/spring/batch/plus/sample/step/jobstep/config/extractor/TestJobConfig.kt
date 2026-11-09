@@ -64,7 +64,7 @@ open class TestJobConfig(
                 step("anotherJobStep") {
                     tasklet(
                         { contribution, _ ->
-                            println("extra: '${contribution.stepExecution.jobParameters.getString("extra")}'")
+                            println("extra: '${contribution.stepExecution.jobExecution.jobParameters.getString("extra")}'")
                             RepeatStatus.FINISHED
                         },
                         transactionManager,
