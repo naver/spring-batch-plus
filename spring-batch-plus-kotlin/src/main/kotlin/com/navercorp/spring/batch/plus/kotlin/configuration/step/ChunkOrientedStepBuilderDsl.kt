@@ -182,7 +182,7 @@ class ChunkOrientedStepBuilderDsl<I : Any, O : Any> internal constructor(
     /**
      * Set for [ChunkOrientedStepBuilder.processorNonTransactional][org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder.processorNonTransactional].
      *
-     * @since 2.1.0
+     * @since 2.0.1
      */
     fun processorNonTransactional() {
         this.lazyConfigurer.add {
