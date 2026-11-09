@@ -17,6 +17,7 @@
   - [Set a StepInterruptionPolicy](#set-a-stepinterruptionpolicy)
   - [Set an ObservationRegistry](#set-an-observationregistry)
 - [Set faultTolerant](#set-faulttolerant)
+  - [Set processorNonTransactional](#set-processornontransactional)
   - [Set a SkipListener using annotations](#set-a-skiplistener-using-annotations)
   - [Set a SkipListener](#set-a-skiplistener)
   - [Set a RetryListener](#set-a-retrylistener)
@@ -1259,6 +1260,67 @@ open class TestJobConfig(
 ## Set faultTolerant
 
 A chunk-oriented step lets you define an action to run when it fails. The Kotlin DSL helps you do the same.
+
+### Set processorNonTransactional
+
+You can set `processorNonTransactional` to reuse the cached results of the `ItemProcessor` during chunk scanning instead of re-invoking it. Set it only if the processor output is safe to write again after a failed, rolled back write.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant()
+                        processorNonTransactional()
+                        skip<IllegalStateException>()
+                        skipLimit(1L)
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> {
+        return object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? {
+                if (count < 11) {
+                    return count++
+                } else {
+                    return null
+                }
+            }
+        }
+    }
+
+    @Bean
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            println("process $item")
+            item.toString()
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            if (items.items.contains("4")) {
+                throw IllegalStateException("Error")
+            }
+
+            println("write $items")
+        }
+}
+```
 
 ### Set a SkipListener using annotations
 
