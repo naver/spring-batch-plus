@@ -119,7 +119,7 @@ class DeleteMetadataTasklet implements Tasklet, StepExecutionListener {
 	}
 
 	protected boolean getDryRunParameter(StepExecution stepExecution) {
-		JobParameters jobParameters = stepExecution.getJobParameters();
+		JobParameters jobParameters = stepExecution.getJobExecution().getJobParameters();
 		return Optional.ofNullable(jobParameters.getString(this.dryRunParameterName))
 			.map(Boolean::parseBoolean)
 			.orElse(false);
