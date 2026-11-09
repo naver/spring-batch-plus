@@ -251,6 +251,21 @@ internal class ChunkOrientedStepBuilderDslTest {
     }
 
     @Test
+    fun processorNonTransactionalShouldConfigureChunkOrientedStepBuilderWhenInvoked() {
+        // given
+        val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)
+
+        // when
+        ChunkOrientedStepBuilderDsl(mockk(), chunkOrientedStepBuilder)
+            .apply {
+                processorNonTransactional()
+            }.build()
+
+        // then
+        verify(exactly = 1) { chunkOrientedStepBuilder.processorNonTransactional() }
+    }
+
+    @Test
     fun retryPolicyShouldConfigureChunkOrientedStepBuilderWhenPolicyIsProvided() {
         // given
         val chunkOrientedStepBuilder = mockk<ChunkOrientedStepBuilder<Int, Int>>(relaxed = true)

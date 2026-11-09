@@ -180,6 +180,17 @@ class ChunkOrientedStepBuilderDsl<I : Any, O : Any> internal constructor(
     }
 
     /**
+     * Set for [ChunkOrientedStepBuilder.processorNonTransactional][org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder.processorNonTransactional].
+     *
+     * @since 2.1.0
+     */
+    fun processorNonTransactional() {
+        this.lazyConfigurer.add {
+            it.processorNonTransactional()
+        }
+    }
+
+    /**
      * Set for [ChunkOrientedStepBuilder.retryPolicy][org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder.retryPolicy].
      */
     fun retryPolicy(policy: RetryPolicy) {

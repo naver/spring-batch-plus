@@ -17,6 +17,7 @@
   - [StepInterruptionPolicy 설정하기](#stepinterruptionpolicy-설정하기)
   - [ObservationRegistry 설정하기](#observationregistry-설정하기)
 - [FaultTolerant 설정하기](#faulttolerant-설정하기)
+  - [ProcessorNonTransactional 설정하기](#processornontransactional-설정하기)
   - [Annotation을 사용해서 SkipListener 설정하기](#annotation을-사용해서-skiplistener-설정하기)
   - [SkipListener 설정하기](#skiplistener-설정하기)
   - [RetryListener 설정하기](#retrylistener-설정하기)
@@ -1259,6 +1260,67 @@ open class TestJobConfig(
 ## FaultTolerant 설정하기
 
 Chunk-Oriented Step은 실패했을때의 동작을 정의할 수 있습니다. Kotlin DSL에서도 동일한 기능을 제공합니다.
+
+### ProcessorNonTransactional 설정하기
+
+`processorNonTransactional`을 설정하면 Chunk Scan 중에 `ItemProcessor`를 다시 호출하지 않고 캐시된 처리 결과를 재사용할 수 있습니다. 롤백된 Write 이후에 Processor 결과를 다시 써도 안전한 경우에만 설정하세요.
+
+```kotlin
+@Configuration
+open class TestJobConfig(
+    private val batch: BatchDsl,
+) {
+    @Bean
+    open fun testJob(): Job =
+        batch {
+            job("testJob") {
+                step("testStep") {
+                    chunk<Int, String>(3) {
+                        reader(testItemReader())
+                        processor(testItemProcessor())
+                        writer(testItemWriter())
+                        faultTolerant()
+                        processorNonTransactional()
+                        skip<IllegalStateException>()
+                        skipLimit(1L)
+                    }
+                }
+            }
+        }
+
+    @Bean
+    open fun testItemReader(): ItemReader<Int> {
+        return object : ItemReader<Int> {
+            private var count = 0
+
+            override fun read(): Int? {
+                if (count < 11) {
+                    return count++
+                } else {
+                    return null
+                }
+            }
+        }
+    }
+
+    @Bean
+    open fun testItemProcessor(): ItemProcessor<Int, String> =
+        ItemProcessor<Int, String> { item ->
+            println("process $item")
+            item.toString()
+        }
+
+    @Bean
+    open fun testItemWriter(): ItemWriter<String> =
+        ItemWriter { items ->
+            if (items.items.contains("4")) {
+                throw IllegalStateException("Error")
+            }
+
+            println("write $items")
+        }
+}
+```
 
 ### Annotation을 사용해서 SkipListener 설정하기
 
