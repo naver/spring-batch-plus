@@ -1,6 +1,7 @@
 # ChangeLog
 
 - [2.0.x](#20x)
+  - [2.0.1](#201)
   - [2.0.0](#200)
 - [1.2.x](#12x)
   - [1.2.0](#120)
@@ -18,6 +19,20 @@
   - [0.1.0](#010)
 
 ## 2.0.x
+
+### 2.0.1
+
+#### New Features
+
+- Add `ChunkOrientedStepBuilderDsl.processorNonTransactional` (requires Spring Batch 6.0.6 or higher)
+
+#### Changes
+
+- None
+
+#### Bug fixes & Improvements
+
+- None
 
 ### 2.0.0
 

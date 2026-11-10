@@ -112,7 +112,7 @@ We've tested following versions only. Other versions may not work.
 
 | Batch Plus (Latest) | Batch | Boot Starter  | Kotlin        | Java          | Status     | Samples                                                                                    |
 |---------------------|-------|---------------|---------------|---------------|------------|--------------------------------------------------------------------------------------------|
-| 2.0.x (2.0.0)       | 6.0.x | 4.0.x ~ 4.1.x | 2.2 or higher | 17 or higher  | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/main/spring-batch-plus-sample)   |
+| 2.0.x (2.0.1)       | 6.0.x | 4.0.x ~ 4.1.x | 2.2 or higher | 17 or higher  | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/2.0.x/spring-batch-plus-sample)  |
 | 1.2.x (1.2.0)       | 5.2.x | 3.4.x ~ 3.5.x | 1.6 or higher | 17 or higher  | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/1.2.x/spring-batch-plus-sample)  |
 | 1.1.x (1.1.0)       | 5.1.x | 3.2.x ~ 3.3.x | 1.5 or higher | 17 or higher  | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/1.1.x/spring-batch-plus-sample)  |
 | 1.0.x (1.0.1)       | 5.0.x | 3.0.x ~ 3.1.x | 1.5 or higher | 17 or higher  | Maintained | [Samples](https://github.com/naver/spring-batch-plus/tree/1.0.x/spring-batch-plus-sample)  |
