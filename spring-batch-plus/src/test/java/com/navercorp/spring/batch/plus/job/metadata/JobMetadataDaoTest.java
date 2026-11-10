@@ -76,7 +76,7 @@ class JobMetadataDaoTest {
 
 		Optional<Long> actual = dao.selectMaxJobInstanceIdLessThanCreateTime(LocalDate.of(2022, 3, 15));
 
-		assertThat(actual).hasValue(execution2.getJobInstanceId());
+		assertThat(actual).hasValue(execution2.getJobInstance().getId());
 	}
 
 	@Test
@@ -146,8 +146,8 @@ class JobMetadataDaoTest {
 		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
 		JobExecution execution3 = createJobExecution(jobRepository, "testJob3", buildJobParams());
 		createJobExecution(jobRepository, "testJob4", buildJobParams());
-		long lowJobInstanceId = execution2.getJobInstanceId();
-		long highJobInstanceId = execution3.getJobInstanceId();
+		long lowJobInstanceId = execution2.getJobInstance().getId();
+		long highJobInstanceId = execution3.getJobInstance().getId();
 
 		int actual = dao.deleteJobExecutionParamsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 
@@ -164,8 +164,8 @@ class JobMetadataDaoTest {
 		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
 		JobExecution execution3 = createJobExecution(jobRepository, "testJob3", buildJobParams());
 		createJobExecution(jobRepository, "testJob4", buildJobParams());
-		long lowJobInstanceId = execution2.getJobInstanceId();
-		long highJobInstanceId = execution3.getJobInstanceId();
+		long lowJobInstanceId = execution2.getJobInstance().getId();
+		long highJobInstanceId = execution3.getJobInstance().getId();
 
 		int actual = dao.deleteJobExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 
@@ -182,8 +182,8 @@ class JobMetadataDaoTest {
 		JobExecution execution2 = createJobExecution(jobRepository, "testJob2", buildJobParams());
 		JobExecution execution3 = createJobExecution(jobRepository, "testJob3", buildJobParams());
 		createJobExecution(jobRepository, "testJob4", buildJobParams());
-		long lowJobInstanceId = execution2.getJobInstanceId();
-		long highJobInstanceId = execution3.getJobInstanceId();
+		long lowJobInstanceId = execution2.getJobInstance().getId();
+		long highJobInstanceId = execution3.getJobInstance().getId();
 		dao.deleteJobExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 		dao.deleteJobExecutionParamsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 
@@ -207,8 +207,8 @@ class JobMetadataDaoTest {
 		jobRepository.createStepExecution("testStep4", jobExecution3);
 		JobExecution jobExecution4 = createJobExecution(jobRepository, "testJob4", buildJobParams());
 		jobRepository.createStepExecution("testStep5", jobExecution4);
-		long lowJobInstanceId = jobExecution2.getJobInstanceId();
-		long highJobInstanceId = jobExecution3.getJobInstanceId();
+		long lowJobInstanceId = jobExecution2.getJobInstance().getId();
+		long highJobInstanceId = jobExecution3.getJobInstance().getId();
 
 		int actual = dao.deleteStepExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 
@@ -230,8 +230,8 @@ class JobMetadataDaoTest {
 		jobRepository.createStepExecution("testStep4", jobExecution3);
 		JobExecution jobExecution4 = createJobExecution(jobRepository, "testJob4", buildJobParams());
 		jobRepository.createStepExecution("testStep5", jobExecution4);
-		long lowJobInstanceId = jobExecution2.getJobInstanceId();
-		long highJobInstanceId = jobExecution3.getJobInstanceId();
+		long lowJobInstanceId = jobExecution2.getJobInstance().getId();
+		long highJobInstanceId = jobExecution3.getJobInstance().getId();
 		dao.deleteStepExecutionContextsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
 
 		int actual = dao.deleteStepExecutionsByJobInstanceIdRange(lowJobInstanceId, highJobInstanceId);
