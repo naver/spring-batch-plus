@@ -152,6 +152,9 @@ class ChunkOrientedStepBuilderDsl<I : Any, O : Any> internal constructor(
      * - [org.springframework.batch.core.annotation.BeforeWrite]
      * - [org.springframework.batch.core.annotation.AfterWrite]
      * - [org.springframework.batch.core.annotation.OnWriteError]
+     * - [org.springframework.batch.core.annotation.OnSkipInRead]
+     * - [org.springframework.batch.core.annotation.OnSkipInProcess]
+     * - [org.springframework.batch.core.annotation.OnSkipInWrite]
      */
     fun listener(listener: Any) {
         this.lazyConfigurer.add {
