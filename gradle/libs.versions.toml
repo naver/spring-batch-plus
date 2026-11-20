@@ -1,15 +1,15 @@
 [versions]
-spring-boot = "4.2.0-RC1"
-spring-batch = "6.1.0-RC1"
+spring-boot = "4.2.0"
+spring-batch = "6.1.0"
 # spring-jdbc version should follow minor version described in 'spring-framework.version'
 # https://github.com/spring-projects/spring-batch/blob/main/pom.xml
-spring-jdbc = "7.1.0-RC1"
+spring-jdbc = "7.1.0"
 # spring-data-mongodb / mongodb-driver versions should follow what 'spring-batch.version' pins
 # https://github.com/spring-projects/spring-batch/blob/main/pom.xml
-spring-data-mongodb = "5.2.0-RC1"
+spring-data-mongodb = "5.2.0"
 mongodb-driver = "5.13.0"
 slf4j = "2.0.20"
-reactor-core = "3.9.0-RC1"
+reactor-core = "3.9.0"
 findbugs-jsr305 = "3.0.2"
 jspecify = "1.0.1"
 

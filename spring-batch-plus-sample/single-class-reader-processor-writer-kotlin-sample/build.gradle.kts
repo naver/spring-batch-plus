@@ -32,7 +32,7 @@ tasks.named<Test>("test") {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:4.2.0-RC1") {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.2.0") {
             // keep the kotlin gradle plugin version, otherwise the boot bom also applies to the kotlin compiler and ktlint classpaths
             bomProperty("kotlin.version", "2.2.21")
         }
