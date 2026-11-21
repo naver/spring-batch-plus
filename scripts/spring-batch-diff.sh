@@ -2,7 +2,8 @@
 set -euo pipefail
 
 UPSTREAM_URL="https://github.com/spring-projects/spring-batch.git"
-DEFAULT_CACHE_DIR="${TMPDIR:-/tmp}/spring-batch-upstream"
+CACHE_ROOT="${TMPDIR:-/tmp}/spring-batch-upstream"
+DEFAULT_CACHE_DIR="${CACHE_ROOT}/$(date +%Y-%m-%d)"
 
 # Color support
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
@@ -143,6 +144,19 @@ fi
 
 # Clone or update bare repository
 repo_dir="${cache_dir}/spring-batch.git"
+
+# The default cache is keyed by date: drop caches from previous days.
+if [ "${cache_dir}" = "${DEFAULT_CACHE_DIR}" ] && [ -d "${CACHE_ROOT}" ]; then
+    find "${CACHE_ROOT}" -mindepth 1 -maxdepth 1 -type d \
+        -name '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' ! -path "${cache_dir}" \
+        -exec rm -rf {} +
+fi
+
+# A clone interrupted half-way leaves a directory git cannot use.
+if [ -d "${repo_dir}" ] && ! git -C "${repo_dir}" rev-parse --git-dir >/dev/null 2>&1; then
+    info "Removing broken cached repository..."
+    rm -rf "${repo_dir}"
+fi
 
 if [ -d "${repo_dir}" ]; then
     info "Updating cached repository..."
