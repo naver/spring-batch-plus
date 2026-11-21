@@ -34,7 +34,7 @@ dependencyManagement {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-batch-jdbc")
     implementation(project(":spring-boot-starter-batch-plus"))
-    implementation("io.projectreactor:reactor-core:3.8.7")
+    implementation("io.projectreactor:reactor-core:3.9.0")
     runtimeOnly("com.h2database:h2:2.5.252")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
