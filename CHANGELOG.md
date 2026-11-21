@@ -1,5 +1,7 @@
 # ChangeLog
 
+- [2.1.x](#21x)
+  - [2.1.0](#210)
 - [2.0.x](#20x)
   - [2.0.1](#201)
   - [2.0.0](#200)
@@ -17,6 +19,25 @@
   - [0.2.0](#020)
 - [0.1.x](#01x)
   - [0.1.0](#010)
+
+## 2.1.x
+
+### 2.1.0
+
+Support for Spring Batch 6.1.x
+
+#### New Features
+
+- None
+
+#### Changes
+
+- Bump up Spring Batch to 6.1.x and Spring Boot to 4.2.x
+
+#### Bug fixes & Improvements
+
+- Replace APIs deprecated in Spring Batch 6.1
+- Document `@OnSkipInRead`, `@OnSkipInProcess`, `@OnSkipInWrite` support in `ChunkOrientedStepBuilderDsl.listener`
 
 ## 2.0.x
 

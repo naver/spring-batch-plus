@@ -23,9 +23,12 @@
     - List the staging repositories. `profile_id` is the namespace in [central portal](https://central.sonatype.com/publishing/namespaces), not the groupId. `ip=any` is required since the files were uploaded from the CI runner.
         ```sh
         curl -H "Authorization: Bearer ${MAVEN_AUTH_TOKEN}" \
-            "https://ossrh-staging-api.central.sonatype.com/manual/search/repositories?ip=any&profile_id=com.navercorp"
+            "https://ossrh-staging-api.central.sonatype.com/manual/search/repositories?ip=any&profile_id=com.navercorp" | jq
         ```
-    - Make sure there is exactly one repository. Each one becomes a separate deployment, so handing over only one of many releases a partial artifact set. Drop a stale one by `DELETE /manual/drop/repository/<repository key>`.
+    - `jq` formats the json response. It is preinstalled on macOS 15 or higher. Use `python3 -m json.tool` instead if it is not available.
+    - Make sure there is exactly one repository whose `state` is `open` and `portal_deployment_id` is `null`. That is the one uploaded by the deploy action. A `closed` one with a `portal_deployment_id` was already handed over before, so leave it.
+    - Each open one becomes a separate deployment, so handing over only one of many releases a partial artifact set. Drop a stale open one by `DELETE /manual/drop/repository/<repository key>`.
+    - Check `warnings` too. It reports issues such as the organization reaching its monthly publishing limit.
     - Hand it over with its key.
         ```sh
         curl -X POST -H "Authorization: Bearer ${MAVEN_AUTH_TOKEN}" \
